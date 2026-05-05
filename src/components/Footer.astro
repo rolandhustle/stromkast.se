@@ -1,0 +1,71 @@
+---
+const currentYear = new Date().getFullYear();
+
+const orgSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Strömkast',
+  url: 'https://stromkast.se',
+  description: 'Sveriges modernaste fiskeguide. Destinationsguider, utrustningsrecensioner och levande förhållanden.',
+};
+---
+
+<footer class="bg-deep text-white/80 mt-24">
+  <div class="max-w-[1280px] mx-auto px-4 sm:px-6 py-16">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+      <div class="col-span-2 md:col-span-1">
+        <a href="/" class="inline-flex items-center gap-2 text-white font-display font-bold text-lg mb-3">
+          <svg width="24" height="24" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <path d="M14 2C14 2 4 10 4 18C4 23.5 8.5 27 14 27C19.5 27 24 23.5 24 18C24 10 14 2 14 2Z" fill="currentColor"/>
+          </svg>
+          Strömkast
+        </a>
+        <p class="text-sm text-white/60 leading-relaxed max-w-xs">
+          Sveriges modernaste guide till sportfiske. Utformad av fiskare, för fiskare.
+        </p>
+      </div>
+
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 uppercase tracking-wider">Destinationer</h3>
+        <ul class="space-y-2 text-sm">
+          <li><a href="/destinationer/vanern/" class="hover:text-white transition-colors">Vänern</a></li>
+          <li><a href="/destinationer/vattern/" class="hover:text-white transition-colors">Vättern</a></li>
+          <li><a href="/destinationer/malaren/" class="hover:text-white transition-colors">Mälaren</a></li>
+          <li><a href="/destinationer/morrum/" class="hover:text-white transition-colors">Mörrum</a></li>
+          <li><a href="/destinationer/" class="hover:text-white transition-colors text-sky">Alla destinationer</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 uppercase tracking-wider">Utrustning</h3>
+        <ul class="space-y-2 text-sm">
+          <li><a href="/utrustning/gaddspon/" class="hover:text-white transition-colors">Gäddspön</a></li>
+          <li><a href="/utrustning/ekolod/" class="hover:text-white transition-colors">Ekolod</a></li>
+          <li><a href="/spovaljaren/" class="hover:text-white transition-colors text-copper">Ta spövaljarquiz</a></li>
+          <li><a href="/utrustning/" class="hover:text-white transition-colors text-sky">Allt i utrustning</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="text-white font-semibold text-sm mb-4 uppercase tracking-wider">Om Strömkast</h3>
+        <ul class="space-y-2 text-sm">
+          <li><a href="/om/" class="hover:text-white transition-colors">Om oss</a></li>
+          <li><a href="/nyhetsbrev/" class="hover:text-white transition-colors">Nyhetsbrev</a></li>
+          <li><a href="/guider/" class="hover:text-white transition-colors">Guider</a></li>
+          <li><a href="/rss.xml" class="hover:text-white transition-colors">RSS</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="border-t border-white/10 pt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <p class="text-xs text-white/40">
+        &copy; {currentYear} Strömkast. Alla rättigheter förbehållna.
+      </p>
+      <p class="text-xs text-white/40 max-w-md">
+        <strong class="text-white/60">Affiliateinfo:</strong> Strömkast innehåller affiliatelänkar. Om du köper via våra länkar får vi en liten provision utan kostnad för dig. Det påverkar aldrig vår redaktionella bedömning.
+      </p>
+    </div>
+  </div>
+
+  <script type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
+</footer>

@@ -1,0 +1,16 @@
+{
+  "title": "Vänern",
+  "slug": "vanern",
+  "description": "Sveriges och Europas tredje största insjö med exceptionellt gädd- och abborrfiske.",
+  "heroImage": "/images/destinations/vanern.jpg",
+  "lat": 58.9,
+  "lng": 13.5,
+  "län": "Västra Götaland",
+  "primarySpecies": ["gädda", "abborre", "gös", "lax"],
+  "waterType": "lake",
+  "iFiskeUrl": "https://ifiske.se/fiske/vanern.htm",
+  "recommendedGear": ["gaddspon-berkley-maxfire", "ekolod-garmin-striker", "abborre-jigg-set"],
+  "content": "Vänern är inte bara Sveriges största sjö — den är en av Europas finaste fiskevatten. Med sina 5 650 kvadratkilometer erbjuder sjön en mångfald av habitat som lockar allt från sportfiskare som jagar storvuxen gädda längs vassbälten till laxfiskare som arbetar de djupare passagerna. Längs sjöns västra kant, vid Värmlandsnäs och ut mot Kållandsö, hittar du klassisk gäddmark: flacka vikar med tät vegetation, botten täckt av sten och grus, och vatten som svalknar sent på hösten. Det är här den stora gäddan håller till. Abborrfisket är minst lika imponerande. Sommartid hittar du stim av abborre på 300–500 gram i de grunda vikarna, men det är höst och tidigt vår som lockar de riktigt storabborrjägarna. En abborre på över kiloet är inte ovanligt i rätt lägen. Gösfisket har tagit fart de senaste åren — arten har brett ut sig och etablerat starka bestånd i sjöns södra delar. Fiska med jigg längs kanter och strukturer i skymning och gryning för bästa resultat. Laxen i Vänern är en vild fisk med en historia som sträcker sig tillbaka till istidens slut. Fisket är noggrant reglerat, och varje lax är en upplevelse utöver det vanliga. Kontrollera alltid aktuella regler på Länsstyrelsens webbplats innan du ger dig ut.",
+  "publishedAt": "2025-03-15",
+  "updatedAt": "2026-01-10"
+}

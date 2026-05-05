@@ -1,0 +1,97 @@
+---
+interface Props {
+  title: string;
+  brand: string;
+  price: number;
+  rating: number;
+  description: string;
+  image: string;
+  affiliateUrl: string;
+  merchant: string;
+  featured?: boolean;
+  budgetPick?: boolean;
+}
+
+const { title, brand, price, rating, description, image, affiliateUrl, merchant, featured = false, budgetPick = false } = Astro.props;
+
+const stars = Math.round(rating);
+const priceFormatted = new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK', maximumFractionDigits: 0 }).format(price);
+---
+
+<article class={`relative bg-white rounded-2xl overflow-hidden border ${featured ? 'border-rust shadow-lg shadow-rust/10' : 'border-mist'} transition-shadow hover:shadow-md`}>
+  {featured && (
+    <div class="absolute top-3 left-3 z-10 bg-rust text-white text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wide">
+      Bästa val
+    </div>
+  )}
+  {budgetPick && !featured && (
+    <div class="absolute top-3 left-3 z-10 bg-copper text-white text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wide">
+      Bästa budget
+    </div>
+  )}
+
+  <div class="aspect-[4/3] bg-mist overflow-hidden">
+    <img
+      src={image}
+      alt={title}
+      loading="lazy"
+      decoding="async"
+      class="w-full h-full object-cover"
+      onerror="this.src='/images/placeholder-gear.jpg'"
+    />
+  </div>
+
+  <div class="p-4">
+    <p class="text-xs text-stone uppercase tracking-wider mb-1">{brand}</p>
+    <h3 class="font-display font-semibold text-deep text-lg leading-snug mb-2">{title}</h3>
+
+    <div class="flex items-center gap-1 mb-3" role="img" aria-label={`Betyg ${rating} av 5`}>
+      {Array.from({ length: 5 }).map((_, i) => (
+        <svg width="14" height="14" viewBox="0 0 14 14" fill={i < stars ? '#B45D3C' : '#E8E4DC'} aria-hidden="true">
+          <path d="M7 1l1.5 3.5L12 5l-2.5 2.5.5 3.5L7 9.5 4 11l.5-3.5L2 5l3.5-.5L7 1z"/>
+        </svg>
+      ))}
+      <span class="text-xs text-stone ml-1">{rating}</span>
+    </div>
+
+    <p class="text-sm text-stone leading-relaxed mb-4">{description}</p>
+
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-xl font-bold text-deep">{priceFormatted}</p>
+        <p class="text-xs text-stone">{merchant}</p>
+      </div>
+      <a
+        href={affiliateUrl || '#'}
+        target="_blank"
+        rel="noopener noreferrer sponsored"
+        class="inline-flex items-center gap-1.5 bg-pine text-white text-sm font-semibold px-4 py-2.5 rounded-full hover:bg-deep transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
+        data-affiliate-merchant={merchant}
+        data-affiliate-product={title}
+      >
+        Se pris
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+          <path d="M2 10L10 2M10 2H4M10 2v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+
+    <p class="text-xs text-stone/60 mt-3">*Affiliatelänk. Vi tjänar en provision utan kostnad för dig.</p>
+  </div>
+</article>
+
+<script>
+  document.querySelectorAll('[data-affiliate-merchant]').forEach(el => {
+    el.addEventListener('click', () => {
+      if (typeof window !== 'undefined' && (window as { dataLayer?: unknown[] }).dataLayer) {
+        (window as { dataLayer: unknown[] }).dataLayer.push({
+          event: 'affiliate_click',
+          merchant: (el as HTMLElement).dataset.affiliateMerchant,
+          product_id: (el as HTMLElement).dataset.affiliateProduct,
+          position: 0,
+          page_type: document.body.dataset.pageType ?? 'unknown',
+        });
+      }
+    });
+  });
+</script>

@@ -1,0 +1,16 @@
+{
+  "title": "Mörrum",
+  "slug": "morrum",
+  "description": "Världsberömd lax- och havsöringälv i Blekinge — Skandinaviens mest ikoniska sportfiskevatten.",
+  "heroImage": "/images/destinations/morrum.jpg",
+  "lat": 56.2,
+  "lng": 14.75,
+  "län": "Blekinge",
+  "primarySpecies": ["lax", "havsöring"],
+  "waterType": "river",
+  "iFiskeUrl": "https://ifiske.se/fiske/morrum.htm",
+  "recommendedGear": ["flugfiske-set-orvis", "tvahands-flugspö", "lax-flugor"],
+  "content": "Det finns älvar och det finns Mörrum. Den lilla ån i Blekinge har under ett sekel byggt upp ett rykte som Skandinaviens mest ikoniska laxälv — ett rykte som är välförtjänt. Fisket på Mörrum administreras av Sveaskog och är noggrant reglerat, vilket har resulterat i ett bestånd av atlantlax och havsöring som håller världsklass. Laxsäsongen på Mörrum inleds i april och håller igång till oktober. Det är flugfiskets heliga mark, och reglerna är stränga: fluga och wading, inget annat. Älvens smala, klara vatten kräver precision i både kastning och presentation. En lax på Mörrum hugg sig inte av misstag — den väljer din fluga efter noggrant övervägande, och presentationen måste vara fläckfri. Havsöringen som vandrar upp i Mörrum är stora, silvriga fiskar direkta från Östersjön. De är starka, snabba och kapriciösa. En havsöring på sex kilo som tar dig mot strömmen i Mörrums forsarna är en upplevelse man inte glömmer. Sportfiskecentrum vid Mörrum erbjuder guidade turer, utrustningshyra och kursverksamhet för nybörjare och avancerade fiskare. Priset för ett dagskort är högt — men i relation till fiskeupplevelsen är det svårt att hitta ett bättre värde i Skandinavien.",
+  "publishedAt": "2025-03-01",
+  "updatedAt": "2026-01-05"
+}

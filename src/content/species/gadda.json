@@ -1,0 +1,9 @@
+{
+  "title": "Gädda",
+  "slug": "gadda",
+  "description": "Den stora rovfisken i svenska insjöar. Gäddan är ett av Sveriges mest eftertraktade sportfiskemål.",
+  "heroImage": "/images/species/gadda.jpg",
+  "season": "April–Oktober (bäst i maj och september)",
+  "techniques": ["jiggfiske", "kastfiske med plugg", "fluefiske"],
+  "gearRecs": ["gaddspon-berkley-maxfire", "gaddwire", "softbait-gaddset"]
+}

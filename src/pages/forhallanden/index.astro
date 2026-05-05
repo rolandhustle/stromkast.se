@@ -1,0 +1,93 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const regions = [
+  {
+    name: 'Norra Sverige',
+    areas: ['Lappland', 'Jämtland', 'Ångermanland'],
+    status: 'low',
+    label: 'Lugnt',
+    temp: '8°C',
+    wind: 'NO 3 m/s',
+    note: 'Senhöst. Harrfisket aktivt i fjällåarna.',
+  },
+  {
+    name: 'Mellansverige',
+    areas: ['Dalarna', 'Värmland', 'Mälardalen'],
+    status: 'medium',
+    label: 'Varierat',
+    temp: '12°C',
+    wind: 'V 4 m/s',
+    note: 'Gäddfisket peakar. Abborre aktivt på grunt.',
+  },
+  {
+    name: 'Södra Sverige',
+    areas: ['Skåne', 'Blekinge', 'Småland'],
+    status: 'high',
+    label: 'Aktivt',
+    temp: '15°C',
+    wind: 'S 2 m/s',
+    note: 'Utmärkta förhållanden. Gösaktiviteten hög kvällstid.',
+  },
+];
+
+const statusBg: Record<string, string> = {
+  high: 'bg-green-500',
+  medium: 'bg-amber-400',
+  low: 'bg-stone/40',
+};
+---
+
+<BaseLayout
+  title="Fiskeförhållanden just nu — Sverige"
+  description="Aktuella fiskeförhållanden i Sverige. Vattentemperatur, aktivitetsnivåer och tips för varje region."
+  pageType="conditions"
+>
+  <div class="pt-28 pb-20 px-4 sm:px-6 max-w-[1280px] mx-auto">
+    <div class="mb-12">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" aria-hidden="true"></span>
+        <p class="text-stone text-sm font-medium uppercase tracking-wider">Live data</p>
+      </div>
+      <h1 class="font-display text-4xl sm:text-5xl font-bold text-deep mb-4">Fiskeförhållanden</h1>
+      <p class="text-stone text-lg max-w-2xl leading-relaxed">Dagliga uppdateringar om förhållandena i Sveriges viktigaste fiskevatten. SMHI-integration planeras för nästa version.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+      {regions.map((region) => (
+        <div class="bg-white rounded-2xl p-6 border border-mist">
+          <div class="flex items-center gap-3 mb-4">
+            <div class={`w-3 h-3 rounded-full ${statusBg[region.status]} shrink-0`} aria-hidden="true"></div>
+            <div>
+              <h2 class="font-display font-bold text-deep text-xl">{region.name}</h2>
+              <p class="text-stone text-xs">{region.label}</p>
+            </div>
+          </div>
+
+          <div class="flex gap-4 mb-4 text-sm">
+            <div>
+              <p class="text-stone text-xs uppercase tracking-wider mb-0.5">Vattentemp</p>
+              <p class="font-semibold text-deep">{region.temp}</p>
+            </div>
+            <div>
+              <p class="text-stone text-xs uppercase tracking-wider mb-0.5">Vind</p>
+              <p class="font-semibold text-deep">{region.wind}</p>
+            </div>
+          </div>
+
+          <p class="text-stone text-sm leading-relaxed mb-4">{region.note}</p>
+
+          <div class="flex flex-wrap gap-1.5">
+            {region.areas.map((area) => (
+              <span class="bg-mist text-stone text-xs px-2.5 py-1 rounded-full">{area}</span>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div class="bg-mist rounded-2xl p-6 text-sm text-stone leading-relaxed max-w-2xl">
+      <p><strong class="text-deep">OBS:</strong> Aktuella förhållanden baseras just nu på redaktionell bedömning och säsongsdata. Automatisk integration med SMHI:s öppna API för vattentemperatur och väder är planerat till nästa release. Rapportera felaktigheter via <a href="/om/" class="text-sky underline">kontaktsidan</a>.</p>
+    </div>
+  </div>
+</BaseLayout>

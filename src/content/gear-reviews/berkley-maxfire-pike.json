@@ -1,0 +1,15 @@
+{
+  "title": "Berkley Maxfire Pike 240MH",
+  "slug": "berkley-maxfire-pike",
+  "description": "Kraftfullt gäddspö med exceptionell kastbalans och stark rygg för stora hakar.",
+  "heroImage": "/images/gear/berkley-maxfire-pike.jpg",
+  "brand": "Berkley",
+  "category": "gaddspon",
+  "price": 1199,
+  "rating": 4.5,
+  "pros": ["Utmärkt kastbalans", "Starka ringar", "Bra spörygg", "Prisvärdt"],
+  "cons": ["Lite tung för långa dagar", "Handtaget kan bli halt"],
+  "affiliateUrl": "",
+  "merchant": "Sportfiskeprylar",
+  "featured": true
+}

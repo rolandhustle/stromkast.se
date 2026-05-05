@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const techniques = await getCollection('techniques');
+
+const difficultyLabel: Record<string, string> = {
+  'nybörjare': 'Nybörjare',
+  'mellannivå': 'Mellannivå',
+  'avancerad': 'Avancerad',
+};
+
+const difficultyColor: Record<string, string> = {
+  'nybörjare': 'bg-green-100 text-green-700',
+  'mellannivå': 'bg-amber-100 text-amber-700',
+  'avancerad': 'bg-red-100 text-red-700',
+};
+---
+
+<BaseLayout
+  title="Fisketekniker — Guider för alla nivåer"
+  description="Djupgående guider till de vanligaste fisketeknikerna. Från jiggfiske för nybörjare till flugfiske på elitnivå."
+  pageType="technique-index"
+>
+  <div class="pt-28 pb-20 px-4 sm:px-6 max-w-[1280px] mx-auto">
+    <div class="mb-12">
+      <p class="text-stone text-sm font-medium uppercase tracking-wider mb-3">Teknik</p>
+      <h1 class="font-display text-4xl sm:text-5xl font-bold text-deep mb-4">Fisketekniker</h1>
+      <p class="text-stone text-lg max-w-2xl leading-relaxed">Lär dig de mest effektiva metoderna för svensk sportfiske — med guides skrivna av fiskare som faktiskt behärskar dem.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {techniques.map((tech) => (
+        <a
+          href={`/teknik/${tech.data.slug}/`}
+          class="group bg-white rounded-2xl overflow-hidden border border-mist hover:border-pine/20 hover:shadow-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
+        >
+          <div class="aspect-[16/9] bg-mist overflow-hidden">
+            <div
+              class="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+              style={`background-image: url('${tech.data.heroImage}'); background-color: #E8E4DC;`}
+              role="img"
+              aria-label={tech.data.title}
+            ></div>
+          </div>
+          <div class="p-5">
+            <div class="flex items-center justify-between mb-2">
+              <h2 class="font-display font-bold text-deep text-xl group-hover:text-pine transition-colors">{tech.data.title}</h2>
+              <span class={`text-xs font-medium px-2.5 py-1 rounded-full ${difficultyColor[tech.data.difficulty]}`}>
+                {difficultyLabel[tech.data.difficulty]}
+              </span>
+            </div>
+            <p class="text-stone text-sm leading-relaxed mb-3">{tech.data.description}</p>
+            <div class="flex flex-wrap gap-1.5">
+              {tech.data.targetSpecies.slice(0, 3).map((s: string) => (
+                <span class="bg-mist text-stone text-xs px-2.5 py-1 rounded-full capitalize">{s}</span>
+              ))}
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</BaseLayout>

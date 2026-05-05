@@ -1,0 +1,45 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const categories = await getCollection('gear-categories');
+---
+
+<BaseLayout
+  title="Utrustning & Tester — Hitta rätt fiskeutrustning"
+  description="Oberoende tester och recensioner av fiskeutrustning. Från gäddspön till ekolod — vi hjälper dig välja rätt."
+  pageType="gear-hub"
+>
+  <div class="pt-28 pb-20 px-4 sm:px-6 max-w-[1280px] mx-auto">
+    <div class="mb-12">
+      <p class="text-stone text-sm font-medium uppercase tracking-wider mb-3">Utrustning</p>
+      <h1 class="font-display text-4xl sm:text-5xl font-bold text-deep mb-4">Bästa utrustningen 2026</h1>
+      <p class="text-stone text-lg max-w-2xl leading-relaxed">Testade och rankade produkter inom varje kategori. Inga betalda recensioner. Bara ärliga åsikter från fiskare som använder utrustningen.</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      {categories.map((cat) => (
+        <a
+          href={`/utrustning/${cat.data.slug}/`}
+          class="group bg-white rounded-2xl overflow-hidden border border-mist hover:border-pine/20 hover:shadow-md transition-all p-6 flex gap-5 items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
+        >
+          <div class="w-20 h-20 rounded-xl bg-mist overflow-hidden shrink-0">
+            <div
+              class="w-full h-full bg-cover bg-center"
+              style={`background-image: url('${cat.data.heroImage}'); background-color: #E8E4DC;`}
+              role="img"
+              aria-label={cat.data.title}
+            ></div>
+          </div>
+          <div>
+            <h2 class="font-display font-bold text-deep text-xl mb-1.5 group-hover:text-pine transition-colors">{cat.data.title}</h2>
+            <p class="text-stone text-sm leading-relaxed">{cat.data.description}</p>
+          </div>
+          <svg class="ml-auto shrink-0 text-stone group-hover:text-pine transition-colors" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M5 10h10M11 6l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      ))}
+    </div>
+  </div>
+</BaseLayout>

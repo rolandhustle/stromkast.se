@@ -1,0 +1,43 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const species = await getCollection('species');
+---
+
+<BaseLayout
+  title="Fiskarter i Sverige — Guider och tips"
+  description="Guider till Sveriges vanligaste sportfiskarter. Lär dig om biologi, bästa säsong och rätt teknik."
+  pageType="species-index"
+>
+  <div class="pt-28 pb-20 px-4 sm:px-6 max-w-[1280px] mx-auto">
+    <div class="mb-12">
+      <p class="text-stone text-sm font-medium uppercase tracking-wider mb-3">Fiskarter</p>
+      <h1 class="font-display text-4xl sm:text-5xl font-bold text-deep mb-4">Svenska sportfiskarter</h1>
+      <p class="text-stone text-lg max-w-2xl leading-relaxed">Biologi, bästa säsong, rekommenderade tekniker och utrustning för varje art.</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {species.map((s) => (
+        <a
+          href={`/arter/${s.data.slug}/`}
+          class="group bg-white rounded-2xl overflow-hidden border border-mist hover:border-pine/20 hover:shadow-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
+        >
+          <div class="aspect-[4/3] bg-mist overflow-hidden">
+            <div
+              class="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+              style={`background-image: url('${s.data.heroImage}'); background-color: #E8E4DC;`}
+              role="img"
+              aria-label={s.data.title}
+            ></div>
+          </div>
+          <div class="p-5">
+            <h2 class="font-display font-bold text-deep text-xl mb-2 group-hover:text-pine transition-colors capitalize">{s.data.title}</h2>
+            <p class="text-stone text-sm leading-relaxed line-clamp-2 mb-3">{s.data.description}</p>
+            <p class="text-stone/70 text-xs"><span class="font-medium">Säsong:</span> {s.data.season.split('(')[0]?.trim()}</p>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</BaseLayout>

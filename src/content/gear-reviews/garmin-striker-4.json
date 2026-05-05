@@ -1,0 +1,15 @@
+{
+  "title": "Garmin Striker 4",
+  "slug": "garmin-striker-4",
+  "description": "Det bästa nybörjarekolodet på marknaden — enkelt, pålitligt och prisvärt.",
+  "heroImage": "/images/gear/garmin-striker-4.jpg",
+  "brand": "Garmin",
+  "category": "ekolod",
+  "price": 1299,
+  "rating": 4.4,
+  "pros": ["Enkel installation", "Tydlig display", "Inbyggd GPS", "Bra batteri"],
+  "cons": ["Liten skärm", "Ingen kartfunktion i basversionen"],
+  "affiliateUrl": "",
+  "merchant": "Fisherman's Friend",
+  "featured": true
+}

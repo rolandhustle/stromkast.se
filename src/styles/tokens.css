@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+@theme {
+  --color-deep:   #0E1B22;
+  --color-pine:   #1F3A2E;
+  --color-stone:  #6B7470;
+  --color-mist:   #E8E4DC;
+  --color-paper:  #F7F4EE;
+  --color-rust:   #B45D3C;
+  --color-copper: #D08A5C;
+  --color-sky:    #6E8FA0;
+
+  --font-display: "Fraunces Variable", Georgia, serif;
+  --font-body:    "Inter Variable", system-ui, sans-serif;
+
+  --spacing-base: 8px;
+  --max-w-prose:  72ch;
+  --max-w-layout: 1280px;
+}
+
+:root {
+  --color-deep:   #0E1B22;
+  --color-pine:   #1F3A2E;
+  --color-stone:  #6B7470;
+  --color-mist:   #E8E4DC;
+  --color-paper:  #F7F4EE;
+  --color-rust:   #B45D3C;
+  --color-copper: #D08A5C;
+  --color-sky:    #6E8FA0;
+}
+
+@font-face {
+  font-family: "Fraunces Variable";
+  src: url("/fonts/fraunces-variable.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter Variable";
+  src: url("/fonts/inter-variable.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+html {
+  font-family: "Inter Variable", system-ui, sans-serif;
+  background-color: var(--color-paper);
+  color: var(--color-deep);
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-rust);
+  outline-offset: 3px;
+}

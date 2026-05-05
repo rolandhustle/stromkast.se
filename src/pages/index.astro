@@ -1,0 +1,279 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import NewsletterForm from '../components/NewsletterForm.astro';
+import { getCollection } from 'astro:content';
+
+const articles = (await getCollection('articles')).slice(0, 3);
+
+const featuredDestinations = [
+  { slug: 'vanern', name: 'Vänern', species: 'Gädda, Lax', region: 'Västra Götaland', img: '/images/destinations/vanern.jpg' },
+  { slug: 'vattern', name: 'Vättern', species: 'Öring, Röding', region: 'Östergötland', img: '/images/destinations/vattern.jpg' },
+  { slug: 'morrum', name: 'Mörrum', species: 'Lax, Havsöring', region: 'Blekinge', img: '/images/destinations/morrum.jpg' },
+  { slug: 'storsjon', name: 'Storsjön', species: 'Öring, Harr', region: 'Jämtland', img: '/images/destinations/storsjon.jpg' },
+];
+
+const biteIndicators = [
+  { region: 'Södra Sverige', status: 'good', label: 'Aktivt' },
+  { region: 'Mellansverige', status: 'medium', label: 'Varierat' },
+  { region: 'Norra Sverige', status: 'poor', label: 'Lugnt' },
+];
+
+const statusColors: Record<string, string> = {
+  good: 'bg-green-500',
+  medium: 'bg-amber-400',
+  poor: 'bg-stone/40',
+};
+
+const categoryLabels: Record<string, string> = {
+  destination: 'Destination',
+  teknik: 'Teknik',
+  utrustning: 'Utrustning',
+  guide: 'Guide',
+};
+---
+
+<BaseLayout
+  title="Sveriges modernaste fiskeguide"
+  description="Strömkast är den svenska sportfiskarens guide till destinationer, utrustning och teknik. Hitta rätt plats, rätt spö och rätt metod."
+  pageType="home"
+>
+  <!-- ==============================
+       HERO
+  ============================== -->
+  <section class="relative min-h-[90vh] flex items-end pb-20 overflow-hidden bg-pine">
+    <!-- Background image placeholder -->
+    <div class="absolute inset-0 bg-gradient-to-b from-pine/40 via-pine/30 to-deep/90 z-10"></div>
+    <div
+      class="absolute inset-0 bg-cover bg-center"
+      style="background-image: url('/images/hero-bg.jpg'); background-color: #1F3A2E;"
+      aria-hidden="true"
+    ></div>
+
+    <!-- Decorative water ripple -->
+    <div class="absolute bottom-0 left-0 right-0 h-32 z-10" aria-hidden="true">
+      <svg viewBox="0 0 1440 128" preserveAspectRatio="none" class="w-full h-full fill-paper">
+        <path d="M0,64 C240,128 480,0 720,64 C960,128 1200,0 1440,64 L1440,128 L0,128 Z"/>
+      </svg>
+    </div>
+
+    <div class="relative z-20 max-w-[1280px] mx-auto px-4 sm:px-6 w-full">
+      <div class="max-w-2xl">
+        <!-- Trust badges -->
+        <div class="flex flex-wrap gap-3 mb-8">
+          <span class="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm text-white/90 text-xs font-medium px-3 py-1.5 rounded-full border border-white/20">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M6 1L7.5 4.5L11 5L8.5 7.5L9 11L6 9.5L3 11L3.5 7.5L1 5L4.5 4.5L6 1Z"/></svg>
+            20+ år av erfarenhet
+          </span>
+          <span class="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm text-white/90 text-xs font-medium px-3 py-1.5 rounded-full border border-white/20">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 1v10M1 6h10"/></svg>
+            200+ destinationer testade
+          </span>
+          <span class="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm text-white/90 text-xs font-medium px-3 py-1.5 rounded-full border border-white/20">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="1" y="3" width="10" height="7" rx="1"/><path d="M4 3V2a2 2 0 014 0v1"/></svg>
+            Oberoende recensioner
+          </span>
+        </div>
+
+        <h1 class="font-display text-5xl sm:text-6xl lg:text-7xl font-bold text-white leading-[1.05] tracking-tight mb-6">
+          Sveriges<br/>modernaste<br/>fiskeguide
+        </h1>
+        <p class="text-white/80 text-lg sm:text-xl leading-relaxed mb-10 max-w-xl">
+          Destinationsguider, utrustningstest och levande förhållanden. Byggt av svenska sportfiskare för svenska sportfiskare.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-4">
+          <a
+            href="/spovaljaren/"
+            class="inline-flex items-center justify-center gap-2 bg-rust text-white font-semibold text-base px-8 py-4 rounded-full hover:bg-copper transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          >
+            Ta quiz: hitta rätt spö
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+          <a
+            href="/destinationer/"
+            class="inline-flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm text-white font-semibold text-base px-8 py-4 rounded-full border border-white/30 hover:bg-white/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          >
+            Utforska destinationer
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==============================
+       FEATURED DESTINATIONS
+  ============================== -->
+  <section class="py-20 px-4 sm:px-6 max-w-[1280px] mx-auto">
+    <div class="flex items-end justify-between mb-10">
+      <div>
+        <p class="text-stone text-sm font-medium uppercase tracking-wider mb-2">Destinationer</p>
+        <h2 class="font-display text-3xl sm:text-4xl font-bold text-deep">Fiskevatten i världsklass</h2>
+      </div>
+      <a href="/destinationer/" class="hidden sm:inline-flex items-center gap-1.5 text-sky text-sm font-medium hover:text-pine transition-colors">
+        Alla destinationer
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {featuredDestinations.map((dest) => (
+        <a
+          href={`/destinationer/${dest.slug}/`}
+          class="group relative rounded-2xl overflow-hidden aspect-[3/4] bg-pine block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
+        >
+          <div
+            class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+            style={`background-image: url('${dest.img}'); background-color: #1F3A2E;`}
+            aria-hidden="true"
+          ></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-deep/90 via-transparent to-transparent"></div>
+          <div class="absolute bottom-0 left-0 right-0 p-5">
+            <p class="text-white/70 text-xs font-medium mb-1">{dest.region}</p>
+            <h3 class="font-display text-white text-xl font-bold leading-tight mb-1">{dest.name}</h3>
+            <p class="text-white/60 text-xs">{dest.species}</p>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- ==============================
+       BITE INDICATOR WIDGET
+  ============================== -->
+  <section class="py-12 px-4 sm:px-6 bg-mist/50">
+    <div class="max-w-[1280px] mx-auto">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <p class="text-stone text-sm font-medium uppercase tracking-wider mb-1">Live</p>
+          <h2 class="font-display text-2xl font-bold text-deep">Vad biter just nu?</h2>
+        </div>
+        <a href="/forhallanden/" class="text-sky text-sm font-medium hover:text-pine transition-colors">
+          Fullständig rapport
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {biteIndicators.map(({ region, status, label }) => (
+          <div class="bg-white rounded-2xl p-5 border border-mist flex items-center gap-4">
+            <div class={`w-3 h-3 rounded-full ${statusColors[status]} shrink-0`} aria-hidden="true"></div>
+            <div>
+              <p class="font-semibold text-deep text-sm">{region}</p>
+              <p class="text-stone text-xs mt-0.5">{label}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <p class="text-stone/60 text-xs mt-4 text-right">Uppdateras dagligen. Baseras på rapporter och säsongsdata.</p>
+    </div>
+  </section>
+
+  <!-- ==============================
+       LATEST GUIDES — MAGAZINE LAYOUT
+  ============================== -->
+  <section class="py-20 px-4 sm:px-6 max-w-[1280px] mx-auto">
+    <div class="flex items-end justify-between mb-10">
+      <div>
+        <p class="text-stone text-sm font-medium uppercase tracking-wider mb-2">Guider & Reportage</p>
+        <h2 class="font-display text-3xl sm:text-4xl font-bold text-deep">Senaste från redaktionen</h2>
+      </div>
+      <a href="/guider/" class="hidden sm:inline-flex items-center gap-1.5 text-sky text-sm font-medium hover:text-pine transition-colors">
+        Alla guider
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+
+    {articles.length > 0 ? (
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        {articles[0] && (
+          <a
+            href={`/guider/${articles[0].data.slug}/`}
+            class="lg:col-span-3 group relative rounded-2xl overflow-hidden aspect-[16/9] lg:aspect-auto lg:min-h-[420px] bg-pine block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
+          >
+            <div
+              class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+              style={`background-image: url('${articles[0].data.heroImage}'); background-color: #1F3A2E;`}
+              aria-hidden="true"
+            ></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-deep/95 via-deep/20 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 right-0 p-7">
+              <span class="inline-block bg-rust text-white text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wide mb-3">
+                {categoryLabels[articles[0].data.category]}
+              </span>
+              <h3 class="font-display text-white text-2xl sm:text-3xl font-bold leading-snug mb-2 group-hover:text-copper transition-colors">
+                {articles[0].data.title}
+              </h3>
+              <p class="text-white/70 text-sm leading-relaxed line-clamp-2">{articles[0].data.description}</p>
+            </div>
+          </a>
+        )}
+
+        <div class="lg:col-span-2 flex flex-col gap-5">
+          {articles.slice(1).map((article) => (
+            <a
+              href={`/guider/${article.data.slug}/`}
+              class="group flex gap-4 bg-white rounded-2xl p-4 border border-mist hover:border-pine/20 hover:shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
+            >
+              <div class="w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-mist">
+                <div
+                  class="w-full h-full bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
+                  style={`background-image: url('${article.data.heroImage}'); background-color: #E8E4DC;`}
+                  role="img"
+                  aria-label={article.data.title}
+                ></div>
+              </div>
+              <div class="flex-1 min-w-0">
+                <span class="text-xs font-bold text-stone uppercase tracking-wide">{categoryLabels[article.data.category]}</span>
+                <h3 class="font-display font-bold text-deep text-base leading-snug mt-1 mb-1.5 group-hover:text-pine transition-colors line-clamp-2">
+                  {article.data.title}
+                </h3>
+                <p class="text-stone text-xs leading-relaxed line-clamp-2">{article.data.description}</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    ) : (
+      <p class="text-stone">Inga artiklar ännu.</p>
+    )}
+  </section>
+
+  <!-- ==============================
+       QUIZ TEASER — FULL WIDTH RUST
+  ============================== -->
+  <section class="py-20 px-4 sm:px-6 bg-rust text-white">
+    <div class="max-w-[1280px] mx-auto text-center">
+      <p class="text-rust-100 text-sm font-medium uppercase tracking-widest mb-4 text-white/70">Spöväljaren</p>
+      <h2 class="font-display text-4xl sm:text-5xl font-bold leading-tight mb-6">
+        Hitta rätt spö<br/>på 60 sekunder
+      </h2>
+      <p class="text-white/80 text-lg max-w-xl mx-auto mb-10 leading-relaxed">
+        Svara på fem frågor om din fiskestil och budget. Vi matchar dig med de tre bästa spöna för dina behov.
+      </p>
+      <a
+        href="/spovaljaren/"
+        class="inline-flex items-center gap-2 bg-white text-rust font-bold text-base px-10 py-4 rounded-full hover:bg-mist transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-rust"
+      >
+        Starta quizen nu
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <p class="text-white/50 text-xs mt-5">Gratis. Ingen registrering krävs.</p>
+    </div>
+  </section>
+
+  <!-- ==============================
+       NEWSLETTER
+  ============================== -->
+  <section class="py-20 px-4 sm:px-6">
+    <div class="max-w-xl mx-auto text-center">
+      <NewsletterForm placement="footer" />
+    </div>
+  </section>
+</BaseLayout>

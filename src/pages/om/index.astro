@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const authors = await getCollection('authors');
+---
+
+<BaseLayout
+  title="Om Strömkast — Redaktionen och vår metodik"
+  description="Strömkast är Sveriges modernaste sportfiskeguide. Lär känna redaktionen och vår metodik för oberoende produkttester."
+  pageType="about"
+>
+  <div class="pt-28 pb-20 px-4 sm:px-6 max-w-[1280px] mx-auto">
+    <div class="max-w-[72ch]">
+      <p class="text-stone text-sm font-medium uppercase tracking-wider mb-3">Om oss</p>
+      <h1 class="font-display text-4xl sm:text-5xl font-bold text-deep mb-6">Vi fiskar. Sedan skriver vi.</h1>
+      <div class="space-y-4 text-stone text-lg leading-relaxed mb-16">
+        <p>Strömkast grundades av svenska sportfiskare som tröttnade på vaga guider och betalda recensioner. Vi testar utrustning på riktiga vatten under riktiga förhållanden och skriver om vad vi faktiskt upplevt.</p>
+        <p>Vår metodik är enkel: vi köper eller lånar produkterna, fiskar med dem under minst tre månader i varierande förhållanden, och publicerar sedan en ärlig bedömning. Vi accepterar inte betalning för att positivt recensera produkter.</p>
+        <p>Affiliatelänkar finansierar driften av sajten. De påverkar aldrig vad vi skriver eller hur vi rankar produkter.</p>
+      </div>
+
+      <h2 class="font-display text-2xl font-bold text-deep mb-8">Redaktionen</h2>
+      <div class="space-y-6">
+        {authors.map((author) => (
+          <div class="bg-white rounded-2xl p-6 border border-mist flex flex-col sm:flex-row gap-5">
+            <div class="w-20 h-20 rounded-full bg-mist overflow-hidden shrink-0">
+              <img src={author.data.photo} alt={author.data.name} class="w-full h-full object-cover" loading="lazy" onerror="this.style.display='none'" />
+            </div>
+            <div>
+              <h3 class="font-display font-bold text-deep text-xl mb-1">{author.data.name}</h3>
+              <p class="text-stone text-sm leading-relaxed mb-3">{author.data.bio}</p>
+              <div class="flex flex-wrap gap-1.5">
+                {author.data.expertise.map((e: string) => (
+                  <span class="bg-mist text-stone text-xs px-2.5 py-1 rounded-full">{e}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,169 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import NewsletterForm from '../../components/NewsletterForm.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('articles');
+  return articles.map((article) => ({
+    params: { slug: article.data.slug },
+    props: { article },
+  }));
+}
+
+const { article } = Astro.props;
+const { Content, headings } = await render(article);
+const d = article.data;
+
+const authors = await getCollection('authors');
+const author = authors.find((a) => a.data.slug === d.author);
+
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: d.title,
+  description: d.description,
+  image: d.heroImage,
+  datePublished: d.publishedAt,
+  dateModified: d.updatedAt,
+  author: author ? {
+    '@type': 'Person',
+    name: author.data.name,
+    url: `https://stromkast.se/om/`,
+  } : undefined,
+  publisher: {
+    '@type': 'Organization',
+    name: 'Strömkast',
+    logo: { '@type': 'ImageObject', url: 'https://stromkast.se/images/logo.svg' },
+  },
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Hem', item: 'https://stromkast.se/' },
+    { '@type': 'ListItem', position: 2, name: 'Guider', item: 'https://stromkast.se/guider/' },
+    { '@type': 'ListItem', position: 3, name: d.title, item: `https://stromkast.se/guider/${d.slug}/` },
+  ],
+};
+
+const h2headings = headings.filter((h) => h.depth === 2);
+---
+
+<BaseLayout
+  title={d.title}
+  description={d.description}
+  ogImage={d.heroImage}
+  schema={[articleSchema, breadcrumbSchema]}
+  pageType="article"
+>
+  <!-- Breadcrumb -->
+  <nav class="pt-24 px-4 sm:px-6 max-w-[1280px] mx-auto" aria-label="Brödsmulor">
+    <ol class="flex items-center gap-2 text-sm text-stone">
+      <li><a href="/" class="hover:text-pine transition-colors">Hem</a></li>
+      <li aria-hidden="true"><span class="text-stone/40">/</span></li>
+      <li><a href="/guider/" class="hover:text-pine transition-colors">Guider</a></li>
+      <li aria-hidden="true"><span class="text-stone/40">/</span></li>
+      <li class="text-deep font-medium truncate max-w-[200px]" aria-current="page">{d.title}</li>
+    </ol>
+  </nav>
+
+  <!-- Article hero -->
+  <div class="mt-8 px-4 sm:px-6 max-w-[1280px] mx-auto">
+    <div class="relative rounded-2xl overflow-hidden aspect-[2/1] bg-pine">
+      <div
+        class="absolute inset-0 bg-cover bg-center"
+        style={`background-image: url('${d.heroImage}'); background-color: #1F3A2E;`}
+        role="img"
+        aria-label={d.title}
+      ></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-deep/80 to-transparent"></div>
+    </div>
+  </div>
+
+  <div class="max-w-[1280px] mx-auto px-4 sm:px-6 py-12">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-12">
+      <!-- TOC sidebar (desktop) -->
+      {h2headings.length > 2 && (
+        <aside class="hidden lg:block">
+          <div class="sticky top-24">
+            <p class="text-xs font-bold text-stone uppercase tracking-wider mb-4">Innehåll</p>
+            <nav aria-label="Artikelinnehåll">
+              <ul class="space-y-2">
+                {h2headings.map((h) => (
+                  <li>
+                    <a
+                      href={`#${h.slug}`}
+                      class="text-sm text-stone hover:text-pine transition-colors leading-snug block py-0.5"
+                    >
+                      {h.text}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </div>
+        </aside>
+      )}
+
+      <!-- Article body -->
+      <article class={`${h2headings.length > 2 ? 'lg:col-span-3' : 'lg:col-span-3 lg:col-start-2'}`}>
+        <header class="mb-10">
+          <h1 class="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-deep leading-tight mb-4">
+            {d.title}
+          </h1>
+          <p class="text-stone text-lg leading-relaxed mb-6">{d.description}</p>
+          {author && (
+            <div class="flex items-center gap-3 pt-6 border-t border-mist">
+              <div class="w-10 h-10 rounded-full bg-mist overflow-hidden">
+                <img src={author.data.photo} alt={author.data.name} class="w-full h-full object-cover" loading="lazy" onerror="this.style.display='none'" />
+              </div>
+              <div>
+                <p class="text-deep text-sm font-semibold">{author.data.name}</p>
+                <p class="text-stone text-xs">{d.publishedAt}</p>
+              </div>
+            </div>
+          )}
+        </header>
+
+        <!-- Mid-article newsletter (after ~50% of content — implemented via slot) -->
+        <div class="prose prose-slate max-w-[72ch] text-deep/80 leading-relaxed
+          prose-headings:font-display prose-headings:text-deep prose-headings:font-bold
+          prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
+          prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
+          prose-p:mb-4 prose-p:leading-relaxed
+          prose-a:text-sky prose-a:underline hover:prose-a:text-pine
+          prose-strong:text-deep
+          prose-ul:my-4 prose-li:mb-2
+          prose-table:text-sm prose-table:border-collapse
+          prose-th:bg-mist prose-th:px-3 prose-th:py-2 prose-th:border prose-th:border-mist prose-th:text-left
+          prose-td:px-3 prose-td:py-2 prose-td:border prose-td:border-mist
+        ">
+          <Content />
+        </div>
+
+        <!-- Inline newsletter signup -->
+        <NewsletterForm placement="inline" heading="Gillade du den här guiden?" subheading="Prenumerera för att få liknande guider varje vecka." />
+
+        <!-- Author bio -->
+        {author && (
+          <div class="mt-12 bg-mist rounded-2xl p-6 flex flex-col sm:flex-row gap-5 items-start">
+            <div class="w-16 h-16 rounded-full bg-stone/20 overflow-hidden shrink-0">
+              <img src={author.data.photo} alt={author.data.name} class="w-full h-full object-cover" loading="lazy" onerror="this.style.display='none'" />
+            </div>
+            <div>
+              <p class="font-display font-bold text-deep text-lg mb-1">{author.data.name}</p>
+              <p class="text-stone text-sm leading-relaxed mb-3">{author.data.bio}</p>
+              <div class="flex flex-wrap gap-1.5">
+                {author.data.expertise.map((e: string) => (
+                  <span class="bg-white text-stone text-xs px-2.5 py-1 rounded-full border border-mist">{e}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </article>
+    </div>
+  </div>
+</BaseLayout>

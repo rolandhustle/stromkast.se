@@ -1,0 +1,15 @@
+{
+  "title": "Savage Gear SG2 Pike Specialist",
+  "slug": "savage-gear-sg2-pike",
+  "description": "Premiumspö byggt specifikt för gäddans krav med skandinavisk fiskekultur i fokus.",
+  "heroImage": "/images/gear/savage-gear-sg2.jpg",
+  "brand": "Savage Gear",
+  "category": "gaddspon",
+  "price": 1899,
+  "rating": 4.7,
+  "pros": ["Lättvikt", "Fantastisk känsla", "Snabb action", "Premium guides"],
+  "cons": ["Priset", "Kräver lite mer teknik"],
+  "affiliateUrl": "",
+  "merchant": "Fisherman's Friend",
+  "featured": false
+}
