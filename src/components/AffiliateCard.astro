@@ -8,11 +8,13 @@ interface Props {
   image: string;
   affiliateUrl: string;
   merchant: string;
+  slug?: string;
   featured?: boolean;
   budgetPick?: boolean;
 }
 
-const { title, brand, price, rating, description, image, affiliateUrl, merchant, featured = false, budgetPick = false } = Astro.props;
+const { title, brand, price, rating, description, image, affiliateUrl, merchant, slug, featured = false, budgetPick = false } = Astro.props;
+const reviewHref = slug ? `/utrustning/test/${slug}/` : null;
 
 const stars = Math.round(rating);
 const priceFormatted = new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK', maximumFractionDigits: 0 }).format(price);
@@ -43,7 +45,13 @@ const priceFormatted = new Intl.NumberFormat('sv-SE', { style: 'currency', curre
 
   <div class="p-4">
     <p class="text-xs text-stone uppercase tracking-wider mb-1">{brand}</p>
-    <h3 class="font-display font-semibold text-deep text-lg leading-snug mb-2">{title}</h3>
+    {reviewHref ? (
+      <h3 class="font-display font-semibold text-deep text-lg leading-snug mb-2">
+        <a href={reviewHref} class="hover:text-pine transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine rounded">{title}</a>
+      </h3>
+    ) : (
+      <h3 class="font-display font-semibold text-deep text-lg leading-snug mb-2">{title}</h3>
+    )}
 
     <div class="flex items-center gap-1 mb-3" role="img" aria-label={`Betyg ${rating} av 5`}>
       {Array.from({ length: 5 }).map((_, i) => (

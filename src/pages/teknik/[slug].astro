@@ -1,0 +1,168 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const techniques = await getCollection('techniques');
+  return techniques.map((t) => ({
+    params: { slug: t.data.slug },
+    props: { technique: t },
+  }));
+}
+
+const { technique } = Astro.props;
+const t = technique.data;
+
+const allSpecies = await getCollection('species');
+const relatedSpecies = allSpecies.filter((s) =>
+  t.targetSpecies.some((ts: string) =>
+    ts.toLowerCase() === s.data.title.toLowerCase() ||
+    ts.toLowerCase() === s.data.slug.toLowerCase()
+  )
+);
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Hem', item: 'https://stromkast.se/' },
+    { '@type': 'ListItem', position: 2, name: 'Teknik', item: 'https://stromkast.se/teknik/' },
+    { '@type': 'ListItem', position: 3, name: t.title, item: `https://stromkast.se/teknik/${t.slug}/` },
+  ],
+};
+
+const difficultyConfig: Record<string, { label: string; color: string; bg: string }> = {
+  'nybörjare':  { label: 'Nybörjare',  color: 'text-green-700',  bg: 'bg-green-100' },
+  'mellannivå': { label: 'Mellannivå', color: 'text-amber-700',  bg: 'bg-amber-100' },
+  'avancerad':  { label: 'Avancerad',  color: 'text-red-700',    bg: 'bg-red-100'   },
+};
+const diff = difficultyConfig[t.difficulty] ?? difficultyConfig['nybörjare']!;
+---
+
+<BaseLayout
+  title={`${t.title} — Guide för svenska sportfiskare`}
+  description={t.description}
+  ogImage={t.heroImage}
+  schema={breadcrumbSchema}
+  pageType="technique"
+>
+  <!-- Breadcrumb -->
+  <nav class="pt-24 px-4 sm:px-6 max-w-[1280px] mx-auto" aria-label="Brödsmulor">
+    <ol class="flex items-center gap-2 text-sm text-stone">
+      <li><a href="/" class="hover:text-pine transition-colors">Hem</a></li>
+      <li aria-hidden="true"><span class="text-stone/40">/</span></li>
+      <li><a href="/teknik/" class="hover:text-pine transition-colors">Teknik</a></li>
+      <li aria-hidden="true"><span class="text-stone/40">/</span></li>
+      <li class="text-deep font-medium" aria-current="page">{t.title}</li>
+    </ol>
+  </nav>
+
+  <!-- Hero -->
+  <div class="relative h-[45vh] min-h-[320px] mt-4 overflow-hidden bg-pine">
+    <div
+      class="absolute inset-0 bg-cover bg-center"
+      style={`background-image: url('${t.heroImage}'); background-color: #1F3A2E;`}
+      role="img"
+      aria-label={t.title}
+    ></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-deep/85 to-transparent"></div>
+    <div class="absolute bottom-0 left-0 right-0 px-4 sm:px-6 pb-10 max-w-[1280px] mx-auto">
+      <span class={`inline-block text-xs font-bold px-3 py-1 rounded-full mb-3 ${diff.bg} ${diff.color}`}>
+        {diff.label}
+      </span>
+      <h1 class="font-display text-5xl sm:text-6xl font-bold text-white mb-2">{t.title}</h1>
+      <p class="text-white/70 text-sm">
+        Målarter: {t.targetSpecies.join(', ')}
+      </p>
+    </div>
+  </div>
+
+  <div class="max-w-[1280px] mx-auto px-4 sm:px-6 py-12">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+
+      <!-- Main guide content -->
+      <div class="lg:col-span-2">
+        <p class="text-stone text-lg leading-relaxed mb-8">{t.description}</p>
+
+        <div class="prose prose-slate max-w-[72ch] text-deep/80 leading-relaxed
+          prose-headings:font-display prose-headings:text-deep prose-headings:font-bold
+          prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
+          prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
+          prose-p:mb-4 prose-p:leading-relaxed
+          prose-strong:text-deep
+          prose-ul:my-4 prose-li:mb-2
+        ">
+          {t.content.split('\n\n').map((para: string) => (
+            <p>{para}</p>
+          ))}
+        </div>
+
+        <!-- Related species -->
+        {relatedSpecies.length > 0 && (
+          <div class="mt-12">
+            <h2 class="font-display text-2xl font-bold text-deep mb-6">Målarter</h2>
+            <div class="flex flex-wrap gap-4">
+              {relatedSpecies.map((sp) => (
+                <a
+                  href={`/arter/${sp.data.slug}/`}
+                  class="group flex items-center gap-3 bg-white border border-mist rounded-2xl px-4 py-3 hover:border-pine/30 hover:shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
+                >
+                  <div class="w-10 h-10 rounded-lg bg-mist overflow-hidden shrink-0">
+                    <div
+                      class="w-full h-full bg-cover bg-center"
+                      style={`background-image: url('${sp.data.heroImage}'); background-color: #E8E4DC;`}
+                      aria-hidden="true"
+                    ></div>
+                  </div>
+                  <span class="font-semibold text-deep text-sm capitalize group-hover:text-pine transition-colors">{sp.data.title}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="space-y-6">
+        <div class="bg-pine text-white rounded-2xl p-6">
+          <h2 class="font-display font-bold text-xl mb-5">Om tekniken</h2>
+          <dl class="space-y-4 text-sm">
+            <div>
+              <dt class="text-white/60 text-xs uppercase tracking-wider mb-1">Svårighetsgrad</dt>
+              <dd>
+                <span class={`inline-block text-xs font-bold px-2.5 py-1 rounded-full ${diff.bg} ${diff.color}`}>
+                  {diff.label}
+                </span>
+              </dd>
+            </div>
+            <div>
+              <dt class="text-white/60 text-xs uppercase tracking-wider mb-1">Målarter</dt>
+              <dd class="font-medium capitalize">{t.targetSpecies.join(', ')}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="bg-mist rounded-2xl p-6">
+          <h3 class="font-display font-bold text-deep text-lg mb-2">Hitta rätt utrustning</h3>
+          <p class="text-stone text-sm leading-relaxed mb-4">Låt vår quiz hjälpa dig välja rätt spö för din fiskestil.</p>
+          <a
+            href="/spovaljaren/"
+            class="inline-flex items-center gap-1.5 bg-rust text-white font-semibold text-sm px-5 py-2.5 rounded-full hover:bg-copper transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rust focus-visible:ring-offset-2"
+          >
+            Ta spöväljaren
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+        </div>
+
+        <div class="bg-mist rounded-2xl p-6">
+          <h3 class="font-display font-bold text-deep text-lg mb-3">Fler tekniker</h3>
+          <a href="/teknik/" class="text-sky text-sm font-medium hover:text-pine transition-colors underline underline-offset-2">
+            Se alla fisketekniker
+          </a>
+        </div>
+      </aside>
+    </div>
+  </div>
+</BaseLayout>

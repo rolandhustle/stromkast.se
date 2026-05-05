@@ -1,0 +1,257 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const reviews = await getCollection('gear-reviews');
+  return reviews.map((r) => ({
+    params: { slug: r.data.slug },
+    props: { review: r },
+  }));
+}
+
+const { review } = Astro.props;
+const r = review.data;
+
+const allReviews = await getCollection('gear-reviews');
+const related = allReviews
+  .filter((x) => x.data.category === r.category && x.data.slug !== r.slug)
+  .slice(0, 3);
+
+const priceFormatted = new Intl.NumberFormat('sv-SE', {
+  style: 'currency',
+  currency: 'SEK',
+  maximumFractionDigits: 0,
+}).format(r.price);
+
+const productSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: r.title,
+  description: r.description,
+  brand: { '@type': 'Brand', name: r.brand },
+  image: r.heroImage,
+  offers: {
+    '@type': 'Offer',
+    price: r.price,
+    priceCurrency: 'SEK',
+    availability: 'https://schema.org/InStock',
+    seller: { '@type': 'Organization', name: r.merchant },
+  },
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: r.rating,
+    bestRating: 5,
+    worstRating: 1,
+    reviewCount: 1,
+  },
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Hem', item: 'https://stromkast.se/' },
+    { '@type': 'ListItem', position: 2, name: 'Utrustning', item: 'https://stromkast.se/utrustning/' },
+    { '@type': 'ListItem', position: 3, name: r.title, item: `https://stromkast.se/utrustning/test/${r.slug}/` },
+  ],
+};
+
+const stars = Math.round(r.rating);
+---
+
+<BaseLayout
+  title={`${r.title} — Test och recension ${new Date().getFullYear()}`}
+  description={r.description}
+  ogImage={r.heroImage}
+  schema={[productSchema, breadcrumbSchema]}
+  pageType="gear-review"
+>
+  <!-- Breadcrumb -->
+  <nav class="pt-24 px-4 sm:px-6 max-w-[1280px] mx-auto" aria-label="Brödsmulor">
+    <ol class="flex items-center gap-2 text-sm text-stone flex-wrap">
+      <li><a href="/" class="hover:text-pine transition-colors">Hem</a></li>
+      <li aria-hidden="true"><span class="text-stone/40">/</span></li>
+      <li><a href="/utrustning/" class="hover:text-pine transition-colors">Utrustning</a></li>
+      <li aria-hidden="true"><span class="text-stone/40">/</span></li>
+      <li><a href={`/utrustning/${r.category}/`} class="hover:text-pine transition-colors capitalize">{r.category}</a></li>
+      <li aria-hidden="true"><span class="text-stone/40">/</span></li>
+      <li class="text-deep font-medium" aria-current="page">{r.title}</li>
+    </ol>
+  </nav>
+
+  <div class="max-w-[1280px] mx-auto px-4 sm:px-6 py-10">
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-12">
+
+      <!-- Product image + buy box -->
+      <div class="lg:col-span-2">
+        <div class="sticky top-24 space-y-5">
+          <!-- Image -->
+          <div class="relative rounded-2xl overflow-hidden aspect-square bg-mist">
+            {r.featured && (
+              <div class="absolute top-4 left-4 z-10 bg-rust text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+                Bästa val
+              </div>
+            )}
+            <img
+              src={r.heroImage}
+              alt={r.title}
+              loading="eager"
+              fetchpriority="high"
+              class="w-full h-full object-contain p-8"
+              onerror="this.style.display='none'"
+            />
+          </div>
+
+          <!-- Buy box -->
+          <div class="bg-white border border-mist rounded-2xl p-6">
+            <!-- Rating -->
+            <div class="flex items-center gap-2 mb-4">
+              <div class="flex items-center gap-0.5" role="img" aria-label={`Betyg ${r.rating} av 5`}>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <svg width="18" height="18" viewBox="0 0 14 14" fill={i < stars ? '#B45D3C' : '#E8E4DC'} aria-hidden="true">
+                    <path d="M7 1l1.5 3.5L12 5l-2.5 2.5.5 3.5L7 9.5 4 11l.5-3.5L2 5l3.5-.5L7 1z"/>
+                  </svg>
+                ))}
+              </div>
+              <span class="text-deep font-bold">{r.rating}</span>
+              <span class="text-stone text-sm">/ 5</span>
+            </div>
+
+            <p class="text-3xl font-bold text-deep mb-1">{priceFormatted}</p>
+            <p class="text-stone text-sm mb-5">{r.merchant}</p>
+
+            <a
+              href={r.affiliateUrl || '#'}
+              target="_blank"
+              rel="noopener noreferrer sponsored"
+              class="flex items-center justify-center gap-2 w-full bg-pine text-white font-bold text-base px-6 py-3.5 rounded-full hover:bg-deep transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
+              data-affiliate-merchant={r.merchant}
+              data-affiliate-product={r.slug}
+            >
+              Se pris hos {r.merchant}
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M2 12L12 2M12 2H6M12 2v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+
+            <p class="text-xs text-stone/60 text-center mt-3">
+              *Affiliatelänk. Vi tjänar en provision utan kostnad för dig.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Review content -->
+      <div class="lg:col-span-3">
+        <p class="text-stone text-sm font-medium uppercase tracking-wider mb-2">{r.brand}</p>
+        <h1 class="font-display text-3xl sm:text-4xl font-bold text-deep leading-tight mb-4">{r.title}</h1>
+        <p class="text-stone text-lg leading-relaxed mb-10">{r.description}</p>
+
+        <!-- Affiliate disclosure -->
+        <div class="bg-mist rounded-xl p-4 flex gap-3 mb-10 text-xs text-stone leading-relaxed">
+          <svg class="shrink-0 mt-0.5 text-stone/60" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.2"/>
+            <path d="M7 6.5v4M7 4.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <p><strong class="text-deep">Affiliateinfo:</strong> Sidan innehåller affiliatelänkar. Vår redaktionella bedömning påverkas aldrig av kommersiella relationer.</p>
+        </div>
+
+        <!-- Pros & cons -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-10">
+          <div class="bg-green-50 rounded-2xl p-5">
+            <h2 class="font-display font-bold text-green-800 text-lg mb-4 flex items-center gap-2">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 8l4 4 6-7" stroke="#166534" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Fördelar
+            </h2>
+            <ul class="space-y-2">
+              {r.pros.map((pro: string) => (
+                <li class="flex items-start gap-2 text-sm text-green-800">
+                  <span class="w-1.5 h-1.5 rounded-full bg-green-600 mt-1.5 shrink-0" aria-hidden="true"></span>
+                  {pro}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div class="bg-red-50 rounded-2xl p-5">
+            <h2 class="font-display font-bold text-red-800 text-lg mb-4 flex items-center gap-2">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M4 4l8 8M12 4l-8 8" stroke="#991b1b" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              Nackdelar
+            </h2>
+            <ul class="space-y-2">
+              {r.cons.map((con: string) => (
+                <li class="flex items-start gap-2 text-sm text-red-800">
+                  <span class="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 shrink-0" aria-hidden="true"></span>
+                  {con}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <!-- Rating breakdown -->
+        <div class="bg-white border border-mist rounded-2xl p-6 mb-10">
+          <h2 class="font-display font-bold text-deep text-xl mb-5">Samlat betyg</h2>
+          <div class="flex items-end gap-4">
+            <p class="font-display text-6xl font-bold text-deep leading-none">{r.rating}</p>
+            <div class="pb-1">
+              <div class="flex items-center gap-0.5 mb-1" role="img" aria-label={`${r.rating} av 5 stjärnor`}>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <svg width="20" height="20" viewBox="0 0 14 14" fill={i < stars ? '#B45D3C' : '#E8E4DC'} aria-hidden="true">
+                    <path d="M7 1l1.5 3.5L12 5l-2.5 2.5.5 3.5L7 9.5 4 11l.5-3.5L2 5l3.5-.5L7 1z"/>
+                  </svg>
+                ))}
+              </div>
+              <p class="text-stone text-sm">av 5 möjliga</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Related products -->
+        {related.length > 0 && (
+          <div>
+            <h2 class="font-display text-xl font-bold text-deep mb-5">Fler alternativ i kategorin</h2>
+            <div class="space-y-3">
+              {related.map((rel) => (
+                <a
+                  href={`/utrustning/test/${rel.data.slug}/`}
+                  class="group flex items-center gap-4 bg-white border border-mist rounded-xl p-4 hover:border-pine/30 hover:shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
+                >
+                  <div class="w-16 h-16 rounded-lg bg-mist overflow-hidden shrink-0">
+                    <img
+                      src={rel.data.heroImage}
+                      alt={rel.data.title}
+                      loading="lazy"
+                      class="w-full h-full object-contain p-2"
+                      onerror="this.style.display='none'"
+                    />
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-xs text-stone font-medium">{rel.data.brand}</p>
+                    <p class="font-semibold text-deep text-sm group-hover:text-pine transition-colors truncate">{rel.data.title}</p>
+                    <p class="text-deep text-sm font-bold mt-0.5">
+                      {new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK', maximumFractionDigits: 0 }).format(rel.data.price)}
+                    </p>
+                  </div>
+                  <svg class="text-stone/40 group-hover:text-pine transition-colors shrink-0" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M5 8h6M8 5l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </a>
+              ))}
+            </div>
+            <a href={`/utrustning/${r.category}/`} class="inline-flex items-center gap-1.5 text-sky text-sm font-medium hover:text-pine transition-colors mt-5">
+              Se alla i kategorin
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+</BaseLayout>

@@ -10,7 +10,7 @@
   --color-copper: #D08A5C;
   --color-sky:    #6E8FA0;
 
-  --font-display: "Fraunces Variable", Georgia, serif;
+  --font-display: "Bitter", Georgia, serif;
   --font-body:    "Inter Variable", system-ui, sans-serif;
 
   --spacing-base: 8px;
@@ -30,9 +30,10 @@
 }
 
 @font-face {
-  font-family: "Fraunces Variable";
-  src: url("/fonts/fraunces-variable.woff2") format("woff2-variations");
-  font-weight: 100 900;
+  font-family: "Bitter";
+  src: url("/fonts/bitter-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
   font-display: swap;
 }
 

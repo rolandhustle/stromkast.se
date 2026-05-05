@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /sok/
+
+Sitemap: https://stromkast.se/sitemap-index.xml
