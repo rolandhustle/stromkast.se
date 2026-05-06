@@ -2,6 +2,19 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import AffiliateCard from '../../components/AffiliateCard.astro';
 import { getCollection } from 'astro:content';
+import { Image, type ImageMetadata } from 'astro:assets';
+
+import abboreSrc from '../../assets/images/species-abborre.png';
+import gosSrc    from '../../assets/images/species-gos.png';
+import oringSrc  from '../../assets/images/species-oring.jpg';
+import gaddaSrc  from '../../assets/images/species-gadda.jpg';
+
+const speciesImages: Record<string, ImageMetadata> = {
+  abborre: abboreSrc,
+  gos:     gosSrc,
+  oring:   oringSrc,
+  gadda:   gaddaSrc,
+};
 
 export async function getStaticPaths() {
   const species = await getCollection('species');
@@ -13,6 +26,8 @@ export async function getStaticPaths() {
 
 const { species } = Astro.props;
 const s = species.data;
+
+const heroImage = speciesImages[s.slug];
 
 const allReviews = await getCollection('gear-reviews');
 const gearRecs = allReviews.filter((r) => s.gearRecs.includes(r.data.slug));
@@ -43,7 +58,7 @@ const difficultyColor: Record<string, string> = {
 ---
 
 <BaseLayout
-  title={`${s.title} — Guide till fiske, säsong och utrustning`}
+  title={`${s.title}: guide till fiske, säsong och utrustning`}
   description={s.description}
   ogImage={s.heroImage}
   schema={breadcrumbSchema}
@@ -62,12 +77,25 @@ const difficultyColor: Record<string, string> = {
 
   <!-- Hero -->
   <div class="relative h-[45vh] min-h-[320px] mt-4 overflow-hidden bg-pine">
-    <div
-      class="absolute inset-0 bg-cover bg-center"
-      style={`background-image: url('${s.heroImage}'); background-color: #1F3A2E;`}
-      role="img"
-      aria-label={s.title}
-    ></div>
+    {heroImage ? (
+      <Image
+        src={heroImage}
+        alt={s.title}
+        width={1280}
+        height={640}
+        format="avif"
+        quality={80}
+        class="absolute inset-0 w-full h-full object-cover object-center"
+        fetchpriority="high"
+        decoding="async"
+      />
+    ) : (
+      <div
+        class="absolute inset-0 bg-cover bg-center"
+        style={`background-image: url('${s.heroImage}'); background-color: #1F3A2E;`}
+        aria-hidden="true"
+      ></div>
+    )}
     <div class="absolute inset-0 bg-gradient-to-t from-deep/85 to-transparent"></div>
     <div class="absolute bottom-0 left-0 right-0 px-4 sm:px-6 pb-10 max-w-[1280px] mx-auto">
       <h1 class="font-display text-5xl sm:text-6xl font-bold text-white capitalize mb-2">{s.title}</h1>

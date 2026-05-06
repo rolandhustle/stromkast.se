@@ -7,7 +7,7 @@ export async function GET(context: APIContext) {
   const sorted = articles.sort((a, b) => b.data.publishedAt.localeCompare(a.data.publishedAt));
 
   return rss({
-    title: 'Strömkast — Guider och reportage',
+    title: 'Strömkast: guider och reportage',
     description: 'Svenska sportfiskeguider, destinationsreportage och utrustningstest från Strömkast.',
     site: context.site ?? 'https://stromkast.se',
     items: sorted.map((article) => ({

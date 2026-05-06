@@ -20,8 +20,8 @@ interface QuizAnswers {
 
 const RESULTS: Record<string, QuizResult[]> = {
   pike_lake_softbait_beginner_low: [
-    { slug: 'berkley-maxfire-pike', title: 'Berkley Maxfire Pike 240MH', brand: 'Berkley', price: 1199, reason: 'Perfekt för nybörjaren — bra känsla, enkel att kasta och prisvärd.', affiliateUrl: '' },
-    { slug: 'savage-gear-sg2-pike', title: 'Savage Gear SG2 Pike Specialist', brand: 'Savage Gear', price: 1899, reason: 'Nästa steg när du vill uppgradera — lätt och responsivt spö.', affiliateUrl: '' },
+    { slug: 'berkley-maxfire-pike', title: 'Berkley Maxfire Pike 240MH', brand: 'Berkley', price: 1199, reason: 'Perfekt för nybörjaren: bra känsla, enkel att kasta och prisvärd.', affiliateUrl: '' },
+    { slug: 'savage-gear-sg2-pike', title: 'Savage Gear SG2 Pike Specialist', brand: 'Savage Gear', price: 1899, reason: 'Nästa steg när du vill uppgradera: lätt och responsivt spö.', affiliateUrl: '' },
   ],
   default: [
     { slug: 'berkley-maxfire-pike', title: 'Berkley Maxfire Pike 240MH', brand: 'Berkley', price: 1199, reason: 'Utmärkt allround-val för de flesta fiskesituationer.', affiliateUrl: '' },
@@ -193,7 +193,7 @@ export default function SpoQuiz() {
       {step === 'email' && (
         <div className="text-center py-4">
           <h2 className="font-display text-2xl font-bold text-deep mb-3">Skicka resultaten till din inbox?</h2>
-          <p className="text-stone mb-6 text-sm leading-relaxed">Valfritt. Ange din e-post för att spara dina rekommendationer — plus veckans bästa fisketips.</p>
+          <p className="text-stone mb-6 text-sm leading-relaxed">Valfritt. Ange din e-post för att spara dina rekommendationer och få veckans bästa fisketips.</p>
           <form onSubmit={handleEmailSubmit} className="flex gap-3 mb-4">
             <label className="sr-only" htmlFor="quiz-email">E-postadress</label>
             <input

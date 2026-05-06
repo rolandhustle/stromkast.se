@@ -2,14 +2,32 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import NewsletterForm from '../components/NewsletterForm.astro';
 import { getCollection } from 'astro:content';
+import { getImage } from 'astro:assets';
+import { Image } from 'astro:assets';
+
+import heroSrc     from '../assets/images/hero-home.jpg';
+import vanernSrc   from '../assets/images/destination-vanern.jpg';
+import vatternSrc  from '../assets/images/destination-vattern.jpg';
+import morrumSrc   from '../assets/images/destination-morrum.jpg';
+import storsjonSrc from '../assets/images/destination-storsjon.jpg';
 
 const articles = (await getCollection('articles')).slice(0, 3);
 
+// Optimise hero: AVIF primary, full-width
+const heroImg = await getImage({ src: heroSrc, format: 'avif', width: 1920, height: 1080, quality: 80 });
+const heroImgWebP = await getImage({ src: heroSrc, format: 'webp', width: 1920, height: 1080, quality: 80 });
+
+// Destination card images
+const vanernImg   = await getImage({ src: vanernSrc,   format: 'avif', width: 640, height: 854, quality: 75 });
+const vatternImg  = await getImage({ src: vatternSrc,  format: 'avif', width: 640, height: 854, quality: 75 });
+const morrumImg   = await getImage({ src: morrumSrc,   format: 'avif', width: 640, height: 854, quality: 75 });
+const storsjonImg = await getImage({ src: storsjonSrc, format: 'avif', width: 640, height: 854, quality: 75 });
+
 const featuredDestinations = [
-  { slug: 'vanern', name: 'Vänern', species: 'Gädda, Lax', region: 'Västra Götaland', img: '/images/destinations/vanern.jpg' },
-  { slug: 'vattern', name: 'Vättern', species: 'Öring, Röding', region: 'Östergötland', img: '/images/destinations/vattern.jpg' },
-  { slug: 'morrum', name: 'Mörrum', species: 'Lax, Havsöring', region: 'Blekinge', img: '/images/destinations/morrum.jpg' },
-  { slug: 'storsjon', name: 'Storsjön', species: 'Öring, Harr', region: 'Jämtland', img: '/images/destinations/storsjon.jpg' },
+  { slug: 'vanern',   name: 'Vänern',   species: 'Gädda, Lax',      region: 'Västra Götaland', img: vanernImg.src   },
+  { slug: 'vattern',  name: 'Vättern',  species: 'Öring, Röding',   region: 'Östergötland',    img: vatternImg.src  },
+  { slug: 'morrum',   name: 'Mörrum',   species: 'Lax, Havsöring',  region: 'Blekinge',         img: morrumImg.src   },
+  { slug: 'storsjon', name: 'Storsjön', species: 'Öring, Harr',     region: 'Jämtland',         img: storsjonImg.src },
 ];
 
 const biteIndicators = [
@@ -41,13 +59,21 @@ const categoryLabels: Record<string, string> = {
        HERO
   ============================== -->
   <section class="relative min-h-[90vh] flex items-end pb-20 overflow-hidden bg-pine">
-    <!-- Background image placeholder -->
+    <!-- Background image -->
     <div class="absolute inset-0 bg-gradient-to-b from-pine/40 via-pine/30 to-deep/90 z-10"></div>
-    <div
-      class="absolute inset-0 bg-cover bg-center"
-      style="background-image: url('/images/hero-bg.jpg'); background-color: #1F3A2E;"
-      aria-hidden="true"
-    ></div>
+    <picture aria-hidden="true" class="absolute inset-0">
+      <source srcset={heroImg.src} type="image/avif" />
+      <source srcset={heroImgWebP.src} type="image/webp" />
+      <img
+        src={heroImgWebP.src}
+        alt=""
+        class="w-full h-full object-cover object-center"
+        width="1920"
+        height="1080"
+        fetchpriority="high"
+        decoding="async"
+      />
+    </picture>
 
     <!-- Decorative water ripple -->
     <div class="absolute bottom-0 left-0 right-0 h-32 z-10" aria-hidden="true">
@@ -183,7 +209,7 @@ const categoryLabels: Record<string, string> = {
   </section>
 
   <!-- ==============================
-       LATEST GUIDES — MAGAZINE LAYOUT
+       LATEST GUIDES: MAGAZINE LAYOUT
   ============================== -->
   <section class="py-20 px-4 sm:px-6 max-w-[1280px] mx-auto">
     <div class="flex items-end justify-between mb-10">
@@ -255,7 +281,7 @@ const categoryLabels: Record<string, string> = {
   </section>
 
   <!-- ==============================
-       QUIZ TEASER — FULL WIDTH RUST
+       QUIZ TEASER: FULL WIDTH RUST
   ============================== -->
   <section class="py-20 px-4 sm:px-6 bg-rust text-white">
     <div class="max-w-[1280px] mx-auto text-center">

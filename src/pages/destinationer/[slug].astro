@@ -2,6 +2,23 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import AffiliateCard from '../../components/AffiliateCard.astro';
 import { getCollection } from 'astro:content';
+import { getImage, type ImageMetadata } from 'astro:assets';
+
+import vanernSrc   from '../../assets/images/destination-vanern.jpg';
+import vatternSrc  from '../../assets/images/destination-vattern.jpg';
+import malarenSrc  from '../../assets/images/destination-malaren.jpg';
+import storsjonSrc from '../../assets/images/destination-storsjon.jpg';
+import bolmenSrc   from '../../assets/images/destination-bolmen.jpg';
+import morrumSrc   from '../../assets/images/destination-morrum.jpg';
+
+const destImageSources: Record<string, ImageMetadata> = {
+  vanern:   vanernSrc,
+  vattern:  vatternSrc,
+  malaren:  malarenSrc,
+  storsjon: storsjonSrc,
+  bolmen:   bolmenSrc,
+  morrum:   morrumSrc,
+};
 
 export async function getStaticPaths() {
   const destinations = await getCollection('destinations');
@@ -13,6 +30,10 @@ export async function getStaticPaths() {
 
 const { destination } = Astro.props;
 const d = destination.data;
+
+const imgSrc = destImageSources[d.slug];
+const heroImg    = imgSrc ? await getImage({ src: imgSrc, format: 'avif', width: 1280, height: 640, quality: 80 }) : null;
+const heroImgWebP = imgSrc ? await getImage({ src: imgSrc, format: 'webp', width: 1280, height: 640, quality: 80 }) : null;
 
 const allReviews = await getCollection('gear-reviews');
 const recommendedReviews = allReviews.filter((r) =>
@@ -82,7 +103,7 @@ const faqSchema = {
 ---
 
 <BaseLayout
-  title={`Fiska ${d.title} — Guide, tips och fiskekort`}
+  title={`Fiska ${d.title}: guide, tips och fiskekort`}
   description={d.description}
   ogImage={d.heroImage}
   schema={[breadcrumbSchema, destinationSchema, faqSchema]}
@@ -101,12 +122,28 @@ const faqSchema = {
 
   <!-- Hero -->
   <div class="relative h-[50vh] min-h-[360px] mt-4 overflow-hidden bg-pine">
-    <div
-      class="absolute inset-0 bg-cover bg-center"
-      style={`background-image: url('${d.heroImage}'); background-color: #1F3A2E;`}
-      role="img"
-      aria-label={`${d.title} — fiskevatten`}
-    ></div>
+    {heroImg && heroImgWebP ? (
+      <picture class="absolute inset-0">
+        <source srcset={heroImg.src} type="image/avif" />
+        <source srcset={heroImgWebP.src} type="image/webp" />
+        <img
+          src={heroImgWebP.src}
+          alt={`${d.title}, fiskevatten`}
+          class="w-full h-full object-cover object-center"
+          width="1280"
+          height="640"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </picture>
+    ) : (
+      <div
+        class="absolute inset-0 bg-cover bg-center"
+        style={`background-image: url('${d.heroImage}'); background-color: #1F3A2E;`}
+        role="img"
+        aria-label={`${d.title}, fiskevatten`}
+      ></div>
+    )}
     <div class="absolute inset-0 bg-gradient-to-t from-deep/80 to-transparent"></div>
     <div class="absolute bottom-0 left-0 right-0 px-4 sm:px-6 pb-10 max-w-[1280px] mx-auto">
       <div class="flex flex-wrap gap-2 mb-3">

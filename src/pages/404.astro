@@ -1,0 +1,60 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Sidan hittades inte"
+  description="Den här sidan finns inte. Gå tillbaka till startsidan eller sök efter det du letar efter."
+  pageType="error"
+>
+  <div class="min-h-[80vh] flex items-center justify-center px-4 sm:px-6">
+    <div class="max-w-lg text-center">
+      <!-- Decorative number -->
+      <p class="font-display text-[120px] sm:text-[160px] font-bold leading-none text-pine/10 select-none mb-0" aria-hidden="true">404</p>
+
+      <div class="-mt-6 sm:-mt-10">
+        <h1 class="font-display text-3xl sm:text-4xl font-bold text-deep mb-4">
+          Sidan hittades inte
+        </h1>
+        <p class="text-stone text-lg leading-relaxed mb-8">
+          Den här sidan verkar ha simmat iväg. Prova att söka efter det du letar efter eller gå tillbaka till startsidan.
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <a
+            href="/"
+            class="inline-flex items-center gap-2 bg-pine text-white font-semibold px-6 py-3 rounded-full hover:bg-deep transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M3 8h10M8 3l-5 5 5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Till startsidan
+          </a>
+          <a
+            href="/sok/"
+            class="inline-flex items-center gap-2 bg-mist text-deep font-semibold px-6 py-3 rounded-full hover:bg-stone/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M10.5 10.5l2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Sök på sajten
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick links -->
+      <div class="mt-12 pt-8 border-t border-mist">
+        <p class="text-stone text-sm font-medium mb-4">Populära sidor</p>
+        <nav class="flex flex-wrap justify-center gap-3" aria-label="Populära sidor">
+          <a href="/destinationer/" class="text-sm text-pine hover:text-deep transition-colors underline underline-offset-2">Destinationer</a>
+          <a href="/teknik/" class="text-sm text-pine hover:text-deep transition-colors underline underline-offset-2">Tekniker</a>
+          <a href="/arter/" class="text-sm text-pine hover:text-deep transition-colors underline underline-offset-2">Fiskarter</a>
+          <a href="/utrustning/" class="text-sm text-pine hover:text-deep transition-colors underline underline-offset-2">Utrustning</a>
+          <a href="/guider/" class="text-sm text-pine hover:text-deep transition-colors underline underline-offset-2">Guider</a>
+          <a href="/spovaljaren/" class="text-sm text-pine hover:text-deep transition-colors underline underline-offset-2">Spöväljaren</a>
+        </nav>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
