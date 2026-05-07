@@ -14,9 +14,10 @@ interface Props {
   schema?: object | object[];
   heroOverlay?: boolean;
   pageType?: string;
+  transparentHeader?: boolean;
 }
 
-const { title, description, ogImage, canonical, noindex, schema, heroOverlay = false, pageType = 'unknown' } = Astro.props;
+const { title, description, ogImage, canonical, noindex, schema, heroOverlay = false, pageType = 'unknown', transparentHeader = false } = Astro.props;
 ---
 
 <!doctype html>
@@ -45,7 +46,7 @@ const { title, description, ogImage, canonical, noindex, schema, heroOverlay = f
       Hoppa till innehåll
     </a>
 
-    <Header />
+    <Header transparent={transparentHeader} />
 
     <main id="main-content" tabindex="-1">
       <slot />

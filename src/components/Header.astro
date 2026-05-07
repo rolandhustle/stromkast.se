@@ -1,4 +1,10 @@
 ---
+interface Props {
+  transparent?: boolean;
+}
+
+const { transparent = false } = Astro.props;
+
 const navLinks = [
   { href: '/destinationer/', label: 'Destinationer' },
   { href: '/arter/', label: 'Arter' },
@@ -9,12 +15,14 @@ const navLinks = [
 ];
 
 const pathname = Astro.url.pathname;
+const initialBg = transparent ? 'transparent' : 'rgba(31, 58, 46, 0.97)';
 ---
 
 <header
   id="site-header"
   class="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
-  style="background: transparent;"
+  style={`background: ${initialBg};`}
+  data-transparent={transparent ? 'true' : 'false'}
 >
   <div class="max-w-[1280px] mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
     <a href="/" class="flex items-center gap-2 text-white font-display font-bold text-xl tracking-tight">
@@ -114,19 +122,21 @@ const pathname = Astro.url.pathname;
   const toggle = document.getElementById('mobile-menu-toggle');
   const menu = document.getElementById('mobile-menu');
 
-  // Scroll behavior: compact + backdrop on scroll
-  window.addEventListener('scroll', () => {
-    if (!header) return;
-    if (window.scrollY > 60) {
-      header.style.background = 'rgba(31, 58, 46, 0.97)';
-      header.style.backdropFilter = 'blur(12px)';
-      header.style.boxShadow = '0 1px 0 rgba(255,255,255,0.08)';
-    } else {
-      header.style.background = 'transparent';
-      header.style.backdropFilter = 'none';
-      header.style.boxShadow = 'none';
-    }
-  }, { passive: true });
+  // Scroll behavior: only animate transparent headers (homepage)
+  if (header?.dataset.transparent === 'true') {
+    window.addEventListener('scroll', () => {
+      if (!header) return;
+      if (window.scrollY > 60) {
+        header.style.background = 'rgba(31, 58, 46, 0.97)';
+        header.style.backdropFilter = 'blur(12px)';
+        header.style.boxShadow = '0 1px 0 rgba(255,255,255,0.08)';
+      } else {
+        header.style.background = 'transparent';
+        header.style.backdropFilter = 'none';
+        header.style.boxShadow = 'none';
+      }
+    }, { passive: true });
+  }
 
   // Mobile menu toggle
   toggle?.addEventListener('click', () => {
