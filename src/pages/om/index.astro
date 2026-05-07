@@ -12,7 +12,11 @@ const authors = await getCollection('authors');
 >
   <div class="pt-28 pb-20 px-4 sm:px-6 max-w-[1280px] mx-auto">
     <div class="max-w-[72ch]">
-      <h1 class="font-display text-4xl sm:text-5xl font-bold text-deep mb-10">Om</h1>
+      <h1 class="font-display text-4xl sm:text-5xl font-bold text-deep mb-10">Om</h1><div class="space-y-4 text-stone max-w-[65ch] mb-12">
+  <p>Strömkast är en guide för dig som fiskar i svenska vatten. Här hittar du information om fiskevatten, utrustning och teknik, samlat på ett ställe och skrivet för att vara faktiskt användbart.</p>
+  <p>Rekommendationer baseras på tillgänglig produktinformation, användarerfarenheter och egen research. Vi är tydliga med vad som bygger på egna erfarenheter och vad som kommer från andra källor.</p>
+  <p>Sajten finansieras via affiliate-länkar. När du köper något via en länk på Strömkast får vi en liten provision utan kostnad för dig. Det påverkar aldrig vad vi skriver eller hur vi rankar produkter.</p>
+</div>
       <div class="space-y-6">
         {authors.map((author) => (
           <div class="bg-white rounded-2xl p-6 border border-mist flex flex-col sm:flex-row gap-5">
