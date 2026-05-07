@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
   const techniques = await getCollection('techniques');
@@ -12,6 +12,7 @@ export async function getStaticPaths() {
 
 const { technique } = Astro.props;
 const t = technique.data;
+const { Content } = await render(technique);
 
 const allSpecies = await getCollection('species');
 const relatedSpecies = allSpecies.filter((s) =>
@@ -92,9 +93,7 @@ const diff = difficultyConfig[t.difficulty] ?? difficultyConfig['nybörjare']!;
           prose-strong:text-deep
           prose-ul:my-4 prose-li:mb-2
         ">
-          {t.content.split('\n\n').map((para: string) => (
-            <p>{para}</p>
-          ))}
+          <Content />
         </div>
 
         <!-- Related species -->

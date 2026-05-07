@@ -35,7 +35,7 @@ const species = defineCollection({
 });
 
 const techniques = defineCollection({
-  loader: glob({ pattern: '**/*.json', base: './src/content/techniques' }),
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/techniques' }),
   schema: z.object({
     title: z.string(),
     slug: z.string(),
@@ -43,7 +43,6 @@ const techniques = defineCollection({
     heroImage: z.string(),
     targetSpecies: z.array(z.string()),
     difficulty: z.enum(['nybörjare', 'mellannivå', 'avancerad']),
-    content: z.string(),
   }),
 });
 
