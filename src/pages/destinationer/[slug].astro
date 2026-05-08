@@ -1,7 +1,8 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import AffiliateCard from '../../components/AffiliateCard.astro';
-import { getCollection } from 'astro:content';
+import DestinationMap from '../../components/DestinationMap.tsx';
+import { getCollection, render } from 'astro:content';
 import { getImage, type ImageMetadata } from 'astro:assets';
 
 import vanernSrc   from '../../assets/images/destination-vanern.jpg';
@@ -23,13 +24,14 @@ const destImageSources: Record<string, ImageMetadata> = {
 export async function getStaticPaths() {
   const destinations = await getCollection('destinations');
   return destinations.map((dest) => ({
-    params: { slug: dest.data.slug },
+    params: { slug: dest.id },
     props: { destination: dest },
   }));
 }
 
 const { destination } = Astro.props;
 const d = destination.data;
+const { Content } = await render(destination);
 
 const imgSrc = destImageSources[d.slug];
 const heroImg    = imgSrc ? await getImage({ src: imgSrc, format: 'avif', width: 1280, height: 640, quality: 80 }) : null;
@@ -175,7 +177,7 @@ const faqSchema = {
       <div class="lg:col-span-2">
         <h2 class="font-display text-2xl font-bold text-deep mb-6">Om {d.title}</h2>
         <div class="prose prose-sm max-w-[72ch] text-deep/80 leading-relaxed">
-          {d.content.split('\n').map((para: string) => para.trim() ? <p class="mb-4">{para}</p> : null)}
+          <Content />
         </div>
 
         <!-- FAQ -->
@@ -216,9 +218,9 @@ const faqSchema = {
           </a>
         </div>
 
-        <!-- Static map embed placeholder -->
-        <div class="bg-mist rounded-2xl overflow-hidden aspect-square mb-6 flex items-center justify-center">
-          <p class="text-stone text-sm text-center px-6">Karta över {d.title}<br/><span class="text-xs text-stone/60">{d.lat.toFixed(2)}°N, {d.lng.toFixed(2)}°E</span></p>
+        <!-- Leaflet map -->
+        <div class="rounded-2xl overflow-hidden aspect-square mb-6">
+          <DestinationMap lat={d.lat} lng={d.lng} title={d.title} client:only="react" />
         </div>
       </aside>
     </div>

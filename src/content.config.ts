@@ -2,7 +2,7 @@ import { defineCollection, z } from 'astro:content';
 import { glob, file } from 'astro/loaders';
 
 const destinations = defineCollection({
-  loader: glob({ pattern: '**/*.json', base: './src/content/destinations' }),
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/destinations' }),
   schema: z.object({
     title: z.string(),
     slug: z.string(),
@@ -15,7 +15,6 @@ const destinations = defineCollection({
     waterType: z.enum(['lake', 'river', 'coastal', 'stream']),
     iFiskeUrl: z.string().url(),
     recommendedGear: z.array(z.string()),
-    content: z.string(),
     publishedAt: z.string(),
     updatedAt: z.string(),
   }),

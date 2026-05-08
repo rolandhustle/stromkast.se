@@ -8,7 +8,8 @@
       "Bash(git add:*)",
       "Bash(cd:*)",
       "Bash(ls:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(for f:*)"
     ]
   }
 }
