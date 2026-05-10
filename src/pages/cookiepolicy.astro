@@ -1,0 +1,79 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Cookiepolicy"
+  description="Information om hur Strömkast använder cookies och hur du hanterar dina inställningar."
+  pageType="legal"
+>
+  <div class="pt-28 pb-20 px-4 sm:px-6 max-w-[1280px] mx-auto">
+    <div class="max-w-[72ch] space-y-10 text-stone">
+
+      <div>
+        <h1 class="font-display text-4xl font-bold text-deep mb-4">Cookiepolicy</h1>
+        <p class="text-sm text-stone/60">Senast uppdaterad: maj 2026</p>
+      </div>
+
+      <div class="space-y-4 leading-relaxed">
+        <p>Strömkast.se använder ett begränsat antal cookies och liknande spårningstekniker. Den här sidan förklarar vilka de är, varför vi använder dem och hur du kan hantera eller avaktivera dem.</p>
+      </div>
+
+      <div class="space-y-4">
+        <h2 class="font-display text-2xl font-bold text-deep">Vad är cookies?</h2>
+        <p class="leading-relaxed">En cookie är en liten textfil som lagras i din webbläsare när du besöker en webbplats. Cookies används för att webbplatsen ska fungera korrekt, för att förstå hur besökare använder sajten och för att spåra om en länk lett till ett köp.</p>
+      </div>
+
+      <div class="space-y-6">
+        <h2 class="font-display text-2xl font-bold text-deep">Cookies vi använder</h2>
+
+        <div class="bg-white border border-mist rounded-2xl p-6 space-y-3">
+          <h3 class="font-semibold text-deep">Google Tag Manager</h3>
+          <p class="text-sm leading-relaxed">Vi använder Google Tag Manager (GTM) för att hantera och läsa in analysskript. GTM i sig lagrar ingen information om dig, men aktiverar övriga spårningsverktyg nedan när du godkänner cookies.</p>
+          <p class="text-sm"><span class="text-stone/60">Leverantör:</span> Google LLC</p>
+        </div>
+
+        <div class="bg-white border border-mist rounded-2xl p-6 space-y-3">
+          <h3 class="font-semibold text-deep">Google Analytics 4</h3>
+          <p class="text-sm leading-relaxed">GA4 samlar in anonymiserad information om hur besökare använder sajten: vilka sidor som besöks, hur länge man stannar och ungefärlig geografisk plats (land/region). Ingen information kopplas till en identifierbar person. Vi använder dessa uppgifter för att förbättra innehållet på Strömkast.</p>
+          <p class="text-sm"><span class="text-stone/60">Leverantör:</span> Google LLC</p>
+          <p class="text-sm"><span class="text-stone/60">Lagringstid:</span> upp till 14 månader</p>
+        </div>
+
+        <div class="bg-white border border-mist rounded-2xl p-6 space-y-3">
+          <h3 class="font-semibold text-deep">Affiliate-spårning</h3>
+          <p class="text-sm leading-relaxed">Strömkast samarbetar med affiliate-nätverk för att finansiera sajten. När du klickar på en produktlänk kan en spårningscookie sättas av nätverket för att registrera att klicket kom från Strömkast. Om du sedan genomför ett köp får vi en liten provision utan att det påverkar ditt pris. Inga personuppgifter delas med oss, bara att ett köp genomförts.</p>
+          <p class="text-sm"><span class="text-stone/60">Nätverk:</span> Tradedoubler, Adtraction</p>
+          <p class="text-sm"><span class="text-stone/60">Lagringstid:</span> vanligtvis 30 dagar</p>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <h2 class="font-display text-2xl font-bold text-deep">Inga reklamcookies</h2>
+        <p class="leading-relaxed">Vi använder inga cookies för riktad reklam. Vi säljer inte besöksdata till tredje part.</p>
+      </div>
+
+      <div class="space-y-4">
+        <h2 class="font-display text-2xl font-bold text-deep">Ditt val</h2>
+        <p class="leading-relaxed">När du besöker Strömkast för första gången visas en banner där du kan godkänna eller neka cookies. Analysspårning via GA4 och GTM aktiveras bara om du väljer "Godkänn". Affiliate-spårning kan aktiveras när du klickar en produktlänk oavsett val, eftersom den hanteras av det externa nätverket.</p>
+        <p class="leading-relaxed">Du kan när som helst återkalla ditt val genom att rensa webbläsarens localStorage eller cookies, varvid bannern visas igen vid nästa besök.</p>
+      </div>
+
+      <div class="space-y-4">
+        <h2 class="font-display text-2xl font-bold text-deep">Hantera cookies i din webbläsare</h2>
+        <p class="leading-relaxed">Du kan blockera eller radera cookies direkt i din webbläsares inställningar. Observera att vissa funktioner på sajten kan sluta fungera om cookies blockeras helt.</p>
+        <ul class="list-disc list-inside space-y-1 text-sm">
+          <li><a href="https://support.google.com/chrome/answer/95647" class="underline hover:text-deep transition-colors" target="_blank" rel="noopener">Chrome</a></li>
+          <li><a href="https://support.mozilla.org/sv/kb/aktivera-och-avaktivera-kakor" class="underline hover:text-deep transition-colors" target="_blank" rel="noopener">Firefox</a></li>
+          <li><a href="https://support.apple.com/sv-se/guide/safari/sfri11471/mac" class="underline hover:text-deep transition-colors" target="_blank" rel="noopener">Safari</a></li>
+        </ul>
+      </div>
+
+      <div class="space-y-4">
+        <h2 class="font-display text-2xl font-bold text-deep">Kontakt</h2>
+        <p class="leading-relaxed">Frågor om hur vi hanterar cookies besvaras via <a href={`mailto:${'rikard.giby' + '@' + 'gmail.com'}`} class="underline hover:text-deep transition-colors">e-post</a>.</p>
+      </div>
+
+    </div>
+  </div>
+</BaseLayout>
