@@ -25,7 +25,12 @@ const authors = await getCollection('authors');
             </div>
             <div>
               <h2 class="font-display font-bold text-deep text-xl mb-2">{author.data.name}</h2>
-              <p class="text-stone text-sm leading-relaxed">{author.data.bio}</p>
+              <p class="text-stone text-sm leading-relaxed mb-3">{author.data.bio}</p>
+              <a
+                href={`mailto:${'rikard.giby' + '@' + 'gmail.com'}`}
+                class="text-sm hover:underline"
+                style="color: #6E8FA0;"
+              >E-post</a>
             </div>
           </div>
         ))}
