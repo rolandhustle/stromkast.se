@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import AffiliateCard from '../../components/AffiliateCard.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 import { Image, type ImageMetadata } from 'astro:assets';
 
 import abboreSrc from '../../assets/images/species-abborre.png';
@@ -26,11 +26,17 @@ export async function getStaticPaths() {
 
 const { species } = Astro.props;
 const s = species.data;
+const { Content } = await render(species);
 
 const heroImage = speciesImages[s.slug];
 
 const allReviews = await getCollection('gear-reviews');
 const gearRecs = allReviews.filter((r) => s.gearRecs.includes(r.data.slug));
+
+const allDestinations = await getCollection('destinations');
+const topDestinations = allDestinations.filter((d) =>
+  s.topDestinations.includes(d.data.slug)
+);
 
 const allTechniques = await getCollection('techniques');
 const relatedTechniques = allTechniques.filter((t) =>
@@ -109,42 +115,9 @@ const difficultyColor: Record<string, string> = {
       <!-- Main content -->
       <div class="lg:col-span-2 space-y-12">
 
-        <!-- Description -->
-        <div>
-          <p class="text-stone text-lg leading-relaxed">{s.description}</p>
-        </div>
-
-        <!-- Season & techniques -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div class="bg-mist rounded-2xl p-6">
-            <div class="flex items-center gap-2 mb-3">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="text-pine" aria-hidden="true">
-                <rect x="2" y="2" width="12" height="12" rx="2"/>
-                <path d="M5 1v2M11 1v2M2 6h12"/>
-              </svg>
-              <h2 class="font-display font-bold text-deep text-lg">Bästa säsong</h2>
-            </div>
-            <p class="text-stone text-sm leading-relaxed">{s.season}</p>
-          </div>
-
-          <div class="bg-mist rounded-2xl p-6">
-            <div class="flex items-center gap-2 mb-3">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="text-pine" aria-hidden="true">
-                <path d="M2 14c0-3 2-5 3.5-6.5"/>
-                <path d="M4 8C4.7 5 6.5 3 8 3s3.5 1.5 4 5c.4 2.5-.5 4-1.5 4.5"/>
-                <path d="M12 12c.5-1 .8-2.5.5-4"/>
-              </svg>
-              <h2 class="font-display font-bold text-deep text-lg">Tekniker</h2>
-            </div>
-            <ul class="space-y-1.5">
-              {s.techniques.map((t: string) => (
-                <li class="flex items-center gap-2 text-sm text-stone">
-                  <span class="w-1.5 h-1.5 rounded-full bg-pine shrink-0" aria-hidden="true"></span>
-                  {t}
-                </li>
-              ))}
-            </ul>
-          </div>
+        <!-- MDX body content -->
+        <div class="prose prose-sm max-w-[72ch] text-deep/80 leading-relaxed">
+          <Content />
         </div>
 
         <!-- Related techniques -->
@@ -203,15 +176,33 @@ const difficultyColor: Record<string, string> = {
           </dl>
         </div>
 
-        <!-- Destinations link -->
+        <!-- Destinations -->
         <div class="bg-mist rounded-2xl p-6">
-          <h3 class="font-display font-bold text-deep text-lg mb-2">Var fiskar man {s.title.toLowerCase()}?</h3>
-          <p class="text-stone text-sm leading-relaxed mb-4">Hitta de bästa vattnen för {s.title.toLowerCase()} i vår destinationsguide.</p>
+          <h3 class="font-display font-bold text-deep text-lg mb-4">Var fiskar man {s.title.toLowerCase()}?</h3>
+          {topDestinations.length > 0 ? (
+            <ul class="space-y-2">
+              {topDestinations.map((d) => (
+                <li>
+                  <a
+                    href={`/destinationer/${d.data.slug}/`}
+                    class="flex items-center justify-between gap-2 text-sm font-medium text-deep hover:text-pine transition-colors"
+                  >
+                    {d.data.title}
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true" class="shrink-0 text-stone/40">
+                      <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p class="text-stone text-sm leading-relaxed mb-4">Hitta de bästa vattnen för {s.title.toLowerCase()} i vår destinationsguide.</p>
+          )}
           <a
             href="/destinationer/"
-            class="inline-flex items-center gap-1.5 text-pine font-semibold text-sm hover:text-deep transition-colors"
+            class="inline-flex items-center gap-1.5 text-pine font-semibold text-sm hover:text-deep transition-colors mt-4"
           >
-            Utforska destinationer
+            Alla destinationer
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
               <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>

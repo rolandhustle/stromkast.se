@@ -21,15 +21,16 @@ const destinations = defineCollection({
 });
 
 const species = defineCollection({
-  loader: glob({ pattern: '**/*.json', base: './src/content/species' }),
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/species' }),
   schema: z.object({
     title: z.string(),
     slug: z.string(),
     description: z.string(),
     heroImage: z.string(),
-    season: z.string(),
-    techniques: z.array(z.string()),
-    gearRecs: z.array(z.string()),
+    season: z.string().optional().default(''),
+    techniques: z.array(z.string()).optional().default([]),
+    gearRecs: z.array(z.string()).optional().default([]),
+    topDestinations: z.array(z.string()).optional().default([]),
   }),
 });
 
