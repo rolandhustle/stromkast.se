@@ -56,6 +56,16 @@ const breadcrumbSchema = {
   ],
 };
 
+const techniqueNames: Record<string, string> = {
+  'drop-shot':  'Drop-shot',
+  'spinnfiske': 'Spinnfiske',
+  'jiggfiske':  'Jiggfiske',
+  'isfiske':    'Isfiske',
+  'flugfiske':  'Flugfiske',
+  'trolling':   'Trolling',
+  'mete':       'Mete',
+};
+
 const difficultyColor: Record<string, string> = {
   'nybörjare': 'bg-green-100 text-green-700',
   'mellannivå': 'bg-amber-100 text-amber-700',
@@ -159,14 +169,24 @@ const difficultyColor: Record<string, string> = {
         <div class="bg-pine text-white rounded-2xl p-6">
           <h2 class="font-display font-bold text-xl mb-5">Snabbfakta</h2>
           <dl class="space-y-4 text-sm">
-            <div>
-              <dt class="text-white/60 text-xs uppercase tracking-wider mb-1">Säsong</dt>
-              <dd class="font-medium leading-snug">{s.season.split('(')[0]?.trim()}</dd>
-            </div>
-            <div>
-              <dt class="text-white/60 text-xs uppercase tracking-wider mb-1">Tekniker</dt>
-              <dd class="font-medium">{s.techniques.slice(0, 2).join(', ')}</dd>
-            </div>
+            {s.season && (
+              <div>
+                <dt class="text-white/60 text-xs uppercase tracking-wider mb-1">Säsong</dt>
+                <dd class="font-medium leading-snug">{s.season}</dd>
+              </div>
+            )}
+            {s.targetTechniques.length > 0 && (
+              <div>
+                <dt class="text-white/60 text-xs uppercase tracking-wider mb-1">Tekniker</dt>
+                <dd class="flex flex-col gap-1">
+                  {s.targetTechniques.map((slug: string) => (
+                    <a href={`/teknik/${slug}/`} class="font-medium hover:text-copper transition-colors">
+                      {techniqueNames[slug] ?? slug}
+                    </a>
+                  ))}
+                </dd>
+              </div>
+            )}
             <div>
               <dt class="text-white/60 text-xs uppercase tracking-wider mb-1">Fler arter</dt>
               <dd>

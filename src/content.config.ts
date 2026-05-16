@@ -29,6 +29,7 @@ const species = defineCollection({
     heroImage: z.string(),
     season: z.string().optional().default(''),
     techniques: z.array(z.string()).optional().default([]),
+    targetTechniques: z.array(z.string()).optional().default([]),
     gearRecs: z.array(z.string()).optional().default([]),
     topDestinations: z.array(z.string()).optional().default([]),
   }),
