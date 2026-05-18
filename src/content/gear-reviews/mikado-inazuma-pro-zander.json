@@ -1,0 +1,34 @@
+{
+  "title": "Mikado Rod Inazuma Pro Zander 214cm",
+  "slug": "mikado-inazuma-pro-zander",
+  "description": "Lätt och känsligt jigg- och dropshotspö till ett mycket förmånligt pris. Passar utmärkt för abborre och gös i sjö och kust.",
+  "heroImage": "/images/gear/mikado-inazuma-pro-zander.jpg",
+  "brand": "Mikado",
+  "category": "spon",
+  "price": 699,
+  "rating": 4.0,
+  "pros": [
+    "Mycket prisvärt",
+    "Bra känslighet för prisnivån",
+    "Lämplig kastvikt för jigg och dropshot",
+    "Passar både abborre och gös"
+  ],
+  "cons": [
+    "Begränsad lagerstatus",
+    "Inte lika finkänsligt som dyrare alternativ"
+  ],
+  "affiliateUrl": "",
+  "merchant": "FiskeOnline",
+  "featured": false,
+  "budgetPick": true,
+  "targetSpecies": [
+    "abborre",
+    "gos"
+  ],
+  "techniques": [
+    "jigg",
+    "dropshot"
+  ],
+  "priceRange": "budget",
+  "quizEnabled": true
+}

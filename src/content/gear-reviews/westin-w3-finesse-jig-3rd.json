@@ -1,0 +1,33 @@
+{
+  "title": "Westin W3 Finesse Jig 3rd Haspelspö 7'3\" 5-20g",
+  "slug": "westin-w3-finesse-jig-3rd",
+  "description": "Dedikerat jiggspö för abborre med medium fast aktion. Kastvikten 5-20g täcker de flesta abborrjiggar och ger god huggkänsel.",
+  "heroImage": "/images/gear/westin-w3-finesse-jig-3rd.jpg",
+  "brand": "Westin",
+  "category": "spon",
+  "price": 1489,
+  "rating": 4.4,
+  "pros": [
+    "Bra huggkänsel",
+    "Bredare kastviktsrange än T&C",
+    "Passar jigg och dropshot",
+    "Medium Fast aktion"
+  ],
+  "cons": [
+    "Inte lika känsligt som rena finessespön",
+    "Lite längre än idealiskt för smala platser"
+  ],
+  "affiliateUrl": "",
+  "merchant": "FiskeOnline",
+  "featured": true,
+  "budgetPick": false,
+  "targetSpecies": [
+    "abborre"
+  ],
+  "techniques": [
+    "jigg",
+    "dropshot"
+  ],
+  "priceRange": "mellanklass",
+  "quizEnabled": true
+}

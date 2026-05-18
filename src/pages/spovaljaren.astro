@@ -1,25 +1,44 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SpoQuiz from '../components/quiz/SpoQuiz';
+import { getCollection } from 'astro:content';
+
+const allRods = await getCollection('gear-reviews', (entry) => {
+  return entry.data.quizEnabled === true;
+});
+
+const rods = allRods.map((entry) => ({
+  slug: entry.data.slug,
+  title: entry.data.title,
+  brand: entry.data.brand,
+  price: entry.data.price,
+  description: entry.data.description,
+  affiliateUrl: entry.data.affiliateUrl,
+  targetSpecies: entry.data.targetSpecies,
+  techniques: entry.data.techniques,
+  priceRange: entry.data.priceRange,
+  featured: entry.data.featured,
+  budgetPick: entry.data.budgetPick,
+  rating: entry.data.rating,
+}));
 
 const howToSchema = {
   '@context': 'https://schema.org',
   '@type': 'HowTo',
   name: 'Hitta rätt fiskespö med Spöväljaren',
-  description: 'Besvara 5 frågor om din fiskestil för att få personliga spörekommendationer.',
+  description: 'Besvara 4 frågor om din fiskestil för att få personliga spörekommendationer.',
   step: [
     { '@type': 'HowToStep', position: 1, name: 'Välj målart' },
-    { '@type': 'HowToStep', position: 2, name: 'Välj vattentyp' },
-    { '@type': 'HowToStep', position: 3, name: 'Välj teknik' },
-    { '@type': 'HowToStep', position: 4, name: 'Ange erfarenhetsnivå' },
-    { '@type': 'HowToStep', position: 5, name: 'Ange budget' },
+    { '@type': 'HowToStep', position: 2, name: 'Välj teknik' },
+    { '@type': 'HowToStep', position: 3, name: 'Ange erfarenhetsnivå' },
+    { '@type': 'HowToStep', position: 4, name: 'Ange budget' },
   ],
 };
 ---
 
 <BaseLayout
   title="Spöväljaren: hitta rätt fiskespö på 60 sekunder"
-  description="Svara på fem frågor om din fiskestil och budget. Vi matchar dig med de tre bästa spöna för dina behov."
+  description="Svara på fyra frågor om din fiskestil och budget. Vi matchar dig med de bästa spöna för dina behov."
   schema={howToSchema}
   pageType="quiz"
 >
@@ -27,11 +46,11 @@ const howToSchema = {
     <div class="max-w-xl mx-auto text-center mb-12">
       <p class="text-stone text-sm font-medium uppercase tracking-wider mb-3">Spöväljaren</p>
       <h1 class="font-display text-4xl sm:text-5xl font-bold text-deep mb-4">Hitta rätt spö<br/>på 60 sekunder</h1>
-      <p class="text-stone text-lg leading-relaxed">Fem enkla frågor. Personliga rekommendationer. Inget krångel.</p>
+      <p class="text-stone text-lg leading-relaxed">Fyra enkla frågor. Personliga rekommendationer. Inget krångel.</p>
     </div>
 
     <div class="max-w-xl mx-auto bg-white rounded-3xl border border-mist p-8 shadow-sm">
-      <SpoQuiz client:load />
+      <SpoQuiz client:load rods={rods} />
     </div>
 
     <p class="text-center text-stone/60 text-xs mt-6 max-w-sm mx-auto">

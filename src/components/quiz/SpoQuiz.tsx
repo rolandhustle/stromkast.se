@@ -1,62 +1,50 @@
 import { useState } from 'react';
 import { trackQuizStart, trackQuizCompleted } from '../../lib/track';
 
-interface QuizResult {
+interface GearReview {
   slug: string;
   title: string;
   brand: string;
   price: number;
-  reason: string;
+  description: string;
   affiliateUrl: string;
+  targetSpecies: string[];
+  techniques: string[];
+  priceRange: 'budget' | 'mellanklass' | 'premium';
+  featured: boolean;
+  budgetPick: boolean;
+  rating: number;
 }
 
 interface QuizAnswers {
   targetSpecies?: string;
-  waterType?: string;
   technique?: string;
   experience?: string;
   budget?: string;
 }
 
-const RESULTS: Record<string, QuizResult[]> = {
-  pike_lake_softbait_beginner_low: [
-    { slug: 'berkley-maxfire-pike', title: 'Berkley Maxfire Pike 240MH', brand: 'Berkley', price: 1199, reason: 'Perfekt för nybörjaren: bra känsla, enkel att kasta och prisvärd.', affiliateUrl: '' },
-    { slug: 'savage-gear-sg2-pike', title: 'Savage Gear SG2 Pike Specialist', brand: 'Savage Gear', price: 1899, reason: 'Nästa steg när du vill uppgradera: lätt och responsivt spö.', affiliateUrl: '' },
-  ],
-  default: [
-    { slug: 'berkley-maxfire-pike', title: 'Berkley Maxfire Pike 240MH', brand: 'Berkley', price: 1199, reason: 'Utmärkt allround-val för de flesta fiskesituationer.', affiliateUrl: '' },
-    { slug: 'savage-gear-sg2-pike', title: 'Savage Gear SG2 Pike Specialist', brand: 'Savage Gear', price: 1899, reason: 'Premium-alternativet för den som vill ha det bästa.', affiliateUrl: '' },
-  ],
-};
+interface Props {
+  rods: GearReview[];
+}
 
 const QUESTIONS = [
   {
     id: 'targetSpecies',
     question: 'Vilken art vill du fiska mest?',
     options: [
-      { value: 'pike', label: 'Gädda' },
-      { value: 'perch', label: 'Abborre' },
-      { value: 'pike_perch', label: 'Gös' },
-      { value: 'trout', label: 'Öring / Lax' },
-    ],
-  },
-  {
-    id: 'waterType',
-    question: 'Var fiskar du mest?',
-    options: [
-      { value: 'lake', label: 'Sjö' },
-      { value: 'river', label: 'Å / Älv' },
-      { value: 'coastal', label: 'Kust / Hav' },
-      { value: 'mixed', label: 'Blandat' },
+      { value: 'abborre', label: 'Abborre' },
+      { value: 'gadda', label: 'Gädda' },
+      { value: 'gos', label: 'Gös' },
+      { value: 'mixed', label: 'Blandat / Vet inte' },
     ],
   },
   {
     id: 'technique',
     question: 'Vilken teknik föredrar du?',
     options: [
-      { value: 'softbait', label: 'Jigg / Softbait' },
-      { value: 'lure', label: 'Hårdplugg / Wobbler' },
-      { value: 'fly', label: 'Flugfiske' },
+      { value: 'jigg', label: 'Jigg / Softbait' },
+      { value: 'dropshot', label: 'Dropshot' },
+      { value: 'spinn', label: 'Spinn / Wobbler' },
       { value: 'unsure', label: 'Inte säker ännu' },
     ],
   },
@@ -73,27 +61,66 @@ const QUESTIONS = [
     id: 'budget',
     question: 'Vad är din budget för ett spö?',
     options: [
-      { value: 'low', label: 'Under 1 000 kr' },
-      { value: 'mid', label: '1 000–2 000 kr' },
-      { value: 'high', label: '2 000–4 000 kr' },
-      { value: 'premium', label: 'Ingen gräns' },
+      { value: 'budget', label: 'Under 1 000 kr' },
+      { value: 'mellanklass', label: '1 000–2 000 kr' },
+      { value: 'premium', label: '2 000–4 000 kr' },
     ],
   },
 ];
 
-function getResults(answers: QuizAnswers): QuizResult[] {
-  const key = `${answers.targetSpecies}_${answers.waterType}_${answers.technique}_${answers.experience}_${answers.budget}`;
-  return RESULTS[key] ?? RESULTS['default']!;
+function matchRods(rods: GearReview[], answers: QuizAnswers): GearReview[] {
+  const { targetSpecies, technique, budget } = answers;
+
+  // Poängsätt varje spö
+  const scored = rods.map((rod) => {
+    let score = 0;
+
+    // Art-matchning (viktigast)
+    if (targetSpecies && targetSpecies !== 'mixed') {
+      if (rod.targetSpecies.includes(targetSpecies)) score += 3;
+    } else {
+      // Blandat: ge poäng för bredd
+      score += rod.targetSpecies.length;
+    }
+
+    // Teknik-matchning
+    if (technique && technique !== 'unsure') {
+      if (rod.techniques.includes(technique)) score += 2;
+    }
+
+    // Prisklass-matchning
+    if (budget) {
+      if (rod.priceRange === budget) score += 2;
+      // Angränsande prisklass ger ett poäng
+      const ranges = ['budget', 'mellanklass', 'premium'];
+      const diff = Math.abs(ranges.indexOf(rod.priceRange) - ranges.indexOf(budget));
+      if (diff === 1) score += 1;
+    }
+
+    // Bonus för featured/budgetPick
+    if (rod.featured) score += 1;
+    if (budget === 'budget' && rod.budgetPick) score += 1;
+
+    return { rod, score };
+  });
+
+  // Sortera på poäng, ta topp 3
+  return scored
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3)
+    .map((s) => s.rod);
 }
 
-export default function SpoQuiz() {
+export default function SpoQuiz({ rods }: Props) {
   const [step, setStep] = useState<'intro' | number | 'email' | 'results'>('intro');
   const [answers, setAnswers] = useState<QuizAnswers>({});
   const [email, setEmail] = useState('');
-  const [results, setResults] = useState<QuizResult[]>([]);
+  const [results, setResults] = useState<GearReview[]>([]);
 
   const currentQ = typeof step === 'number' ? QUESTIONS[step] : null;
-  const progress = typeof step === 'number' ? ((step) / QUESTIONS.length) * 100 : step === 'email' ? 95 : step === 'results' ? 100 : 0;
+  const progress = typeof step === 'number'
+    ? (step / QUESTIONS.length) * 100
+    : step === 'email' ? 95 : step === 'results' ? 100 : 0;
 
   function handleStart() {
     trackQuizStart();
@@ -113,18 +140,21 @@ export default function SpoQuiz() {
 
   function handleEmailSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const r = getResults(answers);
+    const r = matchRods(rods, answers);
     setResults(r);
     trackQuizCompleted(r.map((x) => x.slug));
     setStep('results');
   }
 
   function handleSkipEmail() {
-    const r = getResults(answers);
+    const r = matchRods(rods, answers);
     setResults(r);
     trackQuizCompleted(r.map((x) => x.slug));
     setStep('results');
   }
+
+  const priceFormatted = (price: number) =>
+    new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK', maximumFractionDigits: 0 }).format(price);
 
   return (
     <div className="max-w-xl mx-auto">
@@ -158,7 +188,7 @@ export default function SpoQuiz() {
             </svg>
           </div>
           <h2 className="font-display text-2xl font-bold text-deep mb-3">Hitta ditt perfekta spö</h2>
-          <p className="text-stone leading-relaxed mb-8">Svara på fem korta frågor om hur du fiskar. Vi matchar dig med de bästa spöna för dina behov.</p>
+          <p className="text-stone leading-relaxed mb-8">Svara på fyra korta frågor om hur du fiskar. Vi matchar dig med de bästa spöna för dina behov.</p>
           <button
             onClick={handleStart}
             className="inline-flex items-center gap-2 bg-rust text-white font-bold px-8 py-4 rounded-full hover:bg-copper transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rust focus-visible:ring-offset-2"
@@ -171,7 +201,7 @@ export default function SpoQuiz() {
         </div>
       )}
 
-      {/* Question */}
+      {/* Fråga */}
       {currentQ && (
         <div>
           <h2 className="font-display text-2xl font-bold text-deep mb-8 text-center">{currentQ.question}</h2>
@@ -189,7 +219,7 @@ export default function SpoQuiz() {
         </div>
       )}
 
-      {/* Email capture */}
+      {/* E-postfångst */}
       {step === 'email' && (
         <div className="text-center py-4">
           <h2 className="font-display text-2xl font-bold text-deep mb-3">Skicka resultaten till din inbox?</h2>
@@ -220,7 +250,7 @@ export default function SpoQuiz() {
         </div>
       )}
 
-      {/* Results */}
+      {/* Resultat */}
       {step === 'results' && (
         <div>
           <div className="text-center mb-8">
@@ -234,9 +264,9 @@ export default function SpoQuiz() {
           </div>
 
           <div className="space-y-4">
-            {results.map((result, i) => (
+            {results.map((rod, i) => (
               <div
-                key={result.slug}
+                key={rod.slug}
                 className={`bg-white rounded-2xl p-5 border-2 ${i === 0 ? 'border-rust' : 'border-mist'}`}
               >
                 {i === 0 && (
@@ -244,18 +274,23 @@ export default function SpoQuiz() {
                     Bästa match
                   </span>
                 )}
-                <p className="text-xs text-stone font-medium uppercase tracking-wider mb-1">{result.brand}</p>
-                <h3 className="font-display font-bold text-deep text-lg mb-2">{result.title}</h3>
-                <p className="text-stone text-sm leading-relaxed mb-4">{result.reason}</p>
+                {rod.budgetPick && i !== 0 && (
+                  <span className="inline-block bg-copper text-white text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wide mb-3">
+                    Bästa budget
+                  </span>
+                )}
+                <p className="text-xs text-stone font-medium uppercase tracking-wider mb-1">{rod.brand}</p>
+                <h3 className="font-display font-bold text-deep text-lg mb-2">{rod.title}</h3>
+                <p className="text-stone text-sm leading-relaxed mb-4">{rod.description}</p>
                 <div className="flex items-center justify-between">
-                  <p className="text-xl font-bold text-deep">{new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK', maximumFractionDigits: 0 }).format(result.price)}</p>
+                  <p className="text-xl font-bold text-deep">{priceFormatted(rod.price)}</p>
                   <a
-                    href={result.affiliateUrl || `/utrustning/test/${result.slug}/`}
+                    href={rod.affiliateUrl || `/utrustning/test/${rod.slug}/`}
                     className="inline-flex items-center gap-1.5 bg-pine text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-deep transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine"
-                    target={result.affiliateUrl ? '_blank' : undefined}
-                    rel={result.affiliateUrl ? 'noopener noreferrer sponsored' : undefined}
+                    target={rod.affiliateUrl ? '_blank' : undefined}
+                    rel={rod.affiliateUrl ? 'noopener noreferrer sponsored' : undefined}
                   >
-                    Se pris
+                    {rod.affiliateUrl ? 'Se pris hos FiskeOnline' : 'Läs recension'}
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                       <path d="M2 10L10 2M10 2H4M10 2v6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
@@ -265,7 +300,11 @@ export default function SpoQuiz() {
             ))}
           </div>
 
-          <div className="mt-8 text-center">
+          <p className="text-xs text-stone/60 text-center mt-6">
+            *Rekommendationerna är baserade på vår redaktionella bedömning. Affiliatelänkar kan förekomma.
+          </p>
+
+          <div className="mt-6 text-center">
             <button
               onClick={() => { setStep('intro'); setAnswers({}); setResults([]); }}
               className="text-stone text-sm underline hover:text-pine transition-colors"

@@ -1,0 +1,33 @@
+{
+  "title": "Shimano Nexave Haspelspö 1,91m 3-14g",
+  "slug": "shimano-nexave-haspelspo-191m",
+  "description": "Pålitligt nybörjarspö från Shimano. Snabb aktion och smal kastviktsrange gör det lämpligt för lätta beten och abborrfiske längs strandzoner.",
+  "heroImage": "/images/gear/shimano-nexave-haspelspo-191m.jpg",
+  "brand": "Shimano",
+  "category": "spon",
+  "price": 799,
+  "rating": 3.9,
+  "pros": [
+    "Välkänt varumärke",
+    "Snabb aktion passar abborre",
+    "Prisvärt för Shimano",
+    "Bra grundspö för nybörjare"
+  ],
+  "cons": [
+    "Smal kastviktsrange",
+    "Begränsat lagersaldo"
+  ],
+  "affiliateUrl": "",
+  "merchant": "FiskeOnline",
+  "featured": false,
+  "budgetPick": true,
+  "targetSpecies": [
+    "abborre"
+  ],
+  "techniques": [
+    "spinn",
+    "jigg"
+  ],
+  "priceRange": "budget",
+  "quizEnabled": true
+}

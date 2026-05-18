@@ -1,0 +1,34 @@
+{
+  "title": "Westin W2 Powercast-T Spinnspö 8'3\" 20-80g",
+  "slug": "westin-w2-powercast-t-spinnspo",
+  "description": "Mångsidigt gäddspö i mellanklass från Westin. Kastvikten 20-80g passar de flesta wobblers och mjuka jiggar för gädda i insjö och brackvatten.",
+  "heroImage": "/images/gear/westin-w2-powercast-t-spinnspo.jpg",
+  "brand": "Westin",
+  "category": "spon",
+  "price": 949,
+  "rating": 4.3,
+  "pros": [
+    "Bra pris för Westin",
+    "Bred kastviktsrange",
+    "Passar de flesta gäddsituationer",
+    "Bra rea-pris"
+  ],
+  "cons": [
+    "Inte lika lätt som W3/W6",
+    "XH-aktion kan vara hård för nybörjare"
+  ],
+  "affiliateUrl": "",
+  "merchant": "FiskeOnline",
+  "featured": false,
+  "budgetPick": false,
+  "targetSpecies": [
+    "gadda"
+  ],
+  "techniques": [
+    "spinn",
+    "wobbler",
+    "jigg"
+  ],
+  "priceRange": "mellanklass",
+  "quizEnabled": true
+}

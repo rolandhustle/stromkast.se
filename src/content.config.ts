@@ -73,6 +73,12 @@ const gearReviews = defineCollection({
     affiliateUrl: z.string(),
     merchant: z.string(),
     featured: z.boolean().default(false),
+    budgetPick: z.boolean().default(false),
+    // Quiz-matchningsfält
+    targetSpecies: z.array(z.enum(['abborre', 'gadda', 'gos', 'oring', 'lax', 'harr', 'havsoring'])).default([]),
+    techniques: z.array(z.enum(['jigg', 'dropshot', 'spinn', 'wobbler', 'flugfiske', 'mete', 'trolling', 'isfiske'])).default([]),
+    priceRange: z.enum(['budget', 'mellanklass', 'premium']),
+    quizEnabled: z.boolean().default(false), // true = visas i SpoQuiz
   }),
 });
 

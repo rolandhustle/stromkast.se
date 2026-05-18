@@ -1,0 +1,34 @@
+{
+  "title": "BFT Lizzard X Stefan Trumstedt 7'10\" MH 130g",
+  "slug": "bft-lizzard-x-stefan-trumstedt",
+  "description": "Signaturspö från BFT i samarbete med Stefan Trumstedt. Lätt och känsligt trots MH-aktionen, med kastvikt upp till 130g för de tyngsta gäddriggar.",
+  "heroImage": "/images/gear/bft-lizzard-x-stefan-trumstedt.jpg",
+  "brand": "BFT",
+  "category": "spon",
+  "price": 2899,
+  "rating": 4.7,
+  "pros": [
+    "Signaturmodell från erfaren gäddfiskare",
+    "Lätt för kastvikten",
+    "Bred användning — jigg och wobbler",
+    "Hög prestige i gäddkretsar"
+  ],
+  "cons": [
+    "Högt pris",
+    "Begränsat lager"
+  ],
+  "affiliateUrl": "",
+  "merchant": "FiskeOnline",
+  "featured": false,
+  "budgetPick": false,
+  "targetSpecies": [
+    "gadda"
+  ],
+  "techniques": [
+    "spinn",
+    "wobbler",
+    "jigg"
+  ],
+  "priceRange": "premium",
+  "quizEnabled": true
+}

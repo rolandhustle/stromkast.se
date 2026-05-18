@@ -1,0 +1,32 @@
+{
+  "title": "Westin W6 Dropshot Haspelspö 7' 4-21g",
+  "slug": "westin-w6-dropshot-haspelspo",
+  "description": "Dedikerat toppspö för dropshotfiske efter abborre. Byggd specifikt för tekniken med optimal balans mellan känslighet och styrka för att hantera djupare vatten.",
+  "heroImage": "/images/gear/westin-w6-dropshot-haspelspo.jpg",
+  "brand": "Westin",
+  "category": "spon",
+  "price": 2659,
+  "rating": 4.7,
+  "pros": [
+    "Byggd specifikt för dropshot",
+    "Utmärkt huggkänsel",
+    "Bra kastviktsrange för tekniken",
+    "Premium Westin-kvalitet"
+  ],
+  "cons": [
+    "Specialiserat — inte för andra tekniker",
+    "Högt pris"
+  ],
+  "affiliateUrl": "",
+  "merchant": "FiskeOnline",
+  "featured": false,
+  "budgetPick": false,
+  "targetSpecies": [
+    "abborre"
+  ],
+  "techniques": [
+    "dropshot"
+  ],
+  "priceRange": "premium",
+  "quizEnabled": true
+}
