@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
   const reviews = await getCollection('gear-reviews');
@@ -12,6 +12,7 @@ export async function getStaticPaths() {
 
 const { review } = Astro.props;
 const r = review.data;
+const { Content } = await render(review);
 
 const allReviews = await getCollection('gear-reviews');
 const related = allReviews
@@ -210,6 +211,18 @@ const stars = Math.round(r.rating);
             </div>
           </div>
           <p class="text-xs text-stone/60 mt-4 leading-relaxed">Betyget är ett redaktionellt omdöme baserat på specifikationer, prisnivå och varumärkets rykte. Det är inte baserat på ett eget produkttest.</p>
+        </div>
+
+        <!-- Redaktionellt innehåll (MDX body) -->
+        <div class="prose prose-stone max-w-none mb-10
+          prose-headings:font-display prose-headings:text-deep
+          prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-4
+          prose-h3:text-xl prose-h3:font-semibold prose-h3:mt-6 prose-h3:mb-3
+          prose-p:leading-relaxed prose-p:text-stone
+          prose-strong:text-deep prose-strong:font-semibold
+          prose-ul:text-stone prose-li:my-1
+          prose-a:text-sky prose-a:no-underline hover:prose-a:text-pine">
+          <Content />
         </div>
 
         <!-- Related products -->

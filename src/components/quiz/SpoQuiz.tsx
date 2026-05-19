@@ -45,6 +45,7 @@ const QUESTIONS = [
       { value: 'jigg', label: 'Jigg / Softbait' },
       { value: 'dropshot', label: 'Dropshot' },
       { value: 'spinn', label: 'Spinn / Wobbler' },
+      { value: 'jerkbait', label: 'Jerkbait' },
       { value: 'unsure', label: 'Inte säker ännu' },
     ],
   },

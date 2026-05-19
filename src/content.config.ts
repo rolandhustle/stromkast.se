@@ -58,7 +58,7 @@ const gearCategories = defineCollection({
 });
 
 const gearReviews = defineCollection({
-  loader: glob({ pattern: '**/*.json', base: './src/content/gear-reviews' }),
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/gear-reviews' }),
   schema: z.object({
     title: z.string(),
     slug: z.string(),
@@ -74,11 +74,10 @@ const gearReviews = defineCollection({
     merchant: z.string(),
     featured: z.boolean().default(false),
     budgetPick: z.boolean().default(false),
-    // Quiz-matchningsfält
     targetSpecies: z.array(z.enum(['abborre', 'gadda', 'gos', 'oring', 'lax', 'harr', 'havsoring'])).default([]),
-    techniques: z.array(z.enum(['jigg', 'dropshot', 'spinn', 'wobbler', 'flugfiske', 'mete', 'trolling', 'isfiske'])).default([]),
+    techniques: z.array(z.enum(['jigg', 'dropshot', 'spinn', 'wobbler', 'jerkbait', 'flugfiske', 'mete', 'trolling', 'isfiske'])).default([]),
     priceRange: z.enum(['budget', 'mellanklass', 'premium']),
-    quizEnabled: z.boolean().default(false), // true = visas i SpoQuiz
+    quizEnabled: z.boolean().default(false),
   }),
 });
 
