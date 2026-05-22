@@ -4,6 +4,27 @@ import { getCollection } from 'astro:content';
 
 const techniques = await getCollection('techniques');
 
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Hem', item: 'https://stromkast.se/' },
+    { '@type': 'ListItem', position: 2, name: 'Teknik', item: 'https://stromkast.se/teknik/' },
+  ],
+};
+
+const itemListSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'Fisketekniker',
+  itemListElement: techniques.map((t, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: t.data.title,
+    url: `https://stromkast.se/teknik/${t.data.slug}/`,
+  })),
+};
+
 const difficultyLabel: Record<string, string> = {
   'nybörjare': 'Nybörjare',
   'mellannivå': 'Mellannivå',
@@ -18,6 +39,7 @@ const difficultyColor: Record<string, string> = {
 ---
 
 <BaseLayout
+  schema={[breadcrumbSchema, itemListSchema]}
   title="Fisketekniker: guider för alla nivåer"
   description="Djupgående guider till de vanligaste fisketeknikerna. Från jiggfiske för nybörjare till flugfiske på elitnivå."
   pageType="technique-index"

@@ -31,12 +31,13 @@ const productSchema = {
   name: r.title,
   description: r.description,
   brand: { '@type': 'Brand', name: r.brand },
-  image: r.heroImage,
+  image: `https://stromkast.se${r.heroImage}`,
   offers: {
     '@type': 'Offer',
     price: r.price,
     priceCurrency: 'SEK',
     availability: 'https://schema.org/InStock',
+    url: `https://stromkast.se/utrustning/test/${r.slug}/`,
     seller: { '@type': 'Organization', name: r.merchant },
   },
   aggregateRating: {

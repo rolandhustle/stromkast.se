@@ -44,6 +44,7 @@ const techniques = defineCollection({
     heroImage: z.string(),
     targetSpecies: z.array(z.string()),
     difficulty: z.enum(['nybörjare', 'mellannivå', 'avancerad']),
+    topDestinations: z.array(z.string()).optional().default([]),
   }),
 });
 
@@ -54,6 +55,7 @@ const gearCategories = defineCollection({
     slug: z.string(),
     description: z.string(),
     heroImage: z.string(),
+    guideUrl: z.string().optional(),  // URL till redaktionell guide för kategorin, t.ex. "/artiklar/basta-fiskespon-2026/"
   }),
 });
 

@@ -56,6 +56,21 @@ const breadcrumbSchema = {
   ],
 };
 
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: `${s.title}: guide till fiske, säsong och utrustning`,
+  description: s.description,
+  image: `https://stromkast.se${s.heroImage}`,
+  url: `https://stromkast.se/arter/${s.slug}/`,
+  dateModified: s.updatedAt ?? s.publishedAt,
+  publisher: {
+    '@type': 'Organization',
+    name: 'Strömkast',
+    url: 'https://stromkast.se/',
+  },
+};
+
 const techniqueNames: Record<string, string> = {
   'drop-shot':  'Drop-shot',
   'spinnfiske': 'Spinnfiske',
@@ -77,7 +92,7 @@ const difficultyColor: Record<string, string> = {
   title={`${s.title}: guide till fiske, säsong och utrustning`}
   description={s.description}
   ogImage={s.heroImage}
-  schema={breadcrumbSchema}
+  schema={[breadcrumbSchema, articleSchema]}
   pageType="species"
 >
   <!-- Breadcrumb -->

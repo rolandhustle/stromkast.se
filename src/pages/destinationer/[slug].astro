@@ -40,15 +40,26 @@ const breadcrumbSchema = {
 
 const destinationSchema = {
   '@context': 'https://schema.org',
-  '@type': 'TouristDestination',
-  name: d.title,
+  '@type': 'Article',
+  headline: `Fiska ${d.title}: guide, tips och fiskekort`,
   description: d.description,
-  geo: {
-    '@type': 'GeoCoordinates',
-    latitude: d.lat,
-    longitude: d.lng,
+  image: `https://stromkast.se${d.heroImage}`,
+  url: `https://stromkast.se/destinationer/${d.slug}/`,
+  dateModified: d.updatedAt ?? d.publishedAt,
+  publisher: {
+    '@type': 'Organization',
+    name: 'Strömkast',
+    url: 'https://stromkast.se/',
   },
-  touristType: 'Sportfiskare',
+  about: {
+    '@type': 'Place',
+    name: d.title,
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: d.lat,
+      longitude: d.lng,
+    },
+  },
 };
 
 const faqSchema = {
