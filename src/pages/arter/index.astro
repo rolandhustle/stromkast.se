@@ -3,33 +3,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
 const species = await getCollection('species');
-
-const breadcrumbSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'BreadcrumbList',
-  itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Hem', item: 'https://stromkast.se/' },
-    { '@type': 'ListItem', position: 2, name: 'Arter', item: 'https://stromkast.se/arter/' },
-  ],
-};
-
-const itemListSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'ItemList',
-  name: 'Svenska sportfiskarter',
-  itemListElement: species.map((s, i) => ({
-    '@type': 'ListItem',
-    position: i + 1,
-    name: s.data.title,
-    url: `https://stromkast.se/arter/${s.data.slug}/`,
-  })),
-};
 ---
 
 <BaseLayout
   title="Fiskarter i Sverige: guider och tips"
   description="Guider till Sveriges vanligaste sportfiskarter. Lär dig om biologi, bästa säsong och rätt teknik."
-  schema={[breadcrumbSchema, itemListSchema]}
   pageType="species-index"
 >
   <div class="pt-28 pb-20 px-4 sm:px-6 max-w-[1280px] mx-auto">
@@ -55,7 +33,7 @@ const itemListSchema = {
           </div>
           <div class="p-5">
             <h2 class="font-display font-bold text-deep text-xl mb-2 group-hover:text-pine transition-colors capitalize">{s.data.title}</h2>
-            <p class="text-stone text-sm leading-relaxed line-clamp-2 mb-3">{s.data.description}</p>
+            <p class="text-stone text-sm leading-relaxed line-clamp-2 mb-3">{s.data.excerpt ?? s.data.description}</p>
             <p class="text-stone/70 text-xs"><span class="font-medium">Säsong:</span> {s.data.season.split('(')[0]?.trim()}</p>
           </div>
         </a>

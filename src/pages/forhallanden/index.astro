@@ -1,93 +1,522 @@
 ---
+/**
+ * /forhallanden/ — Fiskeförhållanden just nu
+ *
+ * Hämtar väderdata från SMHI Open Data API vid byggtid.
+ * API:et är öppet, ingen nyckel krävs.
+ *
+ * Stationer verifierade med latest-hour-stöd (maj 2026):
+ *   - Vänern:     83420  Naven A
+ *   - Vättern:    84310  Karlsborg
+ *   - Mörrum:     64020  Hanö A
+ *   - Storsjön:   134110 Östersund-Frösön Flygplats
+ *   - Mälaren:    97370  Enköping
+ *   - Torneälven: 163960 Haparanda A
+ *
+ * SMHI parametrar (numeriska ID:n):
+ *   1 = lufttemperatur, momentanvärde (°C)
+ *   4 = vindhastighet (m/s)
+ *   3 = vindriktning (grader)
+ *   6 = relativ luftfuktighet (%)
+ *
+ * URL-format: /api/version/1.0/parameter/{id}/station/{id}/period/latest-hour/data.json
+ * Dokumentation: https://opendata.smhi.se/apidocs/metobs/
+ */
+
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
-const regions = [
+// ---------------------------------------------------------------------------
+// Typer
+// ---------------------------------------------------------------------------
+
+interface SMHIValue {
+  value: string;
+  quality: string;
+  date: number; // Unix ms
+}
+
+interface SMHIResponse {
+  value: SMHIValue[];
+}
+
+interface RegionData {
+  name: string;
+  slug: string;
+  lat: number;
+  lng: number;
+  stationId: number;
+  stationName: string;
+  waterBody: string;
+  primarySpecies: string[];
+  airTemp: number | null;
+  windSpeed: number | null;
+  windDir: number | null;
+  humidity: number | null;
+  clouds: number | null;
+  fetchedAt: string;
+  error: boolean;
+}
+
+// ---------------------------------------------------------------------------
+// Konfiguration: regioner och SMHI-stationer
+// ---------------------------------------------------------------------------
+
+const REGIONS: Array<{
+  name: string;
+  slug: string;
+  lat: number;
+  lng: number;
+  stationId: number;
+  waterBody: string;
+  primarySpecies: string[];
+}> = [
   {
-    name: 'Norra Sverige',
-    areas: ['Lappland', 'Jämtland', 'Ångermanland'],
-    status: 'low',
-    label: 'Lugnt',
-    temp: '8°C',
-    wind: 'NO 3 m/s',
-    note: 'Senhöst. Harrfisket aktivt i fjällåarna.',
+    name: 'Vänern',
+    slug: 'vanern',
+    lat: 58.9,
+    lng: 13.1,
+    stationId: 83420, // Naven A
+    stationName: 'Naven A',
+    waterBody: 'Sjö',
+    primarySpecies: ['Gädda', 'Lax', 'Gös', 'Abborre'],
   },
   {
-    name: 'Mellansverige',
-    areas: ['Dalarna', 'Värmland', 'Mälardalen'],
-    status: 'medium',
-    label: 'Varierat',
-    temp: '12°C',
-    wind: 'V 4 m/s',
-    note: 'Gäddfisket peakar. Abborre aktivt på grunt.',
+    name: 'Vättern',
+    slug: 'vattern',
+    lat: 58.3,
+    lng: 14.5,
+    stationId: 84310, // Karlsborg
+    stationName: 'Karlsborg',
+    waterBody: 'Sjö',
+    primarySpecies: ['Öring', 'Röding', 'Abborre'],
   },
   {
-    name: 'Södra Sverige',
-    areas: ['Skåne', 'Blekinge', 'Småland'],
-    status: 'high',
-    label: 'Aktivt',
-    temp: '15°C',
-    wind: 'S 2 m/s',
-    note: 'Utmärkta förhållanden. Gösaktiviteten hög kvällstid.',
+    name: 'Mörrum',
+    slug: 'morrum',
+    lat: 56.2,
+    lng: 14.75,
+    stationId: 64020, // Hanö A
+    stationName: 'Hanö A',
+    waterBody: 'Älv',
+    primarySpecies: ['Lax', 'Havsöring'],
+  },
+  {
+    name: 'Storsjön',
+    slug: 'storsjon',
+    lat: 63.17,
+    lng: 14.6,
+    stationId: 134110, // Östersund-Frösön Flygplats
+    stationName: 'Östersund-Frösön',
+    waterBody: 'Sjö',
+    primarySpecies: ['Öring', 'Harr', 'Röding'],
+  },
+  {
+    name: 'Mälaren',
+    slug: 'malaren',
+    lat: 59.43,
+    lng: 17.07,
+    stationId: 97370, // Enköping
+    stationName: 'Enköping',
+    waterBody: 'Sjö',
+    primarySpecies: ['Abborre', 'Gädda', 'Gös', 'Asp'],
+  },
+  {
+    name: 'Torneälven',
+    slug: 'tornealven',
+    lat: 65.83,
+    lng: 24.15,
+    stationId: 163960, // Haparanda A
+    stationName: 'Haparanda A',
+    waterBody: 'Älv',
+    primarySpecies: ['Lax', 'Harr', 'Öring'],
   },
 ];
 
-const statusBg: Record<string, string> = {
-  high: 'bg-green-500',
-  medium: 'bg-amber-400',
-  low: 'bg-stone/40',
+// ---------------------------------------------------------------------------
+// SMHI-hämtning
+// ---------------------------------------------------------------------------
+
+/**
+ * Hämtar senaste observationsvärde för en given parameter och station.
+ * Returnerar null vid fel eller saknad data.
+ */
+async function fetchSMHI(
+  stationId: number,
+  parameterId: number
+): Promise<number | null> {
+  const url = `https://opendata-download-metobs.smhi.se/api/version/1.0/parameter/${parameterId}/station/${stationId}/period/latest-hour/data.json`;
+  try {
+    const res = await fetch(url, {
+      headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!res.ok) return null;
+    const data: SMHIResponse = await res.json();
+    const latest = data?.value?.at(-1);
+    if (!latest || latest.value === '') return null;
+    return parseFloat(latest.value);
+  } catch {
+    return null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Månfas (astronomisk beräkning, ingen API-fetch krävs)
+// ---------------------------------------------------------------------------
+
+function moonPhase(date: Date): { name: string; emoji: string; illumination: number } {
+  // Synodisk månperiod: 29.53059 dagar
+  const SYNODIC = 29.53059;
+  const KNOWN_NEW_MOON = new Date('2000-01-06T18:14:00Z').getTime();
+  const diffMs = date.getTime() - KNOWN_NEW_MOON;
+  const diffDays = diffMs / (1000 * 60 * 60 * 24);
+  const cyclePos = ((diffDays % SYNODIC) + SYNODIC) % SYNODIC;
+  const illumination = Math.round(
+    50 * (1 - Math.cos((2 * Math.PI * cyclePos) / SYNODIC))
+  );
+
+  let name: string;
+  let emoji: string;
+
+  if (cyclePos < 1.85) {
+    name = 'Nymåne';
+    emoji = '🌑';
+  } else if (cyclePos < 7.38) {
+    name = 'Växande skära';
+    emoji = '🌒';
+  } else if (cyclePos < 9.22) {
+    name = 'Första kvarteret';
+    emoji = '🌓';
+  } else if (cyclePos < 14.77) {
+    name = 'Växande gibbös';
+    emoji = '🌔';
+  } else if (cyclePos < 16.61) {
+    name = 'Fullmåne';
+    emoji = '🌕';
+  } else if (cyclePos < 22.15) {
+    name = 'Avtagande gibbös';
+    emoji = '🌖';
+  } else if (cyclePos < 23.99) {
+    name = 'Sista kvarteret';
+    emoji = '🌗';
+  } else {
+    name = 'Avtagande skära';
+    emoji = '🌘';
+  }
+
+  return { name, emoji, illumination };
+}
+
+// ---------------------------------------------------------------------------
+// Betningsindikator baserat på tillgänglig data
+// ---------------------------------------------------------------------------
+
+function biteScore(
+  airTemp: number | null,
+  windSpeed: number | null,
+  moonPhase: number // 0–100 illumination
+): { label: string; color: string; dots: number } {
+  let score = 50; // neutral bas
+
+  // Temperatur: optimalt 8–18°C för de flesta svenska sötvattensarter
+  if (airTemp !== null) {
+    if (airTemp >= 8 && airTemp <= 18) score += 20;
+    else if (airTemp >= 4 && airTemp < 8) score += 5;
+    else if (airTemp > 18 && airTemp <= 24) score += 10;
+    else if (airTemp < 0) score -= 20;
+    else if (airTemp > 24) score -= 10;
+  }
+
+  // Vind: svag vind (1–4 m/s) gynnar fiske; stark vind (>8) försvårar
+  if (windSpeed !== null) {
+    if (windSpeed >= 1 && windSpeed <= 4) score += 15;
+    else if (windSpeed > 4 && windSpeed <= 7) score += 0;
+    else if (windSpeed > 7 && windSpeed <= 10) score -= 10;
+    else if (windSpeed > 10) score -= 25;
+    else if (windSpeed < 1) score -= 5; // vindstilla kan vara trögt
+  }
+
+  // Månfas: fullmåne och nymåne ger historiskt bättre bett
+  if (moonPhase > 90 || moonPhase < 10) score += 15;
+  else if (moonPhase > 75 || moonPhase < 25) score += 8;
+
+  score = Math.max(0, Math.min(100, score));
+
+  if (score >= 70)
+    return { label: 'Aktivt', color: 'green', dots: 3 };
+  if (score >= 45)
+    return { label: 'Varierat', color: 'amber', dots: 2 };
+  return { label: 'Lugnt', color: 'stone', dots: 1 };
+}
+
+// ---------------------------------------------------------------------------
+// Vindriktning: grader → väderstreck
+// ---------------------------------------------------------------------------
+
+function windDirLabel(deg: number | null): string {
+  if (deg === null) return '–';
+  const dirs = ['N', 'NNO', 'NO', 'ONO', 'O', 'OSO', 'SO', 'SSO', 'S', 'SSV', 'SV', 'VSV', 'V', 'VNV', 'NV', 'NNV'];
+  return dirs[Math.round(deg / 22.5) % 16];
+}
+
+// ---------------------------------------------------------------------------
+// Molntäckning: oktas → text
+// ---------------------------------------------------------------------------
+
+function cloudLabel(oktas: number | null): string {
+  if (oktas === null) return '–';
+  if (oktas === 0) return 'Klart';
+  if (oktas <= 2) return 'Mest klart';
+  if (oktas <= 4) return 'Halvklart';
+  if (oktas <= 6) return 'Halvmulet';
+  if (oktas <= 7) return 'Mulet';
+  return 'Heltäckt';
+}
+
+// ---------------------------------------------------------------------------
+// Hämta all data parallellt
+// ---------------------------------------------------------------------------
+
+const now = new Date();
+const moon = moonPhase(now);
+
+const regionDataList: RegionData[] = await Promise.all(
+  REGIONS.map(async (r) => {
+    const [airTemp, windSpeed, windDir, humidity] = await Promise.all([
+      fetchSMHI(r.stationId, 1), // lufttemperatur
+      fetchSMHI(r.stationId, 4), // vindhastighet
+      fetchSMHI(r.stationId, 3), // vindriktning
+      fetchSMHI(r.stationId, 6), // relativ luftfuktighet
+    ]);
+
+    return {
+      ...r,
+      airTemp,
+      windSpeed,
+      windDir,
+      humidity,
+      clouds: null, // molntäckning ej tillgänglig på dessa stationer
+      fetchedAt: now.toISOString(),
+      error: airTemp === null && windSpeed === null,
+    };
+  })
+);
+
+// ---------------------------------------------------------------------------
+// Schema
+// ---------------------------------------------------------------------------
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Hem', item: 'https://stromkast.se/' },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Förhållanden',
+      item: 'https://stromkast.se/forhallanden/',
+    },
+  ],
+};
+
+// ---------------------------------------------------------------------------
+// Hjälpfunktioner för rendering
+// ---------------------------------------------------------------------------
+
+const fmt = (val: number | null, decimals = 1, unit = '') =>
+  val !== null ? `${val.toFixed(decimals)}${unit}` : '–';
+
+const dotColorClass: Record<string, string> = {
+  green: 'bg-green-500',
+  amber: 'bg-amber-400',
+  stone: 'bg-stone/40',
+};
+
+const dotBgClass: Record<string, string> = {
+  green: 'bg-green-50 border-green-200 text-green-700',
+  amber: 'bg-amber-50 border-amber-200 text-amber-700',
+  stone: 'bg-stone/10 border-stone/20 text-stone',
 };
 ---
 
 <BaseLayout
-  title="Fiskeförhållanden just nu i Sverige"
-  description="Aktuella fiskeförhållanden i Sverige. Vattentemperatur, aktivitetsnivåer och tips för varje region."
-  pageType="conditions"
+  title="Fiskeförhållanden just nu – väder och betning för svenska vatten"
+  description="Aktuell lufttemperatur, vind och betningsindikator för Vänern, Vättern, Mörrum, Storsjön, Mälaren och Torneälven. Data från SMHI:s öppna API."
+  schema={breadcrumbSchema}
+  pageType="article"
 >
-  <div class="pt-28 pb-20 px-4 sm:px-6 max-w-[1280px] mx-auto">
-    <div class="mb-12">
-      <div class="flex items-center gap-2 mb-3">
-        <span class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" aria-hidden="true"></span>
-        <p class="text-stone text-sm font-medium uppercase tracking-wider">Live data</p>
+
+  <!-- =====================================================================
+       Sidhuvud
+  ====================================================================== -->
+  <div class="pt-28 pb-6 px-4 sm:px-6 max-w-[1280px] mx-auto">
+
+    <!-- Brödsmulor -->
+    <nav aria-label="Brödsmulor" class="mb-8">
+      <ol class="flex items-center gap-2 text-sm text-stone">
+        <li><a href="/" class="hover:text-pine transition-colors">Hem</a></li>
+        <li aria-hidden="true"><span class="text-stone/40">/</span></li>
+        <li class="text-deep font-medium" aria-current="page">Förhållanden</li>
+      </ol>
+    </nav>
+
+    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
+      <div>
+        <p class="text-stone text-sm font-medium uppercase tracking-wider mb-2">Live data · SMHI</p>
+        <h1 class="font-display text-4xl sm:text-5xl font-bold text-deep leading-tight">
+          Förhållanden just nu
+        </h1>
+        <p class="text-stone text-base mt-3 max-w-xl leading-relaxed">
+          Lufttemperatur, vind och betningsindikator för Sveriges viktigaste fiskevatten. Uppdateras varje gång sidan byggs. Data hämtas direkt från SMHI:s öppna API.
+        </p>
       </div>
-      <h1 class="font-display text-4xl sm:text-5xl font-bold text-deep mb-4">Fiskeförhållanden</h1>
-      <p class="text-stone text-lg max-w-2xl leading-relaxed">Dagliga uppdateringar om förhållandena i Sveriges viktigaste fiskevatten. SMHI-integration planeras för nästa version.</p>
-    </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-      {regions.map((region) => (
-        <div class="bg-white rounded-2xl p-6 border border-mist">
-          <div class="flex items-center gap-3 mb-4">
-            <div class={`w-3 h-3 rounded-full ${statusBg[region.status]} shrink-0`} aria-hidden="true"></div>
-            <div>
-              <h2 class="font-display font-bold text-deep text-xl">{region.name}</h2>
-              <p class="text-stone text-xs">{region.label}</p>
-            </div>
-          </div>
-
-          <div class="flex gap-4 mb-4 text-sm">
-            <div>
-              <p class="text-stone text-xs uppercase tracking-wider mb-0.5">Vattentemp</p>
-              <p class="font-semibold text-deep">{region.temp}</p>
-            </div>
-            <div>
-              <p class="text-stone text-xs uppercase tracking-wider mb-0.5">Vind</p>
-              <p class="font-semibold text-deep">{region.wind}</p>
-            </div>
-          </div>
-
-          <p class="text-stone text-sm leading-relaxed mb-4">{region.note}</p>
-
-          <div class="flex flex-wrap gap-1.5">
-            {region.areas.map((area) => (
-              <span class="bg-mist text-stone text-xs px-2.5 py-1 rounded-full">{area}</span>
-            ))}
-          </div>
+      <!-- Månfas-widget -->
+      <div class="flex-shrink-0 bg-white border border-mist rounded-2xl px-6 py-4 flex items-center gap-4 shadow-sm">
+        <span class="text-4xl" role="img" aria-label={moon.name}>{moon.emoji}</span>
+        <div>
+          <p class="text-xs text-stone uppercase tracking-wider font-medium mb-0.5">Månfas</p>
+          <p class="font-display font-bold text-deep text-lg leading-none">{moon.name}</p>
+          <p class="text-stone text-xs mt-1">{moon.illumination}% belyst</p>
         </div>
-      ))}
+      </div>
     </div>
 
-    <div class="bg-mist rounded-2xl p-6 text-sm text-stone leading-relaxed max-w-2xl">
-      <p><strong class="text-deep">OBS:</strong> Aktuella förhållanden baseras just nu på redaktionell bedömning och säsongsdata. Automatisk integration med SMHI:s öppna API för vattentemperatur och väder är planerat till nästa release. Rapportera felaktigheter via <a href="/om/" class="text-sky underline">kontaktsidan</a>.</p>
+    <!-- Förklaringsnot: betningsindikator -->
+    <div class="bg-mist/60 border border-mist rounded-xl px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-3 mb-10 text-sm text-stone">
+      <div class="flex items-center gap-3 shrink-0">
+        <span class="inline-flex items-center gap-1.5 font-medium text-green-700 bg-green-50 border border-green-200 px-2.5 py-1 rounded-full text-xs">
+          <span class="w-2 h-2 rounded-full bg-green-500 inline-block"></span>Aktivt
+        </span>
+        <span class="inline-flex items-center gap-1.5 font-medium text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full text-xs">
+          <span class="w-2 h-2 rounded-full bg-amber-400 inline-block"></span>Varierat
+        </span>
+        <span class="inline-flex items-center gap-1.5 font-medium text-stone bg-stone/10 border border-stone/20 px-2.5 py-1 rounded-full text-xs">
+          <span class="w-2 h-2 rounded-full bg-stone/40 inline-block"></span>Lugnt
+        </span>
+      </div>
+      <p class="text-stone/80">
+        Betningsindikatorn är ett riktmärke baserat på temperatur, vind och månfas. Den ersätter inte lokal kunskap eller erfarenhet.
+      </p>
     </div>
   </div>
+
+  <!-- =====================================================================
+       Regionkort
+  ====================================================================== -->
+  <section class="px-4 sm:px-6 max-w-[1280px] mx-auto pb-20">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      {regionDataList.map((region) => {
+        const bite = biteScore(region.airTemp, region.windSpeed, moon.illumination);
+        const windLabel = windDirLabel(region.windDir);
+        const clouds = cloudLabel(region.clouds);
+
+        return (
+          <article class="bg-white border border-mist rounded-2xl overflow-hidden hover:border-pine/20 hover:shadow-md transition-all">
+
+            <!-- Kortets topprad: namn + betning -->
+            <div class="px-6 pt-6 pb-4 flex items-start justify-between gap-4">
+              <div>
+                <p class="text-stone text-xs font-medium uppercase tracking-wider mb-1">{region.waterBody}</p>
+                <h2 class="font-display font-bold text-deep text-xl leading-tight">{region.name}</h2>
+                <div class="flex flex-wrap gap-1.5 mt-2">
+                  {region.primarySpecies.slice(0, 3).map((art) => (
+                    <span class="bg-mist text-stone text-xs px-2 py-0.5 rounded-full">{art}</span>
+                  ))}
+                </div>
+              </div>
+
+              <!-- Betningsindikator -->
+              <div class={`shrink-0 inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border ${dotBgClass[bite.color]}`}>
+                <span class={`w-2 h-2 rounded-full ${dotColorClass[bite.color]}`}></span>
+                {bite.label}
+              </div>
+            </div>
+
+            <!-- Separator -->
+            <div class="border-t border-mist mx-6"></div>
+
+            <!-- Vädervärden -->
+            {region.error ? (
+              <div class="px-6 py-5 text-stone text-sm">
+                Data kunde inte hämtas från SMHI just nu.
+              </div>
+            ) : (
+              <div class="px-6 py-5 grid grid-cols-2 gap-y-4 gap-x-6">
+
+                <!-- Lufttemperatur -->
+                <div>
+                  <p class="text-stone text-xs uppercase tracking-wider font-medium mb-0.5">Lufttemp.</p>
+                  <p class="font-display font-bold text-deep text-2xl leading-none">
+                    {fmt(region.airTemp, 1, '°')}
+                  </p>
+                </div>
+
+                <!-- Vind -->
+                <div>
+                  <p class="text-stone text-xs uppercase tracking-wider font-medium mb-0.5">Vind</p>
+                  <p class="font-display font-bold text-deep text-2xl leading-none">
+                    {fmt(region.windSpeed, 1, ' m/s')}
+                  </p>
+                  <p class="text-stone text-xs mt-0.5">
+                    {region.windDir !== null ? `${windLabel} (${Math.round(region.windDir)}°)` : ''}
+                  </p>
+                </div>
+
+                <!-- Himmel -->
+                <div>
+                  <p class="text-stone text-xs uppercase tracking-wider font-medium mb-0.5">Himmel</p>
+                  <p class="text-deep text-sm font-semibold">{clouds}</p>
+                </div>
+
+                <!-- Luftfuktighet -->
+                <div>
+                  <p class="text-stone text-xs uppercase tracking-wider font-medium mb-0.5">Fuktighet</p>
+                  <p class="text-deep text-sm font-semibold">{fmt(region.humidity, 0, '%')}</p>
+                </div>
+              </div>
+            )}
+
+            <!-- Länk till destinationssida -->
+            <div class="px-6 pb-6 flex items-center justify-between gap-4">
+              <a
+                href={`/destinationer/${region.slug}/`}
+                class="inline-flex items-center gap-1.5 text-sky text-sm font-medium hover:text-pine transition-colors"
+              >
+                Guide till {region.name}
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                  <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+              <span class="text-stone/50 text-xs">SMHI: {region.stationName}</span>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+
+    <!-- =====================================================================
+         Infobox: hur data fungerar
+    ====================================================================== -->
+    <div class="mt-16 bg-white border border-mist rounded-2xl px-8 py-8 max-w-2xl">
+      <h2 class="font-display font-bold text-deep text-xl mb-4">Om datan</h2>
+      <div class="space-y-3 text-stone text-sm leading-relaxed">
+        <p>
+          Väderdata hämtas från <a href="https://opendata.smhi.se/" target="_blank" rel="noopener noreferrer" class="text-sky underline hover:text-pine">SMHI:s öppna API</a> (Creative Commons CC BY 4.0). Temperaturer och vindvärden är uppmätta på SMHIs närmaste meteorologiska station till respektive vatten.
+        </p>
+        <p>
+          Vattentemperatur ingår inte i det öppna observations-API:et för alla stationer. Vi jobbar med att lägga till det när data finns tillgänglig.
+        </p>
+        <p>
+          Betningsindikatorn är ett riktmärke, inte en garanti. Den väger samman lufttemperatur, vind och månfas utifrån generella mönster för sötvattenfiske i Sverige. Lokal kunskap väger alltid tyngre.
+        </p>
+        <p>
+          Sidan byggs om automatiskt. Senast uppdaterad: {now.toLocaleDateString('sv-SE', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}.
+        </p>
+      </div>
+    </div>
+
+  </section>
+
 </BaseLayout>

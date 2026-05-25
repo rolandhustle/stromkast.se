@@ -44,7 +44,7 @@ const categoryLabels: Record<string, string> = {
               {categoryLabels[article.data.category]}
             </span>
             <h2 class="font-display font-bold text-deep text-xl leading-snug mb-2 group-hover:text-pine transition-colors">{article.data.title}</h2>
-            <p class="text-stone text-sm leading-relaxed line-clamp-2">{article.data.description}</p>
+            <p class="text-stone text-sm leading-relaxed line-clamp-2">{article.data.excerpt ?? article.data.description}</p>
           </div>
         </a>
       ))}

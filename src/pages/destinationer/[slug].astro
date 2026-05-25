@@ -3,6 +3,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import AffiliateCard from '../../components/AffiliateCard.astro';
 import DestinationMap from '../../components/DestinationMap.tsx';
 import { getCollection, render } from 'astro:content';
+import {
+  fetchSMHIForSlug,
+  getMoonPhase,
+  getBiteScore,
+  windDirLabel,
+  DOT_COLOR,
+  DOT_BG,
+} from '../../lib/smhi';
 
 export async function getStaticPaths() {
   const destinations = await getCollection('destinations');
@@ -20,6 +28,14 @@ const allReviews = await getCollection('gear-reviews');
 const recommendedReviews = allReviews.filter((r) =>
   d.recommendedGear.includes(r.data.slug)
 );
+
+// SMHI-data och betningsindikator
+const now = new Date();
+const moon = getMoonPhase(now);
+const smhi = await fetchSMHIForSlug(d.slug);
+const bite = smhi
+  ? getBiteScore(smhi.airTemp, smhi.windSpeed, moon.illumination)
+  : null;
 
 const waterTypeLabels: Record<string, string> = {
   lake: 'Sjö',
@@ -40,26 +56,15 @@ const breadcrumbSchema = {
 
 const destinationSchema = {
   '@context': 'https://schema.org',
-  '@type': 'Article',
-  headline: `Fiska ${d.title}: guide, tips och fiskekort`,
+  '@type': 'TouristDestination',
+  name: d.title,
   description: d.description,
-  image: `https://stromkast.se${d.heroImage}`,
-  url: `https://stromkast.se/destinationer/${d.slug}/`,
-  dateModified: d.updatedAt ?? d.publishedAt,
-  publisher: {
-    '@type': 'Organization',
-    name: 'Strömkast',
-    url: 'https://stromkast.se/',
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: d.lat,
+    longitude: d.lng,
   },
-  about: {
-    '@type': 'Place',
-    name: d.title,
-    geo: {
-      '@type': 'GeoCoordinates',
-      latitude: d.lat,
-      longitude: d.lng,
-    },
-  },
+  touristType: 'Sportfiskare',
 };
 
 const faqSchema = {
@@ -115,11 +120,11 @@ const faqSchema = {
   <!-- Hero -->
   <div class="relative h-[50vh] min-h-[360px] mt-4 overflow-hidden bg-pine">
     <div
-  class="absolute inset-0 bg-cover bg-center"
-  style={`background-image: url('${d.heroImage}'); background-color: #1F3A2E;`}
-  role="img"
-  aria-label={`${d.title}, fiskevatten`}
-></div>
+      class="absolute inset-0 bg-cover bg-center"
+      style={`background-image: url('${d.heroImage}'); background-color: #1F3A2E;`}
+      role="img"
+      aria-label={`${d.title}, fiskevatten`}
+    ></div>
     <div class="absolute inset-0 bg-gradient-to-t from-deep/80 to-transparent"></div>
     <div class="absolute bottom-0 left-0 right-0 px-4 sm:px-6 pb-10 max-w-[1280px] mx-auto">
       <div class="flex flex-wrap gap-2 mb-3">
@@ -133,17 +138,39 @@ const faqSchema = {
   </div>
 
   <div class="max-w-[1280px] mx-auto px-4 sm:px-6 py-12">
+
     <!-- Live conditions bar -->
     <div class="bg-mist rounded-2xl p-5 flex items-center gap-4 mb-12 border border-mist">
-      <div class="w-2.5 h-2.5 rounded-full bg-green-500 shrink-0" aria-hidden="true"></div>
-      <div>
-        <p class="text-deep text-sm font-semibold">Förhållanden just nu</p>
-        <p class="text-stone text-xs mt-0.5">Vattentemperatur och aktivitetsnivåer uppdateras löpande. <a href="/forhallanden/" class="text-sky underline hover:text-pine">Se fullständig rapport</a></p>
-      </div>
-      <div class="ml-auto text-right hidden sm:block">
-        <p class="text-deep text-sm font-medium">Aktivt fiske</p>
-        <p class="text-stone text-xs">Senaste datan: idag</p>
-      </div>
+      {bite ? (
+        <>
+          <span class={`w-2.5 h-2.5 rounded-full shrink-0 ${DOT_COLOR[bite.color]}`} aria-hidden="true"></span>
+          <div>
+            <p class="text-deep text-sm font-semibold">Förhållanden just nu</p>
+            <p class="text-stone text-xs mt-0.5">
+              {smhi && smhi.airTemp !== null ? `Lufttemp: ${smhi.airTemp.toFixed(1)}°C · ` : ''}
+              {smhi && smhi.windSpeed !== null ? `Vind: ${smhi.windSpeed.toFixed(1)} m/s ${windDirLabel(smhi.windDir)} · ` : ''}
+              <a href="/forhallanden/" class="text-sky underline hover:text-pine">Se fullständig rapport</a>
+            </p>
+          </div>
+          <div class="ml-auto text-right hidden sm:block shrink-0">
+            <span class={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border ${DOT_BG[bite.color]}`}>
+              <span class={`w-2 h-2 rounded-full ${DOT_COLOR[bite.color]}`}></span>
+              {bite.label}
+            </span>
+            {smhi && <p class="text-stone/50 text-xs mt-1">SMHI: {smhi.stationName}</p>}
+          </div>
+        </>
+      ) : (
+        <>
+          <span class="w-2.5 h-2.5 rounded-full bg-stone/30 shrink-0" aria-hidden="true"></span>
+          <div>
+            <p class="text-deep text-sm font-semibold">Förhållanden just nu</p>
+            <p class="text-stone text-xs mt-0.5">
+              Väderdata saknas för detta vatten. <a href="/forhallanden/" class="text-sky underline hover:text-pine">Se fullständig rapport</a>
+            </p>
+          </div>
+        </>
+      )}
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
@@ -205,7 +232,7 @@ const faqSchema = {
         <h2 class="font-display text-2xl font-bold text-deep mb-2">Rekommenderad utrustning</h2>
         <p class="text-stone text-sm mb-8">Testad och rekommenderad utrustning för fiske i {d.title}.</p>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {recommendedReviews.map((review, i) => (
+          {recommendedReviews.map((review) => (
             <AffiliateCard
               title={review.data.title}
               brand={review.data.brand}

@@ -1,5 +1,12 @@
 ---
+import { getCollection } from 'astro:content';
+
 const currentYear = new Date().getFullYear();
+
+const allCategories = await getCollection('gear-categories');
+const topCategories = allCategories
+  .sort((a, b) => a.data.title.localeCompare(b.data.title, 'sv'))
+  .slice(0, 3);
 
 const orgSchema = {
   '@context': 'https://schema.org',
@@ -37,8 +44,9 @@ const orgSchema = {
       <div>
         <h3 class="text-white font-semibold text-sm mb-4 uppercase tracking-wider">Utrustning</h3>
         <ul class="space-y-2 text-sm">
-          <li><a href="/utrustning/gaddspon/" class="hover:text-white transition-colors">Gäddspön</a></li>
-          <li><a href="/utrustning/ekolod/" class="hover:text-white transition-colors">Ekolod</a></li>
+          {topCategories.map((cat) => (
+            <li><a href={`/utrustning/${cat.data.slug}/`} class="hover:text-white transition-colors">{cat.data.title}</a></li>
+          ))}
           <li><a href="/spovaljaren/" class="hover:text-white transition-colors text-copper">Ta spövaljarquiz</a></li>
           <li><a href="/utrustning/" class="hover:text-white transition-colors text-sky">Allt i utrustning</a></li>
         </ul>
@@ -48,7 +56,6 @@ const orgSchema = {
         <h3 class="text-white font-semibold text-sm mb-4 uppercase tracking-wider">Om Strömkast</h3>
         <ul class="space-y-2 text-sm">
           <li><a href="/om/" class="hover:text-white transition-colors">Om oss</a></li>
-          <li><a href="/nyhetsbrev/" class="hover:text-white transition-colors">Nyhetsbrev</a></li>
           <li><a href="/guider/" class="hover:text-white transition-colors">Guider</a></li>
           <li><a href="/rss.xml" class="hover:text-white transition-colors">RSS</a></li>
           <li><a href="/cookiepolicy/" class="hover:text-white transition-colors">Cookiepolicy</a></li>

@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import NewsletterForm from '../components/NewsletterForm.astro';
 import { getCollection } from 'astro:content';
 import { getImage } from 'astro:assets';
 import { Image } from 'astro:assets';
@@ -306,12 +305,4 @@ const categoryLabels: Record<string, string> = {
     </div>
   </section>
 
-  <!-- ==============================
-       NEWSLETTER
-  ============================== -->
-  <section class="py-20 px-4 sm:px-6">
-    <div class="max-w-xl mx-auto text-center">
-      <NewsletterForm placement="footer" />
-    </div>
-  </section>
 </BaseLayout>

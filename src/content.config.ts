@@ -17,6 +17,7 @@ const destinations = defineCollection({
     recommendedGear: z.array(z.string()),
     publishedAt: z.string(),
     updatedAt: z.string(),
+    excerpt: z.string().optional(),  // Korttext för indexsidan (40–80 tecken)
   }),
 });
 
@@ -32,6 +33,10 @@ const species = defineCollection({
     targetTechniques: z.array(z.string()).optional().default([]),
     gearRecs: z.array(z.string()).optional().default([]),
     topDestinations: z.array(z.string()).optional().default([]),
+    excerpt: z.string().optional(),  // Korttext för indexsidan (40–80 tecken)
+    faq: z.array(z.object({ q: z.string(), a: z.string() })).optional().default([]),
+    publishedAt: z.string().optional(),
+    updatedAt: z.string().optional(),
   }),
 });
 
@@ -45,6 +50,7 @@ const techniques = defineCollection({
     targetSpecies: z.array(z.string()),
     difficulty: z.enum(['nybörjare', 'mellannivå', 'avancerad']),
     topDestinations: z.array(z.string()).optional().default([]),
+    faq: z.array(z.object({ q: z.string(), a: z.string() })).optional().default([]),
   }),
 });
 
@@ -56,6 +62,7 @@ const gearCategories = defineCollection({
     description: z.string(),
     heroImage: z.string(),
     guideUrl: z.string().optional(),  // URL till redaktionell guide för kategorin, t.ex. "/artiklar/basta-fiskespon-2026/"
+    excerpt: z.string().optional(),   // Korttext för indexsidan (40–80 tecken)
   }),
 });
 
@@ -94,6 +101,8 @@ const articles = defineCollection({
     updatedAt: z.string(),
     author: z.string(),
     category: z.enum(['destination', 'teknik', 'utrustning', 'guide']),
+    excerpt: z.string().optional(),  // Korttext för indexsidan (40–80 tecken)
+    faq: z.array(z.object({ q: z.string(), a: z.string() })).optional().default([]),
   }),
 });
 
