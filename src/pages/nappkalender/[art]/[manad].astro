@@ -1,0 +1,259 @@
+---
+/**
+ * src/pages/nappkalender/[art]/[manad].astro
+ *
+ * Art × månad -- detaljsida med veckovis data och specifika tips.
+ */
+
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import {
+  SPECIES,
+  MONTHS_SV,
+  MONTHS_SLUG,
+  getWeekScores,
+  getScoreLabel,
+  getMoonData,
+  getMonthFromSlug,
+  MOON_PHASE_EMOJI,
+  MOON_PHASE_LABELS,
+} from '../../../data/calendar';
+
+export function getStaticPaths() {
+  return SPECIES.flatMap(sp =>
+    MONTHS_SLUG.map((manad, i) => ({
+      params: { art: sp.slug, manad },
+      props:  { month: i + 1 },
+    }))
+  );
+}
+
+const { art, manad }  = Astro.params;
+const { month }       = Astro.props as { month: number };
+const species         = SPECIES.find(s => s.slug === art)!;
+const year            = 2026;
+const monthName       = MONTHS_SV[month - 1];
+const allWeeks        = getWeekScores(species, year);
+const monthWeeks      = allWeeks.filter(w => w.month === month);
+const prevMonth       = month > 1  ? MONTHS_SLUG[month - 2] : null;
+const nextMonth       = month < 12 ? MONTHS_SLUG[month]     : null;
+const now             = new Date();
+const moon            = getMoonData(now);
+const isCurrentMonth  = now.getMonth() + 1 === month;
+
+// Månadspoäng
+const avgScore  = monthWeeks.length
+  ? Math.round(monthWeeks.reduce((s, w) => s + w.totalScore, 0) / monthWeeks.length)
+  : 0;
+const { label, color } = getScoreLabel(avgScore);
+
+// Bästa vecka denna månad
+const bestWeek  = [...monthWeeks].sort((a, b) => b.totalScore - a.totalScore)[0];
+
+const COLOR_CLASSES = {
+  green: 'bg-green-50 text-green-700 border-green-100',
+  amber: 'bg-amber-50 text-amber-700 border-amber-100',
+  stone: 'bg-stone/10 text-stone border-stone/20',
+};
+
+const DOT_CLASSES = {
+  green: 'bg-green-500',
+  amber: 'bg-amber-400',
+  stone: 'bg-stone/40',
+};
+
+const BAR_CLASSES = {
+  green: 'bg-green-500',
+  amber: 'bg-amber-400',
+  stone: 'bg-stone/25',
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Hem',          item: 'https://stromkast.se/' },
+    { '@type': 'ListItem', position: 2, name: 'Nappkalender', item: 'https://stromkast.se/nappkalender/' },
+    { '@type': 'ListItem', position: 3, name: species.name,   item: `https://stromkast.se/nappkalender/${art}/` },
+    { '@type': 'ListItem', position: 4, name: monthName,      item: `https://stromkast.se/nappkalender/${art}/${manad}/` },
+  ],
+};
+---
+
+<BaseLayout
+  title={`${species.name}fiske i ${monthName} ${year} – nappkalender och tips`}
+  description={`Veckovis betningsindikator för ${species.name.toLowerCase()}fiske i ${monthName} ${year}. Säsongstips, bästa metoder och månfasöversikt.`}
+  schema={breadcrumbSchema}
+  pageType="article"
+>
+
+  <!-- Sidhuvud -->
+  <div class="pt-28 pb-6 px-4 sm:px-6 max-w-[1280px] mx-auto">
+
+    <nav aria-label="Brödsmulor" class="mb-8">
+      <ol class="flex items-center gap-2 text-sm text-stone">
+        <li><a href="/" class="hover:text-pine transition-colors">Hem</a></li>
+        <li aria-hidden="true"><span class="text-stone/40">/</span></li>
+        <li><a href="/nappkalender/" class="hover:text-pine transition-colors">Nappkalender</a></li>
+        <li aria-hidden="true"><span class="text-stone/40">/</span></li>
+        <li><a href={`/nappkalender/${art}/`} class="hover:text-pine transition-colors">{species.name}</a></li>
+        <li aria-hidden="true"><span class="text-stone/40">/</span></li>
+        <li class="text-deep font-medium" aria-current="page">{monthName}</li>
+      </ol>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 mb-12">
+      <div class="lg:col-span-2">
+        <p class="text-stone text-sm font-medium uppercase tracking-wider mb-2">
+          {species.name} · {year}
+        </p>
+        <h1 class="font-display text-4xl sm:text-5xl font-bold text-deep leading-tight mb-4">
+          {species.name}fiske i {monthName}
+        </h1>
+
+        <!-- Betningsindikator stor -->
+        <div class="flex items-center gap-4 mb-6">
+          <span class={`inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-full border ${COLOR_CLASSES[color]}`}>
+            <span class={`w-2 h-2 rounded-full ${DOT_CLASSES[color]}`}></span>
+            {label}
+          </span>
+          <span class="text-stone text-sm">{avgScore}/10 i snitt denna månad</span>
+          {isCurrentMonth && <span class="text-xs bg-pine text-white px-2 py-1 rounded-full font-medium">Aktuell månad</span>}
+        </div>
+
+        <!-- Månadstip -->
+        <div class="bg-white border border-mist rounded-2xl p-5 mb-4">
+          <p class="text-stone text-xs font-semibold uppercase tracking-wider mb-2">Fisketips för {monthName}</p>
+          <p class="text-deep leading-relaxed">{species.monthlyTips[month - 1]}</p>
+        </div>
+
+        <!-- Bästa vecka -->
+        {bestWeek && (
+          <div class="flex items-center gap-3 text-sm text-stone">
+            <span>Bästa veckan denna månad:</span>
+            <span class="font-semibold text-deep">Vecka {bestWeek.week}</span>
+            <span>{bestWeek.moonEmoji}</span>
+            <span class={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${COLOR_CLASSES[getScoreLabel(bestWeek.totalScore).color]}`}>
+              {getScoreLabel(bestWeek.totalScore).label}
+            </span>
+          </div>
+        )}
+      </div>
+
+      <!-- Sidebar -->
+      <div class="flex flex-col gap-4">
+        <!-- Månfas -->
+        <div class="bg-white border border-mist rounded-2xl p-5 flex items-center gap-4">
+          <span class="text-3xl" role="img" aria-label={MOON_PHASE_LABELS[moon.phase]}>{MOON_PHASE_EMOJI[moon.phase]}</span>
+          <div>
+            <p class="text-xs text-stone uppercase tracking-wider font-medium mb-0.5">Månfas just nu</p>
+            <p class="font-display font-bold text-deep text-base leading-none">{MOON_PHASE_LABELS[moon.phase]}</p>
+          </div>
+        </div>
+
+        <!-- Rekommenderade metoder -->
+        <div class="bg-white border border-mist rounded-2xl p-5">
+          <p class="text-stone text-xs font-semibold uppercase tracking-wider mb-3">Rekommenderade metoder</p>
+          <ul class="space-y-2">
+            {(month >= 3 && month <= 5 ? species.springMethods :
+              month >= 6 && month <= 8 ? species.summerMethods :
+              species.autumnMethods
+            ).map(m => (
+              <li class="text-deep text-sm flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-pine inline-block shrink-0"></span>
+                {m}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <!-- Artlänk -->
+        <a href={`/arter/${art}/`} class="bg-mist/60 border border-mist rounded-2xl p-4 flex items-center justify-between hover:border-pine/20 transition-colors">
+          <span class="text-sm font-semibold text-deep">Guide till {species.name}</span>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Veckokort -->
+  <section class="px-4 sm:px-6 max-w-[1280px] mx-auto pb-12">
+    <h2 class="font-display text-2xl font-bold text-deep mb-6">Vecka för vecka</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {monthWeeks.map(w => {
+        const ws        = getScoreLabel(w.totalScore);
+        const barCls    = BAR_CLASSES[ws.color];
+        const colorCls  = COLOR_CLASSES[ws.color];
+        const dotCls    = DOT_CLASSES[ws.color];
+        const msScore   = getScoreLabel(w.moonScore);
+        const ssScore   = getScoreLabel(w.seasonScore);
+        return (
+          <div class={`bg-white border rounded-2xl p-5 ${w.week === Math.ceil(((now.getTime() - new Date(`${year}-01-01`).getTime()) / 86400000) / 7) ? 'border-pine ring-1 ring-pine' : 'border-mist'}`}>
+            <div class="flex items-center justify-between mb-3">
+              <span class="font-display font-bold text-deep text-lg">Vecka {w.week}</span>
+              <span class="text-2xl">{w.moonEmoji}</span>
+            </div>
+            <p class="text-stone text-xs mb-3">{w.startDate}</p>
+
+            <!-- Total poäng -->
+            <div class="h-2 bg-mist rounded-full overflow-hidden mb-2">
+              <div class={`h-full rounded-full ${barCls}`} style={`width: ${w.totalScore * 10}%`}></div>
+            </div>
+            <div class="flex items-center justify-between mb-4">
+              <span class={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${colorCls}`}>
+                <span class={`w-1.5 h-1.5 rounded-full ${dotCls}`}></span>
+                {ws.label}
+              </span>
+              <span class="text-sm font-bold text-deep">{w.totalScore}/10</span>
+            </div>
+
+            <!-- Delpoäng -->
+            <div class="space-y-1.5 border-t border-mist pt-3">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-stone">Säsong</span>
+                <span class="font-semibold text-deep">{w.seasonScore}/10</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-stone">Månfas</span>
+                <span class="font-semibold text-deep">{w.moonScore}/10</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-stone">Månfas</span>
+                <span class="text-stone">{MOON_PHASE_LABELS[w.moonPhase]}</span>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </section>
+
+  <!-- Navigation mellan månader -->
+  <section class="px-4 sm:px-6 max-w-[1280px] mx-auto pb-20">
+    <div class="flex items-center justify-between border-t border-mist pt-8">
+      {prevMonth ? (
+        <a href={`/nappkalender/${art}/${prevMonth}/`} class="inline-flex items-center gap-2 text-sky text-sm font-medium hover:text-pine transition-colors">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M11 7H3M6 4L3 7l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          {MONTHS_SV[month - 2]}
+        </a>
+      ) : <span></span>}
+
+      <a href={`/nappkalender/${art}/`} class="text-stone text-sm hover:text-pine transition-colors">
+        Hela årsöversikten
+      </a>
+
+      {nextMonth ? (
+        <a href={`/nappkalender/${art}/${nextMonth}/`} class="inline-flex items-center gap-2 text-sky text-sm font-medium hover:text-pine transition-colors">
+          {MONTHS_SV[month]}
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      ) : <span></span>}
+    </div>
+  </section>
+
+</BaseLayout>

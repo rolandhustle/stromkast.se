@@ -1,0 +1,279 @@
+---
+/**
+ * src/pages/nappkalender/index.astro
+ *
+ * Nappkalenderns indexsida.
+ * KalenderWidget above the fold med daglig betningsindikator.
+ * Tabellöversikt och artingångskort under.
+ */
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import KalenderWidget from '../../components/KalenderWidget.tsx';
+import {
+  SPECIES,
+  MONTHS_SV,
+  MONTHS_SLUG,
+  getWeekScores,
+  getScoreLabel,
+  getMoonData,
+  MOON_PHASE_EMOJI,
+  MOON_PHASE_LABELS,
+} from '../../data/calendar';
+import { fetchAllForecasts, CLIMATE_NORMALS, SYMBOL_LABELS, SYMBOL_EMOJI } from '../../lib/forecast';
+
+const year = 2026;
+
+// Byggtidsdata: månfas för varje dag i 2026
+const moonDays = Array.from({ length: 366 }, (_, i) => {
+  const d   = new Date(`${year}-01-01T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + i);
+  if (d.getUTCFullYear() !== year) return null;
+  const date = d.toISOString().split('T')[0];
+  const moon = getMoonData(d);
+  return {
+    date,
+    phase:        MOON_PHASE_LABELS[moon.phase],
+    illumination: moon.illumination,
+    score:        moon.score,
+    emoji:        MOON_PHASE_EMOJI[moon.phase],
+  };
+}).filter(Boolean);
+
+// SMHI-prognoser per region
+const forecasts = await fetchAllForecasts();
+const forecastsForWidget = Object.fromEntries(
+  Object.entries(forecasts).map(([region, data]) => [region, data.days])
+);
+
+// Artdata för widgeten
+const speciesForWidget = SPECIES.map(sp => ({
+  slug:       sp.slug,
+  name:       sp.name,
+  peakMonths: sp.peakMonths,
+  okMonths:   sp.okMonths,
+}));
+
+// Månadsöversikt för tabellen
+const now          = new Date();
+const moon         = getMoonData(now);
+const currentMonth = now.getMonth() + 1;
+
+const speciesMonthScores = SPECIES.map(sp => {
+  const weeks  = getWeekScores(sp, year);
+  const months = Array.from({ length: 12 }, (_, i) => {
+    const month      = i + 1;
+    const monthWeeks = weeks.filter(w => w.month === month);
+    const avg        = monthWeeks.length
+      ? Math.round(monthWeeks.reduce((s, w) => s + w.totalScore, 0) / monthWeeks.length)
+      : 0;
+    return { month, score: avg, ...getScoreLabel(avg) };
+  });
+  return { species: sp, months };
+});
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Hem',          item: 'https://stromkast.se/' },
+    { '@type': 'ListItem', position: 2, name: 'Nappkalender', item: 'https://stromkast.se/nappkalender/' },
+  ],
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Vad är en nappkalender?',
+      acceptedAnswer: { '@type': 'Answer', text: 'En nappkalender visar när under året det är bäst att fiska olika arter baserat på säsongsmönster, vattentemperatur och månfas.' },
+    },
+    {
+      '@type': 'Question',
+      name: 'Hur fungerar betningsindikatorn?',
+      acceptedAnswer: { '@type': 'Answer', text: 'Betningsindikatorn väger samman tre faktorer: säsong (70%), månfas (25%) och väderprognos (5%). För de kommande 10 dygnen används aktuell SMHI-prognos. Längre fram baseras poängen på historiska klimatnormaler 1991–2020.' },
+    },
+    {
+      '@type': 'Question',
+      name: 'Påverkar månfasen fisket?',
+      acceptedAnswer: { '@type': 'Answer', text: 'Forskning visar en liten men mätbar effekt. En studie av 341 959 muskellungefångster (Vinson & Angradi 2014) visade ~5% fler fångster runt ny- och fullmåne. Säsong och temperatur påverkar dock mer.' },
+    },
+    {
+      '@type': 'Question',
+      name: 'Vad betyder blå kant i kalendern?',
+      acceptedAnswer: { '@type': 'Answer', text: 'Blå kant markerar dagar där aktuell SMHI-väderprognos används i beräkningen. Prognosen sträcker sig 10 dygn framåt och uppdateras vid varje bygge.' },
+    },
+  ],
+};
+
+const COLOR_CLASSES = {
+  green: 'bg-green-50 text-green-700 border-green-100',
+  amber: 'bg-amber-50 text-amber-700 border-amber-100',
+  stone: 'bg-stone/10 text-stone border-stone/20',
+};
+
+const DOT_CLASSES = {
+  green: 'bg-green-500',
+  amber: 'bg-amber-400',
+  stone: 'bg-stone/40',
+};
+---
+
+<BaseLayout
+  title="Nappkalender 2026 – daglig betningsindikator för svenska fiskearter"
+  description="Nappkalender med daglig betningsindikator för gädda, abborre, gös, öring och fler. Baseras på säsong, månfas och SMHI-väderprognos. Filtrera på art och region."
+  schema={[breadcrumbSchema, faqSchema]}
+  pageType="article"
+>
+
+  <!-- Sidhuvud -->
+  <div class="pt-28 pb-6 px-4 sm:px-6 max-w-[1280px] mx-auto">
+
+    <nav aria-label="Brödsmulor" class="mb-8">
+      <ol class="flex items-center gap-2 text-sm text-stone">
+        <li><a href="/" class="hover:text-pine transition-colors">Hem</a></li>
+        <li aria-hidden="true"><span class="text-stone/40">/</span></li>
+        <li class="text-deep font-medium" aria-current="page">Nappkalender {year}</li>
+      </ol>
+    </nav>
+
+    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+      <div>
+        <p class="text-stone text-sm font-medium uppercase tracking-wider mb-2">Fiskekalender · {year}</p>
+        <h1 class="font-display text-4xl sm:text-5xl font-bold text-deep leading-tight">
+          Nappkalender {year}
+        </h1>
+        <p class="text-stone text-base mt-3 max-w-2xl leading-relaxed">
+          Daglig betningsindikator baserad på säsong, månfas och SMHI-väderprognos. Filtrera på art och region. Klicka på en dag för detaljer.
+        </p>
+      </div>
+      <div class="flex-shrink-0 bg-white border border-mist rounded-2xl px-5 py-4 flex items-center gap-4">
+        <span class="text-3xl" role="img" aria-label={MOON_PHASE_LABELS[moon.phase]}>{MOON_PHASE_EMOJI[moon.phase]}</span>
+        <div>
+          <p class="text-xs text-stone uppercase tracking-wider font-medium mb-0.5">Månfas just nu</p>
+          <p class="font-display font-bold text-deep text-base leading-none">{MOON_PHASE_LABELS[moon.phase]}</p>
+          <p class="text-stone text-xs mt-1">{moon.illumination}% belyst</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kalenderwidget (above the fold) -->
+  <section class="px-4 sm:px-6 max-w-[1280px] mx-auto pb-16">
+    <KalenderWidget
+      year={year}
+      moonDays={moonDays}
+      forecasts={forecastsForWidget}
+      climateNormals={CLIMATE_NORMALS}
+      species={speciesForWidget}
+      symbolLabels={SYMBOL_LABELS}
+      symbolEmojis={SYMBOL_EMOJI}
+      client:only="react"
+    />
+  </section>
+
+  <!-- Artöversikt -->
+  <section class="px-4 sm:px-6 max-w-[1280px] mx-auto pb-12">
+    <h2 class="font-display text-2xl font-bold text-deep mb-2">Artspecifika kalender</h2>
+    <p class="text-stone text-sm mb-8">Veckovis betningsindikator, säsongsbeskrivning och fisketips per art.</p>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      {SPECIES.map(sp => {
+        const monthData = speciesMonthScores.find(s => s.species.slug === sp.slug)?.months[currentMonth - 1];
+        const colorCls  = monthData ? COLOR_CLASSES[monthData.color] : COLOR_CLASSES.stone;
+        const dotCls    = monthData ? DOT_CLASSES[monthData.color]   : DOT_CLASSES.stone;
+        return (
+          <a
+            href={`/nappkalender/${sp.slug}/`}
+            class="bg-white border border-mist rounded-2xl p-4 hover:border-pine/20 hover:shadow-md transition-all"
+          >
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <h3 class="font-display font-bold text-deep text-base">{sp.name}</h3>
+              {monthData && (
+                <span class={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full border shrink-0 ${colorCls}`}>
+                  <span class={`w-1.5 h-1.5 rounded-full ${dotCls}`}></span>
+                  Nu
+                </span>
+              )}
+            </div>
+            <div class="flex flex-wrap gap-1 mt-2">
+              {sp.peakMonths.slice(0, 4).map(m => (
+                <span class="bg-green-50 text-green-700 text-xs px-1.5 py-0.5 rounded-full">{MONTHS_SV[m - 1].slice(0, 3)}</span>
+              ))}
+            </div>
+          </a>
+        );
+      })}
+    </div>
+  </section>
+
+  <!-- Årsöversiktstabell -->
+  <section class="px-4 sm:px-6 max-w-[1280px] mx-auto pb-12">
+    <h2 class="font-display text-2xl font-bold text-deep mb-2">Årsöversikt per art</h2>
+    <p class="text-stone text-sm mb-6">Veckovis snittpoäng per art och månad. Klicka på en cell för detaljsida.</p>
+
+    <div class="overflow-x-auto rounded-2xl border border-mist">
+      <table class="w-full border-collapse bg-white" style="min-width: 700px">
+        <thead>
+          <tr class="border-b border-mist">
+            <th class="text-left px-5 py-3 text-xs font-semibold text-stone uppercase tracking-wider w-32">Art</th>
+            {MONTHS_SV.map((m, i) => (
+              <th class={`text-center px-1 py-3 text-xs font-semibold uppercase tracking-wider ${i + 1 === currentMonth ? 'text-pine' : 'text-stone'}`}>
+                {m.slice(0, 3)}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {speciesMonthScores.map(({ species, months }) => (
+            <tr class="border-b border-mist/60 hover:bg-mist/30 transition-colors">
+              <td class="px-5 py-3">
+                <a href={`/nappkalender/${species.slug}/`} class="font-semibold text-deep text-sm hover:text-pine transition-colors">
+                  {species.name}
+                </a>
+              </td>
+              {months.map(({ month, score, color }) => {
+                const isNow = month === currentMonth;
+                const bg = color === 'green' ? 'bg-green-500' : color === 'amber' ? 'bg-amber-400' : 'bg-stone/15';
+                return (
+                  <td class={`text-center px-1 py-3 ${isNow ? 'relative' : ''}`}>
+                    <a href={`/nappkalender/${species.slug}/${MONTHS_SLUG[month - 1]}/`}>
+                      <span class={`inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold ${bg} ${color === 'stone' ? 'text-stone' : 'text-white'} ${isNow ? 'ring-2 ring-pine ring-offset-1' : ''}`}>
+                        {score}
+                      </span>
+                    </a>
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="px-4 sm:px-6 max-w-[1280px] mx-auto pb-20">
+    <h2 class="font-display text-2xl font-bold text-deep mb-6">Vanliga frågor</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-4xl">
+      {faqSchema.mainEntity.map(q => (
+        <details class="bg-white border border-mist rounded-2xl p-5 group">
+          <summary class="font-semibold text-deep cursor-pointer list-none flex items-center justify-between gap-4">
+            {q.name}
+            <svg class="shrink-0 transition-transform group-open:rotate-180" width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </summary>
+          <p class="mt-3 text-stone text-sm leading-relaxed">{q.acceptedAnswer.text}</p>
+        </details>
+      ))}
+    </div>
+
+    <div class="mt-10 bg-mist/60 border border-mist rounded-xl px-5 py-4 max-w-2xl">
+      <p class="text-stone text-sm leading-relaxed">
+        Nappkalendern är ett riktmärke. Beteckningarna baseras på biologiska säsongsmönster, månfasberäkningar och SMHI-väderprognos. Lokal kunskap väger alltid tyngre. Källa månfas: astronomisk beräkning. Källa säsong: Havs- och vattenmyndigheten, SLU. Källa klimatnormaler och prognos: SMHI Open Data (CC BY 4.0).
+      </p>
+    </div>
+  </section>
+
+</BaseLayout>
