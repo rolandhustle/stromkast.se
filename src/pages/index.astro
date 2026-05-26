@@ -143,10 +143,10 @@ const categoryLabels: Record<string, string> = {
 
         <div class="flex flex-col sm:flex-row gap-4">
           <a
-            href="/spovaljaren/"
+            href="/nappkalender/"
             class="inline-flex items-center justify-center gap-2 bg-rust text-white font-semibold text-base px-8 py-4 rounded-full hover:bg-copper transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
-            Ta quiz: hitta rätt spö
+            Öppna nappkalendern
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -263,27 +263,52 @@ const categoryLabels: Record<string, string> = {
   </section>
 
   <!-- ==============================
-       QUIZ TEASER
+       NAPPKALENDER TEASER
   ============================== -->
-  <section class="py-20 px-4 sm:px-6 bg-rust text-white">
-    <div class="max-w-[1280px] mx-auto text-center">
-      <p class="text-white/70 text-sm font-medium uppercase tracking-widest mb-4">Spöväljaren</p>
-      <h2 class="font-display text-4xl sm:text-5xl font-bold leading-tight mb-6">
-        Hitta rätt spö<br/>på 60 sekunder
-      </h2>
-      <p class="text-white/80 text-lg max-w-xl mx-auto mb-10 leading-relaxed">
-        Svara på fem frågor om din fiskestil och budget. Vi matchar dig med de tre bästa spöna för dina behov.
-      </p>
-      <a
-        href="/spovaljaren/"
-        class="inline-flex items-center gap-2 bg-white text-rust font-bold text-base px-10 py-4 rounded-full hover:bg-mist transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-rust"
-      >
-        Starta quizen nu
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
-      <p class="text-white/50 text-xs mt-5">Gratis. Ingen registrering krävs.</p>
+  <section class="py-20 px-4 sm:px-6 bg-pine text-white">
+    <div class="max-w-[1280px] mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <p class="text-white/60 text-sm font-medium uppercase tracking-widest mb-4">Fiskekalender 2026</p>
+          <h2 class="font-display text-4xl sm:text-5xl font-bold leading-tight mb-6">
+            Nappkalendern<br/>dag för dag
+          </h2>
+          <p class="text-white/80 text-lg leading-relaxed mb-8">
+            Daglig betningsindikator för gädda, abborre, gös, öring och fler. Baseras på säsong, månfas och SMHI-väderprognos. Filtrera på art och region.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4">
+            <a
+              href="/nappkalender/"
+              class="inline-flex items-center justify-center gap-2 bg-white text-pine font-bold text-base px-10 py-4 rounded-full hover:bg-mist transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            >
+              Öppna nappkalendern
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <a
+              href="/spovaljaren/"
+              class="inline-flex items-center justify-center gap-2 bg-white/10 text-white font-semibold text-base px-8 py-4 rounded-full border border-white/20 hover:bg-white/20 transition-colors"
+            >
+              Hitta rätt spö
+            </a>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          {[
+            { emoji: '🎣', title: 'Alla arter', desc: 'Gädda, abborre, gös, öring, lax, harr och röding.' },
+            { emoji: '🗺️', title: 'Per region', desc: 'Mellansverige, södra, norra och fjällvärlden.' },
+            { emoji: '🌕', title: 'Månfas', desc: 'Daglig variation synlig direkt i kalendern.' },
+            { emoji: '☁️', title: 'SMHI-prognos', desc: 'Faktisk väderprognos för kommande 10 dygn.' },
+          ].map(({ emoji, title, desc }) => (
+            <div class="bg-white/10 border border-white/10 rounded-2xl p-5">
+              <span class="text-2xl mb-3 block">{emoji}</span>
+              <p class="font-semibold text-white text-sm mb-1">{title}</p>
+              <p class="text-white/60 text-xs leading-relaxed">{desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   </section>
 

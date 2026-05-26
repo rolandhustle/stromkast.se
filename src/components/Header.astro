@@ -11,6 +11,7 @@ const navLinks = [
   { href: '/teknik/', label: 'Teknik' },
   { href: '/utrustning/', label: 'Utrustning' },
   { href: '/guider/', label: 'Guider' },
+  { href: '/nappkalender/', label: 'Kalender' },
   { href: '/forhallanden/', label: 'Förhållanden' },
 ];
 
@@ -119,7 +120,6 @@ const initialBg = transparent ? 'transparent' : 'rgba(31, 58, 46, 0.97)';
   const toggle = document.getElementById('mobile-menu-toggle');
   const menu = document.getElementById('mobile-menu');
 
-  // Scroll behavior: only animate transparent headers (homepage)
   if (header?.dataset.transparent === 'true') {
     window.addEventListener('scroll', () => {
       if (!header) return;
@@ -135,11 +135,9 @@ const initialBg = transparent ? 'transparent' : 'rgba(31, 58, 46, 0.97)';
     }, { passive: true });
   }
 
-  // Mobile menu toggle
   toggle?.addEventListener('click', () => {
     const open = menu?.classList.toggle('hidden') === false;
     toggle.setAttribute('aria-expanded', String(open));
-    // swap icon
     const svg = toggle.querySelector('svg path');
     if (svg) {
       svg.setAttribute('d', open
