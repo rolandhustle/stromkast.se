@@ -356,3 +356,44 @@ Följ dem alltid när nytt innehåll i dessa kategorier skapas.
 - Fler produkter i befintliga kategorier
 - Programmatiska sidor i större skala
 - Redaktionella artiklar (ersätt platshållare)
+
+---
+
+## SMHI-integration och väderdata
+
+### Stationsdatabas
+`src/data/smhi-stations.json` innehåller 180 aktiva SMHI-stationer med `latest-hour`-stöd för vind (parameter 4).
+Filen genererades maj 2026 från SMHI:s öppna API och bör uppdateras om fler stationer tillkommer.
+
+### Automatisk stationsmatchning
+`src/lib/smhi.ts` exporterar `fetchSMHIForCoords(lat, lng)` som automatiskt väljer närmaste aktiva station baserat på koordinater. **Ingen manuell stationskonfiguration behövs för nya destinationer.**
+
+När en ny destination läggs till i `src/content/destinations/` räcker det att `lat` och `lng` är korrekt ifyllda i frontmatter -- SMHI-data hämtas automatiskt från närmaste station vid nästa build.
+
+### SMHI-parametrar som hämtas
+- Parameter 1: lufttemperatur (°C)
+- Parameter 3: vindriktning (grader)
+- Parameter 4: vindhastighet (m/s)
+- Parameter 6: relativ luftfuktighet (%)
+
+### Betningsindikator
+`getBiteScore(airTemp, windSpeed, moonIllumination, species, month)` i `smhi.ts` returnerar:
+- `'Toppläge'` (score ≥ 68)
+- `'Värt att testa'` (score 42–67)
+- `'Trögt'` (score < 42)
+
+Terminologin ändras på ett enda ställe i `smhi.ts` -- ingenting hårdkodat i sidmallarna.
+
+### Säsongsdata
+`src/data/seasons.json` definierar peak- och ok-månader per art (1–12).
+Används av `getSeasonBonus()` för att justera betningspoängen per destination baserat på vilka arter som är i säsong.
+
+### Sidor som använder SMHI-data
+- `src/pages/index.astro` -- kartsektionen med FiskeKarta-komponenten
+- `src/pages/forhallanden/index.astro` -- detaljöversikt per destination
+- `src/pages/destinationer/[slug].astro` -- conditions-bar per destinationssida
+
+### FiskeKarta-komponenten
+`src/components/FiskeKarta.tsx` är en React-ö (`client:only="react"`) med Leaflet.
+All SMHI-data injiceras som props från Astro frontmatter (beräknat vid byggtid).
+Inga client-side API-anrop görs.

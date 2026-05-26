@@ -1,62 +1,71 @@
 /**
  * src/lib/smhi.ts
  *
- * Delad logik för SMHI-data, månfas och betningsindikator.
- * Används av /forhallanden/ och /destinationer/[slug]/.
+ * Delad logik för SMHI-data, månfas, betningsindikator och artjusterad säsongspoäng.
+ * Används av /forhallanden/, /destinationer/[slug]/ och startsidans FiskeKarta.
  *
- * SMHI Open Data API, ingen nyckel krävs.
- * Parametrar: 1=lufttemp, 3=vindriktning, 4=vindhastighet, 6=luftfuktighet
+ * Stationsmatchning sker automatiskt från koordinater via smhi-stations.json.
+ * Ingen manuell station-mapping behövs -- nya destinationer matchas automatiskt.
  */
 
-// ---------------------------------------------------------------------------
-// Stationskarta: destinations-slug → SMHI-station
-// ---------------------------------------------------------------------------
-
-export const STATION_BY_SLUG: Record<
-  string,
-  { stationId: number; stationName: string }
-> = {
-  vanern:     { stationId: 83420,  stationName: 'Naven A' },
-  vattern:    { stationId: 84310,  stationName: 'Karlsborg' },
-  morrum:     { stationId: 64020,  stationName: 'Hanö A' },
-  storsjon:   { stationId: 134110, stationName: 'Östersund-Frösön' },
-  malaren:    { stationId: 97370,  stationName: 'Enköping' },
-  tornealven: { stationId: 163960, stationName: 'Haparanda A' },
-};
+import stationsData from '../data/smhi-stations.json';
+import seasonsData  from '../data/seasons.json';
 
 // ---------------------------------------------------------------------------
 // Typer
 // ---------------------------------------------------------------------------
 
+interface Station {
+  id:   number;
+  name: string;
+  lat:  number;
+  lng:  number;
+}
+
 export interface SMHIData {
-  airTemp:   number | null;
-  windSpeed: number | null;
-  windDir:   number | null;
-  humidity:  number | null;
+  airTemp:     number | null;
+  windSpeed:   number | null;
+  windDir:     number | null;
+  humidity:    number | null;
   stationName: string;
-  error: boolean;
+  stationId:   number;
+  error:       boolean;
 }
 
 export interface BiteScore {
-  label: string;
-  color: 'green' | 'amber' | 'stone';
-  dots: number;
+  label:  string;
+  color:  'green' | 'amber' | 'stone';
+  score:  number;
+  dots:   number;
 }
 
 export interface MoonData {
-  name: string;
-  emoji: string;
+  name:         string;
+  emoji:        string;
   illumination: number;
+}
+
+// ---------------------------------------------------------------------------
+// Stationsmatchning: närmaste aktiva station från koordinater
+// ---------------------------------------------------------------------------
+
+const stations = stationsData as Station[];
+
+function distSq(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  return (lat1 - lat2) ** 2 + (lng1 - lng2) ** 2;
+}
+
+export function getNearestStation(lat: number, lng: number): Station {
+  return stations.reduce((best, s) =>
+    distSq(lat, lng, s.lat, s.lng) < distSq(lat, lng, best.lat, best.lng) ? s : best
+  );
 }
 
 // ---------------------------------------------------------------------------
 // SMHI-hämtning
 // ---------------------------------------------------------------------------
 
-async function fetchParam(
-  stationId: number,
-  parameterId: number
-): Promise<number | null> {
+async function fetchParam(stationId: number, parameterId: number): Promise<number | null> {
   const url = `https://opendata-download-metobs.smhi.se/api/version/1.0/parameter/${parameterId}/station/${stationId}/period/latest-hour/data.json`;
   try {
     const res = await fetch(url, {
@@ -73,37 +82,31 @@ async function fetchParam(
   }
 }
 
-export async function fetchSMHIForStation(
-  stationId: number,
-  stationName: string
-): Promise<SMHIData> {
+export async function fetchSMHIForStation(stationId: number, stationName: string): Promise<SMHIData> {
   const [airTemp, windSpeed, windDir, humidity] = await Promise.all([
     fetchParam(stationId, 1),
     fetchParam(stationId, 4),
     fetchParam(stationId, 3),
     fetchParam(stationId, 6),
   ]);
-
   return {
     airTemp,
     windSpeed,
     windDir,
     humidity,
     stationName,
+    stationId,
     error: airTemp === null && windSpeed === null,
   };
 }
 
 /**
- * Hämtar SMHI-data för en destinations-slug.
- * Returnerar null om destinationen saknar stationskoppling.
+ * Hämtar SMHI-data för en destination givet dess koordinater.
+ * Väljer automatiskt närmaste aktiva station från smhi-stations.json.
  */
-export async function fetchSMHIForSlug(
-  slug: string
-): Promise<SMHIData | null> {
-  const station = STATION_BY_SLUG[slug];
-  if (!station) return null;
-  return fetchSMHIForStation(station.stationId, station.stationName);
+export async function fetchSMHIForCoords(lat: number, lng: number): Promise<SMHIData> {
+  const station = getNearestStation(lat, lng);
+  return fetchSMHIForStation(station.id, station.name);
 }
 
 // ---------------------------------------------------------------------------
@@ -111,13 +114,11 @@ export async function fetchSMHIForSlug(
 // ---------------------------------------------------------------------------
 
 export function getMoonPhase(date: Date): MoonData {
-  const SYNODIC = 29.53059;
+  const SYNODIC        = 29.53059;
   const KNOWN_NEW_MOON = new Date('2000-01-06T18:14:00Z').getTime();
-  const diffDays = (date.getTime() - KNOWN_NEW_MOON) / (1000 * 60 * 60 * 24);
-  const cyclePos = ((diffDays % SYNODIC) + SYNODIC) % SYNODIC;
-  const illumination = Math.round(
-    50 * (1 - Math.cos((2 * Math.PI * cyclePos) / SYNODIC))
-  );
+  const diffDays       = (date.getTime() - KNOWN_NEW_MOON) / (1000 * 60 * 60 * 24);
+  const cyclePos       = ((diffDays % SYNODIC) + SYNODIC) % SYNODIC;
+  const illumination   = Math.round(50 * (1 - Math.cos((2 * Math.PI * cyclePos) / SYNODIC)));
 
   let name: string;
   let emoji: string;
@@ -135,39 +136,61 @@ export function getMoonPhase(date: Date): MoonData {
 }
 
 // ---------------------------------------------------------------------------
+// Säsongsbonus per art
+// ---------------------------------------------------------------------------
+
+type SeasonEntry = { peak: number[]; ok: number[] };
+const seasons = seasonsData as Record<string, SeasonEntry>;
+
+export function getSeasonBonus(species: string[], month: number): number {
+  let best = 0;
+  for (const art of species) {
+    const entry = seasons[art.toLowerCase()];
+    if (!entry) continue;
+    if (entry.peak.includes(month)) { best = Math.max(best, 25); break; }
+    if (entry.ok.includes(month))     best = Math.max(best, 12);
+  }
+  return best;
+}
+
+// ---------------------------------------------------------------------------
 // Betningsindikator
 // ---------------------------------------------------------------------------
 
 export function getBiteScore(
-  airTemp: number | null,
-  windSpeed: number | null,
-  moonIllumination: number
+  airTemp:          number | null,
+  windSpeed:        number | null,
+  moonIllumination: number,
+  species:          string[] = [],
+  month:            number   = new Date().getMonth() + 1
 ): BiteScore {
-  let score = 50;
+  let score = 40;
 
   if (airTemp !== null) {
     if (airTemp >= 8 && airTemp <= 18)      score += 20;
-    else if (airTemp >= 4 && airTemp < 8)   score += 5;
+    else if (airTemp >= 4 && airTemp < 8)   score += 8;
     else if (airTemp > 18 && airTemp <= 24) score += 10;
-    else if (airTemp < 0)                   score -= 20;
-    else if (airTemp > 24)                  score -= 10;
+    else if (airTemp < 0)                   score -= 15;
+    else if (airTemp > 24)                  score -= 8;
   }
 
   if (windSpeed !== null) {
-    if (windSpeed >= 1 && windSpeed <= 4)       score += 15;
-    else if (windSpeed > 7 && windSpeed <= 10)  score -= 10;
-    else if (windSpeed > 10)                    score -= 25;
-    else if (windSpeed < 1)                     score -= 5;
+    if (windSpeed >= 1 && windSpeed <= 4)      score += 15;
+    else if (windSpeed > 4 && windSpeed <= 7)  score += 5;
+    else if (windSpeed > 7 && windSpeed <= 10) score -= 10;
+    else if (windSpeed > 10)                   score -= 22;
+    else if (windSpeed < 1)                    score -= 5;
   }
 
-  if (moonIllumination > 90 || moonIllumination < 10) score += 15;
-  else if (moonIllumination > 75 || moonIllumination < 25) score += 8;
+  if (moonIllumination > 90 || moonIllumination < 10) score += 12;
+  else if (moonIllumination > 75 || moonIllumination < 25) score += 6;
 
-  score = Math.max(0, Math.min(100, score));
+  score += getSeasonBonus(species, month);
+  score  = Math.max(0, Math.min(100, score));
 
-  if (score >= 70) return { label: 'Aktivt',   color: 'green', dots: 3 };
-  if (score >= 45) return { label: 'Varierat', color: 'amber', dots: 2 };
-  return              { label: 'Lugnt',    color: 'stone', dots: 1 };
+  if (score >= 68) return { label: 'Toppläge',       color: 'green', score, dots: 3 };
+  if (score >= 42) return { label: 'Värt att testa', color: 'amber', score, dots: 2 };
+  return              { label: 'Trögt',           color: 'stone', score, dots: 1 };
 }
 
 // ---------------------------------------------------------------------------

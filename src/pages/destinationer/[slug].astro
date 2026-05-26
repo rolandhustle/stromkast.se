@@ -4,7 +4,7 @@ import AffiliateCard from '../../components/AffiliateCard.astro';
 import DestinationMap from '../../components/DestinationMap.tsx';
 import { getCollection, render } from 'astro:content';
 import {
-  fetchSMHIForSlug,
+  fetchSMHIForCoords,
   getMoonPhase,
   getBiteScore,
   windDirLabel,
@@ -32,7 +32,7 @@ const recommendedReviews = allReviews.filter((r) =>
 // SMHI-data och betningsindikator
 const now = new Date();
 const moon = getMoonPhase(now);
-const smhi = await fetchSMHIForSlug(d.slug);
+const smhi = await fetchSMHIForCoords(d.lat, d.lng);
 const bite = smhi
   ? getBiteScore(smhi.airTemp, smhi.windSpeed, moon.illumination)
   : null;
