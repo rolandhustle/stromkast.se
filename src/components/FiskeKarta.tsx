@@ -385,7 +385,7 @@ export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props)
       );
 
       const map = L.map(mapRef.current!, {
-        center:              isMobile ? [61.5, 16.0] : [62.5, 17.5],
+        center:              isMobile ? [62.5, 18.0] : [62.5, 17.5],
         zoom:                isMobile ? 4 : 5,
         minZoom:             5,
         maxZoom:             5,
