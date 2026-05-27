@@ -385,8 +385,8 @@ export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props)
       );
 
       const map = L.map(mapRef.current!, {
-        center:              [62.5, 17.5],
-        zoom:                5,
+        center:              isMobile ? [62.0, 17.5] : [62.5, 17.5],
+        zoom:                isMobile ? 4 : 5,
         minZoom:             5,
         maxZoom:             5,
         zoomControl:         false,
@@ -463,7 +463,7 @@ export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props)
             Live · SMHI
           </div>
         </div>
-        <div ref={mapRef} style={{ width: '100%', height: isMobile ? '400px' : '700px' }} aria-label="Karta över svenska fiskevatten med betningsindikator" />
+        <div ref={mapRef} style={{ width: '100%', height: isMobile ? '320px' : '700px' }} aria-label="Karta över svenska fiskevatten med betningsindikator" />
         <div style={{ padding: '0.7rem 1rem', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff' }}>
           <span style={{ fontSize: '11px', color: '#9ca3af' }}>Data: SMHI Open Data · CC BY 4.0</span>
         </div>
