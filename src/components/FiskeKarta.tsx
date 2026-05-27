@@ -379,15 +379,13 @@ export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props)
         document.head.appendChild(link);
       }
 
-      const swedenBounds = isMobile
-        ? L.latLngBounds(L.latLng(54.0, 8.0), L.latLng(70.0, 28.0))
-        : L.latLngBounds(L.latLng(55.2, 11.0), L.latLng(69.1, 24.2));
+      const swedenBounds = L.latLngBounds(L.latLng(55.2, 11.0), L.latLng(69.1, 24.2));
 
       const map = L.map(mapRef.current!, {
-        center:              isMobile ? [62.5, 18.0] : [62.5, 17.5],
-        zoom:                isMobile ? 4 : 5,
-        minZoom:             isMobile ? 4 : 5,
-        maxZoom:             isMobile ? 4 : 5,
+        center:              [62.5, 17.5],
+        zoom:                5,
+        minZoom:             5,
+        maxZoom:             5,
         zoomControl:         false,
         attributionControl:  true,
         scrollWheelZoom:     false,
@@ -431,14 +429,18 @@ export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props)
 
       leafletRef.current = map;
 
-      // Tvinga Leaflet att räkna om storlek och centrering efter rendering
+      // Sätt vy efter rendering när Leaflet vet faktisk storlek
       setTimeout(() => {
         map.invalidateSize();
-        map.setView(
-          isMobile ? [62.5, 18.0] : [62.5, 17.5],
-          isMobile ? 5 : 5
-        );
-      }, 100);
+        const mobile = window.innerWidth < 640;
+        map.setView([62.5, 17.5], 5);
+        if (mobile) {
+          map.fitBounds(
+            L.latLngBounds(L.latLng(55.2, 11.0), L.latLng(69.1, 24.2)),
+            { padding: [10, 10] }
+          );
+        }
+      }, 200);
     });
 
     return () => {
