@@ -167,7 +167,7 @@ function Panel({
     .sort((a, b) => b.biteScore - a.biteScore);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem', height: '100%' }}>
+    <div style={{ display: isMobile ? 'none' : 'flex', flexDirection: 'column', gap: '0.875rem', height: '100%' }}>
 
       {/* Huvudpanel */}
       <div style={{
