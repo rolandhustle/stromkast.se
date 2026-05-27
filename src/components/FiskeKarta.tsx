@@ -453,7 +453,7 @@ export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props)
   }, [active]);
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '420px 1fr', gap: '1.5rem', alignItems: 'stretch' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '420px 1fr', gap: '1.5rem', alignItems: 'stretch' }}>
 
       {/* Karta */}
       <div style={{ border: '1px solid #e5e7eb', borderRadius: '12px', overflow: 'hidden', background: '#dde8d8' }}>
@@ -469,8 +469,8 @@ export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props)
         </div>
       </div>
 
-      {/* Sidopanel */}
-      <Panel
+      {/* Sidopanel -- dölj på mobil */}
+      {!isMobile && <Panel
         destinations={destinations}
         active={active}
         onSelect={setActive}
@@ -478,7 +478,30 @@ export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props)
         moonEmoji={moonEmoji}
         moonName={moonName}
         isMobile={isMobile}
-      />
+      />}
+
+      {/* Mobil: horisontell destinationslista */}
+      {isMobile && (
+        <div style={{ marginTop: '0.875rem' }}>
+          <p style={{ fontSize: '11px', fontWeight: 600, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>🏆 Bäst just nu</p>
+          <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '8px' }}>
+            {[...destinations].filter(d => !d.error).sort((a, b) => b.biteScore - a.biteScore).map(d => {
+              const bd = ({ green: { bg: '#dcfce7', text: '#166534' }, amber: { bg: '#fef3c7', text: '#92400e' }, stone: { bg: '#f3f4f6', text: '#6b7280' } } as Record<string,{bg:string;text:string}>)[d.biteColor];
+              return (
+                <a key={d.slug} href={`/destinationer/${d.slug}/`}
+                  style={{ flexShrink: 0, width: '140px', background: '#fff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '0.75rem', textDecoration: 'none' }}>
+                  <p style={{ fontSize: '13px', fontWeight: 600, color: '#111827', marginBottom: '4px' }}>{d.name}</p>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '10px', fontWeight: 500, padding: '2px 7px', borderRadius: '10px', background: bd.bg, color: bd.text, marginBottom: '6px' }}>{d.biteLabel}</span>
+                  <p style={{ fontSize: '11px', color: '#6b7280' }}>{d.airTemp !== null ? `${d.airTemp.toFixed(1)}°C` : ''}{d.windSpeed !== null ? ` · ${d.windSpeed.toFixed(1)} m/s` : ''}</p>
+                </a>
+              );
+            })}
+          </div>
+          <a href="/forhallanden/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '10px', padding: '0.75rem', borderRadius: '12px', background: '#1F3A2E', color: '#fff', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
+            Förhållanden just nu →
+          </a>
+        </div>
+      )}
 
       <style>{`
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
