@@ -431,6 +431,15 @@ export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props)
       });
 
       leafletRef.current = map;
+
+      // Tvinga Leaflet att räkna om storlek och centrering efter rendering
+      setTimeout(() => {
+        map.invalidateSize();
+        map.setView(
+          isMobile ? [62.5, 18.0] : [62.5, 17.5],
+          isMobile ? 5 : 5
+        );
+      }, 100);
     });
 
     return () => {
