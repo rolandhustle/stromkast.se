@@ -379,16 +379,15 @@ export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props)
         document.head.appendChild(link);
       }
 
-      const swedenBounds = L.latLngBounds(
-        L.latLng(55.2, 11.0),
-        L.latLng(69.1, 24.2)
-      );
+      const swedenBounds = isMobile
+        ? L.latLngBounds(L.latLng(54.0, 8.0), L.latLng(70.0, 28.0))
+        : L.latLngBounds(L.latLng(55.2, 11.0), L.latLng(69.1, 24.2));
 
       const map = L.map(mapRef.current!, {
         center:              isMobile ? [62.5, 18.0] : [62.5, 17.5],
         zoom:                isMobile ? 4 : 5,
-        minZoom:             5,
-        maxZoom:             5,
+        minZoom:             isMobile ? 4 : 5,
+        maxZoom:             isMobile ? 4 : 5,
         zoomControl:         false,
         attributionControl:  true,
         scrollWheelZoom:     false,
