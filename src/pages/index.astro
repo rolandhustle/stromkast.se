@@ -1,131 +1,77 @@
 ---
+/**
+ * src/pages/index.astro
+ *
+ * Startsida med interaktiv fiskekarta.
+ * SMHI-data och betningspoäng beräknas vid byggtid.
+ * FiskeKarta-komponenten renderas client-side med Leaflet.
+ */
+
 import BaseLayout from '../layouts/BaseLayout.astro';
 import NewsletterForm from '../components/NewsletterForm.astro';
-import FiskeKarta from '../components/FiskeKarta';
+import FiskeKarta from '../components/FiskeKarta.tsx';
 import { getCollection } from 'astro:content';
 import { getImage } from 'astro:assets';
 import { Image } from 'astro:assets';
+import {
+  
+  fetchSMHIForCoords,
+  getMoonPhase,
+  getBiteScore,
+  
+  windDirLabel,
+} from '../lib/smhi';
 
-import heroSrc     from '../assets/images/hero-home.jpg';
-import vanernSrc   from '../assets/images/destination-vanern.jpg';
-import vatternSrc  from '../assets/images/destination-vattern.jpg';
-import morrumSrc   from '../assets/images/destination-morrum.jpg';
-import storsjonSrc from '../assets/images/destination-storsjon.jpg';
+import heroSrc from '../assets/images/hero-home.jpg';
 
 const articles = (await getCollection('articles')).slice(0, 3);
+const destinations = await getCollection('destinations');
 
-// Optimise hero: AVIF primary, full-width
-const heroImg = await getImage({ src: heroSrc, format: 'avif', width: 1920, height: 1080, quality: 80 });
+const heroImg    = await getImage({ src: heroSrc, format: 'avif',  width: 1920, height: 1080, quality: 80 });
 const heroImgWebP = await getImage({ src: heroSrc, format: 'webp', width: 1920, height: 1080, quality: 80 });
 
-// Destination card images
-const vanernImg   = await getImage({ src: vanernSrc,   format: 'avif', width: 640, height: 854, quality: 75 });
-const vatternImg  = await getImage({ src: vatternSrc,  format: 'avif', width: 640, height: 854, quality: 75 });
-const morrumImg   = await getImage({ src: morrumSrc,   format: 'avif', width: 640, height: 854, quality: 75 });
-const storsjonImg = await getImage({ src: storsjonSrc, format: 'avif', width: 640, height: 854, quality: 75 });
-
-const featuredDestinations = [
-  { slug: 'vanern',   name: 'Vänern',   species: 'Gädda, Lax',      region: 'Västra Götaland', img: vanernImg.src   },
-  { slug: 'vattern',  name: 'Vättern',  species: 'Öring, Röding',   region: 'Östergötland',    img: vatternImg.src  },
-  { slug: 'morrum',   name: 'Mörrum',   species: 'Lax, Havsöring',  region: 'Blekinge',         img: morrumImg.src   },
-  { slug: 'storsjon', name: 'Storsjön', species: 'Öring, Harr',     region: 'Jämtland',         img: storsjonImg.src },
-];
-
-const categoryLabels: Record<string, string> = {
-  destination: 'Destination',
-  teknik: 'Teknik',
-  utrustning: 'Utrustning',
-  guide: 'Guide',
-};
-
 // ---------------------------------------------------------------------------
-// SMHI: hämta väderdata för destinationer
+// Byggtids-SMHI-fetch för alla destinationer
 // ---------------------------------------------------------------------------
 
-async function fetchSmhi(stationId: number, parameter: number): Promise<number | null> {
-  try {
-    const url = `https://opendata-download-metobs.smhi.se/api/version/latest/parameter/${parameter}/station/${stationId}/period/latest-hour/data.json`;
-    const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
-    if (!res.ok) return null;
-    const json = await res.json();
-    const obs = json?.value ?? [];
-    if (!obs.length) return null;
-    const val = parseFloat(obs[obs.length - 1].value);
-    return isNaN(val) ? null : val;
-  } catch {
-    return null;
-  }
-}
-
-const WIND_DIRS = ['N','NNO','NO','ONO','O','OSO','SO','SSO','S','SSV','SV','VSV','V','VNV','NV','NNV'];
-function degToDir(deg: number | null): string {
-  if (deg === null) return '';
-  return WIND_DIRS[Math.round(deg / 22.5) % 16] ?? '';
-}
-
-const STATIONS = [
-  { slug: 'vanern',     name: 'Vänern',      region: 'Västra Götaland', lat: 58.9,  lng: 13.5,  species: ['gädda','abborre','gös','lax','öring'],       stationId: 71420,  stationName: 'Mariestad' },
-  { slug: 'vattern',    name: 'Vättern',     region: 'Östergötland',    lat: 58.3,  lng: 14.5,  species: ['öring','röding','gädda','abborre','lax'],     stationId: 85280,  stationName: 'Jönköping' },
-  { slug: 'malaren',    name: 'Mälaren',     region: 'Stockholms län',  lat: 59.45, lng: 17.2,  species: ['gädda','abborre','gös','asp','öring'],        stationId: 98210,  stationName: 'Stockholm' },
-  { slug: 'bolmen',     name: 'Bolmen',      region: 'Kronoberg',       lat: 56.9,  lng: 13.7,  species: ['gädda','abborre','gös','öring'],              stationId: 63600,  stationName: 'Ljungby' },
-  { slug: 'morrum',     name: 'Mörrum',      region: 'Blekinge',        lat: 56.18, lng: 14.75, species: ['lax','havsöring','öring','gädda'],            stationId: 65090,  stationName: 'Karlshamn' },
-  { slug: 'storsjon',   name: 'Storsjön',    region: 'Jämtland',        lat: 63.15, lng: 14.35, species: ['öring','harr','röding','gädda','abborre'],    stationId: 162860, stationName: 'Östersund' },
-  { slug: 'tornealven', name: 'Torneälven',  region: 'Norrbotten',      lat: 67.85, lng: 23.2,  species: ['lax','havsöring','öring','harr','sik'],       stationId: 190840, stationName: 'Pajala' },
-  { slug: 'oring',      name: 'Indalsälven', region: 'Västernorrland',  lat: 62.5,  lng: 17.0,  species: ['öring','harr','gädda','abborre'],             stationId: 147560, stationName: 'Sundsvall' },
-];
-
-function biteScore(airTemp: number | null, windSpeed: number | null): { score: number; label: string; color: 'green' | 'amber' | 'stone' } {
-  let score = 50;
-  if (airTemp !== null) {
-    if (airTemp >= 8 && airTemp <= 18)       score += 30;
-    else if (airTemp >= 4 && airTemp < 8)    score += 15;
-    else if (airTemp > 18 && airTemp <= 24)  score += 10;
-    else                                     score -= 10;
-  }
-  if (windSpeed !== null) {
-    if (windSpeed <= 5)       score += 20;
-    else if (windSpeed <= 9)  score += 5;
-    else if (windSpeed <= 14) score -= 10;
-    else                      score -= 25;
-  }
-  if (score >= 70) return { score, label: 'Toppläge',       color: 'green' };
-  if (score >= 45) return { score, label: 'Värt att testa', color: 'amber' };
-  return               { score, label: 'Lugnt',            color: 'stone' };
-}
+const now   = new Date();
+const moon  = getMoonPhase(now);
+const month = now.getMonth() + 1;
 
 const destinationPins = await Promise.all(
-  STATIONS.map(async (s) => {
-    const [airTemp, windSpeed, windDeg] = await Promise.all([
-      fetchSmhi(s.stationId, 1),
-      fetchSmhi(s.stationId, 4),
-      fetchSmhi(s.stationId, 3),
-    ]);
-    const { score, label, color } = biteScore(airTemp, windSpeed);
+  destinations.map(async (dest) => {
+    const d       = dest.data;
+    const smhi = await fetchSMHIForCoords(d.lat, d.lng);
+    const { airTemp, windSpeed, windDir, humidity, stationName, error } = smhi;
+
+    const bite = getBiteScore(airTemp, windSpeed, moon.illumination, d.primarySpecies, month);
+
     return {
-      slug: s.slug, name: s.name, region: s.region, lat: s.lat, lng: s.lng,
-      species: s.species, airTemp, windSpeed, windDir: degToDir(windDeg),
-      humidity: null, stationName: s.stationName,
-      biteLabel: label, biteColor: color, biteScore: score,
-      error: airTemp === null && windSpeed === null,
+      slug:        d.slug,
+      name:        d.title,
+      region:      d.län,
+      lat:         d.lat,
+      lng:         d.lng,
+      species:     d.primarySpecies,
+      airTemp,
+      windSpeed,
+      windDir:     windDirLabel(windDir),
+      humidity,
+      stationName,
+      biteLabel:   bite.label,
+      biteColor:   bite.color,
+      biteScore:   bite.score,
+      error,
     };
   })
 );
 
-// Månfas
-function getMoonPhase(): { emoji: string; name: string } {
-  const known = new Date(2000, 0, 6);
-  const diff  = (Date.now() - known.getTime()) / (1000 * 60 * 60 * 24);
-  const phase = ((diff % 29.53058867) + 29.53058867) % 29.53058867;
-  if (phase < 1.85)  return { emoji: '🌑', name: 'Nymåne' };
-  if (phase < 7.38)  return { emoji: '🌒', name: 'Växande skära' };
-  if (phase < 9.22)  return { emoji: '🌓', name: 'Halvmåne (växande)' };
-  if (phase < 14.76) return { emoji: '🌔', name: 'Växande gibbus' };
-  if (phase < 16.61) return { emoji: '🌕', name: 'Fullmåne' };
-  if (phase < 22.15) return { emoji: '🌖', name: 'Avtagande gibbus' };
-  if (phase < 23.99) return { emoji: '🌗', name: 'Halvmåne (avtagande)' };
-  return               { emoji: '🌘', name: 'Avtagande skära' };
-}
-const moon = getMoonPhase();
+const categoryLabels: Record<string, string> = {
+  destination: 'Destination',
+  teknik:      'Teknik',
+  utrustning:  'Utrustning',
+  guide:       'Guide',
+};
 ---
 
 <BaseLayout
@@ -134,11 +80,11 @@ const moon = getMoonPhase();
   pageType="home"
   transparentHeader={true}
 >
+
   <!-- ==============================
        HERO
   ============================== -->
   <section class="relative min-h-[90vh] flex items-end pb-20 overflow-hidden bg-pine">
-    <!-- Background image -->
     <div class="absolute inset-0 bg-gradient-to-b from-pine/40 via-pine/30 to-deep/90 z-10"></div>
     <picture aria-hidden="true" class="absolute inset-0">
       <source srcset={heroImg.src} type="image/avif" />
@@ -154,7 +100,6 @@ const moon = getMoonPhase();
       />
     </picture>
 
-    <!-- Decorative water ripple -->
     <div class="absolute bottom-0 left-0 right-0 h-32 z-10" aria-hidden="true">
       <svg viewBox="0 0 1440 128" preserveAspectRatio="none" class="w-full h-full fill-paper">
         <path d="M0,64 C240,128 480,0 720,64 C960,128 1200,0 1440,64 L1440,128 L0,128 Z"/>
@@ -163,7 +108,6 @@ const moon = getMoonPhase();
 
     <div class="relative z-20 max-w-[1280px] mx-auto px-4 sm:px-6 w-full">
       <div class="max-w-2xl">
-        <!-- Trust badges -->
         <div class="flex flex-wrap gap-3 mb-8">
           <span class="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm text-white/90 text-xs font-medium px-3 py-1.5 rounded-full border border-white/20">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -199,10 +143,10 @@ const moon = getMoonPhase();
 
         <div class="flex flex-col sm:flex-row gap-4">
           <a
-            href="/spovaljaren/"
+            href="/nappkalender/"
             class="inline-flex items-center justify-center gap-2 bg-rust text-white font-semibold text-base px-8 py-4 rounded-full hover:bg-copper transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
-            Ta quiz: hitta rätt spö
+            Öppna nappkalendern
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -219,53 +163,22 @@ const moon = getMoonPhase();
   </section>
 
   <!-- ==============================
-       FEATURED DESTINATIONS
+       FISKEKARTA (ersätter Destinations + Bite Indicator)
   ============================== -->
-  <section class="py-20 px-4 sm:px-6 max-w-[1280px] mx-auto">
-    <div class="flex items-end justify-between mb-10">
-      <div>
-        <p class="text-stone text-sm font-medium uppercase tracking-wider mb-2">Destinationer</p>
-        <h2 class="font-display text-3xl sm:text-4xl font-bold text-deep">Fiskevatten i världsklass</h2>
-      </div>
-      <a href="/destinationer/" class="hidden sm:inline-flex items-center gap-1.5 text-sky text-sm font-medium hover:text-pine transition-colors">
-        Alla destinationer
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-          <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-      {featuredDestinations.map((dest) => (
-        <a
-          href={`/destinationer/${dest.slug}/`}
-          class="group relative rounded-2xl overflow-hidden aspect-[3/4] bg-pine block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
-        >
-          <div
-            class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-            style={`background-image: url('${dest.img}'); background-color: #1F3A2E;`}
-            aria-hidden="true"
-          ></div>
-          <div class="absolute inset-0 bg-gradient-to-t from-deep/90 via-transparent to-transparent"></div>
-          <div class="absolute bottom-0 left-0 right-0 p-5">
-            <p class="text-white/70 text-xs font-medium mb-1">{dest.region}</p>
-            <h3 class="font-display text-white text-xl font-bold leading-tight mb-1">{dest.name}</h3>
-            <p class="text-white/60 text-xs">{dest.species}</p>
-          </div>
-        </a>
-      ))}
-    </div>
-  </section>
-
-  <!-- ==============================
-       FISKEKARTA (Live SMHI-data)
-  ============================== -->
-  <section class="py-12 px-4 sm:px-6 bg-mist/50">
+  <section class="py-20 px-4 sm:px-6 overflow-x-hidden">
     <div class="max-w-[1280px] mx-auto">
-      <div class="mb-6">
-        <p class="text-stone text-sm font-medium uppercase tracking-wider mb-1">Live data · SMHI</p>
-        <h2 class="font-display text-2xl font-bold text-deep">Vad biter just nu?</h2>
-        <p class="text-stone text-sm mt-1 hidden sm:block">Klicka på en nål för snabbinfo. Klicka för guide till destinationen.</p>
+      <div class="flex items-end justify-between mb-8">
+        <div>
+          <p class="text-stone text-sm font-medium uppercase tracking-wider mb-2">Live data · SMHI</p>
+          <h2 class="font-display text-3xl sm:text-4xl font-bold text-deep">Vad biter just nu?</h2>
+          <p class="text-stone text-sm mt-2">Klicka på en nål för snabbinfo. Klicka för guide till destinationen.</p>
+        </div>
+        <a href="/destinationer/" class="hidden sm:inline-flex items-center gap-1.5 text-sky text-sm font-medium hover:text-pine transition-colors">
+          Alla destinationer
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
       </div>
 
       <FiskeKarta
@@ -278,7 +191,7 @@ const moon = getMoonPhase();
   </section>
 
   <!-- ==============================
-       LATEST GUIDES: MAGAZINE LAYOUT
+       LATEST GUIDES
   ============================== -->
   <section class="py-20 px-4 sm:px-6 max-w-[1280px] mx-auto">
     <div class="flex items-end justify-between mb-10">
@@ -350,36 +263,62 @@ const moon = getMoonPhase();
   </section>
 
   <!-- ==============================
-       QUIZ TEASER: FULL WIDTH RUST
+       NAPPKALENDER TEASER
   ============================== -->
-  <section class="py-20 px-4 sm:px-6 bg-rust text-white">
-    <div class="max-w-[1280px] mx-auto text-center">
-      <p class="text-rust-100 text-sm font-medium uppercase tracking-widest mb-4 text-white/70">Spöväljaren</p>
-      <h2 class="font-display text-4xl sm:text-5xl font-bold leading-tight mb-6">
-        Hitta rätt spö<br/>på 60 sekunder
-      </h2>
-      <p class="text-white/80 text-lg max-w-xl mx-auto mb-10 leading-relaxed">
-        Svara på fem frågor om din fiskestil och budget. Vi matchar dig med de tre bästa spöna för dina behov.
-      </p>
-      <a
-        href="/spovaljaren/"
-        class="inline-flex items-center gap-2 bg-white text-rust font-bold text-base px-10 py-4 rounded-full hover:bg-mist transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-rust"
-      >
-        Starta quizen nu
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
-      <p class="text-white/50 text-xs mt-5">Gratis. Ingen registrering krävs.</p>
+  <section class="py-20 px-4 sm:px-6 bg-pine text-white">
+    <div class="max-w-[1280px] mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <p class="text-white/60 text-sm font-medium uppercase tracking-widest mb-4">Fiskekalender 2026</p>
+          <h2 class="font-display text-4xl sm:text-5xl font-bold leading-tight mb-6">
+            Nappkalendern<br/>dag för dag
+          </h2>
+          <p class="text-white/80 text-lg leading-relaxed mb-8">
+            Daglig betningsindikator för gädda, abborre, gös, öring och fler. Baseras på säsong, månfas och SMHI-väderprognos. Filtrera på art och region.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4">
+            <a
+              href="/nappkalender/"
+              class="inline-flex items-center justify-center gap-2 bg-white text-pine font-bold text-base px-10 py-4 rounded-full hover:bg-mist transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            >
+              Öppna nappkalendern
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <a
+              href="/spovaljaren/"
+              class="inline-flex items-center justify-center gap-2 bg-white/10 text-white font-semibold text-base px-8 py-4 rounded-full border border-white/20 hover:bg-white/20 transition-colors"
+            >
+              Hitta rätt spö
+            </a>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          {[
+            { emoji: '🎣', title: 'Alla arter', desc: 'Gädda, abborre, gös, öring, lax, harr och röding.' },
+            { emoji: '🗺️', title: 'Per region', desc: 'Mellansverige, södra, norra och fjällvärlden.' },
+            { emoji: '🌕', title: 'Månfas', desc: 'Daglig variation synlig direkt i kalendern.' },
+            { emoji: '☁️', title: 'SMHI-prognos', desc: 'Faktisk väderprognos för kommande 10 dygn.' },
+          ].map(({ emoji, title, desc }) => (
+            <div class="bg-white/10 border border-white/10 rounded-2xl p-5">
+              <span class="text-2xl mb-3 block">{emoji}</span>
+              <p class="font-semibold text-white text-sm mb-1">{title}</p>
+              <p class="text-white/60 text-xs leading-relaxed">{desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- ==============================
        NEWSLETTER
   ============================== -->
-  <section class="py-20 px-4 sm:px-6">
+  <section class="py-20 px-4 sm:px-6 overflow-x-hidden">
     <div class="max-w-xl mx-auto text-center">
       <NewsletterForm placement="footer" />
     </div>
   </section>
+
 </BaseLayout>

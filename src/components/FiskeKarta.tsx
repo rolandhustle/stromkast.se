@@ -2,8 +2,8 @@
  * src/components/FiskeKarta.tsx
  *
  * Interaktiv fiskekarta för startsidan.
- * Desktop: Leaflet-karta + sidopanel med destinationslista, månfas och CTA.
- * Mobil: Ingen karta. Visar "Bäst just nu"-lista (horisontell scroll) + månfas + CTA.
+ * Sidopanel: scrollbar lista med alla destinationer, betningsindikator och artchips.
+ * Detaljvy vid klick på nål eller destination i listan.
  */
 
 import { useState, useEffect, useRef } from 'react';
@@ -21,11 +21,10 @@ function useIsMobile(breakpoint = 640): boolean {
   }, [breakpoint]);
   return isMobile;
 }
-
 import type { Map as LeafletMap, CircleMarker } from 'leaflet';
 
 // ---------------------------------------------------------------------------
-// Säsongsdata
+// Säsongsdata (speglar src/data/seasons.json)
 // ---------------------------------------------------------------------------
 
 const SEASONS: Record<string, { peak: number[]; ok: number[] }> = {
@@ -103,7 +102,7 @@ const SPECIES_CHIP: Record<SpeciesSeason, { bg: string; text: string; dot: strin
 };
 
 function fmt(val: number | null, unit = ''): string {
-  return val !== null ? `${val.toFixed(1)}${unit}` : '-';
+  return val !== null ? `${val.toFixed(1)}${unit}` : '–';
 }
 
 const MONTH = new Date().getMonth() + 1;
@@ -113,6 +112,7 @@ const MONTH = new Date().getMonth() + 1;
 // ---------------------------------------------------------------------------
 
 function SpeciesChips({ species }: { species: string[] }) {
+  // Sortera: peak först, ok sen, off sist
   const sorted = [...species].sort((a, b) => {
     const order = { peak: 0, ok: 1, off: 2 };
     return order[getSpeciesSeason(a, MONTH)] - order[getSpeciesSeason(b, MONTH)];
@@ -142,7 +142,7 @@ function SpeciesChips({ species }: { species: string[] }) {
 }
 
 // ---------------------------------------------------------------------------
-// Sidopanel (desktop only)
+// Sidopanel
 // ---------------------------------------------------------------------------
 
 function Panel({
@@ -152,6 +152,7 @@ function Panel({
   onClear,
   moonEmoji,
   moonName,
+  isMobile,
 }: {
   destinations: DestinationPin[];
   active:        DestinationPin | null;
@@ -159,13 +160,14 @@ function Panel({
   onClear:       () => void;
   moonEmoji:     string;
   moonName:      string;
+  isMobile:      boolean;
 }) {
   const sorted = [...destinations]
     .filter(d => !d.error)
     .sort((a, b) => b.biteScore - a.biteScore);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem', height: '100%' }}>
+    <div style={{ display: isMobile ? 'none' : 'flex', flexDirection: 'column', gap: '0.875rem', height: '100%' }}>
 
       {/* Huvudpanel */}
       <div style={{
@@ -195,7 +197,7 @@ function Panel({
                 Destination
               </span>
               <button onClick={onClear} style={{ fontSize: '11px', color: '#185FA5', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '3px', padding: 0, fontFamily: 'inherit' }}>
-                &larr; Alla vatten
+                ← Alla vatten
               </button>
             </>
           ) : (
@@ -229,6 +231,7 @@ function Panel({
                   onMouseEnter={e => (e.currentTarget.style.background = '#f9fafb')}
                   onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                 >
+                  {/* Rad 1: rang, namn, badge */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                     <span style={{ fontSize: '11px', fontWeight: 500, color: '#d1d5db', width: '14px', flexShrink: 0, textAlign: 'center' }}>
                       {i + 1}
@@ -246,9 +249,11 @@ function Panel({
                           {d.biteLabel}
                         </span>
                       </div>
+                      {/* Rad 2: väder */}
                       <div style={{ fontSize: '11px', color: '#9ca3af', marginTop: '2px' }}>
                         {fmt(d.airTemp, '°C')} · {fmt(d.windSpeed, ' m/s')} {d.windDir}
                       </div>
+                      {/* Rad 3: artchips */}
                       <SpeciesChips species={d.species} />
                     </div>
                   </div>
@@ -274,7 +279,7 @@ function Panel({
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginBottom: '0.875rem' }}>
                 {[
                   { label: 'Lufttemp', val: fmt(active.airTemp, '°C') },
-                  { label: 'Vind',     val: active.windSpeed !== null ? `${fmt(active.windSpeed, '')} m/s ${active.windDir}` : '-' },
+                  { label: 'Vind',     val: active.windSpeed !== null ? `${fmt(active.windSpeed, '')} m/s ${active.windDir}` : '–' },
                 ].map(({ label, val }) => (
                   <div key={label} style={{ background: '#f9fafb', borderRadius: '8px', padding: '0.5rem 0.75rem' }}>
                     <div style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>{label}</div>
@@ -283,6 +288,7 @@ function Panel({
                 ))}
               </div>
 
+              {/* Artchips i detaljvy */}
               <div style={{ marginBottom: '0.875rem' }}>
                 <div style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>Arter i säsong</div>
                 <SpeciesChips species={active.species} />
@@ -315,8 +321,10 @@ function Panel({
         })()}
       </div>
 
-      {/* Månfas + CTA -- desktop */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.875rem', marginTop: 'auto' }}>
+      {/* Månfas + Fiskeprognos CTA -- sida vid sida */}
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.875rem', marginTop: 'auto' }}>
+
+        {/* Månfas */}
         <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '0.875rem 1rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span style={{ fontSize: '22px' }} role="img" aria-label={moonName}>{moonEmoji}</span>
           <div>
@@ -325,13 +333,14 @@ function Panel({
           </div>
         </div>
 
+        {/* Fiskeprognos CTA */}
         <a
           href="/forhallanden/"
           style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-            background: '#1F3A2E', borderRadius: '12px',
-            padding: '1rem', textDecoration: 'none',
-            fontSize: '13px', fontWeight: 600, color: '#fff',
+            background: '#1F3A2E', borderRadius: '100px',
+            padding: '1rem 2rem', textDecoration: 'none',
+            fontSize: '16px', fontWeight: 600, color: '#fff',
             transition: 'opacity 0.12s',
           }}
           onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
@@ -348,21 +357,15 @@ function Panel({
 }
 
 // ---------------------------------------------------------------------------
-// Leaflet-karta (desktop only)
+// Huvudkomponent
 // ---------------------------------------------------------------------------
 
-function DesktopMap({
-  destinations,
-  active,
-  onSelect,
-}: {
-  destinations: DestinationPin[];
-  active:        DestinationPin | null;
-  onSelect:      (d: DestinationPin) => void;
-}) {
+export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props) {
+  const isMobile   = useIsMobile();
   const mapRef     = useRef<HTMLDivElement>(null);
   const leafletRef = useRef<LeafletMap | null>(null);
   const markersRef = useRef<Map<string, CircleMarker>>(new Map());
+  const [active, setActive] = useState<DestinationPin | null>(null);
 
   useEffect(() => {
     if (!mapRef.current || leafletRef.current) return;
@@ -376,11 +379,14 @@ function DesktopMap({
         document.head.appendChild(link);
       }
 
-      const swedenBounds = L.latLngBounds(L.latLng(55.2, 11.0), L.latLng(69.1, 24.2));
+      const swedenBounds = L.latLngBounds(
+        L.latLng(55.2, 11.0),
+        L.latLng(69.1, 24.2)
+      );
 
       const map = L.map(mapRef.current!, {
-        center:              [62.5, 17.5],
-        zoom:                5,
+        center:              isMobile ? [62.5, 18.0] : [62.5, 17.5],
+        zoom:                isMobile ? 4 : 5,
         minZoom:             5,
         maxZoom:             5,
         zoomControl:         false,
@@ -420,26 +426,28 @@ function DesktopMap({
           { permanent: false, direction: 'top', offset: [0, -8], className: 'stromkast-tooltip' }
         );
 
-        marker.on('click', () => onSelect(dest));
+        marker.on('click', () => setActive(dest));
         markersRef.current.set(dest.slug, marker);
       });
 
       leafletRef.current = map;
 
+      // Tvinga Leaflet att räkna om storlek och centrering efter rendering
       setTimeout(() => {
         map.invalidateSize();
-        map.setView([62.5, 17.5], 5);
+        map.setView(
+          isMobile ? [62.5, 18.0] : [62.5, 17.5],
+          isMobile ? 5 : 5
+        );
       }, 100);
     });
 
     return () => {
       leafletRef.current?.remove();
       leafletRef.current = null;
-      markersRef.current.clear();
     };
   }, []);
 
-  // Uppdatera markerstil vid aktivt val
   useEffect(() => {
     markersRef.current.forEach((marker, slug) => {
       const dest     = destinations.find(d => d.slug === slug);
@@ -454,153 +462,53 @@ function DesktopMap({
   }, [active]);
 
   return (
-    <div style={{ border: '1px solid #e5e7eb', borderRadius: '12px', overflow: 'hidden', background: '#dde8d8', width: '100%' }}>
-      <div style={{ position: 'relative' }}>
-        <div style={{ position: 'absolute', top: '12px', left: '12px', zIndex: 800, background: 'rgba(31,58,46,0.88)', color: '#fff', fontSize: '11px', fontWeight: 500, padding: '4px 10px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '6px', pointerEvents: 'none' }}>
-          <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#4ade80', animation: 'pulse 2s infinite', display: 'inline-block' }}></span>
-          Live · SMHI
+    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '420px 1fr', gap: '1.5rem', alignItems: 'stretch' }}>
+
+      {/* Karta */}
+      <div style={{ border: '1px solid #e5e7eb', borderRadius: '12px', overflow: 'hidden', background: '#dde8d8' }}>
+        <div style={{ position: 'relative' }}>
+          <div style={{ position: 'absolute', top: '12px', left: '12px', zIndex: 800, background: 'rgba(31,58,46,0.88)', color: '#fff', fontSize: '11px', fontWeight: 500, padding: '4px 10px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '6px', pointerEvents: 'none' }}>
+            <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#4ade80', animation: 'pulse 2s infinite', display: 'inline-block' }}></span>
+            Live · SMHI
+          </div>
         </div>
-      </div>
-      <div ref={mapRef} style={{ width: '100%', height: '700px' }} aria-label="Karta över svenska fiskevatten med betningsindikator" />
-      <div style={{ padding: '0.7rem 1rem', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', background: '#fff' }}>
-        <span style={{ fontSize: '11px', color: '#9ca3af' }}>Data: SMHI Open Data · CC BY 4.0</span>
-      </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Mobilvy
-// ---------------------------------------------------------------------------
-
-function MobileView({
-  destinations,
-  moonEmoji,
-  moonName,
-}: {
-  destinations: DestinationPin[];
-  moonEmoji:    string;
-  moonName:     string;
-}) {
-  const sorted = [...destinations]
-    .filter(d => !d.error)
-    .sort((a, b) => b.biteScore - a.biteScore);
-
-  return (
-    <div style={{ width: '100%' }}>
-
-      {/* "Bäst just nu"-rubrik */}
-      <p style={{ fontSize: '11px', fontWeight: 600, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '10px' }}>
-        🏆 Bäst just nu
-      </p>
-
-      {/* Horisontell scroll-lista */}
-      <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '8px', WebkitOverflowScrolling: 'touch' }}>
-        {sorted.map(d => {
-          const bd = BADGE_STYLE[d.biteColor];
-          return (
-            <a
-              key={d.slug}
-              href={`/destinationer/${d.slug}/`}
-              style={{
-                flexShrink: 0,
-                width: '150px',
-                background: '#fff',
-                border: '1px solid #e5e7eb',
-                borderRadius: '12px',
-                padding: '0.75rem',
-                textDecoration: 'none',
-                display: 'block',
-              }}
-            >
-              <p style={{ fontSize: '13px', fontWeight: 600, color: '#111827', marginBottom: '5px' }}>{d.name}</p>
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: '4px',
-                fontSize: '10px', fontWeight: 500, padding: '2px 7px',
-                borderRadius: '10px', background: bd.bg, color: bd.text,
-                marginBottom: '6px',
-              }}>
-                <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: PIN_COLORS[d.biteColor], display: 'inline-block' }}></span>
-                {d.biteLabel}
-              </span>
-              <p style={{ fontSize: '11px', color: '#6b7280', marginTop: '4px' }}>
-                {d.airTemp !== null ? `${d.airTemp.toFixed(1)}°C` : ''}
-                {d.windSpeed !== null ? ` · ${d.windSpeed.toFixed(1)} m/s` : ''}
-              </p>
-            </a>
-          );
-        })}
-      </div>
-
-      {/* Månfas */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: '10px',
-        background: '#fff', border: '1px solid #e5e7eb',
-        borderRadius: '12px', padding: '0.875rem 1rem',
-        marginTop: '12px',
-      }}>
-        <span style={{ fontSize: '22px' }} role="img" aria-label={moonName}>{moonEmoji}</span>
-        <div>
-          <div style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>Månfas</div>
-          <div style={{ fontSize: '13px', fontWeight: 500, color: '#111827' }}>{moonName}</div>
+        <div ref={mapRef} style={{ width: '100%', height: isMobile ? '280px' : '700px' }} aria-label="Karta över svenska fiskevatten med betningsindikator" />
+        <div style={{ padding: '0.7rem 1rem', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff' }}>
+          <span style={{ fontSize: '11px', color: '#9ca3af' }}>Data: SMHI Open Data · CC BY 4.0</span>
         </div>
       </div>
 
-      {/* CTA */}
-      <a
-        href="/forhallanden/"
-        style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-          marginTop: '12px', padding: '0.875rem',
-          borderRadius: '12px', background: '#1F3A2E',
-          color: '#fff', fontSize: '14px', fontWeight: 600,
-          textDecoration: 'none',
-        }}
-      >
-        Förhållanden just nu
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-          <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </a>
-    </div>
-  );
-}
+      {/* Sidopanel -- dölj på mobil */}
+      {!isMobile && <Panel
+        destinations={destinations}
+        active={active}
+        onSelect={setActive}
+        onClear={() => setActive(null)}
+        moonEmoji={moonEmoji}
+        moonName={moonName}
+        isMobile={isMobile}
+      />}
 
-// ---------------------------------------------------------------------------
-// Huvudkomponent
-// ---------------------------------------------------------------------------
-
-export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props) {
-  const isMobile = useIsMobile();
-  const [active, setActive] = useState<DestinationPin | null>(null);
-
-  return (
-    <>
-      {/* Mobilvy: ingen karta, bara lista + info */}
+      {/* Mobil: horisontell destinationslista */}
       {isMobile && (
-        <MobileView
-          destinations={destinations}
-          moonEmoji={moonEmoji}
-          moonName={moonName}
-        />
-      )}
-
-      {/* Desktopvy: karta + sidopanel */}
-      {!isMobile && (
-        <div style={{ display: 'grid', gridTemplateColumns: '420px 1fr', gap: '1.5rem', alignItems: 'stretch' }}>
-          <DesktopMap
-            destinations={destinations}
-            active={active}
-            onSelect={setActive}
-          />
-          <Panel
-            destinations={destinations}
-            active={active}
-            onSelect={setActive}
-            onClear={() => setActive(null)}
-            moonEmoji={moonEmoji}
-            moonName={moonName}
-          />
+        <div style={{ marginTop: '0.875rem' }}>
+          <p style={{ fontSize: '11px', fontWeight: 600, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>🏆 Bäst just nu</p>
+          <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '8px' }}>
+            {[...destinations].filter(d => !d.error).sort((a, b) => b.biteScore - a.biteScore).map(d => {
+              const bd = ({ green: { bg: '#dcfce7', text: '#166534' }, amber: { bg: '#fef3c7', text: '#92400e' }, stone: { bg: '#f3f4f6', text: '#6b7280' } } as Record<string,{bg:string;text:string}>)[d.biteColor];
+              return (
+                <a key={d.slug} href={`/destinationer/${d.slug}/`}
+                  style={{ flexShrink: 0, width: '140px', background: '#fff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '0.75rem', textDecoration: 'none' }}>
+                  <p style={{ fontSize: '13px', fontWeight: 600, color: '#111827', marginBottom: '4px' }}>{d.name}</p>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '10px', fontWeight: 500, padding: '2px 7px', borderRadius: '10px', background: bd.bg, color: bd.text, marginBottom: '6px' }}>{d.biteLabel}</span>
+                  <p style={{ fontSize: '11px', color: '#6b7280' }}>{d.airTemp !== null ? `${d.airTemp.toFixed(1)}°C` : ''}{d.windSpeed !== null ? ` · ${d.windSpeed.toFixed(1)} m/s` : ''}</p>
+                </a>
+              );
+            })}
+          </div>
+          <a href="/forhallanden/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '10px', padding: '0.75rem', borderRadius: '12px', background: '#1F3A2E', color: '#fff', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
+            Förhållanden just nu →
+          </a>
         </div>
       )}
 
@@ -618,6 +526,6 @@ export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props)
         .stromkast-tooltip::before { display: none !important; }
         .leaflet-tooltip-top.stromkast-tooltip::before { display: none !important; }
       `}</style>
-    </>
+    </div>
   );
 }
