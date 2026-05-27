@@ -4,6 +4,7 @@ import NewsletterForm from '../components/NewsletterForm.astro';
 import FiskeKarta from '../components/FiskeKarta';
 import { getCollection } from 'astro:content';
 import { getImage } from 'astro:assets';
+import { Image } from 'astro:assets';
 
 import heroSrc     from '../assets/images/hero-home.jpg';
 import vanernSrc   from '../assets/images/destination-vanern.jpg';
@@ -14,7 +15,7 @@ import storsjonSrc from '../assets/images/destination-storsjon.jpg';
 const articles = (await getCollection('articles')).slice(0, 3);
 
 // Optimise hero: AVIF primary, full-width
-const heroImg    = await getImage({ src: heroSrc, format: 'avif', width: 1920, height: 1080, quality: 80 });
+const heroImg = await getImage({ src: heroSrc, format: 'avif', width: 1920, height: 1080, quality: 80 });
 const heroImgWebP = await getImage({ src: heroSrc, format: 'webp', width: 1920, height: 1080, quality: 80 });
 
 // Destination card images
@@ -26,8 +27,8 @@ const storsjonImg = await getImage({ src: storsjonSrc, format: 'avif', width: 64
 const featuredDestinations = [
   { slug: 'vanern',   name: 'Vänern',   species: 'Gädda, Lax',      region: 'Västra Götaland', img: vanernImg.src   },
   { slug: 'vattern',  name: 'Vättern',  species: 'Öring, Röding',   region: 'Östergötland',    img: vatternImg.src  },
-  { slug: 'morrum',   name: 'Mörrum',   species: 'Lax, Havsöring',  region: 'Blekinge',        img: morrumImg.src   },
-  { slug: 'storsjon', name: 'Storsjön', species: 'Öring, Harr',     region: 'Jämtland',        img: storsjonImg.src },
+  { slug: 'morrum',   name: 'Mörrum',   species: 'Lax, Havsöring',  region: 'Blekinge',         img: morrumImg.src   },
+  { slug: 'storsjon', name: 'Storsjön', species: 'Öring, Harr',     region: 'Jämtland',         img: storsjonImg.src },
 ];
 
 const categoryLabels: Record<string, string> = {
@@ -41,15 +42,13 @@ const categoryLabels: Record<string, string> = {
 // SMHI: hämta väderdata för destinationer
 // ---------------------------------------------------------------------------
 
-interface SmhiObs { value: string; date: number }
-
 async function fetchSmhi(stationId: number, parameter: number): Promise<number | null> {
   try {
     const url = `https://opendata-download-metobs.smhi.se/api/version/latest/parameter/${parameter}/station/${stationId}/period/latest-hour/data.json`;
     const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
     if (!res.ok) return null;
     const json = await res.json();
-    const obs: SmhiObs[] = json?.value ?? [];
+    const obs = json?.value ?? [];
     if (!obs.length) return null;
     const val = parseFloat(obs[obs.length - 1].value);
     return isNaN(val) ? null : val;
@@ -58,49 +57,36 @@ async function fetchSmhi(stationId: number, parameter: number): Promise<number |
   }
 }
 
-// Parameterindex: 1 = lufttemp, 4 = vindstyrka, 3 = vindriktning, 6 = relativ fuktighet
 const WIND_DIRS = ['N','NNO','NO','ONO','O','OSO','SO','SSO','S','SSV','SV','VSV','V','VNV','NV','NNV'];
-
 function degToDir(deg: number | null): string {
   if (deg === null) return '';
   return WIND_DIRS[Math.round(deg / 22.5) % 16] ?? '';
 }
 
-interface StationConfig {
-  slug:        string;
-  name:        string;
-  region:      string;
-  lat:         number;
-  lng:         number;
-  species:     string[];
-  stationId:   number;
-  stationName: string;
-}
-
-const STATIONS: StationConfig[] = [
-  { slug: 'vanern',      name: 'Vänern',      region: 'Västra Götaland', lat: 58.9,  lng: 13.5,  species: ['gädda','abborre','gös','lax','öring'],          stationId: 71420, stationName: 'Mariestad' },
-  { slug: 'vattern',     name: 'Vättern',     region: 'Östergötland',    lat: 58.3,  lng: 14.5,  species: ['öring','röding','gädda','abborre','lax'],        stationId: 85280, stationName: 'Jönköping' },
-  { slug: 'malaren',     name: 'Mälaren',     region: 'Stockholms län',  lat: 59.45, lng: 17.2,  species: ['gädda','abborre','gös','asp','öring'],           stationId: 98210, stationName: 'Stockholm' },
-  { slug: 'bolmen',      name: 'Bolmen',      region: 'Kronoberg',       lat: 56.9,  lng: 13.7,  species: ['gädda','abborre','gös','öring'],                 stationId: 63600, stationName: 'Ljungby' },
-  { slug: 'morrum',      name: 'Mörrum',      region: 'Blekinge',        lat: 56.18, lng: 14.75, species: ['lax','havsöring','öring','gädda'],               stationId: 65090, stationName: 'Karlshamn' },
-  { slug: 'storsjon',    name: 'Storsjön',    region: 'Jämtland',        lat: 63.15, lng: 14.35, species: ['öring','harr','röding','gädda','abborre'],       stationId: 162860,stationName: 'Östersund' },
-  { slug: 'tornealven',  name: 'Torneälven',  region: 'Norrbotten',      lat: 67.85, lng: 23.2,  species: ['lax','havsöring','öring','harr','sik'],          stationId: 190840,stationName: 'Pajala' },
-  { slug: 'oring',       name: 'Indalsälven', region: 'Västernorrland',  lat: 62.5,  lng: 17.0,  species: ['öring','harr','gädda','abborre'],                stationId: 147560,stationName: 'Sundsvall' },
+const STATIONS = [
+  { slug: 'vanern',     name: 'Vänern',      region: 'Västra Götaland', lat: 58.9,  lng: 13.5,  species: ['gädda','abborre','gös','lax','öring'],       stationId: 71420,  stationName: 'Mariestad' },
+  { slug: 'vattern',    name: 'Vättern',     region: 'Östergötland',    lat: 58.3,  lng: 14.5,  species: ['öring','röding','gädda','abborre','lax'],     stationId: 85280,  stationName: 'Jönköping' },
+  { slug: 'malaren',    name: 'Mälaren',     region: 'Stockholms län',  lat: 59.45, lng: 17.2,  species: ['gädda','abborre','gös','asp','öring'],        stationId: 98210,  stationName: 'Stockholm' },
+  { slug: 'bolmen',     name: 'Bolmen',      region: 'Kronoberg',       lat: 56.9,  lng: 13.7,  species: ['gädda','abborre','gös','öring'],              stationId: 63600,  stationName: 'Ljungby' },
+  { slug: 'morrum',     name: 'Mörrum',      region: 'Blekinge',        lat: 56.18, lng: 14.75, species: ['lax','havsöring','öring','gädda'],            stationId: 65090,  stationName: 'Karlshamn' },
+  { slug: 'storsjon',   name: 'Storsjön',    region: 'Jämtland',        lat: 63.15, lng: 14.35, species: ['öring','harr','röding','gädda','abborre'],    stationId: 162860, stationName: 'Östersund' },
+  { slug: 'tornealven', name: 'Torneälven',  region: 'Norrbotten',      lat: 67.85, lng: 23.2,  species: ['lax','havsöring','öring','harr','sik'],       stationId: 190840, stationName: 'Pajala' },
+  { slug: 'oring',      name: 'Indalsälven', region: 'Västernorrland',  lat: 62.5,  lng: 17.0,  species: ['öring','harr','gädda','abborre'],             stationId: 147560, stationName: 'Sundsvall' },
 ];
 
 function biteScore(airTemp: number | null, windSpeed: number | null): { score: number; label: string; color: 'green' | 'amber' | 'stone' } {
   let score = 50;
   if (airTemp !== null) {
-    if (airTemp >= 8  && airTemp <= 18) score += 30;
-    else if (airTemp >= 4 && airTemp < 8)  score += 15;
-    else if (airTemp > 18 && airTemp <= 24) score += 10;
-    else score -= 10;
+    if (airTemp >= 8 && airTemp <= 18)       score += 30;
+    else if (airTemp >= 4 && airTemp < 8)    score += 15;
+    else if (airTemp > 18 && airTemp <= 24)  score += 10;
+    else                                     score -= 10;
   }
   if (windSpeed !== null) {
-    if (windSpeed <= 5)  score += 20;
+    if (windSpeed <= 5)       score += 20;
     else if (windSpeed <= 9)  score += 5;
     else if (windSpeed <= 14) score -= 10;
-    else score -= 25;
+    else                      score -= 25;
   }
   if (score >= 70) return { score, label: 'Toppläge',       color: 'green' };
   if (score >= 45) return { score, label: 'Värt att testa', color: 'amber' };
@@ -116,34 +102,20 @@ const destinationPins = await Promise.all(
     ]);
     const { score, label, color } = biteScore(airTemp, windSpeed);
     return {
-      slug:        s.slug,
-      name:        s.name,
-      region:      s.region,
-      lat:         s.lat,
-      lng:         s.lng,
-      species:     s.species,
-      airTemp,
-      windSpeed,
-      windDir:     degToDir(windDeg),
-      humidity:    null,
-      stationName: s.stationName,
-      biteLabel:   label,
-      biteColor:   color,
-      biteScore:   score,
-      error:       airTemp === null && windSpeed === null,
+      slug: s.slug, name: s.name, region: s.region, lat: s.lat, lng: s.lng,
+      species: s.species, airTemp, windSpeed, windDir: degToDir(windDeg),
+      humidity: null, stationName: s.stationName,
+      biteLabel: label, biteColor: color, biteScore: score,
+      error: airTemp === null && windSpeed === null,
     };
   })
 );
 
-// ---------------------------------------------------------------------------
 // Månfas
-// ---------------------------------------------------------------------------
-
 function getMoonPhase(): { emoji: string; name: string } {
-  const known = new Date(2000, 0, 6); // Nymåne 6 jan 2000
+  const known = new Date(2000, 0, 6);
   const diff  = (Date.now() - known.getTime()) / (1000 * 60 * 60 * 24);
-  const cycle = 29.53058867;
-  const phase = ((diff % cycle) + cycle) % cycle;
+  const phase = ((diff % 29.53058867) + 29.53058867) % 29.53058867;
   if (phase < 1.85)  return { emoji: '🌑', name: 'Nymåne' };
   if (phase < 7.38)  return { emoji: '🌒', name: 'Växande skära' };
   if (phase < 9.22)  return { emoji: '🌓', name: 'Halvmåne (växande)' };
@@ -151,10 +123,8 @@ function getMoonPhase(): { emoji: string; name: string } {
   if (phase < 16.61) return { emoji: '🌕', name: 'Fullmåne' };
   if (phase < 22.15) return { emoji: '🌖', name: 'Avtagande gibbus' };
   if (phase < 23.99) return { emoji: '🌗', name: 'Halvmåne (avtagande)' };
-  if (phase < 29.53) return { emoji: '🌘', name: 'Avtagande skära' };
-  return               { emoji: '🌑', name: 'Nymåne' };
+  return               { emoji: '🌘', name: 'Avtagande skära' };
 }
-
 const moon = getMoonPhase();
 ---
 
@@ -292,12 +262,10 @@ const moon = getMoonPhase();
   ============================== -->
   <section class="py-12 px-4 sm:px-6 bg-mist/50">
     <div class="max-w-[1280px] mx-auto">
-      <div class="flex items-center justify-between mb-6">
-        <div>
-          <p class="text-stone text-sm font-medium uppercase tracking-wider mb-1">Live data · SMHI</p>
-          <h2 class="font-display text-2xl font-bold text-deep">Vad biter just nu?</h2>
-          <p class="text-stone text-sm mt-1">Klicka på en nål för snabbinfo. Klicka för guide till destinationen.</p>
-        </div>
+      <div class="mb-6">
+        <p class="text-stone text-sm font-medium uppercase tracking-wider mb-1">Live data · SMHI</p>
+        <h2 class="font-display text-2xl font-bold text-deep">Vad biter just nu?</h2>
+        <p class="text-stone text-sm mt-1 hidden sm:block">Klicka på en nål för snabbinfo. Klicka för guide till destinationen.</p>
       </div>
 
       <FiskeKarta
