@@ -181,12 +181,14 @@ const categoryLabels: Record<string, string> = {
         </a>
       </div>
 
-      <FiskeKarta
-        destinations={destinationPins}
-        moonEmoji={moon.emoji}
-        moonName={moon.name}
-        client:only="react"
-      />
+      <div style="width:100%;overflow:hidden;max-width:100%;">
+  <FiskeKarta
+    destinations={destinationPins}
+    moonEmoji={moon.emoji}
+    moonName={moon.name}
+    client:only="react"
+  />
+</div>
     </div>
   </section>
 

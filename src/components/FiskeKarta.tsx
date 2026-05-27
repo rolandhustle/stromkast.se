@@ -440,7 +440,8 @@ export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props)
             { padding: [10, 10] }
           );
         }
-      }, 200);
+      }, 400);
+        map.invalidateSize(true);
     });
 
     return () => {
