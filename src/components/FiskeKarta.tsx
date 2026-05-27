@@ -12,7 +12,7 @@ import { useState, useEffect, useRef } from 'react';
 // Hook: detekterar mobilvy
 // ---------------------------------------------------------------------------
 function useIsMobile(breakpoint = 768): boolean {
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(true);
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < breakpoint);
     check();
