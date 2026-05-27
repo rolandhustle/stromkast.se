@@ -6,7 +6,18 @@
  * Prognosdagar markeras med SMHI-badge.
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+
+function useIsMobile(breakpoint = 768): boolean {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < breakpoint);
+    check();
+    window.addEventListener('resize', check, { passive: true });
+    return () => window.removeEventListener('resize', check);
+  }, [breakpoint]);
+  return isMobile;
+}
 
 // ---------------------------------------------------------------------------
 // Typer
@@ -479,6 +490,7 @@ function DayPanel({
 export default function KalenderWidget({
   year, moonDays, forecasts, climateNormals, species, symbolLabels, symbolEmojis,
 }: Props) {
+  const isMobile     = useIsMobile();
   const today        = new Date().toISOString().split('T')[0];
   const currentMonth = new Date().getMonth() + 1;
 
@@ -514,7 +526,7 @@ export default function KalenderWidget({
     <div style={{ fontFamily: 'inherit' }}>
 
       {/* Filter */}
-      <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '1rem 1.25rem', marginBottom: '1rem' }}>
+      <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '1rem 1.25rem', marginBottom: '1rem', overflowX: 'auto' }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem' }}>
           <div>
             <p style={{ fontSize: '10px', color: '#9ca3af', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px' }}>Region</p>
@@ -536,7 +548,7 @@ export default function KalenderWidget({
         </div>
 
         {/* Förklaring */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '12px', paddingTop: '10px', borderTop: '1px solid #f3f4f6', alignItems: 'center' }}>
+        <div style={{ display: isMobile ? 'none' : 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '12px', paddingTop: '10px', borderTop: '1px solid #f3f4f6', alignItems: 'center' }}>
           <span style={{ fontSize: '11px', color: '#374151', fontWeight: 600 }}>Bakgrundsfärg = säsong:</span>
           {[
             { color: '#f0fdf4', border: '#bbf7d0', label: 'Högsäsong' },
@@ -566,7 +578,7 @@ export default function KalenderWidget({
       </div>
 
       {/* Huvud-layout */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '1rem', alignItems: 'stretch' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 280px', gap: '1rem', alignItems: 'stretch' }}>
 
         {/* Kalender */}
         <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '1.25rem' }}>
@@ -587,7 +599,7 @@ export default function KalenderWidget({
         </div>
 
         {/* Sidopanel */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem', height: '100%' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem', height: isMobile ? 'auto' : '100%' }}>
           {selectedDate ? (
             <DayPanel
               date={selectedDate} moonDays={moonDays} forecasts={forecasts}
@@ -632,7 +644,7 @@ export default function KalenderWidget({
             </div>
           )}
 
-          <div style={{ background: '#f9fafb', borderRadius: '12px', padding: '0.875rem 1rem', marginTop: 'auto' }}>
+          <div style={{ background: '#f9fafb', borderRadius: '12px', padding: '0.875rem 1rem', marginTop: isMobile ? '0' : 'auto' }}>
             <p style={{ fontSize: '11px', color: '#6b7280', lineHeight: 1.6, margin: 0 }}>
               <strong style={{ color: '#374151' }}>Färgton</strong> = säsong × månfas. Mörkare nyans = gynnsam månfas den dagen. 🌕🌑 visas vid fullmåne och nymåne. <strong style={{ color: '#2563eb' }}>SMHI</strong> = aktuell prognos.
             </p>

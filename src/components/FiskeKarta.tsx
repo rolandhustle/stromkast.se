@@ -7,6 +7,20 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
+
+// ---------------------------------------------------------------------------
+// Hook: detekterar mobilvy
+// ---------------------------------------------------------------------------
+function useIsMobile(breakpoint = 768): boolean {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < breakpoint);
+    check();
+    window.addEventListener('resize', check, { passive: true });
+    return () => window.removeEventListener('resize', check);
+  }, [breakpoint]);
+  return isMobile;
+}
 import type { Map as LeafletMap, CircleMarker } from 'leaflet';
 
 // ---------------------------------------------------------------------------
@@ -138,6 +152,7 @@ function Panel({
   onClear,
   moonEmoji,
   moonName,
+  isMobile,
 }: {
   destinations: DestinationPin[];
   active:        DestinationPin | null;
@@ -145,6 +160,7 @@ function Panel({
   onClear:       () => void;
   moonEmoji:     string;
   moonName:      string;
+  isMobile:      boolean;
 }) {
   const sorted = [...destinations]
     .filter(d => !d.error)
@@ -306,7 +322,7 @@ function Panel({
       </div>
 
       {/* Månfas + Fiskeprognos CTA -- sida vid sida */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.875rem', marginTop: 'auto' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.875rem', marginTop: 'auto' }}>
 
         {/* Månfas */}
         <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '0.875rem 1rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -345,6 +361,7 @@ function Panel({
 // ---------------------------------------------------------------------------
 
 export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props) {
+  const isMobile   = useIsMobile();
   const mapRef     = useRef<HTMLDivElement>(null);
   const leafletRef = useRef<LeafletMap | null>(null);
   const markersRef = useRef<Map<string, CircleMarker>>(new Map());
@@ -446,7 +463,7 @@ export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props)
             Live · SMHI
           </div>
         </div>
-        <div ref={mapRef} style={{ width: '100%', height: '700px' }} aria-label="Karta över svenska fiskevatten med betningsindikator" />
+        <div ref={mapRef} style={{ width: '100%', height: isMobile ? '400px' : '700px' }} aria-label="Karta över svenska fiskevatten med betningsindikator" />
         <div style={{ padding: '0.7rem 1rem', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff' }}>
           <span style={{ fontSize: '11px', color: '#9ca3af' }}>Data: SMHI Open Data · CC BY 4.0</span>
         </div>
@@ -460,6 +477,7 @@ export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props)
         onClear={() => setActive(null)}
         moonEmoji={moonEmoji}
         moonName={moonName}
+        isMobile={isMobile}
       />
 
       <style>{`

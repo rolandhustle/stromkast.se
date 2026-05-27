@@ -397,3 +397,28 @@ Används av `getSeasonBonus()` för att justera betningspoängen per destination
 `src/components/FiskeKarta.tsx` är en React-ö (`client:only="react"`) med Leaflet.
 All SMHI-data injiceras som props från Astro frontmatter (beräknat vid byggtid).
 Inga client-side API-anrop görs.
+
+---
+
+## Nappkalender
+
+Ligger under `src/pages/nappkalender/`. Tre nivåer:
+- `/nappkalender/` -- indexsida med KalenderWidget och årsöversikt
+- `/nappkalender/[art]/` -- artspecifik kalender med veckovis data
+- `/nappkalender/[art]/[manad]/` -- art × månad detaljsida
+
+Kalenderdata finns i `src/data/calendar.ts` -- månfasalgoritm, artdata och säsongsfönster per art.
+SMHI-prognosdata hämtas i `src/lib/forecast.ts` via SNOW1gv1-API:et.
+KalenderWidget är en React-komponent i `src/components/KalenderWidget.tsx`.
+
+## Startsidans fiskekarta
+
+`src/components/FiskeKarta.tsx` -- React-komponent med Leaflet.
+Alla destinationer från content collections visas automatiskt.
+SMHI-data hämtas via `fetchSMHIForCoords(lat, lng)` i `src/lib/smhi.ts`.
+Ny destination = lägg till lat/lng i frontmatter, resten sköts automatiskt.
+
+## Förhållandesidan
+
+`src/pages/forhallanden/index.astro` -- visar alla destinationer med live SMHI-data.
+Samma automatik som kartan -- ny destination dyker upp automatiskt.
