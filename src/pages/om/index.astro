@@ -7,16 +7,26 @@ const authors = await getCollection('authors');
 
 <BaseLayout
   title="Om Strömkast: redaktionen och vår metodik"
-  description="Strömkast är Sveriges modernaste sportfiskeguide. Lär känna redaktionen och vår metodik för oberoende produkttester."
+  description="Strömkast är en guide för svenska fiskare med information om fiskevatten, utrustning, tekniker och arter på ett ställe."
   pageType="about"
 >
   <div class="pt-28 pb-20 px-4 sm:px-6 max-w-[1280px] mx-auto">
     <div class="max-w-[72ch]">
-      <h1 class="font-display text-4xl sm:text-5xl font-bold text-deep mb-10">Om</h1><div class="space-y-4 text-stone max-w-[65ch] mb-12">
-  <p>Strömkast är en guide för dig som fiskar i svenska vatten. Här hittar du information om fiskevatten, utrustning och teknik, samlat på ett ställe och skrivet för att vara faktiskt användbart.</p>
-  <p>Rekommendationer baseras på tillgänglig produktinformation, användarerfarenheter och egen research. Vi är tydliga med vad som bygger på egna erfarenheter och vad som kommer från andra källor.</p>
-  <p>Sajten finansieras via affiliate-länkar. När du köper något via en länk på Strömkast får vi en liten provision utan kostnad för dig. Det påverkar aldrig vad vi skriver eller hur vi rankar produkter.</p>
-</div>
+      <h1 class="font-display text-4xl sm:text-5xl font-bold text-deep mb-10">Om oss</h1>
+
+      <div class="space-y-4 text-stone max-w-[65ch] mb-12">
+        <p>Strömkast är en guide för svenska fiskare. Här samlar vi information om fiskevatten, utrustning, tekniker och arter på ett ställe, skrivet för att vara faktiskt användbart oavsett om du fiskar för första gången eller har gjort det i trettio år.</p>
+
+        <p>Vi lägger ned tid på research för varje sida, med målet att du ska hitta det du behöver utan att behöva leta på fem ställen. Det gäller oavsett om du planerar en ny destination, väljer utrustning eller vill lära dig en ny teknik.</p>
+
+        <p>Missa inte att använda vår <a href="/nappkalender/" class="text-pine underline underline-offset-2 hover:text-pine/70 transition-colors">nappkalender</a> när du planerar din nästa fisketur. Där kan du se när olika arter är som mest aktiva, baserat på säsong, månfas och aktuell SMHI-väderprognos. Filtrera på art och region för att få en bedömning som stämmer för just ditt vatten.</p>
+      </div>
+
+      <div class="space-y-4 text-stone max-w-[65ch] mb-12">
+        <h2 class="font-display text-2xl font-bold text-deep">Så finansieras Strömkast</h2>
+        <p>Sajten finansieras via affiliate-provisioner. När du köper något via en länk på Strömkast får vi en liten ersättning från återförsäljaren, utan kostnad för dig. Det påverkar aldrig vad vi skriver eller hur vi rangordnar produkter.</p>
+      </div>
+
       <div class="space-y-6">
         {authors.map((author) => (
           <div class="bg-white rounded-2xl p-6 border border-mist flex flex-col sm:flex-row gap-5">
@@ -35,6 +45,7 @@ const authors = await getCollection('authors');
           </div>
         ))}
       </div>
+
     </div>
   </div>
 </BaseLayout>
