@@ -12,7 +12,7 @@ import { useState, useEffect, useRef } from 'react';
 // Hook: detekterar mobilvy
 // ---------------------------------------------------------------------------
 function useIsMobile(breakpoint = 640): boolean {
-  const [isMobile, setIsMobile] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < breakpoint);
     check();
@@ -167,7 +167,7 @@ function Panel({
     .sort((a, b) => b.biteScore - a.biteScore);
 
   return (
-    <div style={{ display: isMobile ? 'none' : 'flex', flexDirection: 'column', gap: '0.875rem', height: '100%' }}>
+    <div style={{ display: isMobile ? 'flex' : 'flex', flexDirection: 'column', gap: '0.875rem', height: isMobile ? 'auto' : '100%' }}>
 
       {/* Huvudpanel */}
       <div style={{
@@ -379,14 +379,11 @@ export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props)
         document.head.appendChild(link);
       }
 
-      const swedenBounds = L.latLngBounds(
-        L.latLng(55.2, 11.0),
-        L.latLng(69.1, 24.2)
-      );
+      const swedenBounds = L.latLngBounds(L.latLng(55.2, 11.0), L.latLng(69.1, 24.2));
 
       const map = L.map(mapRef.current!, {
-        center:              isMobile ? [62.5, 18.0] : [62.5, 17.5],
-        zoom:                isMobile ? 4 : 5,
+        center:              [62.5, 17.5],
+        zoom:                5,
         minZoom:             5,
         maxZoom:             5,
         zoomControl:         false,
@@ -432,14 +429,19 @@ export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props)
 
       leafletRef.current = map;
 
-      // Tvinga Leaflet att räkna om storlek och centrering efter rendering
+      // Sätt vy efter rendering när Leaflet vet faktisk storlek
       setTimeout(() => {
         map.invalidateSize();
-        map.setView(
-          isMobile ? [62.5, 18.0] : [62.5, 17.5],
-          isMobile ? 5 : 5
-        );
-      }, 100);
+        const mobile = window.innerWidth < 640;
+        map.setView([62.5, 17.5], 5);
+        if (mobile) {
+          map.fitBounds(
+            L.latLngBounds(L.latLng(55.2, 11.0), L.latLng(69.1, 24.2)),
+            { padding: [10, 10] }
+          );
+        }
+      }, 400);
+        map.invalidateSize(true);
     });
 
     return () => {
@@ -461,11 +463,29 @@ export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props)
     });
   }, [active]);
 
+  // Mobilvy -- ingen Leaflet-karta, bara Panel (samma som desktop-sidopanelen)
+  if (isMobile) {
+    return (
+      <div style={{ width: '100%' }}>
+        <Panel
+          destinations={destinations}
+          active={active}
+          onSelect={setActive}
+          onClear={() => setActive(null)}
+          moonEmoji={moonEmoji}
+          moonName={moonName}
+          isMobile={false}
+        />
+      </div>
+    );
+  }
+
+  // Desktopvy -- Leaflet-karta + sidopanel, oförändrat
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '420px 1fr', gap: '1.5rem', alignItems: 'stretch' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '420px 1fr', gap: '1.5rem', alignItems: 'stretch' }}>
 
       {/* Karta */}
-      <div style={{ border: '1px solid #e5e7eb', borderRadius: '12px', overflow: 'hidden', background: '#dde8d8' }}>
+      <div style={{ border: '1px solid #e5e7eb', borderRadius: '12px', overflow: 'hidden', background: '#dde8d8', width: '100%', maxWidth: '100%' }}>
         <div style={{ position: 'relative' }}>
           <div style={{ position: 'absolute', top: '12px', left: '12px', zIndex: 800, background: 'rgba(31,58,46,0.88)', color: '#fff', fontSize: '11px', fontWeight: 500, padding: '4px 10px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '6px', pointerEvents: 'none' }}>
             <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#4ade80', animation: 'pulse 2s infinite', display: 'inline-block' }}></span>
@@ -478,39 +498,17 @@ export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props)
         </div>
       </div>
 
-      {/* Sidopanel -- dölj på mobil */}
-      {!isMobile && <Panel
+
+      {/* Sidopanel */}
+      <Panel
         destinations={destinations}
         active={active}
         onSelect={setActive}
         onClear={() => setActive(null)}
         moonEmoji={moonEmoji}
         moonName={moonName}
-        isMobile={isMobile}
-      />}
-
-      {/* Mobil: horisontell destinationslista */}
-      {isMobile && (
-        <div style={{ marginTop: '0.875rem' }}>
-          <p style={{ fontSize: '11px', fontWeight: 600, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>🏆 Bäst just nu</p>
-          <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '8px' }}>
-            {[...destinations].filter(d => !d.error).sort((a, b) => b.biteScore - a.biteScore).map(d => {
-              const bd = ({ green: { bg: '#dcfce7', text: '#166534' }, amber: { bg: '#fef3c7', text: '#92400e' }, stone: { bg: '#f3f4f6', text: '#6b7280' } } as Record<string,{bg:string;text:string}>)[d.biteColor];
-              return (
-                <a key={d.slug} href={`/destinationer/${d.slug}/`}
-                  style={{ flexShrink: 0, width: '140px', background: '#fff', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '0.75rem', textDecoration: 'none' }}>
-                  <p style={{ fontSize: '13px', fontWeight: 600, color: '#111827', marginBottom: '4px' }}>{d.name}</p>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '10px', fontWeight: 500, padding: '2px 7px', borderRadius: '10px', background: bd.bg, color: bd.text, marginBottom: '6px' }}>{d.biteLabel}</span>
-                  <p style={{ fontSize: '11px', color: '#6b7280' }}>{d.airTemp !== null ? `${d.airTemp.toFixed(1)}°C` : ''}{d.windSpeed !== null ? ` · ${d.windSpeed.toFixed(1)} m/s` : ''}</p>
-                </a>
-              );
-            })}
-          </div>
-          <a href="/forhallanden/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '10px', padding: '0.75rem', borderRadius: '12px', background: '#1F3A2E', color: '#fff', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
-            Förhållanden just nu →
-          </a>
-        </div>
-      )}
+        isMobile={false}
+      />
 
       <style>{`
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
