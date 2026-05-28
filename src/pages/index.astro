@@ -49,6 +49,10 @@ const destinationPins = await Promise.all(
     return {
       slug:        d.slug,
       name:        d.title,
+      excerpt:     d.excerpt ?? '',
+      heroImage:   d.heroImage ?? '',
+      waterType:   d.waterType ?? '',
+      iFiskeUrl:   d.iFiskeUrl ?? '',
       region:      d.län,
       lat:         d.lat,
       lng:         d.lng,
