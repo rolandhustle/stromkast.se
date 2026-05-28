@@ -40,10 +40,7 @@ const topDestinations = allDestinations.filter((d) =>
 
 const allTechniques = await getCollection('techniques');
 const relatedTechniques = allTechniques.filter((t) =>
-  t.data.targetSpecies.some((ts: string) =>
-    ts.toLowerCase() === s.title.toLowerCase() ||
-    ts.toLowerCase() === s.slug.toLowerCase()
-  )
+  s.targetTechniques.includes(t.data.slug)
 );
 
 const breadcrumbSchema = {

@@ -2,6 +2,18 @@
 
 Projektkontext för Claude. Uppdatera den här filen när ny infrastruktur tillkommer eller beslut ändras.
 
+## Projektkontext -- hur den hålls uppdaterad
+
+Detaljerad projektkontext (alla kodfiler, sidmallar, content-filer och promptmallar)
+samlas automatiskt i `claude-context.md` via scriptet `generate-claude-context.sh`.
+
+Rutin vid relevanta ändringar i repot:
+1. Kör `./generate-claude-context.sh` från projektroten
+2. Ladda upp den nya `claude-context.md` till Claude-projektet och ersätt tidigare version
+
+CLAUDE.md används för beslut, regler och kontext som inte finns i kodfilerna.
+claude-context.md används för faktiskt filinnehåll.
+
 ---
 
 ## Vad är Strömkast?
@@ -18,7 +30,7 @@ Affiliate-transparens är viktigt och ska synas i komponenter och sidmallar.
 - **Framework:** Astro 6, TypeScript strict, ESM
 - **Styling:** Tailwind CSS v4 med custom design tokens i `src/styles/tokens.css`
 - **Content:** Astro Content Collections med Zod-validering i `src/content.config.ts`
-- **Interaktiva öar:** React (SpoQuiz, DestinationMap)
+- **Interaktiva öar:** React (SpoQuiz, FiskeKarta, KalenderWidget)
 - **Hosting:** Cloudflare Pages (troligt) / Vercel
 - **Analytics:** Google Tag Manager (G-BP2R8TQWQP), Cloudflare Web Analytics
 - **Fonts:** Bitter 700 (display/rubriker), Inter variable (brödtext), självhostad under `/fonts/`
@@ -48,7 +60,8 @@ src/
 ├── components/
 │   ├── AffiliateCard.astro     Produktkort med pris, betyg, affiliate-länk, tracking
 │   ├── ConsentBanner.astro     Cookie-samtycke
-│   ├── DestinationMap.tsx      React-ö för karta
+│   ├── FiskeKarta.tsx          React-ö för interaktiv fiskekarta med SMHI-data och Leaflet
+│   ├── KalenderWidget.tsx      React-ö för nappkalender
 │   ├── Footer.astro
 │   ├── Header.astro
 │   ├── NewsletterForm.astro
@@ -58,13 +71,19 @@ src/
 │   ├── articles/               MDX, kategori: destination|teknik|utrustning|guide
 │   ├── authors/                JSON
 │   ├── destinations/           MDX (bolmen, malaren, morrum, storsjon, vanern, vattern)
-│   ├── gear-categories/        JSON (spon) — ekolod och gaddspon är borttagna
-│   ├── gear-reviews/           JSON — 14 riktiga spön med affiliate-länkar (se nedan)
+│   ├── gear-categories/        JSON (spon) -- ekolod och gaddspon är borttagna
+│   ├── gear-reviews/           JSON -- 14 riktiga spön med affiliate-länkar (se nedan)
 │   ├── species/                MDX (abborre, asp, gadda, gos, harr, lax, oring)
 │   └── techniques/             MDX (flugfiske, isfiske, jiggfiske)
+├── data/
+│   ├── smhi-stations.json      180 aktiva SMHI-stationer med latest-hour-stöd
+│   ├── seasons.json            Peak- och ok-månader per art (1--12)
+│   └── calendar.ts             Månfasalgoritm, artdata och säsongsfönster för nappkalender
 ├── layouts/
 │   └── BaseLayout.astro        HTML-skal, importerar Header/Footer/ConsentBanner/SEO
 ├── lib/
+│   ├── smhi.ts                 fetchSMHIForCoords(), getBiteScore(), automatisk stationsmatchning
+│   ├── forecast.ts             SMHI-prognosdata för nappkalender via SNOW1gv1-API
 │   └── track.ts                Typed wrapper för dataLayer-events
 ├── pages/
 │   ├── index.astro
@@ -72,6 +91,7 @@ src/
 │   ├── destinationer/[slug].astro + index.astro
 │   ├── forhallanden/index.astro
 │   ├── guider/[slug].astro + index.astro
+│   ├── nappkalender/index.astro + [art]/index.astro + [art]/[manad]/index.astro
 │   ├── nyhetsbrev/index.astro
 │   ├── om/index.astro
 │   ├── sok/index.astro
@@ -91,7 +111,7 @@ src/
 
 ---
 
-## Content collections — scheman (src/content.config.ts)
+## Content collections -- scheman (src/content.config.ts)
 
 ### destinations
 ```ts
@@ -112,19 +132,22 @@ season?: string,
 techniques?: string[],
 targetTechniques?: string[],
 gearRecs?: string[],
-topDestinations?: string[]
+topDestinations?: string[],
+difficulty?: 'nybörjare' | 'mellannivå' | 'avancerad'
 ```
 
 ### techniques
 ```ts
 title, slug, description, heroImage,
-targetSpecies: string[],
-difficulty: 'nybörjare' | 'mellannivå' | 'avancerad'
+targetSpecies: string[],    // slug-format: abborre|gadda|gos|oring|lax|harr|roding
+difficulty: 'nybörjare' | 'mellannivå' | 'avancerad',
+topDestinations?: string[]  // slugar till destinationer kopplade till tekniken
 ```
 
 ### gear-categories
 ```ts
-title, slug, description, heroImage
+title, slug, description, heroImage,
+guideUrl?: string           // URL till redaktionell köpguide, t.ex. "/artiklar/basta-fiskespon-2026/"
 ```
 
 ### gear-reviews
@@ -132,8 +155,8 @@ title, slug, description, heroImage
 title, slug, description, heroImage,
 brand: string,
 category: string,          // matchar slug i gear-categories, t.ex. "spon"
-price: number,             // SEK, statiskt — speglar inte butikens aktuella pris
-rating: number (0–5),      // redaktionellt betyg baserat på specs och rykte, ej eget test
+price: number,             // SEK, statiskt -- speglar inte butikens aktuella pris
+rating: number (0--5),     // redaktionellt betyg baserat på specs och rykte, ej eget test
 pros: string[],
 cons: string[],
 affiliateUrl: string,      // spårad Adtraction-länk
@@ -163,7 +186,7 @@ social?: { instagram?, twitter? }
 
 ---
 
-## Utrustningssektionen — hur den är tänkt
+## Utrustningssektionen -- hur den är tänkt
 
 `/utrustning/` listar kategorier (gear-categories).
 `/utrustning/[kategori]/` listar produkter inom kategorin (gear-reviews filtrerade på category-fält).
@@ -172,7 +195,7 @@ social?: { instagram?, twitter? }
 Produkterna är handplockade och läggs in som JSON-filer i `gear-reviews/`.
 Priset i JSON är statiskt och speglar inte butikens aktuella pris.
 CTA-texten är "Se pris hos FiskeOnline", inte ett fast pris.
-Betyget är redaktionellt baserat på specs och rykte — disclaimer visas automatiskt på produktsidan.
+Betyget är redaktionellt baserat på specs och rykte. Disclaimer visas automatiskt på produktsidan.
 
 ### Produktbilder
 
@@ -186,24 +209,24 @@ Spön är uppdelade i två spår:
 
 **Quiz-kopplade kategorier (fas 1, FiskeOnline):**
 Dessa kategorier matas in i SpoQuiz och ger personliga rekommendationer.
-- Abborrspön — 6 produkter (jigg/dropshot + haspel, budget + mellanklass + premium)
-- Gäddspön — 6 produkter (spinn + jigg, budget + mellanklass + premium)
-- Gösspön — 2 produkter (mellanklass + premium, Mikado Inazuma delas med abborre)
+- Abborrspön -- 6 produkter (jigg/dropshot + haspel, budget + mellanklass + premium)
+- Gäddspön -- 6 produkter (spinn + jigg, budget + mellanklass + premium)
+- Gösspön -- 2 produkter (mellanklass + premium, Mikado Inazuma delas med abborre)
 
 Totalt 14 produkter i fas 1. Quizen matchar dynamiskt på targetSpecies, techniques och priceRange.
-SpoQuiz.tsx innehåller ingen hårdkodad produktdata — allt hämtas från gear-reviews via spovaljaren.astro.
+SpoQuiz.tsx innehåller ingen hårdkodad produktdata -- allt hämtas från gear-reviews via spovaljaren.astro.
 
 Prisklasser i quizen:
 - Budget: under 800 kr (quiz-etikett "Under 1 000 kr")
-- Mellanklass: 800–1 800 kr (quiz-etikett "1 000–2 000 kr")
-- Premium: 1 800–3 500 kr (quiz-etikett "2 000–4 000 kr")
+- Mellanklass: 800--1 800 kr (quiz-etikett "1 000--2 000 kr")
+- Premium: 1 800--3 500 kr (quiz-etikett "2 000--4 000 kr")
 
 **Kategorier utanför quizen (läggs till på sikt, visas bara på /utrustning/):**
-- `havsfiske-spon` — havsöring, torsk, makrill
+- `havsfiske-spon` -- havsöring, torsk, makrill
 - `trolling-spon`
 - `met-spon`
-- `ekolod` — prioriterat nästa steg, kräver annat affiliate-program än FiskeOnline
-- `battar` — kräver direktpartnerskap, inte standard affiliate
+- `ekolod` -- prioriterat nästa steg, kräver annat affiliate-program än FiskeOnline
+- `battar` -- kräver direktpartnerskap, inte standard affiliate
 
 ### Befintliga gear-reviews (fas 1)
 
@@ -248,7 +271,7 @@ Exempel:
 https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/[produkt-slug]/
 ```
 
-FiskeOnline har ingen produktfeed i Adtraction — länkar byggs manuellt eller via add-product.py.
+FiskeOnline har ingen produktfeed i Adtraction -- länkar byggs manuellt eller via add-product.py.
 
 Affiliate-disclosure visas:
 - Som "*Affiliatelänk. Vi tjänar en provision utan kostnad för dig.*" i AffiliateCard
@@ -278,7 +301,7 @@ Manuella steg efteråt:
 
 ---
 
-## AffiliateCard.astro — props
+## AffiliateCard.astro -- props
 
 ```ts
 title: string
@@ -298,11 +321,12 @@ budgetPick?: boolean   // "Bästa budget"-badge, copper-badge
 
 ## Innehållsmallar (prompts)
 
-Tre promptfiler styr hur nytt innehåll ska skrivas:
-- `prompt_artsida.md` — för species/-filer
-- `prompt_destinationssida.md` — för destinations/-filer
-- `prompt_tekniksida.md` — för techniques/-filer
-- `prompt_produktsida.md` — för redaktionellt innehåll i gear-reviews MDX-filer
+Promptfiler styr hur nytt innehåll ska skrivas:
+- `prompt_artsida.md` -- för species/-filer
+- `prompt_destinationssida.md` -- för destinations/-filer
+- `prompt_tekniksida.md` -- för techniques/-filer
+- `prompt_produktsida.md` -- för redaktionellt innehåll i gear-reviews JSON-filer
+- `prompt_artikelsida.md` -- för articles/-filer
 
 Dessa definierar frontmatter-format, innehållsstruktur, språkregler och juridiska kontroller.
 Följ dem alltid när nytt innehåll i dessa kategorier skapas.
@@ -312,12 +336,39 @@ Följ dem alltid när nytt innehåll i dessa kategorier skapas.
 ## Språkregler (gäller all text på sajten)
 
 - Korrekt svenska genomgående
-- Inga em-streck (—) i löptext. Talstreck i sifferintervall (10–15 cm) är OK.
-- Inga semikolon
-- Kolon bara för att introducera lista eller direkt förklaring
+- Inga em-streck (--) i löptext, inte heller i frontmatter-fält som description. Talstreck i sifferintervall (10--15 cm) är OK.
+- Inga semikolon. Ersätt med punkt.
+- Kolon bara för att introducera lista eller direkt förklaring, inte som paus i löptext
+- Inga elliptiska konstruktioner eller hängande bisatser. Varje mening ska ha subjekt och predikat.
 - "i dag" skrivs i två ord
 - "Stimmen" (inte "stimen") i bestämd form plural
 - Kortare meningar föredras
+- Inga superlativ eller säljfraser i produkttexter ("ultimat", "oslagbar", "perfekt")
+
+---
+
+## Obligatorisk språkgranskning innan leverans
+
+**Detta steg är obligatoriskt för allt innehåll. Det ska alltid utföras och redovisas innan texten levereras.**
+
+När texten är klar, gå igenom den mening för mening och sök aktivt efter:
+
+1. Em-streck (--) i löptext eller frontmatter. Ersätt med punkt eller omformulera.
+2. Semikolon. Ersätt med punkt.
+3. Elliptiska konstruktioner och hängande bisatser (meningar utan subjekt eller predikat).
+4. Kolon som pausmarkering i löptext (inte lista eller direkt förklaring).
+5. Grammatikfel, syftningsfel och felaktig meningsbyggnad.
+
+Lista varje fel du hittar med radnummer och vad som är fel. Åtgärda dem. Leverera sedan den korrigerade versionen.
+
+Kör även detta bash-kommando på filen och åtgärda eventuella träffar:
+
+```bash
+grep -n " — " fil.mdx          # em-streck i löptext
+grep -n " – [a-zåäö]" fil.mdx  # em-streck följt av gemen (inte sifferintervall)
+grep -n ";" fil.mdx             # semikolon
+grep -n "\.\.\." fil.mdx        # ellipser
+```
 
 ---
 
@@ -330,32 +381,39 @@ Följ dem alltid när nytt innehåll i dessa kategorier skapas.
 
 ---
 
-## Vad som är byggt vs. planerat
+## SEO-regler
 
-**Byggt och redaktionellt godkänt:**
-- Alla layouts och kärnkomponenter (BaseLayout, Header, Footer, SEO, AffiliateCard, ConsentBanner)
-- 6 destinationssidor (redaktionellt innehåll, ej platshållare)
-- 7 artsidor (redaktionellt innehåll, ej platshållare)
-- 3 tekniksidor (redaktionellt innehåll, ej platshållare)
-- Utrustningssidornas sidmallar (index, [kategori], test/[slug])
-- 14 gear-reviews med riktiga affiliate-länkar, bilder och redaktionellt innehåll
-- 1 gear-category: spon.json
-- SpoQuiz (React) — dynamisk matchning mot gear-reviews, inga hårdkodade produkter
-- DestinationMap (React)
-- GTM/GA4-integration, dataLayer-tracking för affiliate-klick
-- RSS, 404, cookie-policy, nyhetsbrev, om-sida
-- add-product.py — CLI-skript för att lägga till nya produkter
+### Meta descriptions
+- Längd: 120--160 tecken. Aldrig under 120, aldrig över 160.
+- Duplicerar inte inledningen i brödtexten.
+- Inga säljfraser ("perfekt", "toppmodell", "bäst i klassen").
+- Kontrollera längd: `echo -n "din description" | wc -c`
 
-**Platshållare — ska inte behandlas som godkänt innehåll:**
-- `src/content/articles/` — basta-ekolodet-2026.mdx och jiggfiske-for-nyborjare.mdx
-  är platshållare. Ersätt med redaktionellt granskade artiklar.
+### Titlar (title-fält i frontmatter)
+- Produktsidor: titeln läggs till suffix ": test och recension [år]" av sidmallen. Håll title-fältet under 45 tecken.
+- Ta inte med cm-längd, antal delar (2pcs) eller årstal i title-fältet -- det ger för långa title-taggar.
+- Behåll kastviktsangivelsen om det är ett spö -- det är sökbart.
 
-**Saknas / att göra:**
-- Fler tekniksidor (spinnfiske, mete, drop-shot, trolling)
-- Ekolod-kategori när affiliate-program är klart
-- Fler produkter i befintliga kategorier
-- Programmatiska sidor i större skala
-- Redaktionella artiklar (ersätt platshållare)
+### Kategorisidor
+- Alla kategorisidor (`utrustning/[kategori]`) är noindexade via `noindex={true}` i sidmallen.
+- Kategorisidor är navigeringssidor, inte rankningssidor.
+- Varje kategori bör ha en kopplad redaktionell guide via `guideUrl` i kategori-JSON-filen.
+- Lägg alltid till `guideUrl` när en ny kategori skapas och en guide finns eller planeras.
+
+### Internlänkning
+- Tekniksidor: fyll alltid i `topDestinations` med 3--5 relevanta destinationssluggar.
+- Artsidor: fyll alltid i `topDestinations` med 5--7 relevanta destinationssluggar.
+- Destinationssidor: lägg alltid artlänkar direkt under `## Fiskarter`.
+- Tekniksidor: avsluta alltid med `## Relaterade artsidor` och `## Relaterade vatten` med Läs mer-länkar.
+- Slugar i frontmatter-fält ska alltid matcha faktiska filer i repot. Kontrollera med: `ls src/content/destinations/`
+
+### Strukturerad data
+- Produktsidor: Product + BreadcrumbList (implementerat i sidmallen).
+- Artsidor: Article + BreadcrumbList (implementerat i sidmallen).
+- Tekniksidor: HowTo + BreadcrumbList (implementerat i sidmallen).
+- Destinationssidor: Article + Place/GeoCoordinates + FAQPage + BreadcrumbList (implementerat).
+- Indexsidor: BreadcrumbList + ItemList (implementerat i sidmallarna).
+- Startsidan: WebSite + Organization (implementerat).
 
 ---
 
@@ -366,7 +424,7 @@ Följ dem alltid när nytt innehåll i dessa kategorier skapas.
 Filen genererades maj 2026 från SMHI:s öppna API och bör uppdateras om fler stationer tillkommer.
 
 ### Automatisk stationsmatchning
-`src/lib/smhi.ts` exporterar `fetchSMHIForCoords(lat, lng)` som automatiskt väljer närmaste aktiva station baserat på koordinater. **Ingen manuell stationskonfiguration behövs för nya destinationer.**
+`src/lib/smhi.ts` exporterar `fetchSMHIForCoords(lat, lng)` som automatiskt väljer närmaste aktiva station baserat på koordinater. Ingen manuell stationskonfiguration behövs för nya destinationer.
 
 När en ny destination läggs till i `src/content/destinations/` räcker det att `lat` och `lng` är korrekt ifyllda i frontmatter -- SMHI-data hämtas automatiskt från närmaste station vid nästa build.
 
@@ -378,14 +436,14 @@ När en ny destination läggs till i `src/content/destinations/` räcker det att
 
 ### Betningsindikator
 `getBiteScore(airTemp, windSpeed, moonIllumination, species, month)` i `smhi.ts` returnerar:
-- `'Toppläge'` (score ≥ 68)
-- `'Värt att testa'` (score 42–67)
+- `'Toppläge'` (score >= 68)
+- `'Värt att testa'` (score 42--67)
 - `'Trögt'` (score < 42)
 
 Terminologin ändras på ett enda ställe i `smhi.ts` -- ingenting hårdkodat i sidmallarna.
 
 ### Säsongsdata
-`src/data/seasons.json` definierar peak- och ok-månader per art (1–12).
+`src/data/seasons.json` definierar peak- och ok-månader per art (1--12).
 Används av `getSeasonBonus()` för att justera betningspoängen per destination baserat på vilka arter som är i säsong.
 
 ### Sidor som använder SMHI-data
@@ -405,20 +463,45 @@ Inga client-side API-anrop görs.
 Ligger under `src/pages/nappkalender/`. Tre nivåer:
 - `/nappkalender/` -- indexsida med KalenderWidget och årsöversikt
 - `/nappkalender/[art]/` -- artspecifik kalender med veckovis data
-- `/nappkalender/[art]/[manad]/` -- art × månad detaljsida
+- `/nappkalender/[art]/[manad]/` -- art x månad detaljsida
 
 Kalenderdata finns i `src/data/calendar.ts` -- månfasalgoritm, artdata och säsongsfönster per art.
 SMHI-prognosdata hämtas i `src/lib/forecast.ts` via SNOW1gv1-API:et.
 KalenderWidget är en React-komponent i `src/components/KalenderWidget.tsx`.
 
-## Startsidans fiskekarta
+---
 
-`src/components/FiskeKarta.tsx` -- React-komponent med Leaflet.
-Alla destinationer från content collections visas automatiskt.
-SMHI-data hämtas via `fetchSMHIForCoords(lat, lng)` i `src/lib/smhi.ts`.
-Ny destination = lägg till lat/lng i frontmatter, resten sköts automatiskt.
+## Innehållsstrategi
 
-## Förhållandesidan
+Redaktionella guider driver trafik -- kategorisidor gör det inte. Varje ny utrustningskategori bör ha en matchande guide (`/artiklar/basta-[kategori]-[år].mdx`) som äger sökordet "bästa [kategori]". Kategorisidan listar produkterna och länkar till guiden via `guideUrl`-fältet.
 
-`src/pages/forhallanden/index.astro` -- visar alla destinationer med live SMHI-data.
-Samma automatik som kartan -- ny destination dyker upp automatiskt.
+**Byggt och redaktionellt godkänt:**
+- Alla layouts och kärnkomponenter (BaseLayout, Header, Footer, SEO, AffiliateCard, ConsentBanner)
+- 6 destinationssidor (redaktionellt innehåll, ej platshållare)
+- 7 artsidor (redaktionellt innehåll, ej platshållare)
+- 3 tekniksidor (redaktionellt innehåll, ej platshållare)
+- Utrustningssidornas sidmallar (index, [kategori], test/[slug])
+- 14 gear-reviews med riktiga affiliate-länkar, bilder och redaktionellt innehåll
+- 1 gear-category: spon.json
+- SpoQuiz (React) -- dynamisk matchning mot gear-reviews, inga hårdkodade produkter
+- FiskeKarta (React) -- interaktiv karta med SMHI-data och Leaflet
+- KalenderWidget (React) -- nappkalender
+- GTM/GA4-integration, dataLayer-tracking för affiliate-klick
+- RSS, 404, cookie-policy, nyhetsbrev, om-sida
+- add-product.py -- CLI-skript för att lägga till nya produkter
+
+**Platshållare -- ska inte behandlas som godkänt innehåll:**
+- `src/content/articles/` -- basta-ekolodet-2026.mdx och jiggfiske-for-nyborjare.mdx
+  är platshållare. Ersätt med redaktionellt granskade artiklar.
+
+**Saknas / att göra:**
+- Fler tekniksidor (spinnfiske, mete, drop-shot, trolling)
+- Ekolod-kategori när affiliate-program är klart
+- Fler produkter i befintliga kategorier
+- Programmatiska sidor i större skala
+- Redaktionella artiklar (ersätt platshållare)
+
+## Internlänkning -- tekniker och arter
+- Tekniker som visas på en artsida styrs av `targetTechniques` i artsidans frontmatter.
+- Teknikfilernas `targetSpecies` används INTE för denna matchning.
+- Vid ny artsida: fyll i `targetTechniques` i frontmatter. Inga teknikfiler behöver ändras.

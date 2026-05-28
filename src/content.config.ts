@@ -33,10 +33,11 @@ const species = defineCollection({
     targetTechniques: z.array(z.string()).optional().default([]),
     gearRecs: z.array(z.string()).optional().default([]),
     topDestinations: z.array(z.string()).optional().default([]),
-    excerpt: z.string().optional(),  // Korttext för indexsidan (40–80 tecken)
-    faq: z.array(z.object({ q: z.string(), a: z.string() })).optional().default([]),
     publishedAt: z.string().optional(),
     updatedAt: z.string().optional(),
+    excerpt: z.string().optional(),
+    difficulty: z.enum(['nybörjare', 'mellannivå', 'avancerad']).optional(),
+    faq: z.array(z.object({ q: z.string(), a: z.string() })).optional().default([]),
   }),
 });
 
@@ -50,6 +51,8 @@ const techniques = defineCollection({
     targetSpecies: z.array(z.string()),
     difficulty: z.enum(['nybörjare', 'mellannivå', 'avancerad']),
     topDestinations: z.array(z.string()).optional().default([]),
+    publishedAt: z.string().optional(),
+    updatedAt: z.string().optional(),
     faq: z.array(z.object({ q: z.string(), a: z.string() })).optional().default([]),
   }),
 });
