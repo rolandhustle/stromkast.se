@@ -38,9 +38,12 @@ src/content/authors/rikard-giby.json
 src/content/destinations
 src/content/destinations/.DS_Store
 src/content/destinations/bolmen.mdx
+src/content/destinations/dalalven.mdx
 src/content/destinations/eman.mdx
+src/content/destinations/hjalmaren.mdx
 src/content/destinations/malaren.mdx
 src/content/destinations/morrum.mdx
+src/content/destinations/siljan.mdx
 src/content/destinations/stockholms-skargard.mdx
 src/content/destinations/storsjon.mdx
 src/content/destinations/tornealven.mdx
@@ -91,6 +94,7 @@ src/content/species/havsoring.mdx
 src/content/species/lax.mdx
 src/content/species/oring.mdx
 src/content/species/roding.mdx
+src/content/species/sik.mdx
 src/content/techniques
 src/content/techniques/.DS_Store
 src/content/techniques/dropshot.mdx
@@ -129,6 +133,7 @@ src/pages/guider
 src/pages/guider/.DS_Store
 src/pages/guider/[slug].astro
 src/pages/guider/index.astro
+src/pages/honeypot-trap.astro
 src/pages/index.astro
 src/pages/nappkalender
 src/pages/nappkalender/.DS_Store
@@ -199,10 +204,11 @@ const species = defineCollection({
     targetTechniques: z.array(z.string()).optional().default([]),
     gearRecs: z.array(z.string()).optional().default([]),
     topDestinations: z.array(z.string()).optional().default([]),
-    excerpt: z.string().optional(),  // Korttext för indexsidan (40–80 tecken)
-    faq: z.array(z.object({ q: z.string(), a: z.string() })).optional().default([]),
     publishedAt: z.string().optional(),
     updatedAt: z.string().optional(),
+    excerpt: z.string().optional(),
+    difficulty: z.enum(['nybörjare', 'mellannivå', 'avancerad']).optional(),
+    faq: z.array(z.object({ q: z.string(), a: z.string() })).optional().default([]),
   }),
 });
 
@@ -216,6 +222,8 @@ const techniques = defineCollection({
     targetSpecies: z.array(z.string()),
     difficulty: z.enum(['nybörjare', 'mellannivå', 'avancerad']),
     topDestinations: z.array(z.string()).optional().default([]),
+    publishedAt: z.string().optional(),
+    updatedAt: z.string().optional(),
     faq: z.array(z.object({ q: z.string(), a: z.string() })).optional().default([]),
   }),
 });
@@ -542,6 +550,7 @@ const { title, description, ogImage, canonical, noindex, schema, heroOverlay = f
 
     <Footer />
     <ConsentBanner />
+    <a href="/honeypot-trap/" aria-hidden="true" tabindex="-1" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;">Fiskekort</a>
   </body>
 </html>
 ```
@@ -2695,10 +2704,7 @@ const topDestinations = allDestinations.filter((d) =>
 
 const allTechniques = await getCollection('techniques');
 const relatedTechniques = allTechniques.filter((t) =>
-  t.data.targetSpecies.some((ts: string) =>
-    ts.toLowerCase() === s.title.toLowerCase() ||
-    ts.toLowerCase() === s.slug.toLowerCase()
-  )
+  s.targetTechniques.includes(t.data.slug)
 );
 
 const breadcrumbSchema = {
@@ -3877,6 +3883,15 @@ const categoryLabels: Record<string, string> = {
       ))}
     </div>
   </div>
+</BaseLayout>
+```
+
+## src/pages/honeypot-trap.astro
+```
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="404" description="" noindex={true}>
 </BaseLayout>
 ```
 
@@ -5096,16 +5111,26 @@ const authors = await getCollection('authors');
 
 <BaseLayout
   title="Om Strömkast: redaktionen och vår metodik"
-  description="Strömkast är Sveriges modernaste sportfiskeguide. Lär känna redaktionen och vår metodik för oberoende produkttester."
+  description="Strömkast är en guide för svenska fiskare med information om fiskevatten, utrustning, tekniker och arter på ett ställe."
   pageType="about"
 >
   <div class="pt-28 pb-20 px-4 sm:px-6 max-w-[1280px] mx-auto">
     <div class="max-w-[72ch]">
-      <h1 class="font-display text-4xl sm:text-5xl font-bold text-deep mb-10">Om</h1><div class="space-y-4 text-stone max-w-[65ch] mb-12">
-  <p>Strömkast är en guide för dig som fiskar i svenska vatten. Här hittar du information om fiskevatten, utrustning och teknik, samlat på ett ställe och skrivet för att vara faktiskt användbart.</p>
-  <p>Rekommendationer baseras på tillgänglig produktinformation, användarerfarenheter och egen research. Vi är tydliga med vad som bygger på egna erfarenheter och vad som kommer från andra källor.</p>
-  <p>Sajten finansieras via affiliate-länkar. När du köper något via en länk på Strömkast får vi en liten provision utan kostnad för dig. Det påverkar aldrig vad vi skriver eller hur vi rankar produkter.</p>
-</div>
+      <h1 class="font-display text-4xl sm:text-5xl font-bold text-deep mb-10">Om oss</h1>
+
+      <div class="space-y-4 text-stone max-w-[65ch] mb-12">
+        <p>Strömkast är en guide för svenska fiskare. Här samlar vi information om fiskevatten, utrustning, tekniker och arter på ett ställe, skrivet för att vara faktiskt användbart oavsett om du fiskar för första gången eller har gjort det i trettio år.</p>
+
+        <p>Vi lägger ned tid på research för varje sida, med målet att du ska hitta det du behöver utan att behöva leta på fem ställen. Det gäller oavsett om du planerar en ny destination, väljer utrustning eller vill lära dig en ny teknik.</p>
+
+        <p>Missa inte att använda vår <a href="/nappkalender/" class="text-pine underline underline-offset-2 hover:text-pine/70 transition-colors">nappkalender</a> när du planerar din nästa fisketur. Där kan du se när olika arter är som mest aktiva, baserat på säsong, månfas och aktuell SMHI-väderprognos. Filtrera på art och region för att få en bedömning som stämmer för just ditt vatten.</p>
+      </div>
+
+      <div class="space-y-4 text-stone max-w-[65ch] mb-12">
+        <h2 class="font-display text-2xl font-bold text-deep">Så finansieras Strömkast</h2>
+        <p>Sajten finansieras via affiliate-provisioner. När du köper något via en länk på Strömkast får vi en liten ersättning från återförsäljaren, utan kostnad för dig. Det påverkar aldrig vad vi skriver eller hur vi rangordnar produkter.</p>
+      </div>
+
       <div class="space-y-6">
         {authors.map((author) => (
           <div class="bg-white rounded-2xl p-6 border border-mist flex flex-col sm:flex-row gap-5">
@@ -5124,6 +5149,7 @@ const authors = await getCollection('authors');
           </div>
         ))}
       </div>
+
     </div>
   </div>
 </BaseLayout>
@@ -7537,37 +7563,37 @@ Varje teknik nedan beskrivs i detalj på respektive tekniksida. Här ges en orie
 
 Jiggfiske är idag den dominerande sportfiskemetoden för gös i Sverige. Mjukbete på jiggskalle (10–25 g beroende på djup) animeras med pumprörelser från botten och uppåt, med 10–18 cm paddletail-shads, twintail-jiggar och V-tail-shads som favoritbeten. En modern variant är **vertikalfiske**: båten positioneras med elmotor exakt över fisk som syns på ett högupplöst ekolod (LiveScope, ActiveTarget), och jiggen presenteras rakt under kölen på 5–25 m. De senaste svenska rekordgösarna har samtliga fångats med vertikalfiske.
 
-[Läs mer om jiggfiske](/teknik/jiggfiske)
+[Läs mer om jiggfiske](/teknik/jiggfiske/)
 
 ### Drop-shot
 
 Drop-shot är effektivt när gösen är passiv eller står tätt vid botten. Vikten hänger längst ner (10–20 g) och ett mindre mjukbete (5–10 cm) sitter på en loop 20–60 cm ovanför. Tekniken fungerar från båt, brygga och strand och är särskilt bra vid kallt vatten och på djupa kanter.
 
-[Läs mer om drop-shot](/teknik/drop-shot)
+[Läs mer om drop-shot](/teknik/dropshot/)
 
 ### Trolling
 
 Trolling är den klassiska sommarmetoden i Vänern, Mälaren och liknande stora sjöar. Wobblers på 10–20 cm körs på 1,5–3 knop bakom planeringspulkor som sprider betena i sidled. Djupen varierar med termoklinens läge, ofta 3–12 m under sommaren. Långsammare fart vid kallt vatten, högre vid varmt.
 
-[Läs mer om trolling](/teknik/trolling)
+[Läs mer om trolling](/teknik/trolling/)
 
 ### Spinnfiske
 
 Klassiskt kastfiske med wobbler fungerar vid lekvandring i tillflöden, från piren i grunda fjärdar och vid kantfiske från båt. Under skymning ger tysta, långsamt jerkade wobblers bra resultat från strand. Metoden passar nybörjare bra men ger sällan de största gösarna.
 
-[Läs mer om spinnfiske](/teknik/spinnfiske)
+[Läs mer om spinnfiske](/teknik/spinnfiske/)
 
 ### Dödbete
 
 Dödbete är en av de mest underskattade metoderna för storgös, framför allt under den kalla halvåret. Ett dött bytesfiskbete (mört, löja eller liten siklöja, 10–18 cm) riggas på en krokskele och presenteras antingen stationärt på botten med bottensänke och tafs på 30–80 cm, eller pelagiskt under ett flöte. Metoden är extremt effektiv vid temperaturer under 10 °C när gösen inte ger fart åt aktiva beten.
 
-[Läs mer om dödbete](/teknik/dodbete)
+[Läs mer om dödbete](/teknik/mete/)
 
 ### Isfiske
 
 Pimpling med balanspirk och vertikalspö på djupkanter och grynnor ger gös under isen. Bitfönstren är korta, oftast vid ljusväxlingarna. Flasher-ekolod (Vexilar, Garmin Striker) hjälper till att lokalisera fisken exakt. Tänk på simblåseproblematiken vid återutsättning, se catch and release-avsnittet.
 
-[Läs mer om isfiske](/teknik/isfiske)
+[Läs mer om isfiske](/teknik/isfiske/)
 
 ## Utrustning
 
@@ -8555,31 +8581,31 @@ Havsöring är mest aktiv vid gryning och skymning, men hugger hela dagen i mule
 
 Flugfiske är den mest mångsidiga metoden för öring och fungerar för alla tre livsformerna. Havsöring längs kusten fiskas med räk- och tobisimitationer på intermediate- eller flytlina. Bäcköring fiskas med torrflugor, nymfer och våtflugor i strömmande vatten. I laxälvar som Mörrum, Ätran och Emån används twohandsspö med sjunktipp och stora tubflugor.
 
-[Läs mer om flugfiske](/teknik/flugfiske)
+[Läs mer om flugfiske](/teknik/flugfiske/)
 
 ### Spinnfiske
 
 Spinnfiske med skeddrag, wobblar och inline-spinnare är den vanligaste metoden längs kusten och i de flesta älvar. Viktklassen 12–30 g täcker de flesta situationer. I hård sjögång kan tyngre drag behövas.
 
-[Läs mer om spinnfiske](/teknik/spinnfiske)
+[Läs mer om spinnfiske](/teknik/spinnfiske/)
 
 ### Jiggfiske
 
 Jiggfiske med små shads på jighuvuden är allt vanligare för havsöring, särskilt vid djupkanter och rev. Metoden fungerar bra längs Östersjökusten på senhösten. Storleken 5–10 cm och vikter på 5–15 g är ett bra utgångsläge.
 
-[Läs mer om jiggfiske](/teknik/jiggfiske)
+[Läs mer om jiggfiske](/teknik/jiggfiske/)
 
 ### Trolling
 
 Trolling är den dominerande metoden för storvuxen insjööring i Vänern, Vättern och Storsjön. Fisket bedrivs med wobblar och skeddrag på varierande djup beroende på årstid, från grunt vatten på våren till 10–30 m på sommaren. Downrigger eller paravan används för att nå rätt djup.
 
-[Läs mer om trolling](/teknik/trolling)
+[Läs mer om trolling](/teknik/trolling/)
 
 ### Mete
 
 Mete med räka är den traditionella metoden i Ätran och tillåten i flera älvar där spinnfiske är det vanliga alternativet. Längs kusten förekommer mete med tobis eller räka från brygga.
 
-[Läs mer om mete](/teknik/mete)
+[Läs mer om mete](/teknik/mete/)
 
 ## Utrustning
 
@@ -8933,6 +8959,276 @@ I Vättern och de övriga fyra stora sjöarna (Vänern, Mälaren, Hjälmaren och
 
 **Är röding god att äta?**
 Röding räknas som ett av Sveriges bästa matfiskalternativ. Köttet är rött till blekrosa, smakrikt och innehåller höga halter omega-3-fettsyror. Fisken passar utmärkt till stekning, gravning, rökning och ugnsbakning.
+```
+
+## src/content/species/sik.mdx
+```
+---
+title: "Sik"
+slug: "sik"
+description: "Sik (Coregonus maraena) – biologi, fisketekniker, rekord och regler. Guide för sikfiske i Sverige med Storsjön, Vättern, Vänern och Bottniska viken."
+heroImage: "/images/species/sik-hero.jpg"
+targetTechniques:
+  - isfiske
+  - mete
+  - flugfiske
+  - trolling
+  - spinnfiske
+difficulty: "mellannivå"
+excerpt: "En av Nordens bästa matfiskar. Fångas på pimpel, mete och fluga."
+publishedAt: "2026-05-28"
+updatedAt: "2026-05-28"
+season: "Hela året (bäst november–april)"
+topDestinations:
+  - storsjon
+  - vanern
+  - vattern
+  - malaren
+  - bolmen
+faq:
+  - q: "Vilket minimimått gäller för sik i Sverige?"
+    a: "Det finns inget nationellt minimimått för sik i de fem stora sjöarna. Längs Gotlands kust gäller fredningstid 1 november–15 december. Lokala fiskevårdsområden kan ha egna regler."
+  - q: "Vad är det svenska rekordet på sik?"
+    a: "Det svenska sportfiskerekordet är 6 770 g och 74 cm, fångat i Landösjön i Jämtland den 6 mars 2025 av Gintaris Milvydas. Fisken togs på pimpel med maggot-agnad pirk."
+  - q: "Vilket djup pimplar man sik på?"
+    a: "Sik söker sällan bottnen. Pimpla på halva vattendjupet, ofta 5–20 m totalt. Prova olika nivåer tills aktivt stim hittas på ekolod."
+  - q: "Vad skiljer sik från siklöja?"
+    a: "Sik har överbett medan siklöja har underbett. Sik är också klart större och mer kompakt. Båda har fettfena."
+  - q: "Är sik god att äta?"
+    a: "Sik räknas som en av Nordens finaste sötvattenmatfiskar. Köttet är vitt, fast och saftigt. Stor sik från Vänern och Östersjön kan ha förhöjda dioxinhalter. Följ Livsmedelsverkets kostråd."
+---
+
+Siken (*Coregonus maraena*) är inte en art utan ett artkomplex med kraftig lokal variation och räknas till laxfiskarnas familj Salmonidae. I svenska vatten förekommer minst sex ekotyper med vitt skilda storlekar, lektider och födoval. Den som pimplar en grov Storsjösik och den som metar upp en planktonsik i ett jämtländskt fjällvatten fiskar biologiskt efter helt olika fiskar, trots att båda kallas sik.
+
+## Biologi
+
+### Utseende och identifiering
+
+Siken är slank och silverblank med en blågrön till brunaktig rygg, vit buk och mörkgrå fenor. Som alla laxfiskar har den en fettfena bakom ryggfenan. Stjärtfenan är djupt kluven. Den viktigaste fältkaraktären är **överbettet**: överkäken sticker fram längre än underkäken, och munnen sitter tydligt under nosen.
+
+Det skiljer siken från:
+
+- **Siklöja (*Coregonus albula*)** – underbett (underkäken längst fram), klart mindre kropp.
+- **Harr (*Thymallus thymallus*)** – stor segelliknande ryggfena. Sik har låg, "normal" ryggfena.
+- **Karpfiskar** – saknar fettfena.
+
+Antalet gälräfständer är artens viktigaste taxonomiska karaktär och skiljer ekotyperna åt: planktonätande former har fler och tätare räfständer (40–60), bottendjurätande färre (20–35).
+
+### Storlek och tillväxt
+
+Tillväxten varierar dramatiskt mellan ekotyper och vatten. Värdena i tabellen är genomsnitt och bör tolkas som riktmärken. En vandringssik längs Bottniska viken kan växa tre till fyra gånger snabbare än en planktonsik i ett kargare fjällvatten.
+
+| Ålder | Vandringssik / storväxta former | Planktonsik / fjällsjöar |
+|------:|--------------------------------|--------------------------|
+| 1 år  | 10–12 cm, 10–20 g              | 8–10 cm, 5–10 g          |
+| 2 år  | 18–25 cm, 80–150 g             | 12–15 cm, 20–40 g        |
+| 3 år  | 28–35 cm, 250–450 g            | 15–18 cm, 40–80 g        |
+| 5 år  | 40–48 cm, 800–1 200 g          | 20–25 cm, 100–180 g      |
+| 7 år  | ca 50 cm, 1 000–2 000 g        | 25–30 cm, 200–400 g      |
+| 10 år | 55–63 cm, 2 500–4 000 g        | 30–35 cm, 350–700 g      |
+
+Maxlängden för arten är ca 70–73 cm. Sik över 4 kg räknas som en stor fisk i Sverige. Maximal ålder är upp till 30 år.
+
+### Diet
+
+Kosten styrs av ekotypen och varierar under fiskens liv:
+
+- **Yngel:** Zooplankton (daphnier, hoppkräftor).
+- **Planktonsik/blåsik:** Planktonätare livet ut.
+- **Storsik/sandsik:** Bottendjur som fjädermygglarver, märlkräftor och snäckor.
+- **Storväxta vandringssik:** Delvis fiskätande – tar nors, siklöja och spigg.
+- **Bottenviken:** Äter också Mysis-räkor och Pontoporeia.
+
+### Fortplantning
+
+Leken sker från oktober till januari (undantagsvis september till februari) vid vattentemperaturer kring 2–6 °C. Hanen når könsmognad vid 2–4 år, honan något senare vid 3–5 år. Lekplatsen är grus- eller sandbotten på 0,5–130 m djup. Rommen läggs fritt i vattnet utan romgrop. Kläckning sker vid eller strax efter islossning.
+
+Vandringssiken i Norrlands älvar koncentreras till mynningsområden under hösten. Vattenkraftens utbyggnad under 1900-talet har stängt av de flesta stora vandringsstråk, och flertalet vandringssikbestånd hålls i dag uppe av kompensationsodling.
+
+### Habitat och beteende
+
+Sik kräver kallt (optimalt 9–10 °C), syrerikt vatten och lever i stim. På sommaren söker den sig under språngskiktet, ofta på 15–35 m i klara djupa sjöar. Under vår och höst rör den sig grundare. I Bottniska viken vandrar adulta sikar längs kusten och upp i älvmynningarna inför lektiden.
+
+### Beståndssituation
+
+Sik som art bedöms som Livskraftig (LC) på SLU Artdatabankens rödlista. Av fyra utvärderade kustsikbestånd i Östersjön konstaterar SLU Aquas Fiskbarometer 2024 att **endast Bottenvikens bestånd befinner sig inom biologiskt säker gräns**. Bestånden i Bottenhavet och Egentliga Östersjön bedöms som otillfredsställande. HELCOM listar arten som Endangered på Östersjönivå.
+
+## Bästa säsong
+
+### Vår
+
+Efter islossning rör sig siken mot grundare vatten för intensivt födosök. Längs Bottniska vikens kust är mars–april klassisk säsong för glidande bottenmete med mask. I sjöar ger ett kort fönster med isfiske från is som fortfarande bär bra resultat, kombinerat med mete när vattnet öppnat sig.
+
+### Sommar
+
+Siken söker sig under språngskiktet, typiskt 15–30 m i klara storsjöar. Soliga dagar är fisket trögt. Vid insektskläckningar av dagsländor, slöjsländor och nattsländor stiger siken till ytan och kan tas på fluga. Gryning och sena kvällar är de produktivaste tiderna.
+
+### Höst
+
+Lektiden nalkas och siken samlas på lekplatser. I vatten utan fredningstid är hösten sista chansen på storfisk innan isen. Mete och flugfiske vid älvmynningar längs Norrlandskusten kan ge vandringssik under september–oktober.
+
+### Vinter
+
+Pimpelfiskets storsäsong och den period då de allra flesta storfiskrekord registreras. Siken samlas i stim på 5–25 m djup. Bästa tider är gryning och timmarna kring middagsljus. Det nuvarande svenska rekordet på 6 770 g kom från pimpelfiske i mars.
+
+### Dagliga mönster
+
+Siken är i grunden dagaktiv med aktivitetstopp vid gryning och skymning. Under pimpelsäsongen är fönstret kring 09–14 ofta produktivt. Extremt klart väder och hög sol dämpar aktiviteten.
+
+## Fisketekniker
+
+Varje teknik beskrivs i detalj på respektive tekniksida. Nedan ges de viktigaste praktiska råden specifikt för sikfiske.
+
+### Isfiske
+
+Pimpel är den effektivaste sportfiskemetoden för sik i Sverige och teknik bakom de senaste svenska rekorden.
+
+- **Spö:** Kort pimpelspö 50–80 cm med mjuk topp.
+- **Lina:** 0,16–0,22 mm nylon eller fluorcarbon.
+- **Bete:** Liten pirk (3–8 g) eller mormyska (0,3–1,5 g), agnad med maggot, röd mygglarv eller liten mask. Mörka mormyskor i mässing eller koppar med röd droppe är pålitliga.
+- **Djup:** Siken håller sällan vid botten. Sänk betet till halva djupet och variera uppåt.
+- **Rörelse:** Långsamma, korta lyft (5–10 cm) med långa pauser. Sik hugger oftast i stillaståendet eller på fallet.
+
+[Läs mer om isfiske](/teknik/isfiske/)
+
+### Mete
+
+Längs Bottniska vikens kust är glidande bottenmete med mask klassisk sikmetod under vår och tidig sommar. I sjöar fungerar flötesmete med maggot vid grundare partier under sommaren.
+
+- Krok storlek 8–14.
+- Lina 0,18–0,22 mm.
+- Anpassa djupet till var siken rör sig. Börja på botten och arbeta dig uppåt.
+
+[Läs mer om mete](/teknik/mete/)
+
+### Flugfiske
+
+Siken stiger till ytan vid insektskläckningar och kan då tas på fluga. Det norska rekordet på 4,15 kg togs på torrflugan Greenwells Glory.
+
+- **Spö:** Klass 4–6, 9 fot.
+- **Lina:** Flytlina eller intermediate WF 5/6.
+- **Tafs:** Tunn, 0,12–0,16 mm, 9–12 fot.
+- **Flugor:** Små nymfer (Pheasant Tail, Hare's Ear, storlek 14–18), kläckare och CDC-mönster. Vid kläckningar fungerar även Greenwells Glory och liknande torrflugor.
+
+[Läs mer om flugfiske](/teknik/flugfiske/)
+
+### Spinnfiske
+
+Sikens lilla mun gör stora drag ineffektiva. Spinnfiske fungerar med mycket små spinnare (Mepps storlek 0–1), skeddrag 3–7 g och micro-wobblers 3–5 cm. Kastdobb med liten fluga ger ofta bättre resultat än spinnaren ensam.
+
+[Läs mer om spinnfiske](/teknik/spinnfiske/)
+
+### Trolling
+
+Inriktat sikfiske med trolling är ovanligt i Sverige men förekommer i samband med röding- och laxfiske, där sik tas som bifångst. Micro-wobblers eller dragna flugor 5–15 m bakom båten på 5–20 m djup.
+
+[Läs mer om trolling](/teknik/trolling/)
+
+## Utrustning
+
+**Spö:** Pimpelspö med mjuk, känslig topp för att känna sikens subtila hugg. För mete ett 3,9–4,5 m matchspö. För flugfiske klass 4–6.
+
+**Hjul:** Mini-haspel eller inkapslad rulle för pimpel. Haspel storlek 2000–3000 för mete och spinnfiske. Flugrulle med drag för flugfiske.
+
+**Lina:** 0,16–0,20 mm nylon eller fluorcarbon för pimpel och mete. Fluglina WF 5/6 för flugfiske.
+
+**Beten och flugor:** Mormyska 0,3–1,5 g agnad med maggot är grundvalet vid pimpel. Krok storlek 8–14 för mete. Nymfer och torrflugor storlek 14–18 för flugfiske.
+
+## Rekord
+
+### Svenskt rekord (Sportfiskarnas Storfiskregister)
+
+**6 770 g, 74 cm** (omkrets 54,5 cm)
+Fångad av Gintaris Milvydas, Landösjön, Jämtland, 6 mars 2025. Fisken togs på pimpel med maggot-agnad pirk och slog det tidigare rekordet på 6 200 g från Västra Silen 2014.
+
+### Världsrekord
+
+Det finns inget verifierat IGFA all-tackle-rekord för *Coregonus maraena* per maj 2026. Det finska sportfiskerekordet på 7 080 g (Syvälampi, 2000, roddtrolling) är det starkaste verifierade rekordet i Norden.
+
+### Nordiska rekord
+
+| Land | Vikt | Vatten | År | Metod |
+|------|-----:|--------|-----|-------|
+| Sverige | 6 770 g | Landösjön, Jämtland | 2025 | Pimpel, maggot-pirk |
+| Finland | 7 080 g | Syvälampi, Nummi-Pusula | 2000 | Roddtrolling |
+| Norge | 4 150 g | Femundselva | 1968 | Flugfiske, torrfluga |
+
+## Namn och etymologi
+
+Ordet **sik** är belagt i svenskan sedan 1297. Fornsvenska *siker*, fornisländska *sikr*, äldre danska *sig*. Elof Hellquist konstaterar besläktade former i ryska och lettiska och ser det som ett gammalt germanskt–slaviskt–baltiskt fisknamn. Släktnamnet *Coregonus* är sammansatt av grekiska *kore* (pupillen i ögat) och *gonia* (vinkel). Artnamnet *maraena* syftar på Müritz-sjöns tyska namn Maren, därifrån Johan Bloch beskrev arten 1779.
+
+Siken är landskapsfisk i Ångermanland.
+
+| Språk / region | Namn |
+|----------------|------|
+| Svenska (ekotyper) | storsik, sandsik, blåsik, planktonsik, älvsik, aspsik |
+| Norska | sik, nebbsik |
+| Finska | siika, vaellussiika, pohjasiika |
+| Danska | helt, snæbel |
+| Engelska | European whitefish, lavaret, gwyniad, powan |
+| Tyska | Felchen, Renke, Maräne |
+
+## Sik som matfisk
+
+Sik räknas till Nordens mest uppskattade sötvattenfiskar. Köttet är vitt, fast och saftigt med en mild, lätt söt smak och relativt hög fetthalt. Fetten gör siken utmärkt för rökning och gravning.
+
+Bästa matfiskstorleken är 35–55 cm. Fjälla siken, rensa magen och behåll gärna skinnet vid stekning. Fettinnehållet i skinnet ger smaken. Filén läggs i het panna skinnsidan ned, 2–3 min, vänd och stek ytterligare 1–2 min.
+
+- **Rökt sik** är delikatess i hela Norden, traditionellt över al, björk eller en.
+- **Gravad sik** följer samma proportioner som gravlax. Frys fisken minst 3 dygn före gravning.
+- **Sikrom** är delikat och produceras framför allt i norra Sverige och Finland.
+- **Halstrad sik** över öppen eld är en klassisk norrländsk friluftsmåltid.
+
+Stor sik från Vänern och Östersjön kan ha förhöjda dioxinhalter. Följ Livsmedelsverkets aktuella kostråd för dessa vatten.
+
+## Juridik och regler
+
+### Minimimått
+
+Det finns **inget nationellt minimimått** för sik i de fem stora sjöarna (Vänern, Vättern, Mälaren, Hjälmaren, Storsjön). Lokala fiskevårdsområden tillämpar ofta egna regler. Kontrollera alltid innan fiske.
+
+### Fredningstider och fredningsområden
+
+- **Gotlands kustvattenområde:** Fiske efter sik är förbjudet 1 november–15 december.
+- **Bottenhavet:** Fredningsområde vid Storjungfrun/Storgrundet/Kalvhararna infört 2011.
+- Lokala fiskevårdsområden kan ha egna fredningstider.
+
+### Övrigt
+
+- Handredskapsfiske är fritt i de fem stora sjöarna och längs svenska kusten.
+- Maskstorlek för nätfiske: Vänern minst 45 mm (vissa områden 55 mm). Vättern 43 mm grundare än 30 m och 60 mm djupare.
+
+Kontrollera aktuella regler på [HaV:s webbplats](https://www.havochvatten.se) och [Länsstyrelsens sidor](https://www.lansstyrelsen.se) inför fiske.
+
+## Bra vatten för sikfiske
+
+### Storsjön (Jämtland)
+
+[Läs mer om Storsjön](/destinationer/storsjon/)
+
+Sveriges femte största sjö och det enskilt mest kända sikfiskvattnet för sportfiskare. Upp till fem ekotyper av sik samexisterar. Pimpelfiske januari–april är klassiskt. Det nya svenska rekordet på 6 770 g kom från Landösjön i samma område i mars 2025.
+
+### Vänern
+
+[Läs mer om Vänern](/destinationer/vanern/)
+
+Goda sikbestånd med flera ekotyper. Sportfisket är sparsamt men storfisk förekommer.
+
+### Vättern
+
+[Läs mer om Vättern](/destinationer/vattern/)
+
+Sik förekommer och tas som bifångst vid röding- och laxfiske, framför allt vid trolling på 15–35 m djup vår och höst.
+
+### Mälaren
+
+[Läs mer om Mälaren](/destinationer/malaren/)
+
+Sikfiske förekommer vid de djupare partierna men är inte ett primärt sportfiskemål i sjön.
+
+### Norrlandskusten (Bottniska viken)
+
+Längs kusten från Haparanda till Umeå ger vandringssik under augusti–oktober. Bäst vid älvmynningarna inför uppvandring. Glidande bottenmete med mask eller liten pirk direkt i strömfåran är klassisk metod.
 ```
 
 # Content: destinations
@@ -9301,6 +9597,312 @@ FVOF sätter ut öring varje år för att kompensera för de förlorade lekvandr
 
 *Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*```
 
+## src/content/destinations/dalalven.mdx
+```
+---
+title: "Dalälven"
+slug: "dalalven"
+description: "Fiskevatten för lax, havsöring, gädda, gös och harr längs en av Sveriges längsta älvar. Guide till FVO, kortpriser, regler och bästa lokaler."
+heroImage: "/images/destinations/dalalven.jpg"
+lat: 60.5667
+lng: 17.4333
+län: "Dalarnas län, Gävleborgs län, Uppsala län"
+primarySpecies: ["lax", "havsöring", "gädda", "gös", "abborre", "harr"]
+waterType: "river"
+iFiskeUrl: "https://www.ifiske.se/fiske-dalalven-gysingeforsarna.htm"
+excerpt: "Sveriges artrikaste älv med lax, gädda och harr i världsklass."
+recommendedGear: []
+publishedAt: "2026-05-29"
+updatedAt: "2026-05-29"
+---
+
+Dalälven är en av Sveriges längsta älvar och ett av landets mest varierade sportfiskevatten. Från forsarna i Dalarna via de stora fjärdarna i Gästrikland till laxfisket vid Älvkarleby i Uppsala rymmer älven ett 30-tal fiskarter och fisken varierar helt med sträckan. Hit åker man för grov gädda i Färnebofjärden, havsöring i Kungsådran, harr i Tyttboforsen eller gös i de lugna fjärdarna. Regelverken är splittrade på dussintals FVO, vilket kräver att du vet exakt var du planerar att fiska innan du köper kort.
+
+---
+
+**Obs för den som planerar att äta sin fångst:** Livsmedelsverkets kostråd gäller för lax, öring, gädda, gös och abborre från Dalälven. Läs mer längre ned i artikeln.
+
+---
+
+## Fiskekort och regler
+
+Dalälven förvaltas av ett stort antal fiskevårdsområden. Det finns inget gemensamt kort för hela älven. Du köper kort för den specifika sträcka du planerar att fiska, ofta via iFiske eller direkt hos respektive FVO.
+
+### Vad är fritt och vad kräver tillstånd?
+
+Handredskapsfiske är fritt för barn och ungdomar upp till 15 år i de flesta FVO längs Dalälven, men kontrollera alltid hos det enskilda fiskevårdsområdet. För vuxna krävs fiskekort på i princip alla sportfiskesträckor.
+
+### Var köper du fiskekort?
+
+- **Älvkarleby:** Fiskekontoret (Forskarstigen 14B), Älvkarleby fiskecamping, Larsas Sport i Skutskär, Gävle Fiskeredskap, Preem Skutskär, eller via [nedredalalven.se](https://www.nedredalalven.se)
+- **Tyttbo och Gysinge:** iFiske, fiskekort.se, VisitDalarna, DIN-X Österfärnebo (automat)
+- **Borlänge, Gagnef-Mockfjärd, Siljan:** iFiske, fiskekort.se och lokala turistbyråer
+- **Älvdalens FVOF:** [alvdalensfvof.se](https://www.alvdalensfvof.se)
+
+### Priser 2025
+
+| FVO / sträcka | Dagkort vuxen | Veckokort | Säsongskort |
+|---|---|---|---|
+| Älvkarleby A-sektion (harr/abborre) | 250 kr | 900 kr | 4 500 kr |
+| Älvkarleby A-sektion (laxsäsong 1 jun–31 jul) | 500 kr | 2 000 kr | 4 500 kr |
+| Gagnef-Mockfjärds FVOF | 75 kr | 150 kr | 300 kr |
+| Bysjöns FVO | 100 kr | 200 kr | 400 kr |
+| Leksand-Insjöns FVOF | Se iFiske | Se iFiske | Se iFiske |
+
+Priser är hämtade från respektive FVO och gäller 2025. Kontrollera aktuella priser hos FVO eller iFiske inför köp.
+
+### Minimimått och fredningstider
+
+| Art | Minimimått | Fredningstid (allmänt) | Lokala avvikelser |
+|---|---|---|---|
+| Lax | 50 cm (Älvkarleby) | 1 okt–31 mar (kustvatten) | Se FVO-regler |
+| Havsöring | 45 cm (Älvkarleby) | 1 okt–31 mar (kustvatten) | Se FVO-regler |
+| Harr | 35 cm (Älvkarleby) | 15 apr–31 maj (lokal regel, kontrollera FVO) | Gagnef-Mockfjärd: C&R Djurforsen |
+| Gös | 45 cm (Älvkarleby) | Ingen nationell | Se FVO |
+| Gädda | Ingen nationell | Ingen nationell | Se FVO |
+
+Tyttbo forsfiske: **catch and release för alla arter**, oavsett säsong och art. Det är en regel, inte en rekommendation.
+
+Kungsådran i Älvkarleby: flugfiske med övervägande catch and release, bokas separat med begränsat antal platser per dag.
+
+> Aktuella regler finns alltid på [HaV:s webbplats](https://www.havochvatten.se) och via [Länsstyrelsens sidor](https://www.lansstyrelsen.se). Fiskevårdsområdets egna regler kan avvika och gäller alltid vid sidan av det nationella regelverket.
+
+## Fiskarter
+
+### Lax
+
+Laxfisket i Dalälven är helt beroende av kompensationsutsättning. Naturlig reproduktion saknas i praktiken eftersom Älvkarleby kraftverk (driftsatt 1915) är ett definitivt vandringshinder omkring 8 km från älvens mynning. Vattenfall och Fortum sätter ut lax och havsöring årligen enligt avtal med staten. Laxen når snittvikter på 8–12 kg under högsäsongen i juni och juli, och enstaka exemplar på 20 kg förekommer. Rekordlaxen från Älvkarleby vägde 27,97 kg och togs 1996.
+
+Det finns ett aktuellt riskläge: SLU:s fiskeriförsöksstation i Älvkarleby stängde i november 2025. Utsättningsmängderna minskar med ungefär hälften från och med 2026. Fortum bedömer att ett märkbart fall i fångster kan synas från hösten 2028. Planera ditt laxfiske inom de närmaste säsongerna om du vill fiska när beståndet fortfarande är rimligt stabilt.
+
+[Läs mer om lax](/arter/lax/)
+
+### Havsöring
+
+Havsöringen vandrar in i Dalälven på våren (mars–maj, snittvikt 2 kg) och igen på hösten (september–november). Fisket sker framför allt på A-sektionen vid Älvkarleby. Havsöring berörs av samma utsättningsproblematik som laxen. Minimimått 45 cm vid Älvkarleby.
+
+[Läs mer om havsöring](/arter/oring/)
+
+### Gädda
+
+Gädda är det starkaste beståndet för den sportfiskare som vill ha chans på verkligt stor fisk. Färnebofjärden, Hedesundafjärden och Untra-Älvkarleby-deltat hyser välkänt storväxta gäddor. Fisket är aktivt hela säsongen, men senvinter och tidig vår ger de tyngsta exemplaren. Spinnfiske, jiggfiske och trolling är de vanligaste metoderna.
+
+[Läs mer om gädda](/arter/gadda/)
+
+### Gös
+
+Gösen finns i de flesta lugnflytande delarna av Dalälven från Borlänge och nedströms. Färnebofjärden och Hedesundafjärden är kända gösfiskevatten. Borlänge centrala FVO bedriver aktivt gösvårdsarbete. Jiggfiske och trolling fungerar bäst. Minimimått 45 cm vid Älvkarleby.
+
+[Läs mer om gös](/arter/gos/)
+
+### Abborre
+
+Abborren finns i hela älvsystemet och är den art som de flesta fiskare kan räkna med oavsett sträcka. Grov abborre på 500–800 gram är vanlig i fjärdarna. I forsarna vid Gysinge och Tyttbo förekommer abborre även i strömmande vatten.
+
+[Läs mer om abborre](/arter/abborre/)
+
+### Harr
+
+Harr finns i Dalälvens forssträckor: Gysingeforsarna, Tyttboforsen, och uppströms i Västerdalälven (Gagnef-Mockfjärd, Djurforsen). Harrbeståndet i Gysingeforsarna har minskat kraftigt de senaste 20 åren. Vid Tyttbo är C&R obligatorisk, vilket bidrar till att skydda det lokala beståndet. Harren i Dalälven representerar en av artens sydligaste förekomster i Sverige. Säsong: 1 juni–1 november i Gysingeforsarna, kontrollera lokala regler för övriga sträckor.
+
+[Läs mer om harr](/arter/harr/)
+
+### Övriga arter
+
+Dalälven har ett exceptionellt rikt artspektrum. Utöver huvudarterna förekommer id (tidvis grovt i forsarna), vimma (svenska rekordet är satt vid Älvkarleby), björkna, mört, faren, braxen, färna, sik, siklöja, nors, sutare, ruda och lake. Ål förekommer men är sällsynt. Asp har noterats i Tamån vid Untra, men Dalälven är inte ett etablerat aspfiskevatten.
+
+## Ånens karaktär
+
+### Grundfakta
+
+- Längd: ca 520–557 km (beroende på mätmetod)
+- Avrinningsområde: ca 29 000 km² (hela systemet)
+- Medelflöde: ca 353 m³/s
+- Bildas i Djurås, Dalarna, där Västerdalälven och Österdalälven möts
+- Mynnar i Bottenhavet vid Skutskär/Älvkarleby, Uppsala län
+
+### Topografi och sträckor
+
+Dalälven delas naturligt in i tre delar med helt olika karaktär:
+
+**Övre Dalälven** (Djurås och uppströms) består av Västerdalälven och Österdalälven med sina respektive källflöden. Västerdalälven har sin källa i fjälltrakterna mot Norge via Sälen och Malung. Österdalälven rinner från Idre via Trängsletmagasinet och Siljan. Dessa sträckor präglas av skogslandskap, strömmande vatten och inslag av sjöar som Siljan och Orsasjön.
+
+**Mellersta Dalälven** (Djurås–Avesta) är en mestadels lugnt rinnande älv med kraftverksmagasin som Runn vid Borlänge. Industrilandskap och jordbruksbygd dominerar.
+
+**Nedre Dalälven** (Avesta–mynningen) är biologiskt och fiskemässigt unikt. Älven vidgas till en serie stora fjärdar åtskilda av forsar: Bäsingen, Färnebofjärden, Hedesundafjärden, Untrafjärden och Storfjärden. Här går Limes Norrlandicus, den biologiska gränsen mellan sydsvenska och nordsvenska naturtyper. Färnebofjärden är ett av Sveriges nio biosfärområden och sedan 1998 nationalpark.
+
+### Tillflöden
+
+Västerdalälven och Österdalälven är de helt dominerande tillflödena. Övriga biflöden av fiskmässig relevans är Tamån (asp, vid Untra), Hedesundaån och Dalkaröån i fjärdlandskapet.
+
+### Vattenkraft
+
+Dalälven är ett av Sveriges mest reglerade vattendrag med totalt 49 större kraftverk i huvudfåran. Det definitivt viktigaste vandringshindret är Älvkarleby kraftverk (1915), som stänger laxens och havsöringens väg uppströms. Övriga kraftverk i nedre Dalälven nedströms uppströms är bland andra Lanforsen, Untra (1918), Söderfors och Gysinge. Totalt 32 km av fåran är s.k. torrfåror.
+
+### Naturreservat och skyddade områden
+
+Färnebofjärdens nationalpark skyddar det centrala fjärdlandskapet och de angränsande forsarna inklusive Tyttbo och Gysinge/Sevedskvarn. Fisket är tillåtet i nationalparken men följer FVO-reglerna. Naturreservatet Båtfors skyddar delar av Untra-Älvkarleby-sträckan.
+
+## Fiskemetoder
+
+Metodvalen varierar kraftigt med sträcka. Detaljerade teknikanvisningar finns på respektive tekniksida.
+
+### Flugfiske
+
+Flugfiske är den dominerande metoden för lax och havsöring på A-sektionen vid Älvkarleby och för harr i Tyttboforsen och Gysingeforsarna. Kungsådran i Älvkarleby körs uteslutande med flugfiske och kortantalet är strängt begränsat. Harrfiske på fluga kräver kunskap om lokala klädningar. Gagnef-Mockfjärd (Djurforsen) är en flugfiskesträcka med C&R-krav.
+
+[Läs mer om flugfiske](/teknik/flugfiske/)
+
+### Spinnfiske
+
+Spinnfiske är standardmetoden för gädda och gös i fjärdarna, och fungerar också för havsöring och lax på A-sektionen under rätt vattenförhållanden. Kastfiske från land eller båt med wobblers och jiggar. Observera att stum- och flätlina är förbjuden på A-sektionen i Älvkarleby.
+
+[Läs mer om spinnfiske](/teknik/spinnfiske/)
+
+### Jiggfiske
+
+Jiggfiske är effektivt för gös och abborre i fjärdarna och de lugnare avsnitten. Används också för gädda i djupare partier under vinter och tidig vår.
+
+[Läs mer om jiggfiske](/teknik/jiggfiske/)
+
+### Trolling
+
+Trolling med båt är vanligt i Hedesundafjärden, Färnebofjärden och Untrafjärden efter gös och gädda. En effektiv metod för att täcka stora vattenmassor.
+
+[Läs mer om trolling](/teknik/trolling/)
+
+### Isfiske
+
+Isfiske förekommer i de flesta fjärdar och i sjöarna längs älven (Siljan, Runn, Bysjön m.fl.) när isläget tillåter. Abborre och gös är de viktigaste isartarna.
+
+[Läs mer om isfiske](/teknik/isfiske/)
+
+## Hotspots och lokaler
+
+### Älvkarleby A-sektion
+
+Den mest kända lax- och havsöringssträckan i Sverige utanför Mörrum. Forsfiske på ca 1 km närmast Älvkarlebyfallen. Landfiske från markerade platser. Bra tillgänglighet med parkering och markerade stigar. Kortet köps i förväg. Säsong: tredje lördagen i mars–30 november.
+
+### Kungsådran, Älvkarleby
+
+En separat bokning krävs. Flugfiske med begränsat antal platser per dag. Catch and release rekommenderas starkt. Det är den exklusivaste sträckan längs Dalälven och mötesplatsen för erfarna flugfiskare.
+
+### Tyttboforsen
+
+Forssträcka i Färnebofjärdens nationalpark på Dalarnasidan, väster om Gysinge. Harr och gös är de primära arterna. Catch and release gäller för alla arter utan undantag. Flugfiske och spinnfiske är de tillåtna metoderna. Parkering och enkel stuga vid Tyttbo gård. Räddningsring finns vid bryggan.
+
+### Gysingeforsarna
+
+Forsar i nationalparken på Gästriklandssidan, Gysinge/Sevedskvarn. Historiskt harrfiskevatten med starkt minskande bestånd. Abborre och id finns i forsarna, gädda och gös i de lugnare partierna. Kort via iFiske eller automat i Gysinge.
+
+### Färnebofjärden
+
+Nationalparkens centrala fjärd är känd för storväxta gäddor. Trolling och spinnfiske från båt är de vanligaste metoderna. Fiskare med eget eller hyrt båt har bäst tillgång. Hedesunda Camping hyr ut båtar.
+
+### Hedesundafjärden
+
+Gös- och gäddafiske i ett mer lättillgängligt fjärdlandskap än Färnebofjärden. Trolling och jiggfiske dominerar. Hedesunda Camping (Ön) ligger mitt i fjärden och erbjuder båtuthyrning.
+
+### Untra-Älvkarleby-deltat
+
+Deltalandskapet nedströms Untra kraftverk och Söderfors hyser rika bestånd av gädda, gös, abborre och vitfisk. Grov vimma och id förekommer, och svenska rekordet i vimma är satt här. Båtramper finns i Marma, Mehedeby och Lindbergsviken.
+
+### Borlänge centrala (Domnarvsforsen)
+
+Dammen mellan Bullerforsen och Domnarvets kraftstation är det bästa vattnet i Borlänge centrala FVO. Gös, gädda och abborre. Fiskeförbud gäller 100 m från kraftstationerna.
+
+### Siljan
+
+Siljan är inte en del av Dalälvens fåra men är Österdalälvens källa och ett eget fiskevatten av rang. Öring, regnbåge, siklöja, sik, harr, gädda och abborre. Fyra separata FVO täcker sjön. Kontrollera minimimåtten: i Leksand-Insjöns FVOF gäller exempelvis att gädda över 100 cm och abborre över 40 cm ska återutsättas.
+
+## Säsongsöversikt
+
+| Månad | Bästa art | Bästa metod |
+|---|---|---|
+| Jan–Feb | Abborre, gös (isfiske) | Isfiske, pilkfiske |
+| Mar | Havsöring | Flugfiske, spinnfiske (A-sektionen, premiär lördag v. 11) |
+| Apr–maj | Gädda, havsöring | Spinnfiske, flugfiske |
+| Jun | Lax, havsöring, harr | Flugfiske, spinnfiske |
+| Jul | Lax (högsäsong) | Flugfiske, spinnfiske |
+| Aug | Lax, gös, gädda | Flugfiske, trolling, jiggfiske |
+| Sep | Havsöring, gädda | Flugfiske, spinnfiske |
+| Okt–nov | Havsöring, gädda, gös | Flugfiske, jiggfiske, trolling |
+| Dec | Gädda, gös | Jiggfiske, trolling |
+
+Laxsäsongens exakta startdatum och kortpriser publiceras varje år av Älvkarleby Sportfiske. Harrfiskesäsongen i Gysingeforsarna är 1 juni–1 november. Catch and release vid Tyttbo gäller hela året.
+
+## Kostråd och miljögifter
+
+Livsmedelsverkets nationella kostråd gäller för fisk från Dalälven. Råden är framtagna för fisk från Östersjöns tillflöden och gäller direkt för älven.
+
+**Lax och havsöring** från Dalälven kan innehålla höga halter dioxin och PCB. Barn, unga, gravida och ammande bör äta vildfångad lax och havsöring från älven högst 2–3 gånger per år. Övriga vuxna kan äta det upp till en gång per vecka.
+
+**Gädda, gös, abborre och lake** kan innehålla höga halter kvicksilver. Barn, unga, gravida och ammande bör äta dessa arter högst 2–3 gånger per år. Övriga vuxna max en gång per vecka.
+
+Se alltid [livsmedelsverket.se](https://www.livsmedelsverket.se) för de senaste råden. Råden uppdateras och det lokala miljökontoret i respektive kommun kan ha kompletterande information.
+
+## Infrastruktur och praktisk information
+
+### Fiskeguider och charter
+
+- **Laxguiden** (Älvkarleby): lax och havsöring på A-sektionen, mer än 20 års lokal erfarenhet
+- **Widmarks Vildmarksfiske**: gädda, gös och abborre i Marmafjärden, även lax och havsöring
+- **Sivans Fiske**: flugfiskekurser och guidade fiskedagar
+
+### Båtramper
+
+| Plats | Sträcka | Notering |
+|---|---|---|
+| Marma | Untra-Älvkarleby | Gjuten ramp |
+| Mehedeby | Untra-Älvkarleby | Gjuten ramp |
+| Lindbergsviken | Untra-Älvkarleby | Gjuten ramp |
+| Balforsen | Tyttbo | Gjuten ramp |
+| Ornäs, Torsång | Borlänge centrala | Ramper längs älven |
+
+### Boende
+
+- **Älvkarleby Camping och Fiskecamping**: direkt vid fiskeplatsen, tillgång till fiskekontoret
+- **Officersvillorna, Laxön**: vandrarhem med 60 bäddar, Älvkarleby
+- **Älvkarleby Herrgård**: mer bekvämt alternativ nära älven
+- **Hedesunda Camping**: mitt i fjärdlandskapet, båtuthyrning
+- **Gysinge Herrgård**: historisk miljö, nära forsarna
+- **Tyttbo gård**: enkel stuga och parkering vid forsfisket
+- **Söderfors Herrgård**: boende vid nedre Dalälven
+- **Östa Stugby**: i Untrafjärdens område
+
+### Kommunikationer
+
+Älvkarleby nås med tåg (Uppsala–Gävle-linjen, station Älvkarleby) och med bil via E4. Gysinge och Tyttbo nås enklast med bil via väg 56 (Avesta–Gävle). Borlänge och Falun har tågförbindelser, och Siljan nås via Mora med tåg från Stockholm.
+
+## Historik och bakgrund
+
+Dalälven har ett av Sveriges äldsta dokumenterade sportfisken. Laxfisket vid Älvkarleby är belagt sedan järnåldern och dalkarlar tvistade historiskt om rätten till Kungsådran, den mittfåra där kungen hade fiskerätt och som i dag är en exklusiv flugfiskesträcka.
+
+Älvkarleby kraftverk, ritat av ingenjören Erik Josephson och driftsatt 1915, förändrade älvens biologi permanent. Den 23 meter höga dammen stänger laxens vandring och är fortfarande det definitiva vandringshindret. Flottledsrensning i forsarna under 1800- och 1900-talen förstörde dessutom lek- och uppväxthabitat längs stora delar av älvsystemet.
+
+Som kompensation för kraftverkets påverkan byggdes SLU:s fiskeriförsöksstation i Älvkarleby 1871, ett av världens äldsta och mest välkända laxforskningsinstitut. Stationen producerade lax och havsöring för utsättning i Dalälven och bidrog till forskning om salmoniders biologi i mer än 150 år. I november 2025 stängde stationen formellt. Orsaken var att de ekonomiska medlen från HaV-fonden inte räckte för fortsatt drift. Vattenfall och Fortum fortsätter med egna utsättningar, men den totala volymen minskar med ungefär hälften. SLU har varnat att naturliga bestånd riskerar att försvagas märkbart inom några år.
+
+Nedre Dalälvens nationalparksbildning 1998 (Färnebofjärden) och biosfärområdesstatusen har stärkt naturvårdsarbetet i fjärdlandskapet. Restaureringar av lek- och uppväxtbiotoper pågår i Gysinge/Sevedskvarn och Tyttbo som en del av den nationella planen för omprövning av vattenkraftens villkor (NAP). Fortum planerar bland annat fiskvägar vid Lanforsen och ökade minimitappningar vid Untra.
+
+## Snabbfakta
+
+| | |
+|---|---|
+| Fritt handredskapsfiske | Nej för vuxna. Ja för barn upp till 15 år i de flesta FVO. |
+| Fiskekort krävs för | Alla sportfiskesträckor längs hela älven |
+| Var köps kortet | iFiske, nedredalalven.se, FVO-kontor, lokala butiker |
+| Minimimått lax | 50 cm (Älvkarleby) |
+| Minimimått havsöring | 45 cm (Älvkarleby) |
+| Minimimått harr | 35 cm (Älvkarleby) |
+| Minimimått gös | 45 cm (Älvkarleby) |
+| Fredningstid lax/havsöring | 1 okt–31 mar (kustvatten). Kontrollera FVO för inland. |
+| Watertype | Älv (river) |
+| Närmaste tätort | Älvkarleby (Uppsala län), Gysinge (Gästrikland), Borlänge, Leksand, Mora |
+| Länsstyrelse | Dalarna, Gävleborg, Uppsala |
+
+*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
+```
+
 ## src/content/destinations/eman.mdx
 ```
 ---
@@ -9633,6 +10235,288 @@ Emån är Nordeuropas viktigaste lokal för mal. Malen etablerade sig i ån och 
 | Emåförbundet | eman.se |
 
 ---
+
+*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
+```
+
+## src/content/destinations/hjalmaren.mdx
+```
+---
+title: "Hjälmaren"
+slug: "hjalmaren"
+description: "Fiska gös, gädda och abborre i Hjälmaren – Sveriges fjärde största sjö. Fritt handredskapsfiske utan fiskekort i hela sjön. Regler, hotspots och praktisk info."
+heroImage: "/images/destinations/hjalmaren.jpg"
+lat: 59.25
+lng: 15.75
+län: "Örebro, Södermanlands, Västmanlands"
+primarySpecies: ["gos", "gadda", "abborre", "asp", "lake", "nors"]
+waterType: "lake"
+iFiskeUrl: "https://www.ifiske.se/fiske-hjalmaren.htm"
+excerpt: "Fritt spöfiske i Sveriges fjärde största sjö. Gösen är paradarten."
+recommendedGear: []
+publishedAt: "2025-06-01"
+updatedAt: "2025-06-01"
+---
+
+Hjälmaren är Sveriges fjärde största sjö och ett av landets mest lättillgängliga fiskevatten. Hela sjön är öppen för fritt handredskapsfiske utan fiskekort, vilket gör den unik bland storsjöarna. Gösen är paradarten och lockar fiskare från hela Mellansverige, men sjön rymmer 24 fiskarter och erbjuder bra fiske efter gädda och abborre under hela säsongen. Sjön ligger centralt i Mellansverige med Örebro i väster och Eskilstuna i öster, och är nåbar på ett par timmar från Stockholm eller Göteborg.
+
+## Fiskekort och regler
+
+Hjälmaren tillhör de fem stora sjöar i Sverige där handredskapsfiske är fritt enligt fiskelagen. Spö, pilk och liknande med lina och högst tio krokar får användas av vem som helst, svenska och utländska medborgare inkluderade. Inget fiskekort krävs för själva sjön. Trolling, dragrodd och dörjning kräver däremot fiskerätt i enskilt vatten och är inte tillgängligt för den allmänne fiskaren utan tillstånd.
+
+### Hjälmare kanal kräver fiskekort
+
+Hjälmare kanal, som förbinder Hjälmaren med Mälaren via Arbogaån, förvaltas av Sveaskog och kräver ett separat fiskekort. Fisket sker med handhållet spö. Nät- och kräftfiske är förbjudet i kanalen.
+
+### Priser Hjälmare kanal 2025
+
+| Korttyp | Pris |
+|---|---|
+| Dygnskort | 75 kr |
+| 3-dygnskort | 150 kr |
+| Årskort | 450 kr |
+| Familjeårskort | 600 kr |
+| Ungdom under 20 år | Gratis (Sveaskogs ungdomsfiskekort) |
+
+Kort köps via Sveaskogs webbplats eller via sms (skyltar med nummer finns längs kanalen).
+
+### Minimimått och fredningstider
+
+| Art | Minimimått | Fredningstid |
+|---|---|---|
+| Gös | 45 cm | Ingen specifik fredningstid i sjön |
+| Kräfta (signal) | 10 cm | Utanför fasta kräftfiskeperioder |
+| Gädda | Inget | Ingen |
+| Abborre | Inget | Ingen |
+| Asp | Inget mått | 1 april–31 maj i tillrinnande vattendrag |
+| Ål | Fångas inte | Ålfiske helt förbjudet i hela Hjälmaren |
+
+Fisk under minimimåttet ska omedelbart släppas tillbaka.
+
+### Fredningsområden och särskilda regler
+
+Nätfiske är förbjudet i Mellanfjärden 1 maj–31 augusti. Nät med maskstorlek 40–120 mm (sträckt maska) är förbjudet i hela sjön. Kräftfiske i allmänt vatten kräver tillstånd från länsstyrelsen och ges bara till licensierade yrkesfiskare. Det finns inga generella catch and release-krav, men gösar märkta med gul plastbricka (del av SLU:s pågående telemetristudie) ska varsamt släppas tillbaka.
+
+> Aktuella regler finns alltid på [HaV:s webbplats](https://www.havochvatten.se) och via [Länsstyrelsens sidor](https://www.lansstyrelsen.se). Fiskevårdsområdets egna regler kan avvika och gäller alltid vid sidan av det nationella regelverket.
+
+---
+
+**Obs för den som planerar att äta sin fångst:** Abborre, gädda, gös och lake kan innehålla förhöjda halter kvicksilver. Läs mer längre ned i artikeln.
+
+---
+
+## Fiskarter
+
+Hjälmaren hyser 24 fiskarter plus signalkräfta. De tre viktigaste för sportfiskaren är gös, abborre och gädda.
+
+### Gös
+
+Gösen är Hjälmarens signaturart och Västmanlands landskapsfisk. Sjön är en av landets viktigaste gössjöar och beståndet bedöms av SLU Aqua som relativt gott, men med stora variationer i årsklasstyrka. Yrkesfångsterna har sjunkit påtagligt sedan mitten av 2010-talet, och Länsstyrelserna kring Hjälmaren samarbetar med SLU Aqua om en telemetristudie för att kartlägga gösens rörelsemönster och underlag för en ny förvaltningsplan. Gösen livnär sig i Hjälmaren framför allt på nors, en liten gurklukande laxfisk som förekommer i stora mängder i sjön. Bästa säsong är högsommaren med nattfiske längs bottenkanter och växtlighetskanter. Minimimåttet är 45 cm.
+
+[Läs mer om gös](/arter/gos/)
+
+### Gädda
+
+Gäddan finns i hela sjön men söker djupare och svalare vatten under högsommaren när yttemperaturen stiger. Bästa tillfällen är vår och tidig höst, när gäddan rör sig grunt. Stora exemplar fångas i Stor-Hjälmaren och i Mellanfjärdens öppna vatten. Inga minimimått eller fredningstider gäller i sjön, men rimlig hänsyn under lekperioden i mars-april är rekommenderat ur fiskevårdssynpunkt.
+
+[Läs mer om gädda](/arter/gadda/)
+
+### Abborre
+
+Abborren är sjöns vanligaste art och bedöms ha ett starkt bestånd. Den förekommer i alla delar av sjön men är tätast i grunda vikar och runt öarna. Stimfiske på hösten, när abborren jagar löja och nors vid ytan, är ett klassiskt Hjälmarefiske. Inget minimimått gäller.
+
+[Läs mer om abborre](/arter/abborre/)
+
+### Asp
+
+Aspen förekommer i Hjälmaren och dess tillrinnande vattendrag men är rödlistad och EU-skyddad. Den är den enda av våra karpfiskar som är utpräglad fiskätare och är ett eftertraktat mål för spinntfiskare. Fredas under lekvandringen 1 april–31 maj i alla vattendrag som rinner till Hjälmaren.
+
+[Läs mer om asp](/arter/asp/)
+
+Övriga förekommande arter: braxen, mört, id, sarv, björkna, sutare, ruda, gers, benlöja, nors, lake, sik och nissöga.
+
+## Sjöns karaktär
+
+### Grundfakta
+
+| | |
+|---|---|
+| Yta | ca 480 km² |
+| Maxdjup | 22 m |
+| Medeldjup | 6,1 m |
+| Längd | ca 58 km (öst-väst) |
+| Bredd | ca 18 km |
+| Antal öar | 1 283 |
+| Höjd över havet | ca 21,8 m |
+| Avrinningsområde | Eskilstunaåns vattensystem |
+
+### Topografi och delbassänger
+
+Hjälmaren delas av geografi och fiskekaraktär in i fem bassänger. Hemfjärden väster om Essön är den grundaste delen och ligger närmast Örebro. Mellanfjärden mellan Essön och Björkön är ett frifiskeområde med öppet vatten. Stor-Hjälmaren söder om Björkön är den djupaste och öppnaste delen med bäst förutsättningar för trolling och djupfiske. Södra Hjälmaren kring Vinön och Bergaön erbjuder varierat fiske med skärgårdskaraktär. Östra Hjälmaren öster om Hjälmaresund är relativt smal och kanalik med enskilt vatten som inte tillåter trolling utan fiskerätt.
+
+### Vattentemperatur och skiktning
+
+Sjön är grund och värms upp snabbt på sommaren. Yttemperaturen når ofta 20–24 grader i juli, vilket gynnar gösen men driver upp gäddans aktiva fiske till gryning och skymning. Sjön skiktar sig termiskt men inte djupt, och bottenvattnet kan bli syrefattigt under varma somrar i de djupaste partierna.
+
+### Isläggning
+
+Hjälmaren lägger sig normalt under december-januari och används flitigt för isfiske, framför allt efter gös och lake. Isen kan vara opålitlig, särskilt norr och söder om Björkön där strömförhållanden skapar svaga zoner. Örebro kommun varnar uttryckligen för dessa områden.
+
+### Tillflöden och utflöde
+
+Svartån och Kvismare kanal rinner in från väster vid Örebro. Utflödet sker via Eskilstunaån vid Hyndevad mot Mälaren. Hjälmare kanal ger en separat vattenväg till Mälaren via Arbogaån.
+
+### Naturreservat och skyddade områden
+
+Kvismarenreservatet sydost om Örebro är ett av landets förnämsta fågelvatten och ett Ramsar- och Natura 2000-skyddat område. Fiske är möjligt men beträdnadsförbud längs kanaler och strandängar gäller 1 mars–15 november. Oset-Rynningeviken vid Örebro, Björkön (naturreservat sedan 2019) och ett antal mindre öar har rörelserestriktioner under häckningstid.
+
+## Fiskemetoder
+
+Detaljerade teknikanvisningar finns på respektive tekniksida. Nedan beskrivs vad som fungerar specifikt i Hjälmaren.
+
+### Jiggfiske
+
+Jiggfiske är den dominerande metoden för gös i Hjälmaren. Bottenkanter, djuprännan mot Östra Hjälmaren och kanten mot vassarna i Mellanfjärden är klassiska jiggplatser. På sommaren fångas gösen bäst nattetid på 4–8 meters djup längs strukturer. Tungare jiggar på 15–30 gram används i djupare vatten, lättare i grunda vikar.
+
+[Läs mer om jiggfiske](/teknik/jiggfiske/)
+
+### Spinnfiske
+
+Spinnfiske fungerar bra för gädda och abborre i Hjälmarens grunda vikar och längs vasskanterna. Vår och tidig höst ger bäst resultat. Sjöns grunda karaktär innebär att ytlöpare, wobblers och gummibeten fiskade grundt är effektiva under stora delar av säsongen. Även gös fångas på spinnbeten kvällstid.
+
+[Läs mer om spinnfiske](/teknik/spinnfiske/)
+
+### Trolling
+
+Trolling ger möjlighet att täcka Hjälmarens stora öppna ytor systematiskt och är effektivt för gädda och gös i Stor-Hjälmaren och Mellanfjärden. Observera att trolling kräver fiskerätt i enskilt vatten och inte är tillåtet för den allmänne fiskaren i Östra Hjälmaren och andra enskilda vatten. I allmänt vatten är trolling tillåtet med upp till tio beten per båt.
+
+[Läs mer om trolling](/teknik/trolling/)
+
+### Isfiske
+
+Hjälmaren är en av Mellansveriges bästa pimpelsjöar. Gös, abborre och lake fiskas framgångsrikt under isen, framför allt i Mellanfjärden och Stor-Hjälmaren. Kontrollera alltid isförhållandena lokalt och undvik is nära Björkön.
+
+[Läs mer om isfiske](/teknik/isfiske/)
+
+### Drop-shot
+
+Drop-shot har blivit allt vanligare för gös och abborre i Hjälmaren, särskilt i kantigare strukturer och längs djupare bottenkanter i Östra Hjälmaren. Metoden fungerar bra när fisken är trög och inte vill jaga aktivt presenterade beten.
+
+[Läs mer om drop-shot](/teknik/drop-shot/)
+
+## Hotspots och lokaler
+
+### Mellanfjärden
+
+Mellanfjärden är sjöns viktigaste frifiskeområde och rymmer starka bestånd av gös och gädda. Öppet vatten med bottenkanter och vasspartier ger variation. Fiskbart hela säsongen med jigg och spinn. Nätfiske förbjudet 1 maj–31 augusti. Inget organiserat fiskekort behövs. Ramp och landfiskemöjligheter finns vid Hammarsnäs och Stensörenäs.
+
+### Östra Hjälmaren och Hjälmaresund
+
+Sundet och det östra bassängen är kanalik och har enskilt vatten, vilket innebär att trolling inte är tillåtet. Jiggfiske från förankrad båt och vertikalfiske ger bra gösfiske, särskilt kring Rimholmen och längs djuprännan mot Eskilstunaån. Båtrampen vid Hyndevad är startpunkt för det östra fisket.
+
+### Stor-Hjälmaren
+
+Sjöns djupaste och öppnaste bassäng med maxdjup 22 m. Bäst för trolling (i allmänt vatten) och djupjigg efter gös och gädda. Lake fångas nattetid längs bottenstrukturer på 10–20 m. Ramp vid Fiskeboda.
+
+### Vinön och södra Hjälmaren
+
+Vinön är sjöns största ö och omges av varierat fiske med skärgårdskaraktär. Grundare partier ger bra gäddfiske vår och höst. Bilfärja från Hampetorp. Landfiske möjligt längs delar av ön.
+
+### Hjälmare kanal och Kvarnsjön
+
+Kanalen är ett separat fiskevatten med kortplikt (Sveaskog, 75 kr/dygn). Gädda, abborre, lake, sutare och ruda fångas i kanalen. Bra vinterfiske. Fiske sker med handhållet spö. Nätfiske är förbjudet.
+
+### Oset-Rynningeviken (Örebro)
+
+Naturreservat vid Hjälmarens västra strand i Örebro stad. Abborre och gädda i grunda vikar, tillgängligt för landfiske. Kontrollera beträdnadsregler för strandområden under häckningstid.
+
+### Kvismare kanal
+
+Kanalen som rinner från Kvismaren till Hjälmaren är en klassisk lokala abborrplats under hösten och asp-fiskevatten under maj-juni (notera aspfredningen april-maj). Landfiske längs kanalens kanter.
+
+## Säsongsöversikt
+
+| Månad | Bästa art | Bästa metod |
+|---|---|---|
+| Januari | Gös, lake | Isfiske |
+| Februari | Gös, abborre | Isfiske |
+| Mars | Abborre, gädda | Spinnfiske, isfiske |
+| April | Gädda (preleksfiske), abborre | Spinnfiske |
+| Maj | Abborre, gös | Spinnfiske, jiggfiske |
+| Juni | Gös, abborre, asp | Jiggfiske, spinnfiske |
+| Juli | Gös (nattetid), abborre | Jiggfiske |
+| Augusti | Gös (nattetid), abborre | Jiggfiske |
+| September | Gädda, abborre, gös | Spinnfiske, jiggfiske |
+| Oktober | Gädda, abborre | Spinnfiske, jiggfiske |
+| November | Lake, gös | Jiggfiske, mete |
+| December | Lake, gös | Isfiske (vid isläggning) |
+
+Aspfredning gäller i alla tillrinnande vattendrag 1 april–31 maj. Nätfiske förbjudet i Mellanfjärden 1 maj–31 augusti. Isförhållanden varierar kraftigt från år till år.
+
+## Kostråd och miljögifter
+
+Livsmedelsverket har inga Hjälmaren-specifika kostråd, men de nationella råden för insjöfisk gäller. Abborre, gädda, gös och lake kan innehålla förhöjda halter kvicksilver. Vuxna bör äta dessa arter max ungefär en gång per vecka. Gravida, ammande och de som planerar graviditet bör begränsa intaget till 2–3 gånger per år.
+
+Ål får inte fiskas i Hjälmaren och ska aldrig konsumeras om den mot förmodan skulle fångas.
+
+Aktuella råd finns på [livsmedelsverket.se](https://www.livsmedelsverket.se).
+
+## Infrastruktur och praktisk information
+
+### Fiskeguider och charter
+
+Guideutbudet specifikt för Hjälmaren är begränsat. Mangesfiske (Magnus Anegrund, Västerås) guidar bland annat Hjälmaren. Bekräfta alltid tillgänglighet och aktuellt utbud direkt med aktören.
+
+### Båtramper
+
+| Plats | Notering |
+|---|---|
+| Fiskeboda | Öppen allmän ramp, Stor-Hjälmaren |
+| Hammarsnäs | Ramp, Mellanfjärden |
+| Hyndevad | Ramp vid utloppet, tillgång till Östra Hjälmaren |
+| Hampetorp | Gästhamn och ramp, söder om sjön, färja till Vinön |
+| Hjälmaresund | Klubbramp, inte allmänt tillgänglig |
+
+### Boende
+
+- **Hampetorps Restaurang & Camping** (Lännäs, södra stranden): ca 120 platser, stugor, restaurang, gästhamn. Säsong april-september.
+- **Herrfallet**: 4-stjärnig camping med stugor vid södra Hjälmaren.
+- **Stuguthyrning på Vinön**: bilfärja från Hampetorp, ca 100 bofasta på ön.
+- **Läppe Camping** (Vingåker): ca 120 platser och stugor på östra sidan.
+
+### Kommunikationer
+
+Örebro (väst) och Eskilstuna (öst) är de närmaste städerna med god vägförbindelse runt sjön via E18 och riksväg 52. Gratis bilfärja trafikerar sträckan Hampetorp–Vinön. Tåg till Örebro eller Eskilstuna med goda vidareförbindelser till sjönära orter med bil.
+
+### Sjösäkerhet
+
+Hjälmaren är stor och grund. Väder kan förändras snabbt och grunda bottnar ger kort våg som är krävande för mindre båtar. Isförhållandena vintertid är ojämna. Ta alltid lokal information om isen och undvik ytor norr och söder om Björkön där strömmar skapar svaga punkter.
+
+## Historik och bakgrund
+
+Hjälmaren var historiskt en betydligt större sjö. Mellan 1878 och 1888 genomfördes Hjälmarsänkningen, Sveriges genom tiderna största sjösänkningsprojekt. Vattenspegeln sänktes med drygt 1,3 m, vilket frilade runt 15 000 hektar ny odlingsmark. Projektet leddes av baron Nils Gabriel Djurklou och krävde 660 000 dagsverken. Regleringsdammen vid Hyndevad med 36 luckor styr än i dag vattenflödet mot Eskilstunaån och Mälaren.
+
+Hjälmare kanal är en av Sveriges äldsta konstgjorda vattenvägar. Gustav II Adolf beordrade bygget 1629, och den första farleden stod klar runt 1639. Kanalen byggdes om i omgångar, senast efter förslag av Baltzar von Platen på 1820-talet. Nyttotrafiken pågick ända till 1970-talet.
+
+Hjälmaren var länge en av Sveriges bästa kräftsjöar med starka bestånd av flodkräfta. Kräftpesten nådde sjön via Mälaren i början av 1900-talet och slog ut hela beståndet. Signalkräfta planterades in från 1969 och utgör i dag ett fiskbart bestånd för yrkesfisket. SLU Aqua rapporterade 2024 att signalkräftbeståndet i Hjälmaren ökar i antal men med en allt högre andel småkräftor, vilket på sikt kan påverka yrkesfiskets lönsamhet.
+
+Gösen har historiskt burits upp av ett aktivt yrkesfiske. Fångsterna sjönk påtagligt från mitten av 2010-talet, och Länsstyrelserna i Örebro, Södermanland och Västmanland samarbetar med SLU Aqua om en telemetristudie med akustiska sändare i ca 200 gösar för att förstå artens rörelsemönster bättre. Resultaten väntas ligga till grund för en ny förvaltningsplan.
+
+## Snabbfakta
+
+| | |
+|---|---|
+| Fritt handredskapsfiske | Ja, i hela sjön |
+| Fiskekort krävs för | Hjälmare kanal (Sveaskog) |
+| Dygnskort kanal | 75 kr |
+| Minimimått gös | 45 cm |
+| Ålfiske | Förbjudet |
+| Aspfredning | 1 april–31 maj (tillrinnande vattendrag) |
+| Antal fiskarter | 24 + signalkräfta |
+| Sjöns yta | ca 480 km² |
+| Maxdjup | 22 m |
+| Närmaste stad | Örebro (väst), Eskilstuna (öst) |
+| Officiella regler | [Länsstyrelsen Örebro](https://www.lansstyrelsen.se/orebro) |
 
 *Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
@@ -10351,6 +11235,329 @@ Vill du testa till lägre kostnad, börja med FVO Ebbemåla–Åmma i april (300
 
 *Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*```
 
+## src/content/destinations/siljan.mdx
+```
+---
+title: "Siljan"
+slug: "siljan"
+description: "Fiska gädda och Siljansöring i Europas största meteoritkrater. Guide till fiskekort, FVO-regler, hotspots och infrastruktur runt Siljan i Dalarna."
+heroImage: "/images/destinations/siljan.jpg"
+lat: 60.85
+lng: 14.75
+län: "Dalarnas län"
+primarySpecies: ["gadda", "oring", "abborre", "lake", "harr", "gos"]
+waterType: "lake"
+iFiskeUrl: "https://www.ifiske.se/fiske-siljan-enan.htm"
+excerpt: "Storgädda och Siljansöring i Europas mest unika kratersjö."
+recommendedGear: []
+publishedAt: "2026-05-30"
+updatedAt: "2026-05-30"
+---
+
+Siljan är en av Sveriges mest karaktärsfulla fiskesjöar. Sjön ligger i Siljansringen, Europas största meteoritkrater på den europeiska kontinenten, och rymmer både täta gäddbestånd och den hotade Siljansöringen. Hit åker fiskare för att trollinga på öppet vatten efter storvuxen öring och gädda, men abborrfisket håller hög klass under hela säsongen. Siljan är uppdelad på nio fiskevårdsområden, vilket innebär att du behöver rätt kort för rätt del av sjön.
+
+---
+
+**Obs för den som planerar att äta sin fångst:** Abborre, gädda, gös och lake kan innehålla höga kvicksilverhalter. Nationella kostråd från Livsmedelsverket gäller. Läs mer längre ned i artikeln.
+
+---
+
+## Fiskekort och regler
+
+Siljan är inte en sjö med ett enda fiskekort. Sjön förvaltas av nio fiskevårdsområdesföreningar som tillsammans bildar Siljansbygdens Fiskevårdsförbund. Det praktiska konsekvensen är att du måste köpa kort i det FVO där du faktiskt befinner dig när du fiskar. För trolling och uttring finns dock ett gemensamt kort som täcker hela sjösystemet inklusive Orsasjön och Insjön ner till Gråda och Byrviken.
+
+Handredskapsfiske är inte fritt i Siljan. Det är viktigt att känna till för den som är van vid de fem stora sjöarna Vänern, Vättern, Mälaren, Hjälmaren och Storsjön.
+
+### Vad är fritt och vad kräver tillstånd?
+
+Barn fiskar utan kostnad i de flesta FVO, men åldersgränsen varierar: 15 år i Siljan-Rättvikens FVOF, 16 år i Siljans Södra FVO och 18 år i Mora-Våmhus FVOF. Kontrollera alltid gränsen i det specifika FVO du fiskar i.
+
+### Var köper du fiskekort?
+
+Enklast via [iFiske.se](https://www.ifiske.se/fiske-siljan-enan.htm) där du hittar kort från de flesta FVO. Siljansnäs FVOF säljer sina kort i Siljansnäskiosken. Lokala sportfiskebutiker och campingar runt sjön fungerar också som ombud.
+
+De viktigaste FVO-föreningarna för sportfiske i Siljan:
+
+- **Siljan-Rättvikens FVOF** (Rättvik, Enån). Kontakt: 0761-18 31 86.
+- **Siljans Södra FVO** (södra Siljan)
+- **Siljansnäs FVOF** (Byrviken, Alviken, Yxen). Webb: siljansnasfvof.se.
+- **Mora-Våmhus FVOF** (norra Siljan, Orsasjön). Kontakt: 070-353 74 20.
+- **Sollerö FVOF** (Sollerön och angränsande vatten)
+- **Leksand-Insjöns FVOF** (Leksand, Insjön). Webb: lifvo.se.
+
+### Priser 2025/2026
+
+| FVO | Dygnskort | Veckokort | Årskort (turist) |
+|---|---|---|---|
+| Siljan-Rättvikens FVOF | 80 kr | saknas | 500 kr |
+| Mora-Våmhus FVOF | 130 kr | 300 kr | 500 kr |
+| Siljansnäs FVOF | 70 kr | saknas | 600 kr |
+
+Trolling/uttring (hela sjösystemet, Siljansbygdens Fiskevårdsförbund): kontrollera aktuellt pris på iFiske inför säsongen. Siljan-Rättvikens FVOF tar 100 kr för dygnskort trolling och 800 kr för trollingårskort (turist).
+
+### Minimimått och fångstbegränsningar
+
+Reglerna varierar tydligt mellan FVO och du måste kontrollera vad som gäller i det område du fiskar.
+
+| Art | Notering |
+|---|---|
+| Öring (ej brickmärkt) | Min. 50 cm i Alviken/Byrviken. Öring med fettfena kvar fredad och ska återutsättas oavsett storlek. |
+| Öring i Yxen (Siljansnäs) | Endast 35–50 cm. Max 1 st per dygn. |
+| Gös (Siljansnäs) | Min. 50 cm, max 1 st per kort och dygn. |
+| Gädda >100 cm | Rekommenderas återutsättas av flera FVO (Mora-Våmhus, Leksand-Insjöns FVOF). |
+| Abborre >40 cm | Ska återutsättas inom Leksand-Insjöns FVO. |
+
+### Fredningstider och fredningsområden
+
+Fiske i strömmande vatten är förbjudet 1 september–31 december enligt Siljansnäs FVOF. Mora-Våmhus har fiskeförbud i Ätjärn och vid Gopsängarna 1 oktober–24 december och i Grundsjön 1 oktober–31 december. I Österdalälven gäller fönsteruttag: öring 25–40 cm, harr 25–35 cm.
+
+### Catch and release
+
+Siljan-Rättvikens FVOF har vatten avsatta för catch and release. Återutsättning av stor gädda (>100 cm) är en rekommendation i flera FVO, inte ett formellt krav, men FVO-föreningarnas riktlinjer är tydliga på att sådana fiskar gynnar predation på vitfisk och bör sättas tillbaka.
+
+> Aktuella regler finns alltid på [HaV:s webbplats](https://www.havochvatten.se) och via [Länsstyrelsens sidor](https://www.lansstyrelsen.se). Fiskevårdsområdets egna regler kan avvika och gäller alltid vid sidan av det nationella regelverket.
+
+## Fiskarter
+
+### Gädda
+
+Siljan producerar storvuxen gädda och räknas av många som ett av Mellansveriges bästa gäddvatten. Beståndet är starkt och täcker hela sjön, men de grunda vikarna mot Mora, Sollerön och i Rättviksviken hyser tätast bestånd under vår och tidig höst. Gäddor i klassen 5–10 kg fångas regelbundet på trolling. Det finns obekräftade historiska uppgifter om gäddor på över 25 kg från Siljan (Sven Nilsson, 1855), men dessa räknas som skrönor utan verifiering. Gädda livnär sig på siklöja, mört och abborre. Storfisk hittas på djupare vatten sommartid och nära vegetation vår och höst.
+
+[Läs mer om gädda](/arter/gadda/)
+
+### Siljansöring
+
+Siljansöringen är sjöns prestigeart och en av de mest studerade insjööringsformerna i Sverige. Det är en lekvandrande insjööring (Salmo trutta lacustris) som klassas som starkt hotad. Beståndet är beroende av utsättningar efter att Österdalälvens kraftverksutbyggnad på 1960-talet stängde av leklederna. Öringen är storvuxen och fångas ofta på 35–50 meters djup vid siklöjestimmen. Fisk med fettfena kvar är fredad och ska alltid sättas tillbaka.
+
+[Läs mer om öring](/arter/oring/)
+
+### Abborre
+
+Abborre är den vanligaste arten i Siljan och finns i rikliga mängder. Frekvensskalan från Siljans Södra FVO placerar abborre på sin högsta nivå. Beståndet rymmer fisk i god storlek och abborrfisket är utmärkt under hela säsongen, med isfisket som ett eget kapitel. Sommartid håller abborre sig gärna på 3–8 meters djup mot stenbottnar och branter.
+
+[Läs mer om abborre](/arter/abborre/)
+
+### Lake
+
+Lake förekommer vanligt i hela Siljan. Det är ett kallt djupvattensfiske som kräver helt andra metoder och tider jämfört med sommarsäsongens rovfiske. Lake livnär sig aktivt under vinterhalvåret.
+
+### Harr
+
+Harr förekommer sparsamt i Siljan. Bättre harrfiske finns i tillflödena Österdalälven och Oreälven, där strömhalten är högre. I Österdalälven gäller fönsteruttag: harr 25–35 cm.
+
+[Läs mer om harr](/arter/harr/)
+
+### Gös
+
+Gös är sällsynt i Siljan men förekommer, framför allt vid Mora och i älvens mynning. Räkna inte med gös som en säker art att rikta sig mot. De exemplar som fångas är ofta bifångster vid gäddfiske på djupare vatten.
+
+[Läs mer om gös](/arter/gos/)
+
+**Övriga arter:** Siklöja (lokalt kallad "blikta"), mört, braxen, id, sik (flera former), nors, regnbåge (rymlingar), ål, sutare, ruda, stäm, gärs, löja, stensimpa, bergsimpa, hornsimpa (i djupaste delarna) samt signalkräfta.
+
+## Sjöns karaktär
+
+### Grundfakta
+
+| | |
+|---|---|
+| Yta | 293 km² (Siljan). Totalt 354 km² med Orsasjön och Insjön. |
+| Maxdjup | 134 m |
+| Medeldjup | ca 28 m |
+| Volym | ca 8,1 km³ |
+| Höjd över havet | 161 m |
+| Läge | ca 60,85° N, 14,75° Ö |
+| Län | Dalarnas län |
+| Tillflöden | Österdalälven, Oreälven (båda vid Mora) |
+| Utflöde | Vid Leksand via Österdalälven |
+
+### Topografi och delbassänger
+
+Sjöns botten har en djupränna som löper från söder om Mora ner mot Österviken vid Leksand och når mer än 100 meters djup. Runt den djupa rännan finns grundare platåer och branter som samlar fisk. Sjöns viktigaste delområden för sportfiskaren:
+
+- **Rättviksviken** (nordöst): grund och vegetationsrik, bra gäddvatten.
+- **Österviken** (sydöst): 12 km lång vik mot Leksand, utflödet.
+- **Byrviken/Alviken** (väst, Siljansnäs): lugna vatten med starka gäddbestånd och öringfångster.
+- **Saxviken** (nord, Mora): vid älvmynningarna.
+- **Gesundafjärden** (nordväst): öppet fjärdalternativ.
+- **Sollerön**: störst av sjöns öar, beboad och förbunden med fastlandet via bro.
+
+Två stora risvålar är utlagda av Siljan-Rättvikens FVOF: en utanför Persborg och en utanför Vikarby båthamn. Dessa samlar abborre och gädda och är utmärkta fiskeplatser.
+
+### Vattentemperatur och skiktning
+
+Siljan är djup nog att skikta tydligt under sommaren. Öringen följer det kalla, syrerikadjupvattnet och söker upp siklöjestimmen på 35–50 meters djup under sommarmånaderna. Gädda och abborre håller sig grundare och rör sig aktivast tidigt och sent på dygnet när ytvattentemperaturen är lägst.
+
+### Isläggning
+
+Isläggning varierar år till år med trender mot senare is och tidigare islossning. En sjösäkerhetsfaktor specifik för Siljan är de naturliga isvakarna orsakade av metanutsläpp från sjöbotten. Vakarna uppstår på samma platser år efter år och är svåra att se i snö. Forskning från Chalmers tekniska högskola och AB Igrene dokumenterade 2023–2024 kraftiga, koncentrerade metanutsläpp av ett slag som inte tidigare observerats i svenska sjöar.
+
+### Tillflöden och utflöde
+
+Österdalälven och Oreälven tillför vatten vid Mora i norr. Utflödet sker vid Leksand i sydost via Österdalälven, som längre ner sammanfaller med Västerdalälven vid Djurås och bildar Dalälven. Gråda kraftverk, ca 2 mil nedströms, reglerar vattennivån i Siljan. Sjön sänks inför vårfloden, vilket kan skada bryggor och strandkonstruktioner.
+
+### Naturreservat och skyddade områden
+
+Siljanområdet ingår i Siljan Geopark, ett samarbete mellan kommunerna Leksand, Mora, Orsa och Rättvik samt Länsstyrelsen Dalarna och Visit Dalarna. Kontrollera alltid om specifika vikar eller strandavsnitt har lokala skyddsförordnanden via Länsstyrelsens webbplats.
+
+## Fiskemetoder
+
+Detaljerade teknikanvisningar finns på respektive tekniksida. Nedan beskrivs vad som fungerar specifikt i Siljan.
+
+### Trolling
+
+Trolling är den metod som gett Siljan dess rykte som öringsjö. Under sommarmånaderna söker sig öringen till siklöjestimmen på 35–50 meters djup och trolling med rätt beten på rätt djup är i det närmaste nödvändigt. Gädda trollingas effektivt på grundare vatten, 2–6 meter, längs vegetationsbranter och i vikar. Det gemensamma trolling/uttringskortet (Siljansbygdens Fiskevårdsförbund) täcker hela sjösystemet och är rätt köp för den som planerar att runda hela sjön.
+
+[Läs mer om trolling](/teknik/trolling/)
+
+### Spinnfiske
+
+Spinnfiske efter gädda och öring fungerar bäst under vår och höst när fisken befinner sig grundare. Strandnära kast mot vegetation i de grunda vikarna Rättviksviken och Byrviken är produktivt för gädda. Öring tas på spinnfiske framför allt under hösten när den söker sig upp för att leka.
+
+[Läs mer om spinnfiske](/teknik/spinnfiske/)
+
+### Jiggfiske
+
+Jiggfiske ger bra resultat på abborre och gädda, framför allt längs de branta bottenkanter som finns runt de djupare delarna av sjön. Botten vid övergången mot djuprännan är en bra startpunkt.
+
+[Läs mer om jiggfiske](/teknik/jiggfiske/)
+
+### Isfiske
+
+Isfisket i Siljan kan vara utmärkt på abborre. Sjön bjuder på varierande bottentopografi och fiskaren kan testa allt från grundare plan till stup. Var alltid uppmärksam på isvakarna från metanutsläpp, som uppstår på samma platser varje år. Kontrollera isförhållandena lokalt innan du ger dig ut.
+
+[Läs mer om isfiske](/teknik/isfiske/)
+
+### Flugfiske
+
+Flugfiske efter öring och harr är möjligt i tillflödena Oreälven och delar av Österdalälven vid Mora, framför allt på vår och tidig höst. I sjön är flugfiske begränsat till specifika strandnära tillfällen.
+
+[Läs mer om flugfiske](/teknik/flugfiske/)
+
+## Hotspots och lokaler
+
+### Rättviksviken
+
+Grundt och vegetationsrikt vatten i sjöns nordöstra del. Utmärkt för gädda på våren och hösten. Landfiske möjligt från strandlinje och bryggor. Långbryggan i Rättvik är 628 meter lång och tillgänglig till fots från First Camp Siljansbadet, som ligger intill tågstationen.
+
+### Byrviken och Alviken (Siljansnäs)
+
+Dessa lugnare sidovikar på sjöns västsida hör till Siljansnäs FVOF. Öring ner mot 50 cm fångas här vid rätt tid på säsongen. Siljansnäs camping och kiosk fungerar som servicelokal. Sjön Yxen i närheten är ett catch-and-release-vatten med öring 35–50 cm.
+
+### Vikarby båthamn och Persborg
+
+Siljan-Rättvikens FVOF har placerat ut risvålar utanför Vikarby båthamn och utanför Persborg. Risvålarna samlar abborre och gädda och är effektiva fiskeplatser under hela öppen-vatten-säsongen.
+
+### Djuprännan söder om Mora
+
+Den djupa rännan längs sjöns botten är högsäsongens öringlokal för trollingfiskaren. Siklöjan samlas på 35–50 meter och öringen följer stimmen. Lokal kunskap om aktuella djup och strömförhållanden är värdefull.
+
+### Älven mellan Siljan och Orsasjön
+
+Sträckan vid Mora där Österdalälven och Oreälven flödar in är uppskattad för trolling och spinnfiske. Strömmande vatten med fisk i transit.
+
+### Sollerön
+
+Ön Sollerön i sjöns mitt ger möjlighet att nå fiskevatten från fler vinklar. Sollerö FVOF förvaltar vatten kring ön.
+
+### Gesundafjärden
+
+Öppet fjärdalternativ på sjöns nordvästra sida. Lämpligt för trolling och spinnfiske i blåst när mer skyddade delar av sjön kan vara stormiga.
+
+## Säsongsöversikt
+
+| Månad | Bästa art | Bästa metod |
+|---|---|---|
+| Januari | Abborre, lake | Isfiske |
+| Februari | Abborre, lake | Isfiske |
+| Mars | Abborre, gädda | Isfiske, spinn vid islossning |
+| April | Gädda | Spinnfiske, jigg |
+| Maj | Gädda, abborre | Spinnfiske, jigg |
+| Juni | Öring, abborre | Trolling, jigg |
+| Juli | Öring, abborre | Trolling |
+| Augusti | Öring, abborre | Trolling, jigg |
+| September | Gädda, öring | Spinnfiske, trolling |
+| Oktober | Gädda | Spinnfiske |
+| November | Lake, gädda | Bottenfiske, spinn |
+| December | Lake, abborre | Bottenfiske |
+
+Obs: Fiske i strömmande vatten förbjudet 1 september–31 december (Siljansnäs FVOF). Kontrollera fredningstider per FVO.
+
+## Kostråd och miljögifter
+
+Livsmedelsverkets nationella kostråd gäller för abborre, gädda, gös och lake från Siljan. Dessa arter kan innehålla höga halter kvicksilver.
+
+**Vuxna** bör inte äta abborre, gädda, gös eller lake från inlandsvatten oftare än en gång per vecka.
+
+**Barn upp till 18 år** samt de som planerar att bli gravida, är gravida eller ammar rekommenderas att inte äta dessa arter oftare än 2–3 gånger per år.
+
+Äldre och större rovfisk har generellt högst halter. Öring, sik och harr har lägre kvicksilverhalter. Råden uppdaterades senast i april 2025. Kontrollera alltid aktuella råd på [livsmedelsverket.se](https://www.livsmedelsverket.se) innan du planerar att ta hem fångst.
+
+Inga lokalt specifika kostråd för Siljan har publicerats av Länsstyrelsen Dalarna eller kommunerna runt sjön.
+
+## Infrastruktur och praktisk information
+
+### Fiskeguider och charter
+
+**Siljan Fishing** (siljanfishing.se) erbjuder guidade båtturer, helpaketsfiske och vinterfiske. **Eagle Fishing** (sportfiskebutik, Rättvik) driver guidade turer med Johnny Svadling som guide.
+
+### Båtramper
+
+| Ort | Notering |
+|---|---|
+| Vikarby (Rättvik) | Båthamn med ramp, parkering |
+| Leksand | Gästhamn med bra tillgänglighet |
+| Mora | Flera tillfartsvägar och ramper nära älvmynningarna |
+| Siljansnäs | Tillgång via campingen |
+
+iFiske listar ytterligare båtramper med aktuella detaljer.
+
+### Landfiske
+
+Långbryggan i Rättvik (628 m) är sjöns mest kända landfiskelokal och tillgänglig utan avgift. Bryggor och strandpartier finns runt hela sjön, framför allt vid campingplatser och båthamnar.
+
+### Boende
+
+- **First Camp Siljansbadet** (Rättvik): intill Långbryggan och tågstationen. Stuga, glamping och campingplats.
+- **Leksand Resort/Leksand Strand** (First Camp): fem stjärnor, 240 stugor, Leksand.
+- **Siljansnäs Camping**: Byrviken, norra sidan mot Mora.
+- **Mora Parkens Camping**: vid Mora.
+- **Åsengården** (Sollerön): boende på ön.
+- Hotell i Tällberg (Dalecarlia, Siljanstrand) och Siljansnäs Hotell.
+
+### Kommunikationer
+
+Tåg (Dalabanan/Morabanan) stannar i Leksand, Rättvik och Mora. Mora-Siljan flygplats. Bil runt hela sjön via välskött vägnät. M/S Gustaf Wasa trafikerar båtlinjen Rättvik–Mora under sommarhalvåret.
+
+### Sjösäkerhet
+
+Siljan är en stor öppen sjö och väderomslag kommer snabbt. Ta med flytväst, kontrollera väderprognoser och ha kommunikationsutrustning tillgänglig. Vintertid: de naturliga isvakarna orsakade av metanutsläpp uppstår på samma platser varje år och kan vara svåra att identifiera under snö. Gå inte ensam ut på is utan att ha kontrollerat förhållandena lokalt.
+
+## Historik och bakgrund
+
+Siljan är geologiskt sett ett ärr. För ca 377 miljoner år sedan slog en meteorit med uppskattningsvis 4–5 kilometers diameter ner på den plats som i dag är Dalarna. Siljansringen, kratterns ytterkant, mäter ca 52 kilometer i diameter och är Europas största verifierade nedslagskrater (utanför Ryssland) samt världens tolfte största. Den centrala kraterkupolen av granit omges av en ringformad sänka med sedimentära bergarter rika på fossil från devontiden. I denna sänka ligger sjöarna Siljan, Orsasjön, Skattungen och Oresjön. Sjöns namn anses vara besläktat med det fornnordiska ordet för "svälja", vilket anspelar på dess djup.
+
+Siljansöringens historia är oupplösligt kopplad till vattenkraftens historia. Österdalälvens kraftverksutbyggnad under 1960-talet (Trängslet, Åsen, Väsa, Blyberg, Spjutmo) stängde av öringens lekvandringsled och decimerade det naturliga beståndet. Som kompensation har fiskodling på Sollerön bedrivits i decennier. Lekfisk centralfångstats vid Säs nedanför Spjutmo och yngel satts ut enligt vattendom. Fortum bygger nu fiskvägar förbi Spjutmo, Blyberg och Väsa, och effekten börjar synas. I Limån, som rinner ut i Siljan vid Siljansnäs, revs två kraftverk som en del av ett samarbetsprojekt mellan tre FVO, kommunen, energibolag och naturskyddsföreningen. I oktober 2024 observerades Siljansöring i Limån för första gången på 220 år. Smoltfällan i området registrerade nära 90 individer under ca 20 dagar våren 2025, jämfört med ett medel på 10–20 per år 2019–2024.
+
+Bliktfisket är ett levande kulturarv. Traditionellt notfiske (landvad) efter siklöja bedrivs fortfarande i Siljan. I Nusnäs utanför Mora arrangeras varje år under augusti ett SM i notdragning där fångster på upp till två ton per kväll kan uppnås. Siklöja är en ekologiskt central art: den är öringens viktigaste föda i sjön.
+
+## Snabbfakta
+
+| | |
+|---|---|
+| Fritt handredskapsfiske | Nej. Kort krävs alltid. |
+| Fiskekort krävs för | All fiske. Barn fiskar gratis (åldersgräns 15–18 år, varierar per FVO). |
+| Var köps kortet | iFiske.se, lokala ombud, Siljansnäskiosken (Siljansnäs FVOF). |
+| Trolling hela sjön | Gemensamt kort via Siljansbygdens Fiskevårdsförbund. Pris: kontrollera iFiske. |
+| Minimimått öring | 50 cm i Alviken/Byrviken. Öring med fettfena ska återutsättas. |
+| Fiske strömmande vatten | Förbjudet 1 sep–31 dec (Siljansnäs FVOF). Kontrollera per FVO. |
+| Närmaste tätorter | Rättvik, Mora, Leksand (alla med tågstation) |
+| Sjöyta | 293 km² |
+| Maxdjup | 134 m |
+
+*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
+```
+
 ## src/content/destinations/stockholms-skargard.mdx
 ```
 ---
@@ -10484,6 +11691,8 @@ Lax passerar skärgården på sin väg mot älvarna men allt riktat fritidsfiske
 ### Sik
 
 Sik fiskas i innerskärgårdens sötvattenspåverkade fjärdar och vid åmynningar. Stockholms skärgård har ett inofficiellt sportfiskerekord för sik på 4,23 kg från Skälåkersviken på Gålö (1991). Kostråden från Livsmedelsverket gäller även för sik från Östersjön.
+
+[Läs mer om sik](/arter/sik/)
 
 ### Torsk
 
@@ -10856,6 +12065,8 @@ Vintertid söker sig harren till grundare bottnar under isen och fiskas med kikm
 ### Sik
 
 Storsjön hyser flera sikformer, traditionellt beskrivna som fem varianter, från storvuxen bottensik till planktonätande småsik. Den storvuxna siken fiskas sommartid med fluga och spinn längs grundare hyllor och söker sig in i Kvitsleströmmarna runt 14 dagar efter midsommar. Vintertid fiskas sik med pimpel och kikmete, halvvägs ner i vattenpelaren snarare än vid bottnen.
+
+[Läs mer om sik](/arter/sik/)
 
 ### Gädda
 
@@ -11519,6 +12730,8 @@ Finns i hela sjön hela året. Stor abborre över ett kilo fångas regelbundet. 
 
 Sik finns i sjön men beståndet är ojämnt. SLU rapporterar positiv beståndsutveckling de senaste åren. Konsumtionen begränsas av Livsmedelsverkets kostråd.
 
+[Läs mer om sik](/arter/sik/)
+
 ### Lake
 
 Lever på djupt vatten under sommaren och leker under is i januari och februari. Fiskas med djuprigg och bottenpilk.
@@ -11895,6 +13108,8 @@ Naturligt reproducerande bestånd på de djupa, kalla bottnarna. Leker under is 
 
 Naturliga sikbestånd leker på grunda bottnar, framför allt i Motalaviken, under oktober till december. Bedöms ha goda bestånd enligt SLU:s senaste analyser.
 
+[Läs mer om sik](/arter/sik/)
+
 ### Nors och siklöja
 
 Dessa två arter är ryggraden i Vätterns ekosystem. Norsen dominerar den fria vattenmassan och kan vid ekolodning utgöra mer än hälften av alla registrerade individer. Siklöjan lever pelagiskt och leker på stora djup, ända ner till 120 meter. Båda är centrala som bytesfisk för röding, lax och öring.
@@ -12237,11 +13452,13 @@ Bottenmaterial berättar vad fisk äter och var den befinner sig. Hård botten (
 ## Målarter
 
 **Abborre** är primärmålet för dropshotfiske i Sverige. Abborren trivs vid struktur, djupkanter och bottnar med varierande material. Den är stationär inom ett relativt litet område och svarar bra på slow-presentation. Stora abborrar på 400 gram och uppåt är ofta solitära eller går i små storleksgrupperade stim, skilda från de stora stimmen av yngre fisk. Dropshot är särskilt effektivt tidigt på säsongen när abborren fortfarande är trög av kallt vatten, och på senhösten när stimmen samlas på djupkanter inför vintern. Det finns inget nationellt minimimått för abborre i Sverige.
+
 [Läs mer om abborre](/arter/abborre/)
 
 **Gös** fiskas med dropshot på djupkanter och grynnor, oftast 6–15 meters djup. Gösen är skymnings- och nattaktiv, med ljusförstärkande ögon som ger den god syn i mörker. Kvällsfiske med dropshot vid djupkanter är produktivt från midsommar och framåt. Använd större beten i 8–12 cm-klassen, starkare fluorotafs (0,25–0,28 mm) och mörka eller UV-aktiva färger. Minimimåttet för gös är 45 cm i Vänern, Vättern, Mälaren och Hjälmaren med angränsande vattendrag. Gösen har en sluten simblåsa, vilket innebär risk för barotrauma vid dragning från djupt vatten. Återutsätt försiktigt och undvik djupfiske om fisken ska sättas tillbaka.
 
 [Läs mer om gös](/arter/gos/)
+
 ## Svenska vatten
 
 **Vänern** är ett av Sveriges bästa dropshotvatten för gös. Djupbranter utanför öar och uddar ger klassiska platser på 8–18 meters djup. Abborre fiskas grundare, 4–10 m, vid stenstruktur. I Vänern gäller fredning för gös i utpekade fredningsområden 25 april–25 maj. Kontrollera vilka fredningsområden som gäller lokalt hos Länsstyrelsen Västra Götaland.
@@ -12408,12 +13625,13 @@ Fiskas med små torrflugor (#14–#18) och nymfer i strömmande vatten. Fredad 1
 
 Flugfiske efter gädda (pike fly fishing) växer kraftigt i Sverige. Kräver #8–#10 spö, bra dragsystem och 15–25 cm stora flugor. Sjöar och vikar med vegetationsrika strandkanter ger bäst resultat maj–juni och september.
 
-
 [Läs mer om gädda](/arter/gadda/)
 
 ### Asp och övriga
 
 Asp är spektakulär på streamers vid forsar och åmynningar, men fredad 1 april–31 maj i tillrinnande vatten till Vänern. Abborre och id är tillgängliga nybörjarmål på fluga. Röding tas med sjunkande linor och streamers i fjällsjöar och djupa insjöar.
+
+[Läs mer om asp](/arter/asp/)
 
 ## Svenska vatten
 
@@ -12596,19 +13814,25 @@ Stå inte kvar på samma hål utan fångst eller ekolodssignaler. Den som rör s
 ## Målarter
 
 **Abborre** är nybörjarens bästa val. Står på 2-6 meter på för- och efterisen, 5-10 meter under midvintern. Söker hårdbotten, branter, grynnor och uddar. Aktiv abborre tar pirk i hårda ryck. Passiv abborre kräver mormyska med maggot eller mycket varsamma rörelser.
+
 [Läs mer om abborre](/arter/abborre/)
 
 **Gös** står djupare, 6-12 meter eller mer, vid mjukbotten med övergång till hårdbotten. Mest aktiv i skymning, gryning och natt. Mörka beten i svart, mörklila och kopparbrunt och balanspirk eller jiggpimpel fungerar bäst.
+
 [Läs mer om gös](/arter/gos/)
 
 **Röding** trivs i kallt syrerikt vatten. I fjällsjöar tas den tidigt på säsongen djupt, ofta vid grynnor och djupkanter på 15-30 meter, och drar grundare mot islossningen. Rödingblänke med tafs och agnad krok är klassiker.
+
 [Läs mer om röding](/arter/roding/)
 
 **Sik** går i stim. Fångas på små mormyskor och krok med maggot. Kräver tålamod och ofta många hålbyten för att hitta stimmet.
 
+[Läs mer om sik](/arter/sik/)
+
 **Lake** är vinterns specialart och leker i januari-februari. Fiskas bäst i mörker med pirk eller paternoster och en bit fisk som bete. Lockskedar och rytmisk bottendunkning drar fram laken.
 
 **Gädda** tas på ismete, angeldon eller stor pimpel och balansare. Tidigt och sent på isen på 0,3-2 meters djup i vikar. Använd alltid stålledare eller tjock fluortafs.
+
 [Läs mer om gädda](/arter/gadda/)
 
 **Strömming** fiskas på havsis i Bottenviken, framför allt utanför Norrbottens- och Västerbottenskusten. Riktat torskfiske i Östersjön är förbjudet sedan 2025.
@@ -12785,18 +14009,25 @@ Krokstorlekar: #4 till 1/0 för 5–8 cm beten, 2/0–4/0 för 8–13 cm, 5/0–
 ## Målarter
 
 **Abborre** står vid grynnor, stenrev, vasskanter, bryggor och bergskanter. Vår och höst i stim, sommar mer spridd. 8–10 cm shadjiggar är standard. Chatterbait längs grunda kanter vid solnedgång. Ned-rigg eller drop shot vid kallras.
+
 [Läs mer om abborre](/arter/abborre/)
 
 **Gädda** kräver alltid ledare. Stora paddle tails och shads i 18–25 cm i strömmingsfärger fungerar utmärkt i skärgården. Sök branter och djupkanter intill lekvikar på försommaren, djupare kanter på sommaren och hösten. Sjunkförloppet är ofta viktigare än inspinningen.
+
 [Läs mer om gädda](/arter/gadda/)
 
 **Gös** föredrar mörka eller naturliga färger i klart vatten, skarpa färger (grön, gul, orange) i grumligt. Står på djupkanter och bottenstrukturer. Nattfiske vår och höst på 5–10 m. Drop shot vid vertikalfiske slår ofta klassisk jiggning. Gösen jagar inte uppåt som gäddan.
+
 [Läs mer om gös](/arter/gos/)
 
 **Asp** slår ytligt jagande stim i strömmande vatten och i Vänerns och Mälarens öppna fjärdar. Bleak-imitationer i 8–14 cm, lätta jigghuvuden, snabb intagning. Kasta in i jaktbubblan direkt. Asp är klassad som nära hotad och ska släppas tillbaka skonsamt.
+
 [Läs mer om asp](/arter/asp/)
 
 **Öring och harr** kan tas på jigg i strömmande vatten med små shadar på 5–7 cm, kastade uppströms och drivna med strömmen. Kontrollera alltid lokala regler vid ädelfiskevatten.
+
+[Läs mer om öring](/arter/oring/)
+[Läs mer om harr](/arter/harr/)
 
 **Havsfiske:** torsk, sej och bleka tar stora pirkar och paddle tails på 60–200 g i Västerhavet. Havsabborre fångas på 7–12 cm shadar runt klippor längs västkusten.
 
@@ -12981,6 +14212,8 @@ Strömstrukturen avgör riggvalet: rakt waggler i stillvatten, stickfloat längs
 
 [**Abborre**](/arter/abborre) tar mask, maggot och kaster hela säsongen. Fiskar bäst på 2–6 m djup vid strukturer som bryggor, stenrösen och vassbälten. Krok 8–14, klassisk waggler-rigg med ett par maskar. Inget nationellt minimimått, men många FVO har lokala regler.
 
+[Läs mer om abborre](/arter/abborre/)
+
 **Braxen** (*Abramis brama*) är den viktigaste mete-arten i de stora slättsjöarna. Den suger upp bottendjur med en utskjutbar mun och reagerar bra på groundbait-bäddar med feeder. Leker vid 12–17 °C i maj och juni. Krok 12–14 med majs eller en halv daggmask, hooklink 30–80 cm. Inget nationellt minimimått. Sportfiskerekord 8,7 kg (Rögle dammar 2022).
 
 **Mört** (*Rutilus rutilus*) kräver den lättaste möjliga riggen: krok 18–22, tafs 0,08–0,10 mm, ett par maggots eller en caster. Groundbait ska vara söt och ljus i sommar och mörk och inert i kallt vatten. Mata lite och ofta.
@@ -13156,17 +14389,19 @@ Längs Östersjökusten är skärgårdarnas grunda vikar gäddans lek- och uppv�
 ## Målarter
 
 **Abborren** är Sveriges vanligaste rovfisk och finns i nästan alla sjöar och hela Östersjökusten. Den trivs vid 15–20 grader och leker när vattnet når 7–8 grader, oftast i april och maj. Stora abborrar håller stim på 5–10 meters djup under hösten, medan småfisk jagar närmare ytan. Spinnfiske med små jiggar (5–8 cm) eller spinnare i storlek 1–3 är överlägset. Det finns inget generellt minimimått för abborre i de flesta vatten, men fredningstider gäller på Gotland, runt Öland och i Kalmarsund från 1 mars till 31 maj.
+
 [Läs mer om abborre](/arter/abborre/)
 
 **Gäddan** finns i hela landet, från grunda vassvikar till djupa fjällvatten. Den jagar från bakhåll i vegetation och kantområden och slår till med snabb acceleration. Stora wobblers, gummibeten på 15–25 cm och jerkbaits är standardbeten. På Östersjökusten är minimimåttet 40 cm och maximimåttet 75 cm, med fångstbegränsning tre gäddor per fiskare och dygn. Tafs av fluorocarbon (0,60 mm eller grövre) eller stål är obligatoriskt.
 
-[Läs mer om gädda](/arter/gadda)
 [Läs mer om gädda](/arter/gadda/)
 
 **Gösen** finns i Mälaren, Hjälmaren, Vänern, södra Östersjöns skärgårdar och flera större näringsrika sjöar. Den föredrar grumligt vatten där dess stora ögon ger den övertag, och jagar främst i gryning, skymning och natt. Jigg på 9–15 cm med skalle på 7–25 g är standard. Minimimått 45 cm gäller i Vänern, Vättern, Mälaren, Hjälmaren och i Östersjön, med fönsteruttag 45–60 cm vid handredskap i Östersjön.
+
 [Läs mer om gös](/arter/gos/)
 
 **Öringen** finns som insjööring i klara, kalla sjöar, som havsöring längs hela kusten, och som bäcköring i strömmande vatten. Den jagar aktivt och tar små skeddrag (7–15 g), spinnare (storlek 2–3) och små wobblers. Minimimåttet är 60 cm i Vänern, 50 cm i Vättern och Mälaren, 45 cm i Storsjön och 50 cm för havsöring längs Östersjökusten. Fredningstid gäller under höstleken, vanligen 15 september till 31 december längs delar av kusten och i tillflöden.
+
 [Läs mer om öring](/arter/oring/)
 
 **Harren** är en strömlevande laxfisk som lever i norrländska älvar samt i Vätterns tillflöden och Klarälvens system. Den hugger på små spinnare (storlek 1–2), miniskeddrag och små wobblers. Minimimåttet är 35 cm i vattendrag som mynnar i Norr- och Västerbottens län. Fredningstid 15 april till 31 maj gäller i samma område.
@@ -13362,15 +14597,25 @@ Vättern är ett undantag: dess enorma volym gör att språngskiktet ligger djup
 
 ## Målarter
 
-**Lax** fiskas i Vänern, Vättern och längs Östersjökusten. I Vänern dominerar Gullspångslax och Klarälvslax. All vild lax i Vänern är fredad och ska omedelbart återutsättas. Fisken håller sig djupare sommartid (15–25 m) och grundare under vintern och våren, ibland i ytan. Minimimått 60 cm i Vänern och Östersjön. Läs mer om laxens biologi och säsong på [artsidan för lax](/arter/lax/).
+**Lax** fiskas i Vänern, Vättern och längs Östersjökusten. I Vänern dominerar Gullspångslax och Klarälvslax. All vild lax i Vänern är fredad och ska omedelbart återutsättas. Fisken håller sig djupare sommartid (15–25 m) och grundare under vintern och våren, ibland i ytan. Minimimått 60 cm i Vänern och Östersjön.
 
-**Röding** är den primära trollingarten i Vättern. Storleksklassen är 1–2 kg normalt. 3–5 kg förekommer. Sommartid håller röding sig under språngskiktet på 15–35 m och söker temperaturer kring 4–8 °C. Vintertid är den mer utspridd. Minimimått 50 cm, max 2 röding per fiskare och dygn i Vättern. Tre fiskeförbudsområden (Fingals, Norrgrundet, Tängan) täcker ca 15 % av Vätterns yta och är helårsfredade. Läs mer på [artsidan för röding](/arter/roding/).
+[Läs mer om lax](/arter/lax/)
 
-**Öring** tas som bonusfisk vid laxtrolling i Vänern och Vättern men är också det primära målet i Storsjön. Fiskar grundare och strandnärmare än röding, ofta vid temperaturer 7–12 °C. Minimimått 60 cm i Vänern och Vättern, 45 cm i Storsjön. Läs mer på [artsidan för öring](/arter/oring/).
+**Röding** är den primära trollingarten i Vättern. Storleksklassen är 1–2 kg normalt. 3–5 kg förekommer. Sommartid håller röding sig under språngskiktet på 15–35 m och söker temperaturer kring 4–8 °C. Vintertid är den mer utspridd. Minimimått 50 cm, max 2 röding per fiskare och dygn i Vättern. Tre fiskeförbudsområden (Fingals, Norrgrundet, Tängan) täcker ca 15 % av Vätterns yta och är helårsfredade.
 
-**Gös** trollas effektivt i Mälaren, Hjälmaren, Vänerns östra delar och Roxen. Håll låg hastighet, 1,0–1,5 knop, med wobblers på 7–12 cm i naturliga eller mörka färger. Minimimått 45 cm. Gös söker sig ofta till språngskiktet sommartid och kan stå på 2–6 m djup i mörka sjöar. Läs mer på [artsidan för gös](/arter/gos/).
+[Läs mer om röding](/arter/roding/)
 
-**Gädda** trollas med stora wobblers och sidoparavaner på 1,5–3,0 knop. Sommartid på öppet vatten 5–9 m djup, höst och vår grundare längs vasskanter och grunda vikar. Trolling täcker effektivt de öppna fjärdar och grundplatåer som är svåra att fiska med kastspö. Inget nationellt minimimått i insjöar. Vid Östersjökusten gäller 40 cm med fönsteruttag 40–75 cm. Läs mer på [artsidan för gädda](/arter/gadda/).
+**Öring** tas som bonusfisk vid laxtrolling i Vänern och Vättern men är också det primära målet i Storsjön. Fiskar grundare och strandnärmare än röding, ofta vid temperaturer 7–12 °C. Minimimått 60 cm i Vänern och Vättern, 45 cm i Storsjön.
+
+[Läs mer om öring](/arter/oring/)
+
+**Gös** trollas effektivt i Mälaren, Hjälmaren, Vänerns östra delar och Roxen. Håll låg hastighet, 1,0–1,5 knop, med wobblers på 7–12 cm i naturliga eller mörka färger. Minimimått 45 cm. Gös söker sig ofta till språngskiktet sommartid och kan stå på 2–6 m djup i mörka sjöar.
+
+[Läs mer om gös](/arter/gos/)
+
+**Gädda** trollas med stora wobblers och sidoparavaner på 1,5–3,0 knop. Sommartid på öppet vatten 5–9 m djup, höst och vår grundare längs vasskanter och grunda vikar. Trolling täcker effektivt de öppna fjärdar och grundplatåer som är svåra att fiska med kastspö. Inget nationellt minimimått i insjöar. Vid Östersjökusten gäller 40 cm med fönsteruttag 40–75 cm.
+
+[Läs mer om gädda](/arter/gadda/)
 
 ## Svenska vatten
 
@@ -13542,22 +14787,18 @@ Vid strömmande vatten krävs tyngre jigg för att hålla kontakt med botten. Dr
 
 **Abborre** är det vanligaste vertikalmålet och kan tas på pirk, balanspirk och mormyshka året runt. Stimmen håller sig på 4–12 meters djup och samlas på hösten vid hårdbottenkanter. Balanspirk i 5–9 cm är effektivast på storabborre över 35 cm. Nationellt minimimått saknas, men lokala bestämmelser kan gälla.
 
-[Läs mer om abborre](/arter/abborre)
 [Läs mer om abborre](/arter/abborre/)
 
 **Gös** är primärmålet vid öppet-vattensfiske. Fisken är ljuskänslig och jagar ofta vid gryning och skymning, men pelagisk gös kan tas dagtid på sommaren. Typiska djup är 6–15 meter bottennära, men pelagiskt kan den stå 3–8 meter ner över djupare vatten. Minimimått 45 cm, maximimått 60 cm vid handredskap. Fångstbegränsning på tre gäddor och gösar sammanlagt per dygn gäller söder om gränsen Västernorrland och Västerbotten.
 
-[Läs mer om gös](/arter/gos)
 [Läs mer om gös](/arter/gos/)
 
 **Gädda** fiskas vertikalt med jiggar i 17–25 cm på 35–60 g jiggskalle. Titanvajer eller stark fluorocarbon som tafs är obligatoriskt. Stingerkrok bak ger bättre krokkontakt. Minimimått 40 cm, maximimått 75 cm vid handredskap. Samma fångstbegränsning som för gös gäller.
 
-[Läs mer om gädda](/arter/gadda)
 [Läs mer om gädda](/arter/gadda/)
 
 **Vätternröding** fiskas vertikalt på 15–35 meters djup, framför allt sommartid under språngskiktet. Röding tillhör laxfiskarna och har öppen simblåsa, vilket gör den skonsam att återutsätta även från djupare vatten. Enkelkrok kan krävas i vissa redskapstyper på Vättern. Kontrollera Vätterns lokala regler inför fisket.
 
-[Läs mer om öring](/arter/oring)
 [Läs mer om röding](/arter/roding/)
 
 **Öring och lax** förekommer som bifångst vid vertikalfiske i de stora sjöarna. Öringens minimimått varierar kraftigt: 50 cm i Vänern, 60 cm i Östersjöns kustvatten. Laxfiske i Östersjön är i grunden förbjudet. En fettfeneklippt lax per fiskare och dag får behållas, varefter laxfisket ska upphöra för resten av dygnet.

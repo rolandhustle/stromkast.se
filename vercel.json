@@ -1,0 +1,14 @@
+{
+  "redirects": [
+    {
+      "source": "/robots.txt/",
+      "destination": "/robots.txt",
+      "permanent": false
+    },
+    {
+      "source": "/sitemap-index.xml/",
+      "destination": "/sitemap-index.xml",
+      "permanent": false
+    }
+  ]
+}

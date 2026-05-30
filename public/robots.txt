@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /sok/
 
-Sitemap: https://stromkast.se/sitemap-index.xml
+Sitemap: https://www.stromkast.se/sitemap-index.xml

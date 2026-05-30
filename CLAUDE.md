@@ -70,7 +70,7 @@ src/
 ├── content/
 │   ├── articles/               MDX, kategori: destination|teknik|utrustning|guide
 │   ├── authors/                JSON
-│   ├── destinations/           MDX (bolmen, malaren, morrum, storsjon, vanern, vattern)
+│   ├── destinations/           MDX (bolmen, dalalven, eman, hjalmaren, malaren, morrum, siljan, stockholms-skargard, storsjon, tornealven, vanern, vattern)
 │   ├── gear-categories/        JSON (spon) -- ekolod och gaddspon är borttagna
 │   ├── gear-reviews/           JSON -- 14 riktiga spön med affiliate-länkar (se nedan)
 │   ├── species/                MDX (abborre, asp, gadda, gos, harr, lax, oring)
@@ -477,7 +477,7 @@ Redaktionella guider driver trafik -- kategorisidor gör det inte. Varje ny utru
 
 **Byggt och redaktionellt godkänt:**
 - Alla layouts och kärnkomponenter (BaseLayout, Header, Footer, SEO, AffiliateCard, ConsentBanner)
-- 6 destinationssidor (redaktionellt innehåll, ej platshållare)
+- 12 destinationssidor (redaktionellt innehåll, ej platshållare)
 - 7 artsidor (redaktionellt innehåll, ej platshållare)
 - 3 tekniksidor (redaktionellt innehåll, ej platshållare)
 - Utrustningssidornas sidmallar (index, [kategori], test/[slug])
@@ -500,8 +500,3 @@ Redaktionella guider driver trafik -- kategorisidor gör det inte. Varje ny utru
 - Fler produkter i befintliga kategorier
 - Programmatiska sidor i större skala
 - Redaktionella artiklar (ersätt platshållare)
-
-## Internlänkning -- tekniker och arter
-- Tekniker som visas på en artsida styrs av `targetTechniques` i artsidans frontmatter.
-- Teknikfilernas `targetSpecies` används INTE för denna matchning.
-- Vid ny artsida: fyll i `targetTechniques` i frontmatter. Inga teknikfiler behöver ändras.
