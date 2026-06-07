@@ -44,6 +44,19 @@ const waterTypeLabels: Record<string, string> = {
   stream: 'Bäck',
 };
 
+// Kostråd enligt Livsmedelsverket, renderas från fältet d.kostrad
+const kostradTexter: Record<string, { rubrik: string; text: string }> = {
+  kvicksilver: {
+    rubrik: 'Kvicksilver i rovfisk',
+    text: 'Abborre, gädda, gös och lake kan innehålla höga halter kvicksilver, och halten varierar mellan vatten. Livsmedelsverket rekommenderar att vuxna äter dessa arter högst en gång i veckan. Den som är gravid, ammar eller försöker bli gravid bör äta dem högst två till tre gånger per år.',
+  },
+  dioxin: {
+    rubrik: 'Dioxin och PCB i fet fisk',
+    text: 'Vildfångad lax och öring från Östersjön och dess åar samt från Vänern och Vättern kan innehålla höga halter dioxin och PCB. Livsmedelsverket rekommenderar att vuxna äter sådan fisk högst en gång i veckan. Barn och ungdomar upp till 18 år, den som vill bli gravid i framtiden, gravida och ammande bör äta den högst två till tre gånger per år.',
+  },
+};
+const kostrad = d.kostrad ?? [];
+
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
@@ -56,15 +69,27 @@ const breadcrumbSchema = {
 
 const destinationSchema = {
   '@context': 'https://schema.org',
-  '@type': 'TouristDestination',
-  name: d.title,
+  '@type': 'Article',
+  headline: `Fiska ${d.title}`,
   description: d.description,
-  geo: {
-    '@type': 'GeoCoordinates',
-    latitude: d.lat,
-    longitude: d.lng,
+  image: `https://stromkast.se${d.heroImage}`,
+  datePublished: d.publishedAt,
+  dateModified: d.updatedAt,
+  author: { '@type': 'Organization', name: 'Strömkast', url: 'https://stromkast.se/' },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Strömkast',
+    logo: { '@type': 'ImageObject', url: 'https://stromkast.se/images/logo.svg' },
   },
-  touristType: 'Sportfiskare',
+  about: {
+    '@type': 'Place',
+    name: d.title,
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: d.lat,
+      longitude: d.lng,
+    },
+  },
 };
 
 const faqSchema = {
@@ -180,6 +205,26 @@ const faqSchema = {
         <div class="prose prose-sm max-w-[72ch] text-deep/80 leading-relaxed">
           <Content />
         </div>
+
+        <!-- Kostråd -->
+        {kostrad.length > 0 && (
+          <div class="mt-16">
+            <h2 class="font-display text-2xl font-bold text-deep mb-6">Att äta fångsten</h2>
+            <div class="space-y-4">
+              {kostrad.map((typ: string) => (
+                kostradTexter[typ] && (
+                  <div class="bg-mist rounded-2xl p-5 border border-mist">
+                    <p class="font-semibold text-deep text-sm mb-1">{kostradTexter[typ].rubrik}</p>
+                    <p class="text-stone text-sm leading-relaxed">{kostradTexter[typ].text}</p>
+                  </div>
+                )
+              ))}
+            </div>
+            <p class="text-stone/70 text-xs mt-4">
+              Källa: <a href="https://www.livsmedelsverket.se/matvanor-halsa--miljo/kostrad/fisk-som-kan-innehalla-miljogifter/" target="_blank" rel="noopener noreferrer" class="text-sky underline hover:text-pine">Livsmedelsverket</a>. Råden gäller egenfångad fisk och kan ändras. Kontrollera alltid aktuell information.
+            </p>
+          </div>
+        )}
 
         <!-- FAQ -->
         <div class="mt-16">

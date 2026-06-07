@@ -18,6 +18,7 @@ const destinations = defineCollection({
     publishedAt: z.string(),
     updatedAt: z.string(),
     excerpt: z.string().optional(),  // Korttext för indexsidan (40–80 tecken)
+    kostrad: z.array(z.enum(['kvicksilver', 'dioxin'])).optional().default([]),  // Livsmedelsverkets kostråd som gäller vattnet
   }),
 });
 
