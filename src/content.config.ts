@@ -54,6 +54,7 @@ const techniques = defineCollection({
     topDestinations: z.array(z.string()).optional().default([]),
     publishedAt: z.string().optional(),
     updatedAt: z.string().optional(),
+    excerpt: z.string().optional(),
     faq: z.array(z.object({ q: z.string(), a: z.string() })).optional().default([]),
   }),
 });
@@ -65,7 +66,7 @@ const gearCategories = defineCollection({
     slug: z.string(),
     description: z.string(),
     heroImage: z.string(),
-    guideUrl: z.string().optional(),  // URL till redaktionell guide för kategorin, t.ex. "/artiklar/basta-fiskespon-2026/"
+    guideUrl: z.string().optional(),  // t.ex. "/guider/basta-fiskespon-2026/"
     excerpt: z.string().optional(),   // Korttext för indexsidan (40–80 tecken)
   }),
 });

@@ -22,7 +22,7 @@ const articleSchema = {
   '@type': 'Article',
   headline: d.title,
   description: d.description,
-  image: d.heroImage,
+  image: `https://stromkast.se${d.heroImage}`,
   datePublished: d.publishedAt,
   dateModified: d.updatedAt,
   author: author ? {

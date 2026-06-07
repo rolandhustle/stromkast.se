@@ -80,7 +80,7 @@ const breadcrumbSchema = {
 ---
 
 <BaseLayout
-  title={`${species.name}fiske i ${monthName} ${year} – nappkalender och tips`}
+  title={`${species.name}fiske i ${monthName} ${year}: nappkalender och tips`}
   description={`Veckovis betningsindikator för ${species.name.toLowerCase()}fiske i ${monthName} ${year}. Säsongstips, bästa metoder och månfasöversikt.`}
   schema={breadcrumbSchema}
   pageType="article"
@@ -219,7 +219,7 @@ const breadcrumbSchema = {
                 <span class="font-semibold text-deep">{w.moonScore}/10</span>
               </div>
               <div class="flex items-center justify-between text-xs">
-                <span class="text-stone">Månfas</span>
+                <span class="text-stone">Fas</span>
                 <span class="text-stone">{MOON_PHASE_LABELS[w.moonPhase]}</span>
               </div>
             </div>

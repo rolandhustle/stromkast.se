@@ -3,12 +3,33 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
 const species = await getCollection('species');
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Hem', item: 'https://stromkast.se/' },
+    { '@type': 'ListItem', position: 2, name: 'Arter', item: 'https://stromkast.se/arter/' },
+  ],
+};
+
+const itemListSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  itemListElement: species.map((s, idx) => ({
+    '@type': 'ListItem',
+    position: idx + 1,
+    url: `https://stromkast.se/arter/${s.data.slug}/`,
+    name: s.data.title,
+  })),
+};
 ---
 
 <BaseLayout
   title="Fiskarter i Sverige: guider och tips"
   description="Guider till Sveriges vanligaste sportfiskarter. Lär dig om biologi, bästa säsong och rätt teknik."
   pageType="species-index"
+  schema={[breadcrumbSchema, itemListSchema]}
 >
   <div class="pt-28 pb-20 px-4 sm:px-6 max-w-[1280px] mx-auto">
     <div class="mb-12">
