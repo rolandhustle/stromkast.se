@@ -66,3 +66,9 @@ html {
   outline: 2px solid var(--color-rust);
   outline-offset: 3px;
 }
+
+/* Håll Leaflets kontroller under den fixerade headern (z-1000) */
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 400;
+}
