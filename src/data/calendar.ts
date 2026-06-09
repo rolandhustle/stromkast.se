@@ -85,7 +85,9 @@ export interface SpeciesData {
   slug:        string;
   name:        string;
   latin:       string;
+  group:       'rovfisk' | 'laxfisk' | 'vitfisk' | 'kust';
   description: string; // kort beskrivning för kalenderkontext
+  forekomst?:  string;  // begränsad utbredning (kust, fåtal vatten)
   peakMonths:  number[]; // 1–12
   okMonths:    number[];
   // Biologisk data
@@ -110,6 +112,7 @@ export interface SpeciesData {
 export const SPECIES: SpeciesData[] = [
   {
     slug:        'gadda',
+    group:       'rovfisk',
     name:        'Gädda',
     latin:       'Esox lucius',
     description: 'Gäddan är en av Sveriges mest eftertraktade rovfiskar. Den leker tidigt på våren och är som mest aktiv när vattnet är kallt.',
@@ -143,6 +146,7 @@ export const SPECIES: SpeciesData[] = [
   },
   {
     slug:        'abborre',
+    group:       'rovfisk',
     name:        'Abborre',
     latin:       'Perca fluviatilis',
     description: 'Abborren finns i nästan alla svenska sötvatten och är en populär sportfisk för alla nivåer. Leker på våren och är som mest aktiv på hösten.',
@@ -176,6 +180,7 @@ export const SPECIES: SpeciesData[] = [
   },
   {
     slug:        'gos',
+    group:       'rovfisk',
     name:        'Gös',
     latin:       'Sander lucioperca',
     description: 'Gösen är en nattaktiv rovfisk som föredrar grumligt vatten och dyker upp i grupper längs kanter och strukturer. Leker i maj–juni.',
@@ -209,6 +214,7 @@ export const SPECIES: SpeciesData[] = [
   },
   {
     slug:        'oring',
+    group:       'laxfisk',
     name:        'Öring',
     latin:       'Salmo trutta',
     description: 'Öringen är en av Sveriges mest älskade sportfiskar. Finns i bäckar, sjöar och längs kusten. Leker på hösten och är aktiv i kallt klart vatten.',
@@ -242,6 +248,7 @@ export const SPECIES: SpeciesData[] = [
   },
   {
     slug:        'havsoring',
+    group:       'laxfisk',
     name:        'Havsöring',
     latin:       'Salmo trutta trutta',
     description: 'Havsöringen vandrar mellan havet och sötvattnet för att leka. Eftertraktad längs hela svenska kusten och i de stora laxälvarna.',
@@ -275,6 +282,7 @@ export const SPECIES: SpeciesData[] = [
   },
   {
     slug:        'lax',
+    group:       'laxfisk',
     name:        'Lax',
     latin:       'Salmo salar',
     description: 'Laxen är en ikonisk sportfisk som vandrar upp i svenska älvar för att leka. Mörrum och Torneälven är världskända laxvatten.',
@@ -308,6 +316,7 @@ export const SPECIES: SpeciesData[] = [
   },
   {
     slug:        'harr',
+    group:       'laxfisk',
     name:        'Harr',
     latin:       'Thymallus thymallus',
     description: 'Harren är en elegant sportfisk som lever i klara, syrerika strömmande vatten. Flugfiske efter harr i fjällälvar är en upplevelse utöver det vanliga.',
@@ -341,6 +350,7 @@ export const SPECIES: SpeciesData[] = [
   },
   {
     slug:        'roding',
+    group:       'laxfisk',
     name:        'Röding',
     latin:       'Salvelinus alpinus',
     description: 'Rödingen är en kall vattenspecialist som lever i djupa klara sjöar i Norrland och fjällvärlden. En av Sveriges vackraste sportfiskar.',
@@ -374,6 +384,7 @@ export const SPECIES: SpeciesData[] = [
   },
   {
     slug:        'lake',
+    group:       'rovfisk',
     name:        'Lake',
     latin:       'Lota lota',
     description: 'Laken är Sveriges enda sötvattenstorskfisk och en utpräglad vinterart. Den leker mitt i vintern och fångas bäst på pimpel och ismete under den kalla årstiden.',
@@ -407,6 +418,7 @@ export const SPECIES: SpeciesData[] = [
   },
   {
     slug:        'regnbage',
+    group:       'laxfisk',
     name:        'Regnbåge',
     latin:       'Oncorhynchus mykiss',
     description: 'Regnbågen sätts ut i put and take-vatten över hela landet och är en tacksam art för nybörjare. Den trivs i svalt vatten och fiskas bäst vår och höst.',
@@ -440,6 +452,7 @@ export const SPECIES: SpeciesData[] = [
   },
   {
     slug:        'sik',
+    group:       'laxfisk',
     name:        'Sik',
     latin:       'Coregonus maraena',
     description: 'Siken är en nordlig laxfisk med liten mun som kräver fingertoppskänsla. Den vandrar upp i älvarna på hösten och fiskas på fluga, mete och pimpel.',
@@ -473,6 +486,7 @@ export const SPECIES: SpeciesData[] = [
   },
   {
     slug:        'karp',
+    group:       'vitfisk',
     name:        'Karp',
     latin:       'Cyprinus carpio',
     description: 'Karpen är en storväxt sommarart med en hängiven skara specialister. Den betar bara i varmt vatten och fiskas med mete från sen vår till tidig höst.',
@@ -506,6 +520,7 @@ export const SPECIES: SpeciesData[] = [
   },
   {
     slug:        'id',
+    group:       'vitfisk',
     name:        'Id',
     latin:       'Leuciscus idus',
     description: 'Iden är Sveriges största mörtfisk och en växande sportfiskeart. Den samlas i stora stim vid vårleken och tar både fluga, drag och mete.',
@@ -539,6 +554,7 @@ export const SPECIES: SpeciesData[] = [
   },
   {
     slug:        'asp',
+    group:       'vitfisk',
     name:        'Asp',
     latin:       'Leuciscus aspius',
     description: 'Aspen är Sveriges största karpfisk och en rovlevande spinnfiskeart. Den är rödlistad och fredad under leken, men ett spännande sommarmål på öppet vatten.',
@@ -569,6 +585,111 @@ export const SPECIES: SpeciesData[] = [
       'Fisket avtar. Aspen drar mot djupare vatten.',
       'Lågsäsong. Passiv fisk.',
       'Vinterlugn. Aspen står djupt.',
+    ],
+  },
+  {
+    slug:        'kanadaroding',
+    group:       'laxfisk',
+    forekomst:   'Finns bara i ett fåtal svenska vatten, främst Storsjön och Indalsälvens avrinningsområde.',
+    name:        'Kanadaröding',
+    latin:       'Salvelinus namaycush',
+    description: 'Kanadaröding är en inplanterad nordamerikansk laxfisk i stora kalla sjöar. Den ligger djupt på sommaren och går grunt på hösten och vintern.',
+    peakMonths:  [9, 10, 11],
+    okMonths:    [1, 5, 6, 7, 8, 12],
+    spawningMonths: [],
+    spawningTemp:   'cirka 8°C',
+    activeTemp:     '4–12°C',
+    preLek:   'Inför höstleken går kanadarödingen upp på grunt vatten över sten och grus och blir aggressiv och lättare att nå. Förhösten är ofta årets bästa fiske.',
+    postLek:  'Efter leken står fisken kvar grunt en bra bit in på vintern, där den kan nås även genom isen.',
+    summer:   'På sommaren söker sig kanadarödingen till kalla djuppartier, ofta långt ner. Då gäller trolling och dragutter med djuprigg för att nå den.',
+    autumn:   'Hösten är toppsäsong. Fisken går grunt för att leka, jagar aktivt och nås på spinn, jigg och trolling längs grynnor och branter.',
+    winter:   'Kanadarödingen står ofta grunt under isen fram till islossningen. Pimpel och vertikalfiske över rätt botten kan ge fina fiskar.',
+    springMethods: ['Trolling', 'Spinnfiske', 'Jiggfiske'],
+    summerMethods: ['Djuptrolling', 'Dragutter med djuprigg', 'Vertikalfiske'],
+    autumnMethods: ['Trolling', 'Spinnfiske', 'Jiggfiske'],
+    monthlyTips: [
+      'Fisken står ofta grunt under isen. Pimpel och vertikalfiske över sten och grynnor kan ge napp.',
+      'Trögt under tjock is. Fisken är långsam, sök grunt med tålamod under ljusare fönster.',
+      'Fortsatt trögt sent på vintern. Korta fönster kan ge fisk grunt mot slutet av månaden.',
+      'Islossningen närmar sig och isen blir osäker. Avvakta tills öppet vatten ger säkert fiske.',
+      'Efter islossningen står fisken fortfarande relativt grunt. Spinn och trolling längs branter fungerar.',
+      'Fisken börjar söka sig djupare när vattnet värms. Trolling längs djupkanter ger bäst chans.',
+      'Högsommar. Kanadarödingen står djupt och kallt och nås med djuptrolling och dragutter.',
+      'Fisken börjar röra sig grundare inför hösten. Trolling fungerar fortfarande bäst.',
+      'Höstfisket drar igång. Fisken går grunt och jagar aktivt över grynnor och branter.',
+      'Toppsäsong. Lekvandring mot grunt vatten ger aggressiva hugg på spinn, jigg och trolling.',
+      'Fortsatt starkt fiske grunt. Kallt vatten och fisk i lekområden ger fina exemplar.',
+      'Fisken står kvar grunt in på vintern. Sök sten och grynnor på öppet vatten eller tidig is.',
+    ],
+  },
+  {
+    slug:        'makrill',
+    group:       'kust',
+    forekomst:   'Kustart på väst- och sydkusten, saknas i insjöar.',
+    name:        'Makrill',
+    latin:       'Scomber scombrus',
+    description: 'Makrill är västkustens snabbsimmande sommargäst. Den kommer in mot kusten på sensommaren för att leka och äta och drar ut till djupt vatten på hösten.',
+    peakMonths:  [6, 7, 8],
+    okMonths:    [5, 9],
+    spawningMonths: [],
+    spawningTemp:   'cirka 14°C',
+    activeTemp:     '12–18°C',
+    preLek:   'På vårkanten kommer makrillen in från djupare vatten för att leka. I slutet av maj når de första stimmen västkusten och fisket vaknar.',
+    postLek:  'Efter leken jagar makrillen aktivt nära ytan hela sommaren och går ofta strandnära, lätt att nå från land.',
+    summer:   'Högsommar är toppsäsong. Stimmen står ofta grunt och nära land. Spana efter måsdyk som avslöjar jagande fisk.',
+    autumn:   'Mot hösten drar stimmen ut mot djupare vatten. Öresund kan ge bra fiske en bit in i september innan säsongen ebbar ut.',
+    winter:   'Makrillen övervintrar långt ute i djupare vatten i Nordsjön. Inget kustfiske den här tiden.',
+    springMethods: ['Spinnfiske', 'Häckla', 'Flötmete'],
+    summerMethods: ['Häckla', 'Spinnfiske', 'Flötmete med sillfilé'],
+    autumnMethods: ['Spinnfiske', 'Häckla', 'Ränndörj'],
+    monthlyTips: [
+      'Makrillen står långt ute i djupare vatten. Inget kustfiske den här tiden.',
+      'Fortsatt ute till havs. Vänta på vårens inflyttning.',
+      'Makrillen är kvar i djupare vatten. Säsongen har inte börjat.',
+      'En varm vår kan ge tidiga rapporter, men fisket drar sällan igång på allvar än.',
+      'I slutet av maj kommer makrillen in mot västkusten. Spana efter måsdyk och jagande stim.',
+      'Högsäsong. Makrillen går ofta grunt och nära land. Häckla och spinn ger fina fångster.',
+      'Toppfiske längs hela västkusten. Stim nära ytan, kul fiske från både land och båt.',
+      'Fortsatt starkt, men mot slutet börjar stimmen dra mot djupare vatten.',
+      'Fisket avtar när makrillen rör sig utåt. Öresund kan ge bra fiske in i september.',
+      'Makrillen lämnar kusten för djupare vatten. Säsongen ebbar ut.',
+      'Ute till havs igen. Inget kustfiske.',
+      'Makrillen övervintrar i djupare vatten. Vänta på våren.',
+    ],
+  },
+  {
+    slug:        'horngadda',
+    group:       'kust',
+    forekomst:   'Kustart längs väst- och sydkusten och i Östersjön, saknas i insjöar.',
+    name:        'Horngädda',
+    latin:       'Belone belone',
+    description: 'Horngädda är makrillens förlöpare och ett säkert vårtecken på kusten. Den kommer in på grunt vatten för att leka och drar ut till havs efter leken.',
+    peakMonths:  [5, 6],
+    okMonths:    [4, 7, 8],
+    spawningMonths: [],
+    spawningTemp:   'cirka 15°C',
+    activeTemp:     '10–18°C',
+    preLek:   'Som ett av vårens första kusttecken kommer horngäddan in från Atlanten. Öresund och Skånekusten får den först, västkusten någon vecka senare.',
+    postLek:  'Efter leken lämnar fisken grundvattnen och söker sig ut i friare vatten, men stannar i svenska farvatten en bit in på sensommaren.',
+    summer:   'Leken på grunt vatten över tång är säsongens höjdpunkt. Fisket sker ofta på samma platser och med samma teknik som kustöring.',
+    autumn:   'Horngäddan drar ut mot Atlanten igen. Kustfisket är i princip över för säsongen.',
+    winter:   'Arten övervintrar ute i Atlanten och saknas helt vid kusten. Inget fiske den här tiden.',
+    springMethods: ['Spinnfiske', 'Flötmete', 'Flugfiske'],
+    summerMethods: ['Spinnfiske', 'Flugfiske', 'Flötmete'],
+    autumnMethods: ['Spinnfiske', 'Flötmete'],
+    monthlyTips: [
+      'Horngäddan övervintrar ute i Atlanten. Inget kustfiske.',
+      'Fortsatt ute till havs. Säsongen är långt borta.',
+      'Arten är på väg mot kusterna längre söderut men når inte Sverige än.',
+      'De första näbbgäddorna når Öresund och Skånekusten mot slutet av månaden.',
+      'Högsäsong. Lekvandringen fyller grunda vikar. Spinn och flugfiske grunt ger toppfiske.',
+      'Fortsatt starkt grunt fiske. Längst upp i Östersjön kommer fisken in nu.',
+      'Efter leken drar fisken utåt i friare vatten. Mer spridd men fortfarande fångbar.',
+      'Horngäddan finns kvar i svenska vatten men är svårare att nå från land.',
+      'Fisket avtar när näbbgäddan börjar lämna kusterna.',
+      'Arten drar ut mot Atlanten. Säsongen är i princip slut.',
+      'Ute till havs. Inget kustfiske.',
+      'Horngäddan övervintrar i Atlanten. Vänta på våren.',
     ],
   },
 ];
@@ -642,7 +763,17 @@ function seasonBaseline(sp: SeasonInput, doy: number): number {
 }
 
 function regionalDay(doy: number, region: RegionData): number {
-  return (((doy + region.offset * 30.4) % 365) + 365) % 365;
+  // Asymmetrisk regionforskjutning. En likformig forskjutning flyttar bade var-
+  // och hosttoppen at samma hall, vilket ger orimliga host- och vintertoppar i
+  // kalla regioner (t.ex. fjallens hosttopp i nov-dec trots is). Multiplikatorn
+  // gar mjukt fran +1 over varen (jan-midsommar) till -1 over hosten (midsommar-dec),
+  // sa varen skjuts senare norrut medan hosten skjuts tidigare norrut. Tanh ger
+  // plattare plataer sa maj och juni behaller hela varskiftet. Overgangarna ligger
+  // kring mitten av juli och arsskiftet, bada i lagsasong, sa eventuella knyckar ar sma.
+  const raw     = Math.cos((2 * Math.PI * (doy - 100)) / 365);
+  const m       = Math.tanh(3 * raw) / Math.tanh(3);
+  const shifted = doy + region.offset * 30.4 * m;
+  return ((shifted % 365) + 365) % 365;
 }
 
 function moonAdjustment(phase: MoonDay['phase']): number {

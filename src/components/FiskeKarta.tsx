@@ -7,6 +7,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
+import { getScore, SPECIES } from '../data/calendar';
 
 function useIsMobile(breakpoint = 640): boolean {
   const [isMobile, setIsMobile] = useState(false);
@@ -20,27 +21,30 @@ function useIsMobile(breakpoint = 640): boolean {
 }
 import type { Map as LeafletMap, CircleMarker } from 'leaflet';
 
-const SEASONS: Record<string, { peak: number[]; ok: number[] }> = {
-  'gädda':        { peak: [3,4,9,10],    ok: [2,5,8,11] },
-  'abborre':      { peak: [4,5,9,10],    ok: [3,6,8,11] },
-  'gös':          { peak: [6,7,8],       ok: [5,9] },
-  'öring':        { peak: [3,4,9,10],    ok: [2,5,8,11] },
-  'havsöring':    { peak: [3,4,10,11],   ok: [2,5,9,12] },
-  'lax':          { peak: [6,7,8,9],     ok: [5,10] },
-  'harr':         { peak: [6,8,9],       ok: [5,7,10] },
-  'röding':       { peak: [4,5,10,11],   ok: [3,6,9,12] },
-  'kanadaröding': { peak: [4,5,10,11],   ok: [3,6,9,12] },
-  'asp':          { peak: [5,6],         ok: [4,7] },
-  'sik':          { peak: [10,11],       ok: [9,12] },
-};
+// Artchipsens säsong läses direkt ur calendar.ts SPECIES, samma källa som
+// nappkalendern och destinationspoängen. Regionen tas per vatten via latitud.
+function fold(s: string): string {
+  return s.toLowerCase()
+    .replace(/[åä]/g, 'a')
+    .replace(/ö/g, 'o')
+    .replace(/[éè]/g, 'e')
+    .replace(/[^a-z0-9]/g, '');
+}
 
-type SpeciesSeason = 'peak' | 'ok' | 'off';
+function regionFromLat(lat: number): { slug: string; name: string; offset: number } {
+  const offset = Math.max(-2.5, Math.min(1.5, (59.33 - lat) / 3.7));
+  return { slug: 'lat', name: '', offset };
+}
 
-function getSpeciesSeason(art: string, month: number): SpeciesSeason {
-  const entry = SEASONS[art.toLowerCase()];
-  if (!entry) return 'off';
-  if (entry.peak.includes(month)) return 'peak';
-  if (entry.ok.includes(month))   return 'ok';
+type SpeciesSeason = 'peak' | 'ok' | 'off' | 'fredad';
+
+function getSpeciesSeason(art: string, lat: number, now: Date): SpeciesSeason {
+  const sp = SPECIES.find(s => s.slug === fold(art));
+  if (!sp) return 'off';
+  const { season, closed } = getScore({ species: sp, date: now, region: regionFromLat(lat) });
+  if (closed)       return 'fredad';
+  if (season >= 68) return 'peak';
+  if (season >= 42) return 'ok';
   return 'off';
 }
 
@@ -85,27 +89,28 @@ const BADGE_STYLE: Record<string, { bg: string; text: string }> = {
 };
 
 const SPECIES_CHIP: Record<SpeciesSeason, { bg: string; text: string; dot: string }> = {
-  peak: { bg: '#dcfce7', text: '#166534', dot: '#16a34a' },
-  ok:   { bg: '#fef9ec', text: '#92400e', dot: '#d97706' },
-  off:  { bg: '#f3f4f6', text: '#9ca3af', dot: '#d1d5db' },
+  peak:   { bg: '#dcfce7', text: '#166534', dot: '#16a34a' },
+  ok:     { bg: '#fef9ec', text: '#92400e', dot: '#d97706' },
+  off:    { bg: '#f3f4f6', text: '#9ca3af', dot: '#d1d5db' },
+  fredad: { bg: '#f1f5f9', text: '#475569', dot: '#94a3b8' },
 };
 
 function fmt(val: number | null, unit = ''): string {
   return val !== null ? `${val.toFixed(1)}${unit}` : '–';
 }
 
-const MONTH = new Date().getMonth() + 1;
+const NOW = new Date();
 
-function SpeciesChips({ species }: { species: string[] }) {
+function SpeciesChips({ species, lat }: { species: string[]; lat: number }) {
   const sorted = [...species].sort((a, b) => {
-    const order = { peak: 0, ok: 1, off: 2 };
-    return order[getSpeciesSeason(a, MONTH)] - order[getSpeciesSeason(b, MONTH)];
+    const order = { peak: 0, ok: 1, fredad: 2, off: 3 };
+    return order[getSpeciesSeason(a, lat, NOW)] - order[getSpeciesSeason(b, lat, NOW)];
   });
 
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '6px' }}>
       {sorted.map(art => {
-        const season = getSpeciesSeason(art, MONTH);
+        const season = getSpeciesSeason(art, lat, NOW);
         const style  = SPECIES_CHIP[season];
         return (
           <span key={art} style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '10px', fontWeight: 500, padding: '2px 6px', borderRadius: '10px', background: style.bg, color: style.text }}>
@@ -190,7 +195,7 @@ function Panel({
                       <div style={{ fontSize: '11px', color: '#9ca3af', marginTop: '2px' }}>
                         {fmt(d.airTemp, '°C')} · {fmt(d.windSpeed, ' m/s')} {d.windDir}
                       </div>
-                      <SpeciesChips species={d.species} />
+                      <SpeciesChips species={d.species} lat={d.lat} />
                     </div>
                   </div>
                 </div>
@@ -241,7 +246,7 @@ function Panel({
 
                 <div style={{ marginBottom: '0.875rem' }}>
                   <div style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>Arter i säsong</div>
-                  <SpeciesChips species={active.species} />
+                  <SpeciesChips species={active.species} lat={active.lat} />
                   <div style={{ display: 'flex', gap: '12px', marginTop: '6px', fontSize: '10px', color: '#9ca3af' }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}><span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#16a34a', display: 'inline-block' }}></span>Högsäsong</span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}><span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#d97706', display: 'inline-block' }}></span>Bra säsong</span>
