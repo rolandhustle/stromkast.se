@@ -68,7 +68,7 @@ html {
 }
 
 /* Håll Leaflets kontroller under den fixerade headern (z-1000) */
-.leaflet-top,
-.leaflet-bottom {
+.leaflet-container .leaflet-top,
+.leaflet-container .leaflet-bottom {
   z-index: 400;
 }

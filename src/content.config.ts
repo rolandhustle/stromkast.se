@@ -8,6 +8,9 @@ const destinations = defineCollection({
     slug: z.string(),
     description: z.string(),
     heroImage: z.string(),
+    heroSource: z.enum(['illustration', 'photo']).default('illustration'),
+    heroCredit: z.string().optional(),        // fotografens namn, krävs när heroSource === 'photo'
+    heroCreditUrl: z.string().url().optional(),
     lat: z.number(),
     lng: z.number(),
     län: z.string(),
@@ -29,6 +32,9 @@ const species = defineCollection({
     slug: z.string(),
     description: z.string(),
     heroImage: z.string(),
+    heroSource: z.enum(['illustration', 'photo']).default('illustration'),
+    heroCredit: z.string().optional(),        // fotografens namn, krävs när heroSource === 'photo'
+    heroCreditUrl: z.string().url().optional(),
     season: z.string().optional().default(''),
     techniques: z.array(z.string()).optional().default([]),
     targetTechniques: z.array(z.string()).optional().default([]),
@@ -49,6 +55,9 @@ const techniques = defineCollection({
     slug: z.string(),
     description: z.string(),
     heroImage: z.string(),
+    heroSource: z.enum(['illustration', 'photo']).default('illustration'),
+    heroCredit: z.string().optional(),        // fotografens namn, krävs när heroSource === 'photo'
+    heroCreditUrl: z.string().url().optional(),
     targetSpecies: z.array(z.string()),
     difficulty: z.enum(['nybörjare', 'mellannivå', 'avancerad']),
     topDestinations: z.array(z.string()).optional().default([]),
@@ -66,6 +75,9 @@ const gearCategories = defineCollection({
     slug: z.string(),
     description: z.string(),
     heroImage: z.string(),
+    heroSource: z.enum(['illustration', 'photo']).default('illustration'),
+    heroCredit: z.string().optional(),        // fotografens namn, krävs när heroSource === 'photo'
+    heroCreditUrl: z.string().url().optional(),
     guideUrl: z.string().optional(),  // t.ex. "/guider/basta-fiskespon-2026/"
     excerpt: z.string().optional(),   // Korttext för indexsidan (40–80 tecken)
   }),
@@ -78,6 +90,9 @@ const gearReviews = defineCollection({
     slug: z.string(),
     description: z.string(),
     heroImage: z.string(),
+    heroSource: z.enum(['illustration', 'photo']).default('illustration'),
+    heroCredit: z.string().optional(),        // fotografens namn, krävs när heroSource === 'photo'
+    heroCreditUrl: z.string().url().optional(),
     brand: z.string(),
     category: z.string(),
     price: z.number(),
@@ -102,6 +117,9 @@ const articles = defineCollection({
     slug: z.string(),
     description: z.string(),
     heroImage: z.string(),
+    heroSource: z.enum(['illustration', 'photo']).default('illustration'),
+    heroCredit: z.string().optional(),        // fotografens namn, krävs när heroSource === 'photo'
+    heroCreditUrl: z.string().url().optional(),
     publishedAt: z.string(),
     updatedAt: z.string(),
     author: z.string(),

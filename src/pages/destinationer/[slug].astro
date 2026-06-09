@@ -56,6 +56,11 @@ const kostradTexter: Record<string, { rubrik: string; text: string }> = {
   },
 };
 const kostrad = d.kostrad ?? [];
+// Hero-bildens källa och ärlig märkning
+const heroIsPhoto = d.heroSource === 'photo';
+const heroAriaLabel = heroIsPhoto
+  ? `${d.title}, foto`
+  : `Illustrerad miljöbild av ${d.title}`;
 
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
@@ -148,9 +153,26 @@ const faqSchema = {
       class="absolute inset-0 bg-cover bg-center"
       style={`background-image: url('${d.heroImage}'); background-color: #1F3A2E;`}
       role="img"
-      aria-label={`${d.title}, fiskevatten`}
+      aria-label={heroAriaLabel}
     ></div>
     <div class="absolute inset-0 bg-gradient-to-t from-deep/80 to-transparent"></div>
+
+    {/* Bildkälla, diskret i nedre högra hörnet */}
+    {heroIsPhoto && d.heroCredit ? (
+      <p class="absolute bottom-3 right-4 z-10 text-white/60 text-xs">
+        Foto: {d.heroCreditUrl ? (
+          <a
+            href={d.heroCreditUrl}
+            rel="nofollow noopener"
+            target="_blank"
+            class="underline hover:text-white/90"
+          >{d.heroCredit}</a>
+        ) : d.heroCredit}
+      </p>
+    ) : (
+      <p class="absolute bottom-3 right-4 z-10 text-white/50 text-xs">Illustrerad miljöbild</p>
+    )}
+
     <div class="absolute bottom-0 left-0 right-0 px-4 sm:px-6 pb-10 max-w-[1280px] mx-auto">
       <div class="flex flex-wrap gap-2 mb-3">
         {d.primarySpecies.map((s: string) => (
