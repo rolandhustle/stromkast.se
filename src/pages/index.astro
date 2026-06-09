@@ -35,7 +35,6 @@ const heroImgWebP = await getImage({ src: heroSrc, format: 'webp', width: 1920, 
 
 const now   = new Date();
 const moon  = getMoonPhase(now);
-const month = now.getMonth() + 1;
 
 const destinationPins = await Promise.all(
   destinations.map(async (dest) => {
@@ -43,7 +42,7 @@ const destinationPins = await Promise.all(
     const smhi = await fetchSMHIForCoords(d.lat, d.lng);
     const { airTemp, windSpeed, windDir, humidity, stationName, error } = smhi;
 
-    const bite = getBiteScore(airTemp, windSpeed, moon.illumination, d.primarySpecies, month);
+    const bite = getBiteScore(airTemp, windSpeed, d.primarySpecies, d.lat, now);
 
     return {
       slug:        d.slug,

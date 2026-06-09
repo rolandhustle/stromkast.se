@@ -7,6 +7,7 @@
  */
 
 import { useState, useMemo, useEffect } from 'react';
+import { getScore, moonColorIntensity, REGIONS as REGION_DATA } from '../data/calendar';
 
 function useIsMobile(breakpoint = 768): boolean {
   const [isMobile, setIsMobile] = useState(true);
@@ -48,6 +49,8 @@ interface SpeciesInfo {
   name:        string;
   peakMonths:  number[];
   okMonths:    number[];
+  spawningMonths: number[];
+  closedMonths?:  number[];
 }
 
 interface Props {
@@ -84,33 +87,25 @@ function windDirLabel(deg: number): string {
 // Säsongsfärg (bakgrund per dag) -- baseras enbart på säsong
 // ---------------------------------------------------------------------------
 
-// moonScore 1-10 → intensitet 0=låg, 1=medel, 2=hög
-function moonIntensity(moonScore: number): 0 | 1 | 2 {
-  if (moonScore >= 8) return 2;
-  if (moonScore >= 6) return 1;
+// moonColorIntensity 0..1 → nyanssteg 0=låg, 1=medel, 2=hög (utspridd runt ny/full)
+function moonIntensity(intensity: number): 0 | 1 | 2 {
+  if (intensity >= 0.66) return 2;
+  if (intensity >= 0.33) return 1;
   return 0;
 }
 
-function getSeasonStyle(month: number, speciesSlug: string | null, species: SpeciesInfo[], moonScore: number = 5): {
+// Fredad (stängt fiske): egen lugn slate-ton, inte grå "Trögt"
+const FREDAD_STYLE = { bg: '#f1f5f9', border: '#cbd5e1', textColor: '#475569' };
+
+function getSeasonStyle(seasonScore: number, date: string | null = null): {
   bg: string; border: string; textColor: string;
 } {
-  let level: 'peak' | 'ok' | 'low' | 'off' = 'off';
+  // Säsongston från dagens faktiska säsongspoäng (samma trösklar som överallt),
+  // så tonen kan byta mitt i månaden när kurvan korsar 68 eller 42.
+  const level: 'peak' | 'ok' | 'low' =
+    seasonScore >= 68 ? 'peak' : seasonScore >= 42 ? 'ok' : 'low';
 
-  if (speciesSlug) {
-    const sp = species.find(s => s.slug === speciesSlug);
-    if (sp) {
-      if (sp.peakMonths.includes(month))    level = 'peak';
-      else if (sp.okMonths.includes(month)) level = 'ok';
-      else                                  level = 'off';
-    }
-  } else {
-    if ([4,5,9,10].includes(month))      level = 'peak';
-    else if ([3,6,8,11].includes(month)) level = 'ok';
-    else if ([2,7].includes(month))      level = 'low';
-    else                                 level = 'off';
-  }
-
-  const mi = moonIntensity(moonScore);
+  const mi = date ? moonIntensity(moonColorIntensity(new Date(date + 'T12:00:00Z'))) : 1;
 
   // Tre nyanser per säsongsnivå -- ljusare = sämre månfas, mörkare = bättre månfas
   const PALETTES = {
@@ -147,9 +142,7 @@ function getSeasonStyle(month: number, speciesSlug: string | null, species: Spec
 
 function getMonthAvgScore(
   year: number, month: number,
-  moonDays: MoonDay[],
   region: string,
-  climateNormals: Record<string, number[]>,
   forecasts: Record<string, DayForecast[]>,
   speciesSlug: string | null,
   species: SpeciesInfo[]
@@ -158,7 +151,7 @@ function getMonthAvgScore(
   let total = 0;
   for (let d = 1; d <= daysInMonth; d++) {
     const date = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    total += getDayScore(date, moonDays, region, climateNormals, forecasts, speciesSlug, species).score;
+    total += getDayScore(date, region, forecasts, speciesSlug, species).score;
   }
   return Math.round(total / daysInMonth);
 }
@@ -169,50 +162,42 @@ function getMonthAvgScore(
 
 function getDayScore(
   date: string,
-  moonDays: MoonDay[],
   region: string,
-  climateNormals: Record<string, number[]>,
   forecasts: Record<string, DayForecast[]>,
   speciesSlug: string | null,
   species: SpeciesInfo[]
-): { score: number; moonScore: number; seasonScore: number; isPrognosis: boolean } {
-  const d        = new Date(date + 'T12:00:00Z');
-  const month    = d.getUTCMonth() + 1;
-  const moonDay  = moonDays.find(m => m.date === date);
-  const moonScore = moonDay?.score ?? 5;
-  const forecast  = forecasts[region]?.find(f => f.date === date);
-  const isPrognosis = !!forecast;
+): { score: number; season: number; moonAdj: number; weatherAdj: number; isPrognosis: boolean; closed: boolean } {
+  const dateObj  = new Date(date + 'T12:00:00Z');
+  const forecast = forecasts[region]?.find(f => f.date === date);
+  const rdata    = REGION_DATA.find(r => r.slug === region) ?? REGION_DATA[0];
 
-  let seasonScore = 2;
   if (speciesSlug) {
     const sp = species.find(s => s.slug === speciesSlug);
     if (sp) {
-      if (sp.peakMonths.includes(month))    seasonScore = 9;
-      else if (sp.okMonths.includes(month)) seasonScore = 6;
+      const r = getScore({ species: sp, date: dateObj, region: rdata, forecast });
+      return { score: r.score, season: r.season, moonAdj: r.moonAdj, weatherAdj: r.weatherAdj, isPrognosis: !!forecast, closed: r.closed };
     }
-  } else {
-    const norm = climateNormals[region]?.[month - 1] ?? 10;
-    if (norm >= 8 && norm <= 18)      seasonScore = 8;
-    else if (norm >= 4 && norm < 8)   seasonScore = 6;
-    else if (norm > 18 && norm <= 22) seasonScore = 5;
-    else if (norm < 0)                seasonScore = 2;
-    else                              seasonScore = 4;
   }
 
-  let weatherBonus = 0;
-  if (forecast) {
-    if (forecast.tempMean >= 8 && forecast.tempMean <= 18)  weatherBonus += 12;
-    else if (forecast.tempMean >= 4)                        weatherBonus += 4;
-    else if (forecast.tempMean < 0)                         weatherBonus -= 10;
-    if (forecast.windSpeed >= 1 && forecast.windSpeed <= 4) weatherBonus += 8;
-    else if (forecast.windSpeed > 10)                       weatherBonus -= 15;
-    if (forecast.precip > 5)                                weatherBonus -= 5;
-  }
-
-  const base  = Math.round(moonScore * 0.25 + seasonScore * 0.75);
-  const score = Math.max(1, Math.min(10, base + Math.round(weatherBonus / 10)));
-
-  return { score, moonScore, seasonScore, isPrognosis };
+  // Alla arter: snitta säsongsbaslinjerna, lägg på måne och väder en gång.
+  // Fredade arter exkluderas den månaden så de inte stänger eller drar ner gruppen.
+  const month = dateObj.getUTCMonth() + 1;
+  const openSpecies = species.filter(sp => !sp.closedMonths?.includes(month));
+  const pool = openSpecies.length ? openSpecies : species;
+  const results = pool.map(sp => getScore({ species: sp, date: dateObj, region: rdata, forecast }));
+  const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / (xs.length || 1);
+  const seasonMean = mean(results.map(r => r.season));
+  const moonAdj    = results[0]?.moonAdj ?? 0;
+  const weatherAdj = results[0]?.weatherAdj ?? 0;
+  const score = Math.max(0, Math.min(100, Math.round(seasonMean + moonAdj + weatherAdj)));
+  return {
+    score,
+    season:      Math.round(seasonMean),
+    moonAdj,
+    weatherAdj,
+    isPrognosis: !!forecast,
+    closed:      false,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -220,12 +205,12 @@ function getDayScore(
 // ---------------------------------------------------------------------------
 
 function MonthGrid({
-  year, month, moonDays, forecasts, climateNormals, region, speciesSlug, species,
+  year, month, moonDays, forecasts, region, speciesSlug, species,
   onDayClick, selectedDate, today,
 }: {
   year: number; month: number;
   moonDays: MoonDay[]; forecasts: Record<string, DayForecast[]>;
-  climateNormals: Record<string, number[]>; region: string;
+  region: string;
   speciesSlug: string | null; species: SpeciesInfo[];
   onDayClick: (date: string) => void; selectedDate: string | null; today: string;
 }) {
@@ -257,12 +242,12 @@ function MonthGrid({
         {cells.map((date, i) => {
           if (!date) return <div key={i}></div>;
 
-          const { moonScore, isPrognosis } = getDayScore(date, moonDays, region, climateNormals, forecasts, speciesSlug, species);
+          const { isPrognosis, season: seasonScore, closed } = getDayScore(date, region, forecasts, speciesSlug, species);
           const moon       = moonDays.find(m => m.date === date);
           const d          = new Date(date + 'T12:00:00Z');
           const month      = d.getUTCMonth() + 1;
           const dayNum     = d.getUTCDate();
-          const season     = getSeasonStyle(month, speciesSlug, species, moonScore);
+          const season     = closed ? FREDAD_STYLE : getSeasonStyle(seasonScore, date);
           const isToday    = date === today;
           const isSelected = date === selectedDate;
 
@@ -296,6 +281,10 @@ function MonthGrid({
               <span style={{ fontSize: '13px', fontWeight: 700, color: season.textColor, lineHeight: 1 }}>
                 {dayNum}
               </span>
+
+              {closed && (
+                <span style={{ fontSize: '8px', fontWeight: 700, color: '#475569', lineHeight: 1, letterSpacing: '0.02em' }}>Fredad</span>
+              )}
 
               {/* Emoji enbart vid fullmåne eller nymåne */}
               {moon && (moon.phase === 'Fullmåne' || moon.phase === 'Nymåne') && (
@@ -351,18 +340,20 @@ function DayPanel({
   const moon       = moonDays.find(m => m.date === date);
   const forecast   = forecasts[region]?.find(f => f.date === date);
   const norm       = climateNormals[region]?.[month - 1];
-  const { score, moonScore, seasonScore, isPrognosis } = getDayScore(date, moonDays, region, climateNormals, forecasts, speciesSlug, species);
-  const season     = getSeasonStyle(month, speciesSlug, species);
+  const { score, season: seasonScore, moonAdj, weatherAdj, isPrognosis, closed } = getDayScore(date, region, forecasts, speciesSlug, species);
+  const moonScore = moon?.score ?? 5;
+  const season     = closed ? FREDAD_STYLE : getSeasonStyle(seasonScore, date);
 
   const speciesData = speciesSlug ? species.find(s => s.slug === speciesSlug) : null;
   const artSeason   = speciesData
-    ? speciesData.peakMonths.includes(month) ? 'Högsäsong'
-    : speciesData.okMonths.includes(month)   ? 'Bra säsong'
+    ? closed ? 'Fredad'
+    : seasonScore >= 68 ? 'Högsäsong'
+    : seasonScore >= 42 ? 'Bra säsong'
     : 'Lågsäsong'
     : null;
 
-  const scoreColor = score >= 7 ? '#16a34a' : score >= 5 ? '#d97706' : '#9ca3af';
-  const scoreLabel = score >= 7 ? 'Toppläge' : score >= 5 ? 'Värt att testa' : 'Trögt';
+  const scoreColor = score >= 68 ? '#16a34a' : score >= 42 ? '#d97706' : '#9ca3af';
+  const scoreLabel = score >= 68 ? 'Toppläge' : score >= 42 ? 'Värt att testa' : 'Trögt';
 
   const moonDots = moonScore >= 8 ? 3 : moonScore >= 6 ? 2 : 1;
   const moonColor = moonScore >= 8 ? '#6366f1' : moonScore >= 6 ? '#8b5cf6' : '#c4b5fd';
@@ -383,7 +374,7 @@ function DayPanel({
         </h3>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: season.bg, color: season.textColor, border: `1px solid ${season.border}`, fontSize: '12px', fontWeight: 600, padding: '4px 10px', borderRadius: '20px' }}>
-            {scoreLabel} · {score}/10
+            {closed ? 'Fredad' : `${scoreLabel} · ${score}/100`}
           </span>
           {isPrognosis && (
             <span style={{ fontSize: '11px', color: '#2563eb', fontWeight: 600, background: '#eff6ff', border: '1px solid #bfdbfe', padding: '3px 8px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -454,31 +445,51 @@ function DayPanel({
 
       {/* Artinfo */}
       {speciesData && artSeason && (
-        <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '0.75rem', marginBottom: '1rem' }}>
-          <p style={{ fontSize: '10px', color: '#166534', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>{speciesData.name}</p>
+        <div style={{ background: closed ? FREDAD_STYLE.bg : '#f0fdf4', border: `1px solid ${closed ? FREDAD_STYLE.border : '#bbf7d0'}`, borderRadius: '12px', padding: '0.75rem', marginBottom: '1rem' }}>
+          <p style={{ fontSize: '10px', color: closed ? FREDAD_STYLE.textColor : '#166534', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>{speciesData.name}</p>
           <p style={{ fontSize: '14px', fontWeight: 700, color: '#111827' }}>{artSeason}</p>
-          <p style={{ fontSize: '11px', color: '#6b7280', marginTop: '2px' }}>Säsongspoäng: {seasonScore}/10</p>
+          <p style={{ fontSize: '11px', color: '#6b7280', marginTop: '2px' }}>{closed ? 'Fredningstid. Fiske efter arten kan vara förbjudet.' : `Säsong (baslinje): ${seasonScore}`}</p>
         </div>
       )}
 
-      {/* Poängsammansättning */}
+      {/* Så räknas poängen */}
+      {closed ? (
+        <div style={{ borderTop: '1px solid #f3f4f6', paddingTop: '0.75rem' }}>
+          <p style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px', fontWeight: 600 }}>Fredad</p>
+          <p style={{ fontSize: '12px', color: '#475569', lineHeight: 1.5 }}>Fiske efter arten är fredat den här perioden, så ingen poäng visas. Kontrollera alltid de lokala reglerna för ditt vatten.</p>
+        </div>
+      ) : (
       <div style={{ borderTop: '1px solid #f3f4f6', paddingTop: '0.75rem' }}>
-        <p style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', fontWeight: 600 }}>Poängsammansättning</p>
-        {[
-          { label: 'Säsong', pct: '70%', val: seasonScore, color: '#16a34a' },
-          { label: 'Månfas', pct: '25%', val: moonScore,   color: '#7c3aed' },
-          { label: 'Väder',  pct: '5%',  val: forecast ? Math.min(10, Math.max(1, score)) : null, color: '#2563eb' },
-        ].map(({ label, pct, val, color }) => val !== null && (
-          <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-            <span style={{ fontSize: '11px', color: '#6b7280', width: '50px', flexShrink: 0 }}>{label}</span>
-            <span style={{ fontSize: '10px', color: '#9ca3af', width: '28px', flexShrink: 0 }}>{pct}</span>
-            <div style={{ flex: 1, height: '6px', background: '#f3f4f6', borderRadius: '3px', overflow: 'hidden' }}>
-              <div style={{ width: `${val * 10}%`, height: '100%', background: color, borderRadius: '3px' }}></div>
-            </div>
-            <span style={{ fontSize: '11px', fontWeight: 700, color: '#111827', width: '20px', textAlign: 'right' }}>{val}</span>
+        <p style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', fontWeight: 600 }}>Så räknas poängen</p>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+          <span style={{ fontSize: '11px', color: '#6b7280', width: '64px', flexShrink: 0 }}>Säsong</span>
+          <div style={{ flex: 1, height: '6px', background: '#f3f4f6', borderRadius: '3px', overflow: 'hidden' }}>
+            <div style={{ width: `${seasonScore}%`, height: '100%', background: '#16a34a', borderRadius: '3px' }}></div>
           </div>
-        ))}
+          <span style={{ fontSize: '11px', fontWeight: 700, color: '#111827', width: '32px', textAlign: 'right' }}>{seasonScore}</span>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+          <span style={{ fontSize: '11px', color: '#6b7280', width: '64px', flexShrink: 0 }}>Månfas</span>
+          <span style={{ fontSize: '10px', color: '#9ca3af', flex: 1 }}>justering</span>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: '#7c3aed', width: '32px', textAlign: 'right' }}>{moonAdj >= 0 ? '+' : ''}{moonAdj}</span>
+        </div>
+
+        {forecast && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+            <span style={{ fontSize: '11px', color: '#6b7280', width: '64px', flexShrink: 0 }}>Väder</span>
+            <span style={{ fontSize: '10px', color: '#9ca3af', flex: 1 }}>SMHI-prognos</span>
+            <span style={{ fontSize: '11px', fontWeight: 700, color: '#2563eb', width: '32px', textAlign: 'right' }}>{weatherAdj >= 0 ? '+' : ''}{weatherAdj}</span>
+          </div>
+        )}
+
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #f3f4f6', marginTop: '8px', paddingTop: '8px' }}>
+          <span style={{ fontSize: '11px', color: '#374151', fontWeight: 600 }}>Totalt</span>
+          <span style={{ fontSize: '13px', fontWeight: 700, color: '#111827' }}>{score}/100</span>
+        </div>
       </div>
+      )}
     </div>
   );
 }
@@ -496,15 +507,17 @@ export default function KalenderWidget({
 
   const [selectedMonth,   setSelectedMonth]   = useState(currentMonth);
   const [selectedRegion,  setSelectedRegion]  = useState('mellansverige');
-  const [selectedSpecies, setSelectedSpecies] = useState<string | null>(null);
+  const [selectedSpecies, setSelectedSpecies] = useState<string | null>('gadda');
   const [selectedDate,    setSelectedDate]    = useState<string | null>(null);
 
   const monthScores = useMemo(() => {
+    const sp = selectedSpecies ? species.find(s => s.slug === selectedSpecies) : null;
     return Array.from({ length: 12 }, (_, i) => {
       const month = i + 1;
       return {
         month,
-        score: getMonthAvgScore(year, month, moonDays, selectedRegion, climateNormals, forecasts, selectedSpecies, species),
+        score: getMonthAvgScore(year, month, selectedRegion, forecasts, selectedSpecies, species),
+        closed: !!sp?.closedMonths?.includes(month),
       };
     });
   }, [selectedRegion, selectedSpecies]);
@@ -572,7 +585,7 @@ export default function KalenderWidget({
               <span style={{ fontSize: '11px', color: '#9ca3af' }}>→</span>
               <span style={{ width: '14px', height: '14px', borderRadius: '4px', background: '#bbf7d0', border: '1.5px solid #6ee7b7', display: 'inline-block' }}></span>
             </span>
-            Mörkare = gynnsam månfas 🌕
+            Mörkare färg = mer gynnsam månfas 🌕
           </span>
         </div>
       </div>
@@ -592,7 +605,7 @@ export default function KalenderWidget({
 
           <MonthGrid
             year={year} month={selectedMonth}
-            moonDays={moonDays} forecasts={forecasts} climateNormals={climateNormals}
+            moonDays={moonDays} forecasts={forecasts}
             region={selectedRegion} speciesSlug={selectedSpecies} species={species}
             onDayClick={setSelectedDate} selectedDate={selectedDate} today={today}
           />
@@ -614,8 +627,8 @@ export default function KalenderWidget({
                 <p style={{ fontSize: '12px', fontWeight: 600, color: '#374151' }}>📅 Månadsöversikt {year}</p>
               </div>
               <div style={{ padding: '0.5rem' }}>
-                {monthScores.map(({ month, score }) => {
-                  const seasonSt = getSeasonStyle(month, selectedSpecies, species);
+                {monthScores.map(({ month, score, closed }) => {
+                  const seasonSt = closed ? FREDAD_STYLE : getSeasonStyle(score, null);
                   const isSel    = month === selectedMonth;
                   const isNow    = month === currentMonth;
                   return (
@@ -634,9 +647,9 @@ export default function KalenderWidget({
                         {MONTHS_ABB[month - 1]}
                       </span>
                       <div style={{ flex: 1, height: '8px', background: '#f3f4f6', borderRadius: '4px', overflow: 'hidden' }}>
-                        <div style={{ width: `${score * 10}%`, height: '100%', background: seasonSt.border, borderRadius: '4px', transition: 'width 0.3s' }}></div>
+                        <div style={{ width: closed ? '100%' : `${score}%`, height: '100%', background: seasonSt.border, borderRadius: '4px', transition: 'width 0.3s' }}></div>
                       </div>
-                      <span style={{ fontSize: '11px', fontWeight: 700, color: '#111827', width: '20px', textAlign: 'right' }}>{score}</span>
+                      <span style={{ fontSize: closed ? '9px' : '11px', fontWeight: 700, color: closed ? '#475569' : '#111827', width: closed ? 'auto' : '20px', textAlign: 'right', flexShrink: 0 }}>{closed ? 'Fredad' : score}</span>
                     </button>
                   );
                 })}
@@ -646,7 +659,7 @@ export default function KalenderWidget({
 
           <div style={{ background: '#f9fafb', borderRadius: '12px', padding: '0.875rem 1rem', marginTop: isMobile ? '0' : 'auto' }}>
             <p style={{ fontSize: '11px', color: '#6b7280', lineHeight: 1.6, margin: 0 }}>
-              <strong style={{ color: '#374151' }}>Färgton</strong> = säsong × månfas. Mörkare nyans = gynnsam månfas den dagen. 🌕🌑 visas vid fullmåne och nymåne. <strong style={{ color: '#2563eb' }}>SMHI</strong> = aktuell prognos.
+              <strong style={{ color: '#374151' }}>Färgton</strong> = säsong × månfas. Mörkare färg = mer gynnsam månfas den dagen. 🌕🌑 visas vid fullmåne och nymåne. <strong style={{ color: '#2563eb' }}>SMHI</strong> = aktuell prognos.
             </p>
           </div>
         </div>

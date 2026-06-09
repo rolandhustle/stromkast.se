@@ -14,7 +14,7 @@ faq:
   - q: "Påverkar månfasen fisket?"
     a: "Forskning visar en liten men mätbar effekt. En analys av 341 959 muskellungefångster (Vinson och Angradi, PLOS ONE 2014) visade ungefär 5 procent fler fångster runt ny- och fullmåne. Säsong och vattentemperatur påverkar fisket betydligt mer."
   - q: "Hur fungerar Strömkasts nappkalender?"
-    a: "Betningsindikatorn väger samman tre faktorer: säsong (70 procent), månfas (25 procent) och aktuell SMHI-väderprognos (5 procent). För de kommande 10 dygnen används faktisk prognos. Längre fram baseras bedömningen på historiska klimatnormaler 1991-2020 från SMHI."
+    a: "Betningsindikatorn räknas på en skala 0 till 100. Säsongen utgör grunden och sätter baslinjen utifrån artens biologi och var i landet du fiskar. Månfasen justerar poängen några steg upp eller ner. För de kommande 10 dygnen väger även SMHI:s väderprognos in. Längre fram än så bygger poängen enbart på säsong och månfas."
   - q: "Skiljer sig nappkalendern åt för olika regioner i Sverige?"
     a: "Ja. Säsongen är 4-8 veckor senare i norra Sverige och fjällvärlden jämfört med södra Sverige. Strömkasts kalender låter dig filtrera på region för att få en mer relevant bedömning."
   - q: "Hur tillförlitlig är nappkalendern?"
@@ -33,13 +33,15 @@ Det innebär att säsongens tidpunkt varierar med upp till 8 veckor beroende på
 
 Det här är grundbulten i hur vi tänkt när vi byggt [nappkalendern](/nappkalender/).
 
-## Tre faktorer, olika vikt
+## Tre faktorer, olika tyngd
 
-Betningsindikatorn i Strömkasts kalender väger samman tre saker.
+Betningsindikatorn räknas på en skala 0 till 100. Tre saker avgör var en dag hamnar, och de väger olika tungt.
 
-### Säsong (70 procent)
+### Säsong, grunden
 
-Den dominerande faktorn. Vi har kartlagt lek- och aktivitetsfönster för varje art baserat på biologiska fakta från Havs- och vattenmyndigheten och SLU. Poängen höjs under de perioder då arten är aktiv och i de lägen där den är fångstbar. Den sänks under lekperioden, inte för att fisken inte finns där, utan för att ett ansvarfullt fiske undviker att störa leken.
+Säsongen sätter baslinjen. Vi har kartlagt lek- och aktivitetsfönster för varje art baserat på biologiska fakta från Havs- och vattenmyndigheten och SLU, och utifrån det ritar vi en mjuk kurva över året. Poängen är hög när arten är aktiv och fångstbar, och låg under sommarens värmesvacka eller vinterns kyla. Eftersom kurvan är mjuk kan två dagar i samma månad ligga olika högt. Under själva leken sänks poängen, inte för att fisken inte finns där, utan för att ett ansvarsfullt fiske undviker att störa leken.
+
+Säsongen är också förskjuten efter var i landet du fiskar. Ett nordligt vatten toppar senare på året än ett sydligt, och du kan filtrera på region för att få rätt kurva.
 
 Artspecifika säsongsdata:
 
@@ -59,23 +61,21 @@ Artspecifika säsongsdata:
 
 **[Röding](/arter/roding/):** aktiv i kallt djupt vatten. Topperioderna är vår och höst. Utmärkt för isfiske.
 
-### Månfas (25 procent)
+### Månfas, en liten knuff
 
 Månfasens påverkan på fisket är verklig men liten. Den mest citerade studien är Vinson och Angradis analys av 341 959 fångster av maskalung i Nordamerika (PLOS ONE, 2014). Maskalung är en nordamerikansk gäddart med liknande beteendemönster som gädda. Resultatet: ungefär 5 procent fler fångster runt ny- och fullmåne. Effekten var starkare för stora fiskar och på höga latituder.
 
-Det är en mätbar signal, inte en slump. Men det är en svag signal. En bra dag med ogynnsam månfas slår en dålig dag med fullmåne varje gång.
+I kalendern motsvarar det några få poäng. Ny- och fullmåne ger en liten plusjustering, kvartsfaserna en liten minus. Det är en mätbar signal, men en svag. En bra säsongsdag med ogynnsam månfas slår en svag säsongsdag med fullmåne varje gång.
 
-Vi visar månfasens dagliga variation i kalendern via färgintensitet. En högsäsongsdag med gynnsam månfas är mörkare grön än en med ogynnsam månfas. Det ger en visuell variation inom månaden som speglar den faktiska biologin. Vi påstår ingenstans att det är avgörande, men det är ett riktmärke som finns där om du vill använda det.
+Vi visar månfasens dagliga variation som färgintensitet. En högsäsongsdag med gynnsam månfas är mörkare grön än en med ogynnsam, men siffran rör sig bara några poäng. Fullmåne och nymåne markeras dessutom med emoji i kalenderrutan.
 
-Fullmåne och nymåne markeras med emoji i kalenderrutan. De är de enda dagarna då månfasen är tillräckligt stark för att förtjäna en tydlig markering.
+### Väder, men bara tio dygn fram
 
-### SMHI-väderprognos (5 procent)
-
-För de kommande 10 dygnen hämtar vi faktisk väderprognos från SMHI:s öppna API per region. Lufttemperatur, vindstyrka och nederbörd väger in i bedömningen. Dagar med prognosdata markeras med en blå SMHI-badge i kalenderrutan.
+För de kommande 10 dygnen hämtar vi faktisk väderprognos från SMHI:s öppna API per region. Lufttemperatur och vindstyrka justerar poängen inom ett begränsat spann. Dagar med prognosdata markeras med en SMHI-badge i kalenderrutan.
 
 Vindstyrka påverkar framförallt tillgängligheten, inte fisken i sig. 1-4 meter per sekund är optimalt för de flesta fiskeformer. Över 10 meter per sekund gör fiske svårt eller omöjligt i de flesta vatten.
 
-Temperaturprognoser är meningsfulla på 10 dygns sikt. Längre fram än så baseras bedömningen på klimatnormaler 1991-2020 från SMHI, vilket ger ett historiskt riktmärke snarare än en faktisk prognos.
+Längre fram än tio dygn finns ingen väderprognos. Då bygger poängen enbart på säsong och månfas. Vi gissar alltså inte vädret långt i förväg, vi låter den faktorn vara tyst tills prognosen når fram.
 
 ## Hur vi skiljer oss från en traditionell huggtabell
 

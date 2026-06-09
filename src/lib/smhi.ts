@@ -9,7 +9,7 @@
  */
 
 import stationsData from '../data/smhi-stations.json';
-import seasonsData  from '../data/seasons.json';
+import { getScore, SPECIES } from '../data/calendar';
 
 // ---------------------------------------------------------------------------
 // Typer
@@ -136,21 +136,21 @@ export function getMoonPhase(date: Date): MoonData {
 }
 
 // ---------------------------------------------------------------------------
-// Säsongsbonus per art
+// Artmatchning och latitudförskjutning
 // ---------------------------------------------------------------------------
 
-type SeasonEntry = { peak: number[]; ok: number[] };
-const seasons = seasonsData as Record<string, SeasonEntry>;
+// Normaliserar bort diakritik så "Gädda", "gadda" och "GÄDDA" matchar artens slug.
+function fold(s: string): string {
+  return s.toLowerCase()
+    .replace(/[åä]/g, 'a')
+    .replace(/ö/g, 'o')
+    .replace(/[éè]/g, 'e')
+    .replace(/[^a-z0-9]/g, '');
+}
 
-export function getSeasonBonus(species: string[], month: number): number {
-  let best = 0;
-  for (const art of species) {
-    const entry = seasons[art.toLowerCase()];
-    if (!entry) continue;
-    if (entry.peak.includes(month)) { best = Math.max(best, 25); break; }
-    if (entry.ok.includes(month))     best = Math.max(best, 12);
-  }
-  return best;
+// Latitud → månadsförskjutning. 0 vid mellansverige, +1 i söder, −1 i norr.
+function offsetFromLat(lat: number): number {
+  return Math.max(-2.5, Math.min(1.5, (59.33 - lat) / 3.7));
 }
 
 // ---------------------------------------------------------------------------
@@ -158,39 +158,43 @@ export function getSeasonBonus(species: string[], month: number): number {
 // ---------------------------------------------------------------------------
 
 export function getBiteScore(
-  airTemp:          number | null,
-  windSpeed:        number | null,
-  moonIllumination: number,
-  species:          string[] = [],
-  month:            number   = new Date().getMonth() + 1
+  airTemp:   number | null,
+  windSpeed: number | null,
+  species:   string[] = [],
+  lat:       number   = 59.33,
+  date:      Date     = new Date()
 ): BiteScore {
-  let score = 40;
+  const region  = { slug: 'lat', name: '', offset: offsetFromLat(lat) };
+  const weather = (airTemp !== null && windSpeed !== null)
+    ? { tempMean: airTemp, windSpeed, precip: 0 }
+    : undefined;
 
-  if (airTemp !== null) {
-    if (airTemp >= 8 && airTemp <= 18)      score += 20;
-    else if (airTemp >= 4 && airTemp < 8)   score += 8;
-    else if (airTemp > 18 && airTemp <= 24) score += 10;
-    else if (airTemp < 0)                   score -= 15;
-    else if (airTemp > 24)                  score -= 8;
+  // Matcha vattnets arter mot kalenderns SPECIES via diakritik-fold
+  const matched = species
+    .map(name => SPECIES.find(sp => sp.slug === fold(name)))
+    .filter((sp): sp is NonNullable<typeof sp> => sp != null);
+
+  // Fredade arter (t.ex. asp i april och maj) ska inte styra ett vattens poäng
+  const openScores = matched
+    .map(sp => getScore({ species: sp, date, region, forecast: weather }))
+    .filter(r => !r.closed)
+    .map(r => r.score);
+
+  let raw: number;
+  if (openScores.length) {
+    // Bästa art i säsong styr (måne och väder är lika för alla arter)
+    raw = Math.max(...openScores);
+  } else {
+    // Ingen känd eller öppen säsong: allmän utsikt = snitt av alla arter
+    const all = SPECIES.map(sp => getScore({ species: sp, date, region, forecast: weather }).score);
+    raw = all.reduce((a, b) => a + b, 0) / all.length;
   }
 
-  if (windSpeed !== null) {
-    if (windSpeed >= 1 && windSpeed <= 4)      score += 15;
-    else if (windSpeed > 4 && windSpeed <= 7)  score += 5;
-    else if (windSpeed > 7 && windSpeed <= 10) score -= 10;
-    else if (windSpeed > 10)                   score -= 22;
-    else if (windSpeed < 1)                    score -= 5;
-  }
-
-  if (moonIllumination > 90 || moonIllumination < 10) score += 12;
-  else if (moonIllumination > 75 || moonIllumination < 25) score += 6;
-
-  score += getSeasonBonus(species, month);
-  score  = Math.max(0, Math.min(100, score));
+  const score = Math.max(0, Math.min(100, Math.round(raw)));
 
   if (score >= 68) return { label: 'Toppläge',       color: 'green', score, dots: 3 };
   if (score >= 42) return { label: 'Värt att testa', color: 'amber', score, dots: 2 };
-  return              { label: 'Trögt',           color: 'stone', score, dots: 1 };
+  return                  { label: 'Trögt',          color: 'stone', score, dots: 1 };
 }
 
 // ---------------------------------------------------------------------------

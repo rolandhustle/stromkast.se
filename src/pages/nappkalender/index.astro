@@ -51,6 +51,8 @@ const speciesForWidget = SPECIES.map(sp => ({
   name:       sp.name,
   peakMonths: sp.peakMonths,
   okMonths:   sp.okMonths,
+  spawningMonths: sp.spawningMonths,
+  closedMonths:   sp.closedMonths,
 }));
 
 // Månadsöversikt för tabellen
@@ -66,7 +68,8 @@ const speciesMonthScores = SPECIES.map(sp => {
     const avg        = monthWeeks.length
       ? Math.round(monthWeeks.reduce((s, w) => s + w.totalScore, 0) / monthWeeks.length)
       : 0;
-    return { month, score: avg, ...getScoreLabel(avg) };
+    const closed = !!sp.closedMonths?.includes(month);
+    return { month, score: avg, closed, ...getScoreLabel(avg, closed) };
   });
   return { species: sp, months };
 });
@@ -92,7 +95,7 @@ const faqSchema = {
     {
       '@type': 'Question',
       name: 'Hur fungerar betningsindikatorn?',
-      acceptedAnswer: { '@type': 'Answer', text: 'Betningsindikatorn väger samman tre faktorer: säsong (70%), månfas (25%) och väderprognos (5%). För de kommande 10 dygnen används aktuell SMHI-prognos. Längre fram baseras poängen på historiska klimatnormaler 1991–2020.' },
+      acceptedAnswer: { '@type': 'Answer', text: 'Betningsindikatorn räknas på en skala 0 till 100. Säsongen utgör grunden, månfasen justerar några poäng upp eller ner, och för de kommande 10 dygnen väger SMHI:s väderprognos in. Längre fram än så bygger poängen enbart på säsong och månfas.' },
     },
     {
       '@type': 'Question',
@@ -101,8 +104,8 @@ const faqSchema = {
     },
     {
       '@type': 'Question',
-      name: 'Vad betyder blå kant i kalendern?',
-      acceptedAnswer: { '@type': 'Answer', text: 'Blå kant markerar dagar där aktuell SMHI-väderprognos används i beräkningen. Prognosen sträcker sig 10 dygn framåt och uppdateras vid varje bygge.' },
+      name: 'Vad betyder SMHI-märket i kalendern?',
+      acceptedAnswer: { '@type': 'Answer', text: 'SMHI-märket visar dagar där aktuell väderprognos vägs in i beräkningen. Prognosen sträcker sig 10 dygn framåt och uppdateras vid varje bygge.' },
     },
   ],
 };
@@ -234,12 +237,12 @@ const DOT_CLASSES = {
               </td>
               {months.map(({ month, score, color }) => {
                 const isNow = month === currentMonth;
-                const bg = color === 'green' ? 'bg-green-500' : color === 'amber' ? 'bg-amber-400' : 'bg-stone/15';
+                const bg = color === 'green' ? 'bg-green-500' : color === 'amber' ? 'bg-amber-400' : color === 'slate' ? 'bg-slate-400' : 'bg-stone/15';
                 return (
                   <td class={`text-center px-1 py-3 ${isNow ? 'relative' : ''}`}>
                     <a href={`/nappkalender/${species.slug}/${MONTHS_SLUG[month - 1]}/`}>
                       <span class={`inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold ${bg} ${color === 'stone' ? 'text-stone' : 'text-white'} ${isNow ? 'ring-2 ring-pine ring-offset-1' : ''}`}>
-                        {score}
+                        {color === 'slate' ? '–' : score}
                       </span>
                     </a>
                   </td>

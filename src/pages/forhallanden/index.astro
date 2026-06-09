@@ -21,7 +21,6 @@ import {
 const destinations = await getCollection('destinations');
 const now   = new Date();
 const moon  = getMoonPhase(now);
-const month = now.getMonth() + 1;
 
 const waterTypeLabels: Record<string, string> = {
   lake:    'Sjö',
@@ -34,7 +33,7 @@ const regionData = await Promise.all(
   destinations.map(async (dest) => {
     const d    = dest.data;
     const smhi = await fetchSMHIForCoords(d.lat, d.lng);
-    const bite = getBiteScore(smhi.airTemp, smhi.windSpeed, moon.illumination, d.primarySpecies, month);
+    const bite = getBiteScore(smhi.airTemp, smhi.windSpeed, d.primarySpecies, d.lat, now);
     return {
       slug:        d.slug,
       name:        d.title,

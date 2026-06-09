@@ -44,7 +44,8 @@ const isCurrentMonth  = now.getMonth() + 1 === month;
 const avgScore  = monthWeeks.length
   ? Math.round(monthWeeks.reduce((s, w) => s + w.totalScore, 0) / monthWeeks.length)
   : 0;
-const { label, color } = getScoreLabel(avgScore);
+const monthClosed = !!species.closedMonths?.includes(month);
+const { label, color } = getScoreLabel(avgScore, monthClosed);
 
 // Bästa vecka denna månad
 const bestWeek  = [...monthWeeks].sort((a, b) => b.totalScore - a.totalScore)[0];
@@ -53,18 +54,21 @@ const COLOR_CLASSES = {
   green: 'bg-green-50 text-green-700 border-green-100',
   amber: 'bg-amber-50 text-amber-700 border-amber-100',
   stone: 'bg-stone/10 text-stone border-stone/20',
+  slate: 'bg-slate-100 text-slate-600 border-slate-200',
 };
 
 const DOT_CLASSES = {
   green: 'bg-green-500',
   amber: 'bg-amber-400',
   stone: 'bg-stone/40',
+  slate: 'bg-slate-400',
 };
 
 const BAR_CLASSES = {
   green: 'bg-green-500',
   amber: 'bg-amber-400',
   stone: 'bg-stone/25',
+  slate: 'bg-slate-300',
 };
 
 const breadcrumbSchema = {
@@ -116,7 +120,7 @@ const breadcrumbSchema = {
             <span class={`w-2 h-2 rounded-full ${DOT_CLASSES[color]}`}></span>
             {label}
           </span>
-          <span class="text-stone text-sm">{avgScore}/10 i snitt denna månad</span>
+          <span class="text-stone text-sm">{avgScore}/100 i snitt denna månad</span>
           {isCurrentMonth && <span class="text-xs bg-pine text-white px-2 py-1 rounded-full font-medium">Aktuell månad</span>}
         </div>
 
@@ -132,8 +136,8 @@ const breadcrumbSchema = {
             <span>Bästa veckan denna månad:</span>
             <span class="font-semibold text-deep">Vecka {bestWeek.week}</span>
             <span>{bestWeek.moonEmoji}</span>
-            <span class={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${COLOR_CLASSES[getScoreLabel(bestWeek.totalScore).color]}`}>
-              {getScoreLabel(bestWeek.totalScore).label}
+            <span class={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${COLOR_CLASSES[getScoreLabel(bestWeek.totalScore, bestWeek.closed).color]}`}>
+              {getScoreLabel(bestWeek.totalScore, bestWeek.closed).label}
             </span>
           </div>
         )}
@@ -182,12 +186,10 @@ const breadcrumbSchema = {
     <h2 class="font-display text-2xl font-bold text-deep mb-6">Vecka för vecka</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {monthWeeks.map(w => {
-        const ws        = getScoreLabel(w.totalScore);
+        const ws        = getScoreLabel(w.totalScore, w.closed);
         const barCls    = BAR_CLASSES[ws.color];
         const colorCls  = COLOR_CLASSES[ws.color];
         const dotCls    = DOT_CLASSES[ws.color];
-        const msScore   = getScoreLabel(w.moonScore);
-        const ssScore   = getScoreLabel(w.seasonScore);
         return (
           <div class={`bg-white border rounded-2xl p-5 ${w.week === Math.ceil(((now.getTime() - new Date(`${year}-01-01`).getTime()) / 86400000) / 7) ? 'border-pine ring-1 ring-pine' : 'border-mist'}`}>
             <div class="flex items-center justify-between mb-3">
@@ -198,25 +200,25 @@ const breadcrumbSchema = {
 
             <!-- Total poäng -->
             <div class="h-2 bg-mist rounded-full overflow-hidden mb-2">
-              <div class={`h-full rounded-full ${barCls}`} style={`width: ${w.totalScore * 10}%`}></div>
+              <div class={`h-full rounded-full ${barCls}`} style={`width: ${w.totalScore}%`}></div>
             </div>
             <div class="flex items-center justify-between mb-4">
               <span class={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${colorCls}`}>
                 <span class={`w-1.5 h-1.5 rounded-full ${dotCls}`}></span>
                 {ws.label}
               </span>
-              <span class="text-sm font-bold text-deep">{w.totalScore}/10</span>
+              <span class="text-sm font-bold text-deep">{w.totalScore}/100</span>
             </div>
 
             <!-- Delpoäng -->
             <div class="space-y-1.5 border-t border-mist pt-3">
               <div class="flex items-center justify-between text-xs">
-                <span class="text-stone">Säsong</span>
-                <span class="font-semibold text-deep">{w.seasonScore}/10</span>
+                <span class="text-stone">Säsong (baslinje)</span>
+                <span class="font-semibold text-deep">{w.seasonScore}</span>
               </div>
               <div class="flex items-center justify-between text-xs">
-                <span class="text-stone">Månfas</span>
-                <span class="font-semibold text-deep">{w.moonScore}/10</span>
+                <span class="text-stone">Månfas (justering)</span>
+                <span class="font-semibold text-deep">{w.moonScore >= 0 ? '+' : ''}{w.moonScore}</span>
               </div>
               <div class="flex items-center justify-between text-xs">
                 <span class="text-stone">Fas</span>

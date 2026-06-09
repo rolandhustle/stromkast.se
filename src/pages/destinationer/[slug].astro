@@ -34,7 +34,7 @@ const now = new Date();
 const moon = getMoonPhase(now);
 const smhi = await fetchSMHIForCoords(d.lat, d.lng);
 const bite = smhi
-  ? getBiteScore(smhi.airTemp, smhi.windSpeed, moon.illumination)
+  ? getBiteScore(smhi.airTemp, smhi.windSpeed, d.primarySpecies, d.lat, now)
   : null;
 
 const waterTypeLabels: Record<string, string> = {
