@@ -277,8 +277,7 @@ function MonthGrid({
                 cursor: 'pointer',
                 display: 'flex',
                 flexDirection: 'column',
-                alignItems: 'center',
-                gap: '3px',
+                alignItems: 'stretch',
                 minHeight: '64px',
                 transition: 'transform 0.1s, box-shadow 0.1s',
                 boxShadow: isSelected ? '0 0 0 2px #1F3A2E' : 'none',
@@ -286,42 +285,35 @@ function MonthGrid({
               onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.06)'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)'; }}
               onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = isSelected ? '0 0 0 2px #1F3A2E' : 'none'; }}
             >
-              {/* Datum */}
-              <span style={{ fontSize: '13px', fontWeight: 700, color: season.textColor, lineHeight: 1 }}>
-                {dayNum}
-              </span>
+              {/* Topprad: SMHI-badge för prognosdagar */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-start', minHeight: '12px' }}>
+                {isPrognosis && (
+                  <span style={{
+                    fontSize: '7px', fontWeight: 700, color: '#2563eb',
+                    background: '#eff6ff', border: '1px solid #bfdbfe',
+                    borderRadius: '4px', padding: '0 3px', lineHeight: '12px',
+                    letterSpacing: '0.02em',
+                  }}>SMHI</span>
+                )}
+              </div>
 
-              {closed && (
-                <span style={{ fontSize: '8px', fontWeight: 700, color: '#475569', lineHeight: 1, letterSpacing: '0.02em' }}>Fredad</span>
-              )}
+              {/* Datum (mitten, fokus) */}
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1px' }}>
+                <span style={{ fontSize: '15px', fontWeight: 700, color: season.textColor, lineHeight: 1 }}>{dayNum}</span>
+                {closed && (
+                  <span style={{ fontSize: '8px', fontWeight: 700, color: '#475569', lineHeight: 1, letterSpacing: '0.03em', textTransform: 'uppercase' }}>Fredad</span>
+                )}
+              </div>
 
-              {/* Emoji enbart vid fullmåne eller nymåne */}
-              {moon && (moon.phase === 'Fullmåne' || moon.phase === 'Nymåne') && (
-                <span style={{ fontSize: '11px', lineHeight: 1 }}>{moon.emoji}</span>
-              )}
-
-              {/* SMHI-badge för prognosdagar */}
-              {isPrognosis && (
-                <span style={{
-                  position: 'absolute', top: '3px', right: '3px',
-                  fontSize: '6px', fontWeight: 700, color: '#2563eb',
-                  background: '#eff6ff', border: '1px solid #bfdbfe',
-                  borderRadius: '3px', padding: '1px 2px', lineHeight: 1,
-                  letterSpacing: '0.02em',
-                }}>
-                  SMHI
-                </span>
-              )}
-
-              {/* Idag-markering */}
-              {isToday && (
-                <span style={{
-                  position: 'absolute', bottom: '3px', left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: '4px', height: '4px', borderRadius: '50%',
-                  background: '#1F3A2E', display: 'inline-block',
-                }}></span>
-              )}
+              {/* Bottenrad: månsymbol och idag-markering */}
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: '4px', minHeight: '14px' }}>
+                {moon && (moon.phase === 'Fullmåne' || moon.phase === 'Nymåne') && (
+                  <span style={{ fontSize: '12px', lineHeight: 1 }}>{moon.emoji}</span>
+                )}
+                {isToday && (
+                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#1F3A2E', display: 'inline-block', marginBottom: '3px' }}></span>
+                )}
+              </div>
             </button>
           );
         })}
