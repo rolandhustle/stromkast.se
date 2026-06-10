@@ -20,6 +20,7 @@ import {
   
   windDirLabel,
 } from '../lib/smhi';
+import { SPECIES, MONTHS_SV } from '../data/calendar';
 
 import heroSrc from '../assets/images/hero-home.jpg';
 
@@ -35,6 +36,23 @@ const heroImgWebP = await getImage({ src: heroSrc, format: 'webp', width: 1920, 
 
 const now   = new Date();
 const moon  = getMoonPhase(now);
+
+// Teaser: bästa arterna denna månad (säsongstier från SPECIES, baslinje mellansverige)
+const teaserMonth     = now.getMonth() + 1;
+const teaserMonthName = MONTHS_SV[teaserMonth - 1];
+
+function teaserTier(sp: (typeof SPECIES)[number]): 'peak' | 'ok' | 'off' {
+  if (sp.closedMonths?.includes(teaserMonth)) return 'off';
+  if (sp.peakMonths.includes(teaserMonth))    return 'peak';
+  if (sp.okMonths.includes(teaserMonth))      return 'ok';
+  return 'off';
+}
+
+const teaserSpecies = SPECIES
+  .map((sp) => ({ slug: sp.slug, name: sp.name, tier: teaserTier(sp) }))
+  .filter((s) => s.tier !== 'off')
+  .sort((a, b) => (a.tier === 'peak' ? 0 : 1) - (b.tier === 'peak' ? 0 : 1))
+  .slice(0, 5);
 
 const destinationPins = await Promise.all(
   destinations.map(async (dest) => {
@@ -277,7 +295,7 @@ const categoryLabels: Record<string, string> = {
             Nappkalendern<br/>dag för dag
           </h2>
           <p class="text-white/80 text-lg leading-relaxed mb-8">
-            Daglig betningsindikator för gädda, abborre, gös, öring och fler. Baseras på säsong, månfas och SMHI-väderprognos. Filtrera på art och region.
+            Daglig betningsindikator för sjutton arter, från gädda och abborre till lax, harr och kustfisk som makrill. Baseras på säsong, månfas och SMHI-väderprognos, och du kan filtrera på art och region.
           </p>
           <div class="flex flex-col sm:flex-row gap-4">
             <a
@@ -297,19 +315,34 @@ const categoryLabels: Record<string, string> = {
             </a>
           </div>
         </div>
-        <div class="grid grid-cols-2 gap-3">
-          {[
-            { emoji: '🎣', title: 'Alla arter', desc: 'Gädda, abborre, gös, öring, lax, harr och röding.' },
-            { emoji: '🗺️', title: 'Per region', desc: 'Mellansverige, södra, norra och fjällvärlden.' },
-            { emoji: '🌕', title: 'Månfas', desc: 'Daglig variation synlig direkt i kalendern.' },
-            { emoji: '☁️', title: 'SMHI-prognos', desc: 'Faktisk väderprognos för kommande 10 dygn.' },
-          ].map(({ emoji, title, desc }) => (
-            <div class="bg-white/10 border border-white/10 rounded-2xl p-5">
-              <span class="text-2xl mb-3 block">{emoji}</span>
-              <p class="font-semibold text-white text-sm mb-1">{title}</p>
-              <p class="text-white/60 text-xs leading-relaxed">{desc}</p>
+        <div class="bg-white rounded-2xl p-6 shadow-xl shadow-black/20">
+          <div class="mb-5">
+            <p class="text-stone text-xs font-semibold uppercase tracking-wider mb-1">Bästa fisket i</p>
+            <p class="font-display text-2xl font-bold text-deep leading-none">{teaserMonthName}</p>
+          </div>
+
+          {teaserSpecies.length > 0 ? (
+            <div class="flex flex-col gap-2">
+              {teaserSpecies.map((s) => (
+                <a
+                  href={`/nappkalender/${s.slug}/`}
+                  class="flex items-center justify-between gap-3 rounded-xl border border-mist px-3.5 py-2.5 hover:border-pine/30 hover:bg-mist/40 transition-colors"
+                >
+                  <span class="font-semibold text-deep text-sm">{s.name}</span>
+                  <span class={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${s.tier === 'peak' ? 'bg-green-50 text-green-700 border-green-100' : 'bg-amber-50 text-amber-700 border-amber-100'}`}>
+                    <span class={`w-1.5 h-1.5 rounded-full ${s.tier === 'peak' ? 'bg-green-500' : 'bg-amber-400'}`}></span>
+                    {s.tier === 'peak' ? 'Högsäsong' : 'Bra säsong'}
+                  </span>
+                </a>
+              ))}
             </div>
-          ))}
+          ) : (
+            <p class="text-stone text-sm">Säsongsdata laddas.</p>
+          )}
+
+          <p class="text-stone text-xs mt-4 leading-relaxed">
+            Säsongsläge för {teaserMonthName}, baslinje mellansverige. I kalendern ser du läget dag för dag och kan filtrera på region och väder.
+          </p>
         </div>
       </div>
     </div>
