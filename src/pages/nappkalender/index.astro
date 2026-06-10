@@ -53,6 +53,8 @@ const speciesForWidget = SPECIES.map(sp => ({
   okMonths:   sp.okMonths,
   spawningMonths: sp.spawningMonths,
   closedMonths:   sp.closedMonths,
+  group:          sp.group,
+  absentRegions:  sp.absentRegions,
 }));
 
 // Månadsöversikt för tabellen
@@ -73,6 +75,13 @@ const speciesMonthScores = SPECIES.map(sp => {
   });
   return { species: sp, months };
 });
+
+const SPECIES_GROUPS = [
+  { key: 'rovfisk', label: 'Rovfisk' },
+  { key: 'laxfisk', label: 'Laxfisk' },
+  { key: 'vitfisk', label: 'Vitfisk' },
+  { key: 'kust',    label: 'Kust' },
+];
 
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
@@ -228,28 +237,39 @@ const DOT_CLASSES = {
           </tr>
         </thead>
         <tbody>
-          {speciesMonthScores.map(({ species, months }) => (
-            <tr class="border-b border-mist/60 hover:bg-mist/30 transition-colors">
-              <td class="px-5 py-3">
-                <a href={`/nappkalender/${species.slug}/`} class="font-semibold text-deep text-sm hover:text-pine transition-colors">
-                  {species.name}
-                </a>
-              </td>
-              {months.map(({ month, score, color }) => {
-                const isNow = month === currentMonth;
-                const bg = color === 'green' ? 'bg-green-500' : color === 'amber' ? 'bg-amber-400' : color === 'slate' ? 'bg-slate-400' : 'bg-stone/15';
-                return (
-                  <td class={`text-center px-1 py-3 ${isNow ? 'relative' : ''}`}>
-                    <a href={`/nappkalender/${species.slug}/${MONTHS_SLUG[month - 1]}/`}>
-                      <span class={`inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold ${bg} ${color === 'stone' ? 'text-stone' : 'text-white'} ${isNow ? 'ring-2 ring-pine ring-offset-1' : ''}`}>
-                        {color === 'slate' ? '–' : score}
-                      </span>
-                    </a>
-                  </td>
-                );
-              })}
-            </tr>
-          ))}
+          {SPECIES_GROUPS.map(g => {
+            const rows = speciesMonthScores.filter(r => r.species.group === g.key);
+            if (!rows.length) return null;
+            return (
+              <Fragment>
+                <tr class="bg-mist/40 border-b border-mist">
+                  <td colspan="13" class="px-5 py-2 text-xs font-bold text-pine uppercase tracking-wider">{g.label}</td>
+                </tr>
+                {rows.map(({ species, months }) => (
+                  <tr class="border-b border-mist/60 hover:bg-mist/30 transition-colors">
+                    <td class="px-5 py-3">
+                      <a href={`/nappkalender/${species.slug}/`} class="font-semibold text-deep text-sm hover:text-pine transition-colors">
+                        {species.name}
+                      </a>
+                    </td>
+                    {months.map(({ month, score, color }) => {
+                      const isNow = month === currentMonth;
+                      const bg = color === 'green' ? 'bg-green-500' : color === 'amber' ? 'bg-amber-400' : color === 'slate' ? 'bg-slate-400' : 'bg-stone/15';
+                      return (
+                        <td class={`text-center px-1 py-3 ${isNow ? 'relative' : ''}`}>
+                          <a href={`/nappkalender/${species.slug}/${MONTHS_SLUG[month - 1]}/`}>
+                            <span class={`inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold ${bg} ${color === 'stone' ? 'text-stone' : 'text-white'} ${isNow ? 'ring-2 ring-pine ring-offset-1' : ''}`}>
+                              {color === 'slate' ? '–' : score}
+                            </span>
+                          </a>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </Fragment>
+            );
+          })}
         </tbody>
       </table>
     </div>

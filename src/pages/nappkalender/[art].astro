@@ -107,6 +107,12 @@ const BAR_CLASSES = {
         <p class="text-stone/70 text-sm italic mb-4">{species.latin}</p>
         <p class="text-stone leading-relaxed max-w-xl">{species.description}</p>
 
+        {species.forekomst && (
+          <p class="text-stone/80 text-sm leading-relaxed max-w-xl mt-3 pl-3 border-l-2 border-stone/30">
+            <span class="font-semibold text-deep">Förekomst:</span> {species.forekomst}
+          </p>
+        )}
+
         <!-- Biologiska fakta -->
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-6">
           {[

@@ -88,6 +88,7 @@ export interface SpeciesData {
   group:       'rovfisk' | 'laxfisk' | 'vitfisk' | 'kust';
   description: string; // kort beskrivning för kalenderkontext
   forekomst?:  string;  // begränsad utbredning (kust, fåtal vatten)
+  absentRegions?: string[]; // regioner där arten inte förekommer (slugs)
   peakMonths:  number[]; // 1–12
   okMonths:    number[];
   // Biologisk data
@@ -626,6 +627,7 @@ export const SPECIES: SpeciesData[] = [
     slug:        'makrill',
     group:       'kust',
     forekomst:   'Kustart på väst- och sydkusten, saknas i insjöar.',
+    absentRegions: ['norra-sverige', 'fjallvarlden'],
     name:        'Makrill',
     latin:       'Scomber scombrus',
     description: 'Makrill är västkustens snabbsimmande sommargäst. Den kommer in mot kusten på sensommaren för att leka och äta och drar ut till djupt vatten på hösten.',
@@ -661,6 +663,7 @@ export const SPECIES: SpeciesData[] = [
     slug:        'horngadda',
     group:       'kust',
     forekomst:   'Kustart längs väst- och sydkusten och i Östersjön, saknas i insjöar.',
+    absentRegions: ['norra-sverige', 'fjallvarlden'],
     name:        'Horngädda',
     latin:       'Belone belone',
     description: 'Horngädda är makrillens förlöpare och ett säkert vårtecken på kusten. Den kommer in på grunt vatten för att leka och drar ut till havs efter leken.',

@@ -51,6 +51,8 @@ interface SpeciesInfo {
   okMonths:    number[];
   spawningMonths: number[];
   closedMonths?:  number[];
+  group?:         string;
+  absentRegions?: string[];
 }
 
 interface Props {
@@ -76,6 +78,13 @@ const REGIONS = [
   { slug: 'sodra-sverige', label: 'Södra Sverige'  },
   { slug: 'norra-sverige', label: 'Norra Sverige'  },
   { slug: 'fjallvarlden',  label: 'Fjällvärlden'   },
+];
+
+const SPECIES_GROUPS: { key: string; label: string }[] = [
+  { key: 'rovfisk', label: 'Rovfisk' },
+  { key: 'laxfisk', label: 'Laxfisk' },
+  { key: 'vitfisk', label: 'Vitfisk' },
+  { key: 'kust',    label: 'Kust' },
 ];
 
 const WIND_DIRS = ['N','NNO','NO','ONO','O','OSO','SO','SSO','S','SSV','SV','VSV','V','VNV','NV','NNV'];
@@ -535,6 +544,10 @@ export default function KalenderWidget({
   const prevMonth = selectedMonth > 1  ? selectedMonth - 1 : null;
   const nextMonth = selectedMonth < 12 ? selectedMonth + 1 : null;
 
+  const selectedSpeciesData = selectedSpecies ? species.find(s => s.slug === selectedSpecies) : null;
+  const selectedRegionLabel = REGIONS.find(r => r.slug === selectedRegion)?.label ?? '';
+  const isAbsentHere        = !!selectedSpeciesData?.absentRegions?.includes(selectedRegion);
+
   return (
     <div style={{ fontFamily: 'inherit' }}>
 
@@ -552,10 +565,11 @@ export default function KalenderWidget({
           <div>
             <p style={{ fontSize: '10px', color: '#9ca3af', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px' }}>Art</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-              <button onClick={() => setSelectedSpecies(null)} style={FILTER_BTN(selectedSpecies === null)}>Alla arter</button>
-              {species.map(sp => (
-                <button key={sp.slug} onClick={() => setSelectedSpecies(sp.slug)} style={FILTER_BTN(selectedSpecies === sp.slug)}>{sp.name}</button>
-              ))}
+              {SPECIES_GROUPS.flatMap(g =>
+                species.filter(sp => sp.group === g.key).map(sp => (
+                  <button key={sp.slug} onClick={() => setSelectedSpecies(sp.slug)} style={FILTER_BTN(selectedSpecies === sp.slug)}>{sp.name}</button>
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -591,6 +605,12 @@ export default function KalenderWidget({
       </div>
 
       {/* Huvud-layout */}
+      {isAbsentHere ? (
+        <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '2.5rem 1.5rem', textAlign: 'center' as const }}>
+          <p style={{ fontSize: '15px', fontWeight: 700, color: '#374151', marginBottom: '6px' }}>{selectedSpeciesData?.name} förekommer inte här</p>
+          <p style={{ fontSize: '13px', color: '#6b7280', maxWidth: '380px', margin: '0 auto', lineHeight: 1.5 }}>Arten finns inte i {selectedRegionLabel}. Välj en annan region eller art för att se nappkalendern.</p>
+        </div>
+      ) : (
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 280px', gap: '1rem', alignItems: 'stretch' }}>
 
         {/* Kalender */}
@@ -664,6 +684,7 @@ export default function KalenderWidget({
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 }
