@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import AffiliateCard from '../../components/AffiliateCard.astro';
 import { getCollection, render } from 'astro:content';
 import { Image, type ImageMetadata } from 'astro:assets';
+import { SPECIES, getScore, MONTHS_SV } from '../../data/calendar';
 
 import abboreSrc from '../../assets/images/species-abborre.png';
 import gosSrc    from '../../assets/images/species-gos.png';
@@ -29,6 +30,60 @@ const s = species.data;
 const { Content } = await render(species);
 
 const heroImage = speciesImages[s.slug];
+
+// ---------------------------------------------------------------------------
+// Sasongskurva for sidofaltet (bara arter som finns i nappkalendermodellen)
+// Kurvan ritas ur modellens egen sasongsbaslinje (getScore.season), baslinje
+// mellansverige, sa den aldrig glider isar fran kalendern den lankar till.
+// ---------------------------------------------------------------------------
+const foldStr = (str: string) => str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+const calSpecies = SPECIES.find((sp) => foldStr(sp.slug) === foldStr(s.slug)) ?? null;
+
+function fmtMonths(months: number[]): string {
+  const sorted = [...months].sort((a, b) => a - b);
+  const lower  = sorted.map((m) => MONTHS_SV[m - 1].toLowerCase());
+  if (lower.length === 0) return '';
+  if (lower.length === 1) return lower[0];
+  const consecutive = sorted.every((m, i) => i === 0 || m === sorted[i - 1] + 1);
+  if (consecutive) return `${lower[0]} till ${lower[lower.length - 1]}`;
+  return `${lower.slice(0, -1).join(', ')} och ${lower[lower.length - 1]}`;
+}
+
+function buildSeasonCurve(sp: (typeof SPECIES)[number]) {
+  const W = 300, H = 96, padTop = 10, padBottom = 8;
+  const baseY = H - padBottom;
+  const SAMPLES = 61;
+  const minS = 20, maxS = 100;
+  const yOf = (season: number) => +(padTop + (1 - (season - minS) / (maxS - minS)) * (baseY - padTop)).toFixed(1);
+
+  const pts = Array.from({ length: SAMPLES }, (_, i) => {
+    const doy  = Math.round((i / (SAMPLES - 1)) * 364);
+    const date = new Date(Date.UTC(2026, 0, 1 + doy));
+    const { season } = getScore({ species: sp, date });
+    return { x: +((i / (SAMPLES - 1)) * W).toFixed(1), y: yOf(season) };
+  });
+
+  const linePath = 'M ' + pts.map((p) => `${p.x} ${p.y}`).join(' L ');
+  const areaPath = `${linePath} L ${W} ${baseY} L 0 ${baseY} Z`;
+
+  const closed = sp.closedMonths ?? [];
+  const closedBands = closed.map((m) => ({ x: +(((m - 1) / 12) * W).toFixed(1), w: +(W / 12).toFixed(1) }));
+
+  const nowMonth  = new Date().getUTCMonth(); // 0-11
+  const nowX      = +(((nowMonth + 0.5) / 12) * W).toFixed(1);
+  const nowSeason = getScore({ species: sp, date: new Date(Date.UTC(2026, nowMonth, 15)) }).season;
+  const nowY      = yOf(nowSeason);
+
+  return {
+    W, H, baseY, linePath, areaPath, closedBands, nowX, nowY, nowMonth,
+    monthLetters: ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'],
+    peakLabel:   fmtMonths(sp.peakMonths),
+    closedLabel: closed.length ? fmtMonths(closed) : null,
+    slug: sp.slug,
+  };
+}
+
+const seasonCurve = calSpecies ? buildSeasonCurve(calSpecies) : null;
 
 const allReviews = await getCollection('gear-reviews');
 const gearRecs = allReviews.filter((r) => s.gearRecs.includes(r.data.slug));
@@ -238,6 +293,57 @@ const difficultyColor: Record<string, string> = {
             </div>
           </dl>
         </div>
+
+        {seasonCurve && (
+          <div class="bg-white border border-mist rounded-2xl p-6">
+            <h2 class="font-display font-bold text-deep text-lg mb-1">Säsong över året</h2>
+            <p class="text-stone text-xs mb-4">Säsongsläge månad för månad, baslinje mellansverige.</p>
+
+            <svg viewBox={`0 0 ${seasonCurve.W} ${seasonCurve.H + 16}`} class="w-full h-auto" role="img" aria-label={`Säsongskurva för ${s.title.toLowerCase()} över året`}>
+              <defs>
+                <linearGradient id="seasonFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#22c55e" stop-opacity="0.28"></stop>
+                  <stop offset="100%" stop-color="#22c55e" stop-opacity="0.02"></stop>
+                </linearGradient>
+              </defs>
+
+              {Array.from({ length: 13 }, (_, m) => (
+                <line x1={(m / 12) * seasonCurve.W} y1="0" x2={(m / 12) * seasonCurve.W} y2={seasonCurve.baseY} stroke="#eef2f0" stroke-width="1"></line>
+              ))}
+
+              {seasonCurve.closedBands.map((b) => (
+                <rect x={b.x} y="0" width={b.w} height={seasonCurve.baseY} fill="#64748b" fill-opacity="0.14"></rect>
+              ))}
+
+              <path d={seasonCurve.areaPath} fill="url(#seasonFill)"></path>
+              <path d={seasonCurve.linePath} fill="none" stroke="#15803d" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path>
+
+              <line x1={seasonCurve.nowX} y1="0" x2={seasonCurve.nowX} y2={seasonCurve.baseY} stroke="#1F3A2E" stroke-width="1" stroke-opacity="0.45" stroke-dasharray="2 2"></line>
+              <circle cx={seasonCurve.nowX} cy={seasonCurve.nowY} r="3" fill="#15803d" stroke="#ffffff" stroke-width="1.5"></circle>
+
+              {seasonCurve.monthLetters.map((letter, m) => (
+                <text x={((m + 0.5) / 12) * seasonCurve.W} y={seasonCurve.H + 10} text-anchor="middle" font-size="9" fill={m === seasonCurve.nowMonth ? '#1F3A2E' : '#9ca3af'} font-weight={m === seasonCurve.nowMonth ? '700' : '400'}>{letter}</text>
+              ))}
+            </svg>
+
+            {seasonCurve.peakLabel && (
+              <p class="text-deep text-sm font-medium mt-4">Högsäsong i {seasonCurve.peakLabel}.</p>
+            )}
+            {seasonCurve.closedLabel && (
+              <p class="text-slate-500 text-sm mt-1">Fredad i {seasonCurve.closedLabel}.</p>
+            )}
+
+            <a
+              href={`/nappkalender/${seasonCurve.slug}/`}
+              class="inline-flex items-center gap-1.5 text-pine font-semibold text-sm hover:text-deep transition-colors mt-4"
+            >
+              Se {s.title.toLowerCase()} i nappkalendern
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </div>
+        )}
 
         <!-- Destinations -->
         <div class="bg-mist rounded-2xl p-6">
