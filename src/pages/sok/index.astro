@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import { svCollator } from '../../lib/sort';
 
 const destinations = await getCollection('destinations');
 const species = await getCollection('species');
@@ -22,6 +23,7 @@ const allContent: Result[] = [
   ...articles.map((a) => ({ title: a.data.title, description: a.data.description, href: `/guider/${a.data.slug}/`, type: 'Guide' })),
   ...reviews.map((r) => ({ title: r.data.title, description: r.data.description, href: `/utrustning/test/${r.data.slug}/`, type: 'Utrustning' })),
 ];
+allContent.sort((a, b) => svCollator.compare(a.title, b.title));
 
 const typeColor: Record<string, string> = {
   Destination: 'bg-sky/15 text-sky',

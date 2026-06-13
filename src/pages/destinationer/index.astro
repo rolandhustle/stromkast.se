@@ -1,8 +1,9 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import { byTitle } from '../../lib/sort';
 
-const destinations = await getCollection('destinations');
+const destinations = (await getCollection('destinations')).sort(byTitle);
 
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
