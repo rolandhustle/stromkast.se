@@ -567,7 +567,7 @@ export default function KalenderWidget({
         </div>
 
         {/* Förklaring */}
-        <div style={{ display: isMobile ? 'none' : 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '12px', paddingTop: '10px', borderTop: '1px solid #f3f4f6', alignItems: 'center' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: isMobile ? '8px 14px' : '16px', marginTop: '12px', paddingTop: '10px', borderTop: '1px solid #f3f4f6', alignItems: 'center' }}>
           <span style={{ fontSize: '11px', color: '#374151', fontWeight: 600 }}>Bakgrundsfärg = säsong:</span>
           {[
             { color: '#f0fdf4', border: '#bbf7d0', label: 'Högsäsong' },
@@ -579,7 +579,7 @@ export default function KalenderWidget({
               {label}
             </span>
           ))}
-          <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#2563eb', marginLeft: 'auto' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#2563eb', marginLeft: isMobile ? 0 : 'auto' }}>
             <span style={{ fontSize: '8px', fontWeight: 700, color: '#2563eb', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '3px', padding: '1px 3px' }}>SMHI</span>
             Väderprognos (10 dgn)
           </span>
