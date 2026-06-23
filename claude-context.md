@@ -40,6 +40,7 @@ src/content/destinations
 src/content/destinations/.DS_Store
 src/content/destinations/angermanalven.mdx
 src/content/destinations/asnen.mdx
+src/content/destinations/atran.mdx
 src/content/destinations/blekinge-skargard.mdx
 src/content/destinations/bohuslan-skargard.mdx
 src/content/destinations/bolmen.mdx
@@ -57,14 +58,19 @@ src/content/destinations/klaralven.mdx
 src/content/destinations/kultsjon.mdx
 src/content/destinations/lagan.mdx
 src/content/destinations/malaren.mdx
+src/content/destinations/mellanljusnan.mdx
 src/content/destinations/mockeln.mdx
 src/content/destinations/morrum.mdx
+src/content/destinations/nissan.mdx
+src/content/destinations/oland.mdx
+src/content/destinations/oresund.mdx
 src/content/destinations/ostergotlands-skargard.mdx
 src/content/destinations/ovre-fryken.mdx
 src/content/destinations/pitealven.mdx
 src/content/destinations/ringsjon.mdx
 src/content/destinations/roxen.mdx
 src/content/destinations/siljan.mdx
+src/content/destinations/sommen.mdx
 src/content/destinations/stockholms-skargard.mdx
 src/content/destinations/storsjon.mdx
 src/content/destinations/tidan.mdx
@@ -75,6 +81,7 @@ src/content/destinations/vanern.mdx
 src/content/destinations/vattern.mdx
 src/content/destinations/vindelalven.mdx
 src/content/gear-categories
+src/content/gear-categories/flatlinor.json
 src/content/gear-categories/haspelrullar.json
 src/content/gear-categories/spon.json
 src/content/gear-categories/trollingspon.json
@@ -82,6 +89,9 @@ src/content/gear-reviews
 src/content/gear-reviews/bft-lizzard-x-stefan-trumstedt.mdx
 src/content/gear-reviews/bft-ninety-two-mimic-stick.mdx
 src/content/gear-reviews/bft-raptor-g2-jerkbait.mdx
+src/content/gear-reviews/hurricane-x8-braid-012mm.mdx
+src/content/gear-reviews/kinetic-4-braid-012mm.mdx
+src/content/gear-reviews/kinetic-8-braid-014mm.mdx
 src/content/gear-reviews/kinetic-brutalis-5000-fd.mdx
 src/content/gear-reviews/kinetic-marshall-4000-fd.mdx
 src/content/gear-reviews/kinetic-xarann-predator-trigger-ct.mdx
@@ -93,6 +103,7 @@ src/content/gear-reviews/okuma-magda-finn-trolling-combo.mdx
 src/content/gear-reviews/okuma-magda-finn-trollingspo.mdx
 src/content/gear-reviews/shimano-26-zodias-haspelspo.mdx
 src/content/gear-reviews/shimano-expride-haspelspo-198m.mdx
+src/content/gear-reviews/shimano-kairiki-8-013mm.mdx
 src/content/gear-reviews/shimano-miravel-2500.mdx
 src/content/gear-reviews/shimano-nexave-fi-2500.mdx
 src/content/gear-reviews/shimano-nexave-haspelspo-191m.mdx
@@ -101,14 +112,18 @@ src/content/gear-reviews/shimano-stradic-fm-c3000-hg.mdx
 src/content/gear-reviews/shimano-vanford-fa-2500.mdx
 src/content/gear-reviews/shimano-vanford-fa-4000.mdx
 src/content/gear-reviews/shimano-yasei-bb-pike-xh.mdx
+src/content/gear-reviews/strike-wire-extreme-015mm.mdx
+src/content/gear-reviews/westin-w10-13-braid-coastal.mdx
 src/content/gear-reviews/westin-w2-powercast-t-spinnspo.mdx
 src/content/gear-reviews/westin-w2-predator-trolling.mdx
 src/content/gear-reviews/westin-w3-4000-fd.mdx
+src/content/gear-reviews/westin-w3-8-braid-smokey-grey.mdx
 src/content/gear-reviews/westin-w3-finesse-jig-3rd.mdx
 src/content/gear-reviews/westin-w3-finesse-tc-2nd.mdx
 src/content/gear-reviews/westin-w3-hybridcast-t-3rd.mdx
 src/content/gear-reviews/westin-w3-powerteez-3rd.mdx
 src/content/gear-reviews/westin-w3-predator-trolling-3rd.mdx
+src/content/gear-reviews/westin-w6-8-braid-0148mm.mdx
 src/content/gear-reviews/westin-w6-dropshot-haspelspo.mdx
 src/content/gear-reviews/westin-w6-jerk-swimbait-t-2nd.mdx
 src/content/gear-reviews/westin-w6-powercast-t-spinnspo.mdx
@@ -168,6 +183,7 @@ src/lib
 src/lib/.DS_Store
 src/lib/forecast.ts
 src/lib/smhi.ts
+src/lib/sort.ts
 src/lib/track.ts
 src/pages
 src/pages/.DS_Store
@@ -2264,7 +2280,7 @@ export default function KalenderWidget({
         </div>
 
         {/* Förklaring */}
-        <div style={{ display: isMobile ? 'none' : 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '12px', paddingTop: '10px', borderTop: '1px solid #f3f4f6', alignItems: 'center' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: isMobile ? '8px 14px' : '16px', marginTop: '12px', paddingTop: '10px', borderTop: '1px solid #f3f4f6', alignItems: 'center' }}>
           <span style={{ fontSize: '11px', color: '#374151', fontWeight: 600 }}>Bakgrundsfärg = säsong:</span>
           {[
             { color: '#f0fdf4', border: '#bbf7d0', label: 'Högsäsong' },
@@ -2276,7 +2292,7 @@ export default function KalenderWidget({
               {label}
             </span>
           ))}
-          <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#2563eb', marginLeft: 'auto' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#2563eb', marginLeft: isMobile ? 0 : 'auto' }}>
             <span style={{ fontSize: '8px', fontWeight: 700, color: '#2563eb', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '3px', padding: '1px 3px' }}>SMHI</span>
             Väderprognos (10 dgn)
           </span>
@@ -3185,8 +3201,9 @@ const difficultyColor: Record<string, string> = {
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import { byTitle } from '../../lib/sort';
 
-const species = await getCollection('species');
+const species = (await getCollection('species')).sort(byTitle);
 
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
@@ -3378,18 +3395,6 @@ const waterTypeLabels: Record<string, string> = {
   stream: 'Bäck',
 };
 
-// Kostråd enligt Livsmedelsverket, renderas från fältet d.kostrad
-const kostradTexter: Record<string, { rubrik: string; text: string }> = {
-  kvicksilver: {
-    rubrik: 'Kvicksilver i rovfisk',
-    text: 'Abborre, gädda, gös och lake kan innehålla höga halter kvicksilver, och halten varierar mellan vatten. Livsmedelsverket rekommenderar att vuxna äter dessa arter högst en gång i veckan. Den som är gravid, ammar eller försöker bli gravid bör äta dem högst två till tre gånger per år.',
-  },
-  dioxin: {
-    rubrik: 'Dioxin och PCB i fet fisk',
-    text: 'Vildfångad lax och öring från Östersjön och dess åar samt från Vänern och Vättern kan innehålla höga halter dioxin och PCB. Livsmedelsverket rekommenderar att vuxna äter sådan fisk högst en gång i veckan. Barn och ungdomar upp till 18 år, den som vill bli gravid i framtiden, gravida och ammande bör äta den högst två till tre gånger per år.',
-  },
-};
-const kostrad = d.kostrad ?? [];
 // Hero-bildens källa och ärlig märkning
 const heroIsPhoto = d.heroSource === 'photo';
 const heroAriaLabel = heroIsPhoto
@@ -3562,26 +3567,6 @@ const faqSchema = {
           <Content />
         </div>
 
-        <!-- Kostråd -->
-        {kostrad.length > 0 && (
-          <div class="mt-16">
-            <h2 class="font-display text-2xl font-bold text-deep mb-6">Att äta fångsten</h2>
-            <div class="space-y-4">
-              {kostrad.map((typ: string) => (
-                kostradTexter[typ] && (
-                  <div class="bg-mist rounded-2xl p-5 border border-mist">
-                    <p class="font-semibold text-deep text-sm mb-1">{kostradTexter[typ].rubrik}</p>
-                    <p class="text-stone text-sm leading-relaxed">{kostradTexter[typ].text}</p>
-                  </div>
-                )
-              ))}
-            </div>
-            <p class="text-stone/70 text-xs mt-4">
-              Källa: <a href="https://www.livsmedelsverket.se/matvanor-halsa--miljo/kostrad/fisk-som-kan-innehalla-miljogifter/" target="_blank" rel="noopener noreferrer" class="text-sky underline hover:text-pine">Livsmedelsverket</a>. Råden gäller egenfångad fisk och kan ändras. Kontrollera alltid aktuell information.
-            </p>
-          </div>
-        )}
-
         <!-- FAQ -->
         <div class="mt-16">
           <h2 class="font-display text-2xl font-bold text-deep mb-6">Vanliga frågor</h2>
@@ -3658,8 +3643,9 @@ const faqSchema = {
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import { byTitle } from '../../lib/sort';
 
-const destinations = await getCollection('destinations');
+const destinations = (await getCollection('destinations')).sort(byTitle);
 
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
@@ -5558,6 +5544,7 @@ export async function GET(context: APIContext) {
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import { svCollator } from '../../lib/sort';
 
 const destinations = await getCollection('destinations');
 const species = await getCollection('species');
@@ -5579,6 +5566,7 @@ const allContent: Result[] = [
   ...articles.map((a) => ({ title: a.data.title, description: a.data.description, href: `/guider/${a.data.slug}/`, type: 'Guide' })),
   ...reviews.map((r) => ({ title: r.data.title, description: r.data.description, href: `/utrustning/test/${r.data.slug}/`, type: 'Utrustning' })),
 ];
+allContent.sort((a, b) => svCollator.compare(a.title, b.title));
 
 const typeColor: Record<string, string> = {
   Destination: 'bg-sky/15 text-sky',
@@ -5989,8 +5977,9 @@ const faqSchema = t.faq && t.faq.length > 0 ? {
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import { byTitle } from '../../lib/sort';
 
-const techniques = await getCollection('techniques');
+const techniques = (await getCollection('techniques')).sort(byTitle);
 
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
@@ -6229,8 +6218,9 @@ const breadcrumbSchema = {
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import { byTitle } from '../../lib/sort';
 
-const categories = await getCollection('gear-categories');
+const categories = (await getCollection('gear-categories')).sort(byTitle);
 
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
@@ -7005,6 +6995,15 @@ export const DOT_BG: Record<string, string> = {
 };
 ```
 
+## src/lib/sort.ts
+```
+export const svCollator = new Intl.Collator('sv');
+
+export function byTitle<T extends { data: { title: string } }>(a: T, b: T): number {
+  return svCollator.compare(a.data.title, b.data.title);
+}
+```
+
 ## src/lib/track.ts
 ```
 type PageType = 'home' | 'destination' | 'article' | 'gear-review' | 'gear-category' | 'quiz' | 'species' | 'unknown';
@@ -7063,6 +7062,16 @@ export function trackQuizCompleted(result_product_ids: string[]): void {
 ```
 
 # Content: gear-categories
+
+## src/content/gear-categories/flatlinor.json
+```
+{
+  "title": "Flätlinor",
+  "slug": "flatlinor",
+  "description": "Handplockade flätlinor för predatorfiske. Budget till premium, 4-trådig till 13-trådig — vi hjälper dig hitta rätt lina för ditt fiske.",
+  "heroImage": "/images/gear/flatlinor.jpg"
+}
+```
 
 ## src/content/gear-categories/haspelrullar.json
 ```
@@ -8164,28 +8173,6 @@ Det finns ingen nationell fredningstid för färna. Däremot kan generella fredn
 Färnan tål hantering och drillning väl och lämpar sig för återutsättning. Använd våt hand eller en fuktad, knutlös håv, kroka av fisken i vattnet om möjligt och håll den under ytan vid foto. Stora individer bör prioriteras för återutsättning eftersom de bär upp reproduktionen.
 
 Kontrollera alltid lokala regler på [HaV:s webbplats](https://www.havochvatten.se) eller [Länsstyrelsens sidor](https://www.lansstyrelsen.se) inför fiske.
-
-## Vanliga frågor
-
-**Hur skiljer man färna från id?**
-
-Det säkraste kännetecknet är analfenans form. Färnan har en konvex, utåtbågnad analfena, medan iden har en konkav, inskuren analfena. Färnan har dessutom bredare och trubbigare huvud, grövre fjäll och färre fjäll längs sidolinjen, ungefär 44 till 46 mot idens 55 till 61.
-
-**Tar färna på fluga?**
-
-Ja. Färnan är en klassisk flugfisk på högsommaren och tar gärna torrfluga i ytan, framför allt skalbaggs- och insektsmönster. Stora färnor tar även större flugor och poppers. Var beredd på hårda hugg och håll låg profil, eftersom fisken är skygg och har god syn.
-
-**Är färna god att äta?**
-
-Färnan räknas som en dålig matfisk. Den är mycket benig, har löst kött och ofta en slammig grässmak. Vill man ändå ta tillvara fisken fungerar den bäst malen till färs eller rökt. Den är framför allt en uppskattad sportfisk.
-
-**Var fiskar man färna bäst i Sverige?**
-
-Färnan har en begränsad utbredning i södra och mellersta Sverige. Kända vatten är Mörrumsån, Svartån, Tidan, Emån, Helgeån och hallandsåarna samt Göta älvs vattensystem. Den finns även i Mälaren och Vänern, men är ovanligare och mer lokalt bunden än iden.
-
-**Hur stor blir en färna?**
-
-I svenska vatten är 25 till 40 cm och under 1 kg vanligast. En fisk över 1,5 kg är stor. Det svenska rekordet är 3 882 gram, och de allra största europeiska färnorna närmar sig 8 kg.
 ```
 
 ## src/content/species/gadda.mdx
@@ -9914,23 +9901,6 @@ Ingen specifik nationell fredningstid för kanadaröding kunde bekräftas. Efter
 Av miljögift- och beståndsskäl kan återutsättning vara lämpligt för stora individer i vatten utan reduktionsmål. I vatten med pågående reduktionsfiske kan avlivning av fångad kanadaröding tvärtom vara önskvärt. Följ den lokala rekommendationen. Flytta aldrig levande fisk mellan vatten, eftersom det riskerar att sprida den invasiva arten till nya sjöar. Levande betesfisk är förbjudet i Sverige.
 
 Kontrollera alltid lokala regler på [HaV:s webbplats](https://www.havochvatten.se) eller [Länsstyrelsens sidor](https://www.lansstyrelsen.se) inför fiske.
-
-## Vanliga frågor
-
-**Var fiskar man kanadaröding i Sverige?**
-Kanadaröding finns i ett tiotal djupa, kalla sjöar, främst i Jämtland och Västerbotten. Storsjön i Jämtland är det mest kända vattnet. Björkvattnet i Tärnabyområdet har gett flera svenska rekord. Arten är ovanlig och förekommer inte i vanliga insjö- eller put and take-vatten.
-
-**Vad är skillnaden mellan kanadaröding och vanlig röding?**
-Kanadaröding är en egen, inplanterad nordamerikansk art med djupt kluven stjärtfena, ljusa blekgula fläckar mot mörk botten och aldrig röd buk. Den inhemska fjällrödingen har endast svagt kluven stjärt och ofta klarröd buk i lekdräkt.
-
-**Hur stor blir kanadaröding?**
-I Sverige väger det officiella spörekordet 14 kg. Vid reduktionsfiske i Ånnsjön har individer på 17,6 kg och 115 cm fångats i nät. I sin nordamerikanska ursprungsmiljö kan arten väga uppåt 45 kg och bli över 40 år gammal.
-
-**Är kanadaröding god att äta?**
-Köttet är ljust till rosafärgat med en mild, rödingslik smak. Mindre exemplar är bäst för matbordet. Stora och feta individer bär på miljögifter. Länsstyrelsen Jämtland har kostråd för kanadaröding i Storsjön som likställer den med Östersjölax.
-
-**Vilken teknik fungerar bäst för kanadaröding?**
-Djuptrolling med downrigger är huvudmetoden, eftersom fisken står djupt under språngskiktet på sommaren. Vertikalfiske med ekolod och pimpel vintertid fungerar också, liksom spinnfiske på grunt vatten direkt efter islossningen.
 ```
 
 ## src/content/species/karp.mdx
@@ -13955,7 +13925,7 @@ Catch and release är inte ett generellt krav på Nipstadsfisket, men lax och ö
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Livsmedelsverket avråder känsliga grupper från att äta vildfångad lax och öring från Östersjön och dess älvar mer än 2–3 gånger per år på grund av dioxin och PCB. Läs mer längre ned i artikeln.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -14249,7 +14219,7 @@ Levande agn är förbjudet i Sverige. Vitfisk återutsätts inte.
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Gädda, gös och abborre kan innehålla förhöjda halter kvicksilver. Livsmedelsverkets nationella kostråd gäller. Läs mer längre ned i artikeln.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -14462,6 +14432,287 @@ Mörrumsån nedströms Åsnen är en av Europas mest kända laxälvar med lax oc
 *Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
+## src/content/destinations/atran.mdx
+```
+---
+title: "Ätran"
+slug: "atran"
+description: "Ätran är Sveriges främsta vildlaxälv med en vild laxstam. Den klassiska laxsträckan ligger mitt i Falkenberg och fiskas på fiskekort via ifiske.se."
+heroImage: "/images/destinations/atran.jpg"
+heroSource: photo
+heroCredit: "Rikard Giby"
+lat: 56.9012
+lng: 12.4954
+län: "Halland, Västra Götaland"
+primarySpecies: ["Lax", "Havsöring", "Öring", "Gädda", "Abborre"]
+waterType: "river"
+iFiskeUrl: "https://www.ifiske.se/fiske-falkenbergs-laxfiske.htm"
+excerpt: "Sveriges främsta vildlaxälv med klassiskt laxfiske mitt i Falkenberg."
+recommendedGear: []
+publishedAt: "2026-06-13"
+updatedAt: "2026-06-13"
+kostrad: ["kvicksilver"]
+---
+
+Ätran är Sveriges viktigaste vildlaxälv. Här leker landets största bestånd av naturreproducerande atlantlax helt utan kompensationsodling, och biflödet Högvadsån är systemets viktigaste lekområde. Den klassiska laxsträckan rinner rakt genom centrala Falkenberg, från Hertingforsen ner till Hålan, och fiskas på fiskekort. Ätran är också platsen för en av Europas mest framgångsrika älvrestaureringar. När Hertings kraftverksdamm revs ut 2013 och 2014 öppnades fri vandringsväg för första gången på närmare 70 år. De senaste åren har laxbeståndet ändå försämrats, och fångstreglerna har skärpts kraftigt.
+
+## Fiskekort och regler
+
+Det fria handredskapsfisket gäller inte Ätran. Den lagstadgade fria fiskerätten täcker landets fem största sjöar och kusten, inte vattendrag. Hela ån förvaltas av fiskevårdsområden och kräver fiskekort.
+
+### Vad är fritt och vad kräver tillstånd?
+
+Havsfisket utanför åmynningen är fritt för handredskapsfiske. Från mynningen och uppströms krävs fiskekort. Den centrala laxsträckan i Falkenberg förvaltas av Falkenbergs Laxfiske på arrende av kommunen. Sträckan från mynningen till Vessigebro förvaltas av Ätrans Nedre FVO. Mellan gamla E6-bron och Herting råder fiskeförbud.
+
+### Var köper du fiskekort?
+
+Fiskekort köps via [ifiske.se](https://www.ifiske.se/fiske-falkenbergs-laxfiske.htm) och Falkenbergs Turistinformation. En dagkortsautomat finns vid laxstugan. Ätrans Nedre FVO säljer även kort via ICA Nära i Vessigebro. Barn till och med 14 år fiskar kostnadsfritt.
+
+### Priser 2025/2026
+
+Priserna nedan är hämtade från ifiske.se och gäller säsongen 2025/2026. Falkenbergs Laxfiske är indelat i tre sträckor med olika prislistor.
+
+| Kort | Pris |
+|---|---|
+| Hertingforsen, dygnskort (ger fiske på alla tre sträckor) | 700 kr |
+| Laxbron–Tullbron, dygnskort vuxen | 250 kr |
+| Laxbron–Tullbron, dygnskort pensionär | 190 kr |
+| Laxbron–Tullbron, dygnskort ungdom | 60 kr |
+| Laxbron–Tullbron, 3-dygnskort vuxen | 625 kr |
+| Laxbron–Tullbron, säsongskort vuxen | 3 500 kr |
+| Hålan, dygnskort vuxen | 60 kr |
+| Hålan, veckokort vuxen | 280 kr |
+| Hålan, säsongskort vuxen | 600 kr |
+| Roddbåt, dagshyra | 80 kr |
+| Barn till och med 14 år | Kostnadsfritt |
+
+### Minimimått
+
+| Art | Minimimått |
+|---|---|
+| Lax | 45 cm |
+| Havsöring | 45 cm |
+
+### Säsong och fisketider
+
+Fisket efter lax och havsöring pågår 1 april–30 september. På Falkenbergs Laxfiske är fisketiden 05.00–02.00. På Ätrans Nedre FVO gäller 05.00–23.00. Ål är fredad och ska alltid återutsättas.
+
+### Fångstbegränsningar och catch and release
+
+Fångstkvoterna är hårda och styrs av beståndets svaga status. På Falkenbergs Laxfiske gäller en periodkvot om en (1) tillvaratagen lax under 1 april–30 juni, varefter avlivning av lax är stoppad resten av perioden. Under 1 juli–30 september gäller en dagskvot om två laxar eller öringar. Säsongskvoten är fem laxar. I augusti och september ska all fisk över 75 cm återutsättas. Utlekt fisk, så kallade besor, ska återutsättas hela säsongen, liksom felkrokad fisk.
+
+I Hertingforsen råder ren catch and release. Det är en regel, inte en rekommendation. På övriga sträckor är fisket kvotstyrt. Fångstrapportering är obligatorisk för all fångst, även nollfångst och återutsatt fisk, och görs via ifiske.se.
+
+Förvaltningen är adaptiv. Under säsonger med svag uppgång har förvaltarna infört totalförbud mot att avliva lax. Ett sådant förbud infördes i maj 2024. Kontrollera alltid det aktuella säsongsbeslutet innan du planerar att behålla fisk.
+
+### Övriga regler
+
+Tillåtna metoder är spinnfiske, flugfiske och traditionellt räkmete. Ett spö per person gäller. Beten med doftämnen är förbjudna. Mask är tillåtet enbart i Hålan. Ryckfiske är förbjudet enligt lag. Båtfiske är tillåtet mellan Laxbron och Laet med högst två fiskande per båt, och båtmotor får inte användas. Fångar du puckellax ska den avlivas och rapporteras till Länsstyrelsen, inte återutsättas.
+
+> Aktuella regler finns alltid på [HaV:s webbplats](https://www.havochvatten.se) och via [Länsstyrelsens sidor](https://www.lansstyrelsen.se). Fiskevårdsområdets egna regler kan avvika och gäller alltid vid sidan av det nationella regelverket.
+
+---
+
+**Att äta fångsten:** Det finns kostråd att känna till för insjöfisk från Ätrans övre delar. Läs mer under Kostråd och miljögifter längre ned.
+
+---
+
+## Fiskarter
+
+### Lax
+
+Ätranlaxen är vild och naturreproducerande. Det är Sveriges största bestånd av naturlig atlantlax, helt utan odling eller utsättning. Lekbottnarna finns framför allt i Högvadsån, som är en av landets fyra indexälvar för lax. Fisken domineras av lax som tillbringat två år i havet och väger normalt 4–8 kg. Efter midsommar stiger ofta ett bestånd av mindre smålax. Den största inrapporterade laxen i modern tid vägde 17,4 kg.
+
+Beståndet har försämrats. Statusen har gått från god reproduktionsförmåga 2017 till 2020, till nedsatt reproduktionsförmåga 2023 och 2024. Den troligaste orsaken är försämrad överlevnad i havet, i kombination med korttidsregleringen vid Ätraforsdammen. Laxen börjar stiga i april och fisket är ofta som bäst under sommaren och förhösten.
+
+[Läs mer om lax](/arter/lax/)
+
+### Havsöring
+
+Havsöringen följer samma naturliga utbredning som laxen och fångas bäst tidigt på säsongen, under april. Den fiskas både på laxsträckorna i Falkenberg och i Hålan. Efter Herting-restaureringen fångades en havsöring som bedömdes väga över 11 kg. Havsöring som ska återutsättas hanteras varsamt och hålls i vattnet.
+
+[Läs mer om havsöring](/arter/havsoring/)
+
+### Öring
+
+Stationär öring förekommer i de övre delarna av systemet. Genom Projekt Ätranöring kan du fiska vild öring i övre Ätran mellan Hillared och Svenljunga. Sträckorna förvaltas av Forsa-Veka FVOF, Veka-Buttorp FVOF och Buttorp–Ljungafors FVO. Det är ett klassiskt strömfiske efter vild fisk i mindre vatten.
+
+[Läs mer om öring](/arter/oring/)
+
+### Gädda
+
+Uppströms, i lugnflytande sträckor och i systemets sjöar, dominerar gädda. Sjön Mogden i Svenljunga och Tranemo håller gädda och abborre. Gäddan fiskas med trolling och kastfiske i lugnvatten och är ett bra alternativ utanför laxsäsongen.
+
+[Läs mer om gädda](/arter/gadda/)
+
+### Abborre
+
+Abborre finns i hela systemet och är talrik i sjöarna uppströms. Den fiskas med jigg, spinnare och mete, ofta i samma vatten som gäddan. Abborrfisket är tillgängligt året runt och passar nybörjare.
+
+[Läs mer om abborre](/arter/abborre/)
+
+### Övriga arter
+
+Ätran håller två arter med stort naturvärde. Havsnejonöga är en av Sveriges mest hotade fiskar och leker på samma grusbottnar som laxen runt midsommar. Vid inventeringen 2025 räknades bara ett tjugotal individer i ån. Flodpärlmussla finns i Högvadsån och nedre Ätran. Musslan är beroende av lax och öring som värdfisk för sina larver, och beståndet är därför direkt kopplat till laxens hälsa. I systemet finns även [ål](/arter/al/) som är fredad och akut hotad, samt [lake](/arter/lake/), [gös](/arter/gos/), sutare, mört, [färna](/arter/farna/) och [skrubbskädda](/arter/skrubbskadda/) i mynningspartiet.
+
+## Ånens karaktär
+
+### Grundfakta
+
+| | |
+|---|---|
+| Längd | Ca 243 km inklusive källflöden |
+| Avrinningsområde | Ca 3 342 km² |
+| Medelvattenföring (Falkenberg) | Ca 57 m³/s |
+| Källa | Mosse i Gullered, 332 m ö.h. |
+| Största sjö i systemet | Åsunden (33,9 km²) |
+| Mynnar | Kattegatt vid Falkenberg |
+
+### Topografi och sträckor
+
+Ätran börjar i en mosse i Gullered i sydvästra Västergötland och rinner genom Ulricehamn, där den passerar sjön Åsunden, vidare genom Tranemo och Svenljunga, och ut i Kattegatt vid Falkenberg. Dalgången kallas Ätradalen. De övre delarna är lugnflytande med sjöar och dämda sträckor. Forsarna och det centrala laxfisket koncentreras till de nedersta kilometrarna i Falkenberg. Ån är hårt utbyggd med vattenkraft. Energibolaget Uniper driver fem kraftverk i huvudfåran.
+
+### Biflöden av fiskeintresse
+
+Högvadsån är systemets viktigaste lekvatten med ett avrinningsområde på 480 km². Den mynnar i Ätran vid Ätrafors och bär en stor del av laxproduktionen. Andra biflöden där laxungar påvisats är Skärshultaån, Fageredsån, Hjärtaredsån, Lillån och Stockån. Assman mynnar i Ätran vid Tranemo.
+
+### Naturreservat och skyddade områden
+
+Ätran nedströms Ätrafors kraftverk är Natura 2000-område. Totalt har 26 km av Ätran och 28,5 km av Högvadsån Natura 2000-status. Längs systemet finns även naturreservaten Sumpafallen i Högvadsån, Påvadalen, Yttra Berg och Bergs naturskog. I områden med täta bestånd av flodpärlmussla kan vadningsförbud införas.
+
+## Fiskemetoder
+
+Detaljerade anvisningar finns på respektive tekniksida. Nedan beskrivs vad som är specifikt för Ätran.
+
+### Flugfiske
+
+Flugfiske är den klassiska metoden på laxsträckorna i Falkenberg. Hertingforsen, Garvareforsen och Vallforsen är renodlade flugvatten. Det humusfärgade vattnet gör röda, bruna, svarta och orange flugor i krok 2–8 effektiva. Tvåhandsspö 12–15 fot är vanligt på de större poolerna. Vid högt fisketryck gäller rotationsfiske, där du börjar uppströms och flyttar nedåt och lämnar platsen när du fått fisk.
+
+[Läs mer om flugfiske](/teknik/flugfiske/)
+
+### Spinnfiske
+
+Spinnfiske är tillåtet på sträckan mellan Laxbron och Tullbron och passar de som inte flugfiskar. Skeddrag och wobbler i röda och orange nyanser fungerar väl i det ofta färgade vattnet. Beten med doftämnen är förbjudna. Spinnfisket är ett bra förstaval för nybörjare på laxsträckan.
+
+[Läs mer om spinnfiske](/teknik/spinnfiske/)
+
+### Mete
+
+Räkmete är en traditionell metod på laxsträckorna. I Hålan är även mask tillåtet, vilket gör platsen lämplig för fiske efter skrubbskädda och färna. Hålan är den mest tillgängliga delen för den som vill meta utan vadning.
+
+[Läs mer om mete](/teknik/mete/)
+
+### Trolling
+
+Trolling är inte aktuellt på laxsträckorna utan hör hemma i de lugnflytande delarna och sjöarna uppströms. I sjöar som Mogden trollas det efter gädda. Båtmotor får inte användas på Falkenbergs Laxfiskes båtsträcka.
+
+[Läs mer om trolling](/teknik/trolling/)
+
+## Hotspots och lokaler
+
+### Hertingforsen
+
+Hertingforsen är den återskapade åfåran närmast den naturlika fiskvägen. Sträckan är renodlat flugfiske och catch and release. Högst två fiskande per dag släpps in. Fisket sker från norra stranden. Platsen är central i berättelsen om Ätrans restaurering och en av de mest eftertraktade lokalerna.
+
+### Laxbron–Tullbron
+
+Detta är det klassiska laxvattnet mitt i Falkenberg, indelat i åtta pooler. Här fiskas både fluga och spinn. Sträckan löper genom stadsparken Vallarna med promenadvägar på båda sidor, Doktorspromenaden och Laxpromenaden. Laxstuga med invägning och dagkortsautomat finns på plats. Fisket är mycket lättillgängligt utan båt.
+
+### Garvareforsen och Vallforsen
+
+Garvareforsen och Vallforsen ligger inom sträckan Laxbron–Tullbron och är renodlade flugfiskepartier. Pool 5 vid Garvareforsen är reserverad för flugfiske. Flera pooler har säsongsbegränsningar för fluga under sommaren. Tydliga ståndplatser och bra löpare gör dem klassiska bland flugfiskare.
+
+### Hålan
+
+Hålan är den nedre delen och den mest tillgängliga lokalen. Den är populär för öring och för fiske efter skrubbskädda och färna. Mask är tillåtet här till skillnad från övriga sträckor. Platsen passar nybörjare och barn bra.
+
+### Vessigebro och Ätrans Nedre
+
+Ätrans Nedre FVO förvaltar sträckan från mynningen upp till Vessigebro. Övre delen vid bron i Vessigebro och 200 meter nedströms är reserverad för fiske efter lax och havsöring. Kort köps via ifiske.se eller ICA Nära i Vessigebro.
+
+### Högvadsån
+
+Högvadsån är systemets viktigaste lekvatten och fiskas på egen säsong 1 april–30 september. Här finns både laxfiske och täta bestånd av flodpärlmussla. Vadning kan vara begränsad i musselområden. Ån har stor betydelse för hela Ätrans laxproduktion.
+
+### Övre Ätran
+
+Mellan Hillared och Svenljunga fiskas vild öring genom Projekt Ätranöring. Detta är ett strömfiske i mindre vatten, förvaltat av flera fiskevårdsområden. Uppströms finns även gädd- och abborrfiske i lugnvatten och sjöar.
+
+## Säsongsöversikt
+
+| Månad | Bästa art | Bästa metod |
+|-------|-----------|-------------|
+| April | Havsöring | Flugfiske |
+| Maj | Lax | Flugfiske, spinnfiske |
+| Juni | Lax | Flugfiske |
+| Juli | Lax och smålax | Flugfiske |
+| Augusti | Lax | Flugfiske |
+| September | Lax | Flugfiske |
+| Oktober–mars | Gädda, abborre (uppströms) | Trolling, jigg |
+
+Lax- och havsöringsfisket är stängt 1 oktober–31 mars. Fångstkvoterna kan skärpas under pågående säsong utifrån räknardata vid Herting och Nydala. I augusti och september ska all fisk över 75 cm återutsättas. Kontrollera det aktuella säsongsbeslutet innan du planerar att behålla fisk.
+
+## Kostråd och miljögifter
+
+En viktig skillnad gäller dioxin. Livsmedelsverkets råd om dioxin och PCB i vildfångad lax och öring gäller fisk från Östersjön, Bottniska viken, Vänern, Vättern och deras älvar. Ätran mynnar i Kattegatt på västkusten och omfattas därför inte av dessa råd. Ätrans lax och havsöring berörs alltså inte av dioxinrådet.
+
+För insjöfisk i systemets övre sjöar gäller däremot kvicksilverrådet. Gädda, abborre, gös och lake kan innehålla kvicksilver. Barn, gravida och ammande bör äta dessa arter högst 2–3 gånger per år. Övriga vuxna bör äta dem högst en gång per vecka. Halterna varierar mellan olika sjöar. Ål omfattas av dioxinrådet, men ål är fredad i Ätran och ska alltid återutsättas. Aktuella råd finns på [livsmedelsverket.se](https://www.livsmedelsverket.se).
+
+## Infrastruktur och praktisk information
+
+### Fiskeguider och charter
+
+Fiskeguide i Falkenberg erbjuder guidningar, kurser och uthyrning för både flug- och spinnfiske, från land och båt. Det finns möjlighet att boka företagsevent och nybörjarkurser.
+
+### Båtramper
+
+| Plats | Noteringar |
+|---|---|
+| Falkenbergs Båtsällskap | Sjösättning mot avgift |
+| Lövstavikens småbåtshamn | Sjösättning mot avgift |
+
+### Boende
+
+Falkenberg har camping, hotell och bed and breakfast, flera nära Skrea strand. Uppströms finns stugor och vandrarhem i Svenljunga och Ulricehamn.
+
+### Kommunikationer
+
+Falkenberg nås med tåg via Västkustbanan och med bil via E6. Närmaste flygplatser är Halmstad City Airport och Göteborg-Landvetter. Laxsträckan ligger mitt i staden och nås till fots från centrum.
+
+## Historik och bakgrund
+
+Falkenberg har en lång laxfisketradition. Ån arrenderades ut redan på 1600-talet och fisket var en av stadens viktigaste inkomstkällor. På 1800-talet blev sportfisket internationellt känt genom besökande engelsmän och amerikaner.
+
+Vattenkraftutbyggnaden under 1900-talet slog hårt mot laxen. Hertings kraftverk torrlade Hertingforsen i närmare 70 år. Försurningen drabbade Högvadsån och övre systemet hårt. Genom omfattande kalkning, där Falkenberg årligen sprider omkring 6 miljoner kg kalkstensmjöl, har reproduktionsmiljöerna räddats. Kalkningen är en förutsättning för dagens laxfiske.
+
+## Bevarandeberättelse: Ätranlaxen och Herting
+
+Ätranlaxen är en av få ursprungliga laxstammar på västkusten med opåverkad genetik. Den fungerar som en värdefull genbank. Felvandrare från Ätran tros ha bidragit till att etablera nya laxbestånd i andra åar, däribland Vege å i Skåne.
+
+Den mest uppmärksammade händelsen i ånens moderna historia är utrivningen av Hertings kraftverksdamm. Under 2013 och 2014 revs större delen av regleringsdammen, den ursprungliga åfåran återställdes och en naturlik fiskväg anlades. Den nya fiskvägen invigdes 1 april 2014 av kung Carl XVI Gustaf. Projektet var ett samarbete mellan Falkenbergs kommun, Falkenberg Energi, Länsstyrelsen Halland, Havs- och vattenmyndigheten och Karlstads universitet.
+
+Effekterna är väldokumenterade. Nettouppvandringen av laxfisk ökade från i medeltal omkring 2 400 till omkring 4 100 per år. Antalet uppvandrande fiskarter ökade från 5 till 20. Nedströmsvandringen förbättrades dramatiskt. Utvandringen av utlekt fisk ökade från omkring 33 procent till omkring 96 procent, och 97 procent av blankålen passerar nu förbi kraftverket. En fiskräknare med kamera sitter i fiskvägen, och Ätran har dessutom en räknare vid Nydala kvarn i Högvadsån där lax räknats sedan 1954.
+
+Trots restaureringen är beståndet pressat. Korttidsregleringen vid Ätraforsdammen uppströms beräknas kosta tusentals laxsmolt varje år, och uppgången har varit svag de senaste säsongerna. Det är bakgrunden till de hårda fångstreglerna och de tidvisa avlivningsförbuden.
+
+## Snabbfakta
+
+| | |
+|---|---|
+| Fritt handredskapsfiske | Nej, fiskekort krävs |
+| Fiskekort krävs för | Hela ån utom havsfisket vid mynningen |
+| Var köps kortet | ifiske.se, Turistinformationen, dagkortsautomat |
+| Minimimått lax och havsöring | 45 cm |
+| Säsong lax och havsöring | 1 april–30 september |
+| Fångstkvot | Periodkvot och dagskvot, kan skärpas under säsong |
+| Catch and release | Regel i Hertingforsen, kvotstyrt på övriga sträckor |
+| Fångstrapportering | Obligatorisk via ifiske.se |
+| Ål | Fredad, ska återutsättas |
+| Närmaste tätort | Falkenberg |
+
+*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
+```
+
 ## src/content/destinations/blekinge-skargard.mdx
 ```
 ---
@@ -14521,7 +14772,7 @@ Aktuella regler finns alltid på [HaV:s webbplats](https://www.havochvatten.se) 
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Fet östersjöfisk som lax, havsöring och sik kan innehålla höga halter dioxin och PCB, och gädda, abborre och gös kan innehålla kvicksilver. Läs mer i avsnittet om kostråd längre ned i artikeln.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -14814,7 +15065,7 @@ Aktuella regler finns alltid på [HaV:s webbplats](https://www.havochvatten.se) 
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Havsöring och lax är feta laxfiskar och kan innehålla dioxiner och PCB. Livsmedelsverket rekommenderar begränsad konsumtion av viss fet fisk, särskilt för barn, gravida och ammande. Läs mer i avsnittet om kostråd längre ned i artikeln.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -15478,7 +15729,7 @@ Catch and release är en rekommendation för all lax och havsöring utanför avl
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Livsmedelsverket avråder barn, unga och den som planerar graviditet från att äta vildlax och havsöring från Bottniska vikens älvar oftare än 2–3 gånger per år. Läs mer under avsnittet Kostråd och miljögifter längre ned.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -15714,7 +15965,7 @@ Dalälven är en av Sveriges längsta älvar och ett av landets mest varierade s
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Livsmedelsverkets kostråd gäller för lax, öring, gädda, gös och abborre från Dalälven. Läs mer längre ned i artikeln.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -16414,7 +16665,7 @@ Fiske är förbjudet från broarna i Trollhättan, Klaffbron i Vänersborg, inne
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Livsmedelsverket avråder från att äta vildfångad lax och öring från Göta älv mer än 2–3 gånger per år för barn, ungdomar, gravida och de som planerar att bli gravida. Läs mer längre ned i artikeln.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -16689,7 +16940,7 @@ Sik är fredad 1 november–15 december. Ål är fredad året runt.
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Havsöring och annan fet Östersjöfisk kan innehålla förhöjda halter av dioxin och PCB. Läs mer längre ned i artikeln under Kostråd och miljögifter.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -16997,7 +17248,7 @@ Nätfiske är förbjudet i Mellanfjärden 1 maj–31 augusti. Nät med maskstorl
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Abborre, gädda, gös och lake kan innehålla förhöjda halter kvicksilver. Läs mer längre ned i artikeln.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -17305,7 +17556,7 @@ Levande betesfisk är förbjudet i hela Sverige. I de strömmande vattnen i fjä
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Stora rovfiskar som gädda, abborre och lake samt storvuxen röding och öring kan ha förhöjda halter kvicksilver. Läs mer längre ned i artikeln.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -17608,7 +17859,7 @@ Catch and release är en rekommendation i Bergeforsen, inte ett generellt krav. 
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Livsmedelsverket avråder känsliga grupper från att äta Östersjölax och öring mer än 2–3 gånger per år på grund av dioxin och PCB. Länsstyrelsen Jämtland har dessutom lokala kostråd för öring och kanadaröding i Storsjön och angränsande delar av Indalsälven. Läs mer längre ned i artikeln.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -17901,7 +18152,7 @@ Hullinglös krok och skonsam hantering rekommenderas. Felkrokad fisk ska alltid 
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Livsmedelsverket avråder barn, unga och den som planerar graviditet från att äta vildlax och havsöring från Bottniska vikens älvar oftare än 2 till 3 gånger per år. Läs mer under avsnittet Kostråd och miljögifter längre ned.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -18174,7 +18425,7 @@ Fritidsfiske efter ål har varit förbjudet i hela Sverige sedan 2007.
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Livsmedelsverket har kostråd om dioxin och PCB i fet fisk från hela Östersjön, inklusive Kalmarsund. Läs mer längre ned i artikeln.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -18504,7 +18755,7 @@ Från och med 2025 ges inga dispensundantag för lax- och öringfiske under somm
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Livsmedelsverket har kostråd för lax och öring från Vänern och dess tillflöden på grund av dioxin och PCB. Läs mer längre ned i artikeln.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -19061,7 +19312,7 @@ Ett spö per person. Blyfria drag och sänken krävs. Ryckfiske och uppströmska
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Gädda, abborre, gös och lake innehåller kvicksilver. Gravida, ammande och de som planerar graviditet bör äta dessa arter högst 2–3 gånger per år. Lagans lax och öring berörs däremot inte av Livsmedelsverkets dioxin/PCB-råd. Läs mer längre ned i artikeln.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -19369,7 +19620,7 @@ Länsstyrelserna i Stockholm, Uppsala, Västmanland och Södermanland beslutar o
 
 ---
 
-**Obs för den som planerar att äta fångsten:** Livsmedelsverket har kostråd för abborre, gädda och gös från Mälaren på grund av förhöjda halter av kvicksilver och dioxiner. Läs mer längre ned i artikeln.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -19659,6 +19910,270 @@ Tvätta båt och redskap mellan vatten för att inte sprida invasiva arter.
 *Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
+## src/content/destinations/mellanljusnan.mdx
+```
+---
+title: "Mellanljusnan"
+slug: "mellanljusnan"
+description: "Guide till Mellanljusnan i Hälsingland: harr- och öringfiske, fiskekort och regler för Färila och Ljusdals fiskevårdsområden, hotspots och säsong."
+heroImage: "/images/destinations/mellanljusnan.jpg"
+lat: 61.9152
+lng: 15.6401
+län: "Gävleborgs län"
+primarySpecies: ["Harr", "Öring", "Gädda", "Abborre", "Sik"]
+waterType: "river"
+iFiskeUrl: "https://www.ifiske.se/fiske-ljusdals-fvo.htm"
+excerpt: "Ett av Sveriges främsta flugfiskevatten för vild harr och öring."
+recommendedGear: []
+kostrad: ["kvicksilver"]
+publishedAt: "2026-06-14"
+updatedAt: "2026-06-14"
+---
+
+Mellanljusnan är den fritt strömmande mellersta delen av älven Ljusnan, mellan Laforsen och Korskrogen i Ljusdals kommun. Sträckan räknas till Sveriges mest namnkunniga flugfiskevatten för vild harr och har dessutom en växande stam av strömöring. Fisket förvaltas av två fiskevårdsområden med strikta regler kring fångstmått och antal fiskar, och stora delar av älven skyddas i naturreservatet Mellanljusnan. Det är ett vatten där fiskevård och varsam återutsättning står i centrum, och där du behöver sätta dig in i reglerna för respektive sträcka innan första kastet.
+
+## Fiskekort och regler
+
+Mellanljusnan saknar fritt handredskapsfiske. Fiskerätten är enskild och fiskekort krävs oavsett var på sträckan du fiskar. Älven förvaltas av två fiskevårdsområden med delvis olika regler. Färila FVOF förvaltar den övre och längsta delen, från Laforsen ned till strax ovanför Skarpåns mynning. Ljusdals FVOF förvaltar en cirka 17 kilometer lång nedre sträcka med Morvallströmmen, Malmyrströmmen och Edängeforsen.
+
+### Vad är fritt och vad kräver tillstånd?
+
+Fritt handredskapsfiske enligt lagen om rätt till fiske gäller inte Mellanljusnan. Alla sträckor kräver fiskekort från respektive fiskevårdsområde. Barn och ungdomar till och med 18 år fiskar avgiftsfritt inom Ljusdals FVOF, men måste ändå lösa ett kostnadsfritt ungdomskort.
+
+### Var köper du fiskekort?
+
+För Färila FVOF köps kort via [Fiskekort.se](https://www.fiskekort.se), genom Swish (ange alltid fiskeplats vid betalning) eller över disk hos OKQ8 i Färila och Färila Fritid. Färila har inte längre några kortautomater.
+
+För Ljusdals FVOF köps kort via [ifiske.se](https://www.ifiske.se/fiske-ljusdals-fvo.htm) samt hos Ljusdals Camping och Sportringen i Ljusdal. De fullständiga reglerna för Ljusdals del av Ljusnan visas i samband med köpet på ifiske.se.
+
+### Priser 2026
+
+| Fiskevårdsområde | Korttyp | Pris |
+|---|---|---|
+| Färila FVOF (Ljusnan) | Dygnskort | 150 kr |
+| Färila FVOF (Ljusnan) | Veckokort | 400 kr |
+| Färila FVOF (Ljusnan) | Årskort | 800 kr |
+| Färila FVOF | Gäddkort (vecka) | 90 kr |
+| Ljusdals FVOF | Dygnskort | 70 kr |
+| Ljusdals FVOF | Årskort | 350 kr |
+| Ljusdals FVOF | Familjeårskort | 400 kr |
+| Ljusdals FVOF | Ungdomskort (t.o.m. 18 år) | Kostnadsfritt |
+
+Färilas gäddkort gäller endast mellan Forsänget och nacken på Henriksfors. Priser avser 2026 och kan ändras. Verifiera mot [farilafiske.se](https://www.farilafiske.se) och [ljusdalsfvo.se](https://www.ljusdalsfvo.se) inför din resa.
+
+### Minimimått och fångstfönster (Färila FVOF)
+
+| Art | Regel |
+|---|---|
+| Harr | Endast fisk i fångstfönstret 25–30 cm får behållas |
+| Öring | Minimimått 40 cm |
+
+Inom Färila FVOF får du behålla högst fyra fiskar per kort och dag, harr och öring sammanräknat. All harr utanför fångstfönstret och all öring under minimimåttet ska återutsättas omedelbart, liksom skadad fisk. Måtten och kvoten för Ljusdals del av älven kan skilja sig och visas vid köp på ifiske.se. Kontrollera dem före fisket.
+
+### Fredningstider
+
+Inom Färila FVOF får öring fiskas 15 maj till 31 augusti och är fredad 1 september till 1 november. Harr får fiskas 15 maj till 31 oktober. Fiske är förbjudet i alla tillflöden från mynningen och 500 meter uppströms. Inom Ljusdals FVOF är öringen fredad 1 september till 31 december, och gös är fredad under juni. Kontrollera alltid de aktuella datumen för den sträcka du tänker fiska.
+
+### Catch and release-rutin
+
+Mellanljusnan förvaltas med stark betoning på återutsättning. Fångstfönster och fångstkvot är bindande regler. Utöver det rekommenderas hullinglös krok för att underlätta varsam återutsättning. Inom Färila FVOF gäller maskförbud i Ljusnan från Laforsen ned till nedanför Knutnäsudden samt vid Henriksforsen. Högst tre flugor eller ett drag per spö är tillåtet. En särskild flugfiskesträcka, där endast flugspö får användas, sträcker sig från Hovrahällarnas nacke och 2 600 meter uppströms till övre änden av Brännholmen. Inom Ljusdals FVOF är fiske med agnad krok förbjudet i Ljusnan mellan Morvall-Forsnäset och Edängeforsen, vilket omfattar mask, maggot och alla levande eller döda larver. Nätfiske och otterbrädor är förbjudna i hela älven.
+
+> Aktuella regler finns alltid på [HaV:s webbplats](https://www.havochvatten.se) och via [Länsstyrelsens sidor](https://www.lansstyrelsen.se). Fiskevårdsområdets egna regler kan avvika och gäller alltid vid sidan av det nationella regelverket.
+
+---
+
+**Att äta fångsten:** Det finns kostråd att känna till för rovfisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
+
+---
+
+## Fiskarter
+
+### Harr
+
+Harren är Mellanljusnans signaturart och den främsta anledningen till att flugfiskare söker sig hit. Beståndet är vilt och självreproducerande, men känsligt för flödesförändringar under leken på våren. Det bästa harrfisket finns vid Morvallströmmen och Malmyrströmmen i Ljusdals del av älven, och Långstrand i den övre delen bjuder på grov harr framför allt på hösten. Harren betar insekter i och kring ytan, med dagsländor, nattsländor och bäcksländor som viktigaste föda under sommaren. Fångstfönstret på 25–30 cm gör att större individer alltid återutsätts. Bästa period är juni till oktober, med intensivt vakfiske under varma sommardagar.
+
+[Läs mer om harr](/arter/harr/)
+
+### Öring
+
+Öringen i Mellanljusnan är vild strömöring, och beståndet har stärkts efter flera års biotopåterställning. Fisket blir bättre för varje år och chansen till en flerkilosöring finns. Den bästa öringsträckan är övre delen av Malmyrströmmen. Öringen står gärna i strömnackar och i slutet av lugnare pooler, där den jagar insekter och småfisk. Bästa tid är våren vid fallande vatten samt försommaren innan harrkläckningarna tar över. Inom Färila FVOF är öringen fredad från 1 september.
+
+[Läs mer om öring](/arter/oring/)
+
+### Gädda
+
+Gädda finns i de lugnare selen och i lugnvattnen bakom gamla flottningskistor. Bestånden är stabila och fisken växer bra i det näringsrika vattnet. Spinnfiske längs vass- och strandkanter är den vanligaste metoden. Inom Färila FVOF krävs ett särskilt gäddkort för sträckan mellan Forsänget och nacken på Henriksfors. Bästa tid är försommar och höst.
+
+[Läs mer om gädda](/arter/gadda/)
+
+### Abborre
+
+Abborren är talrik i selen och de lugnare partierna och är en pålitlig målart för den som vill fiska lättare. Spinnfiske och jiggfiske med små beten fungerar bra längs grunda strandkanter. Bästa tid är försommar och höst.
+
+[Läs mer om abborre](/arter/abborre/)
+
+### Sik
+
+I Ljusnan förekommer sik av god storlek och kvalitet, särskilt i Ljusdals del av älven. Siken betar bottendjur och insektslarver och fångas oftast som bifångst vid flugfiske efter harr. Den kan ge ett trevligt mellanfiske under sommaren.
+
+[Läs mer om sik](/arter/sik/)
+
+Övriga förekommande arter: lake och id.
+
+## Älvens karaktär
+
+### Grundfakta
+
+| | |
+|---|---|
+| Längd, Mellanljusnan | cirka 50 km (Färila till Järvsö) |
+| Fritt strömmande, skyddad sträcka | 24 km (Laforsen till Korskrogen) |
+| Längd, Ljusnan totalt | 443 km |
+| Avrinningsområde, Ljusnan | 19 828 km² |
+| Mynning | Bottenhavet vid Ljusne |
+| Antal kraftverk i Ljusnan | 18 |
+| Vattentyp | Reglerad skogsälv med fritt strömmande mellansträcka |
+
+### Topografi och sträckor
+
+Mellanljusnan växlar mellan forsar, strömnackar, lugnvatten och sel. Älven har skurit sig ned i glaciala sediment, vilket gett branta nipor av sand längs stränderna och flackare älvängar däremellan. Botten är storstenig och djup, och vadning är ofta krävande. Sträckan mellan Laforsen och Korskrogen, cirka 24 kilometer, är fritt strömmande och skyddad inom naturreservatet. Längs hela älven finns rikligt med lämningar från flottningsepoken i form av flottledsarmar och stenkistor. Flottningen i Ljusnan upphörde 1968.
+
+### Vattentemperatur och flöde
+
+Flödet i Mellanljusnan regleras av Laforsens kraftverk och ändras dagligen. Vid flöden över 140 kubikmeter per sekund blir älven hög och svårvadad. Mellan 100 och 140 kubikmeter per sekund räknas som bra fiskevatten, medan 60 till 100 kubikmeter per sekund är lågvatten. Kontrollera alltid aktuellt flöde innan du planerar vadning eller fiske nära strömfårorna. Aktuella flödesdata finns hos Vattenregleringsföretagen och i SMHI:s Vattenwebb.
+
+### Naturreservat och skyddade områden
+
+Naturreservatet Mellanljusnan skyddar cirka 24 kilometer fritt strömmande älv mellan Laforsen och Korskrogen och omfattar 1 044 hektar. Reservatet bildades 2015 och utvidgades 2018 och 2019. Området är både naturreservat och Natura 2000-område och skyddar bland annat öring, harr, flodpärlmussla och utter. Älven är skyddad mot ytterligare vattenkraftsutbyggnad enligt miljöbalken och utgör riksintresse för naturvård och friluftsliv.
+
+## Fiskemetoder
+
+Mellanljusnan är i första hand ett strömfiskevatten. Detaljerade teknikanvisningar finns på respektive tekniksida.
+
+### Flugfiske
+
+Flugfiske är den dominerande metoden och det som gjort Mellanljusnan känt. Torrfluga fungerar under kläckningar av dagsländor och nattsländor från midsommar och framåt, då harren vakar intensivt i ytfilmen. Tungt nymffiske ger fisk när inget syns på ytan, särskilt vid högre flöden. Våtfluga och streamer fungerar tidigt på säsongen för öring. På den särskilda flugfiskesträckan vid Hovrahällan och i övre Morvallströmmen är endast flugspö tillåtet.
+
+[Läs mer om flugfiske](/teknik/flugfiske/)
+
+### Spinnfiske
+
+Spinnfiske med spinnare och lätta skeddrag är tillåtet på de flesta sträckor och fungerar för öring i strömmarna och för gädda och abborre i selen. Högst ett drag per spö får användas. Spinnfiske är inte tillåtet på de avlysta flugfiskesträckorna, och maskförbud gäller på de övre delarna inom Färila FVOF.
+
+[Läs mer om spinnfiske](/teknik/spinnfiske/)
+
+## Hotspots och lokaler
+
+### Laforsen
+
+Den övre änden av Mellanljusnan, strax nedanför kraftverket. Djupt, strömt och svårvadat vatten med grov harr och öring. Maskförbud gäller. Parkering finns vid området.
+
+### Kölströmmen
+
+En entré till naturreservatet med rastplats högt på en nipa. Här finns vindskydd och eldstad. Skyltat från väg 84. Bra utgångspunkt för flugfiske efter harr.
+
+### Långstrand
+
+En av Mellanljusnans längsta sammanhängande flug- och vadsträckor. Klassiskt harrvatten som bjuder på grov harr framför allt på hösten. Tillgängligt för landfiske och vadning.
+
+### Håvrahällan och flugfiskesträckan
+
+Naturreservatets entré vid Håvrahällan ger tillgång till den avlysta flugfiskesträckan, som löper från Hovrahällarnas nacke och 2 600 meter uppströms till Brännholmen. Endast flugspö är tillåtet. Vindskydd och eldstad finns vid rastplatsen.
+
+### Henriksfors
+
+Här erbjuds tillgängligt strömfiske från handikappbrygga och tre kastbalkonger. Lämplig lokal för den som vill fiska utan att behöva vada i den storsteniga botten. Rörelsehindrade har förtur på bryggorna.
+
+### Morvallströmmen
+
+Den första strömmen i Ljusdals del av älven, cirka 1,8 kilometer lång. Här finns det bästa och grövsta harrfisket i Mellanljusnan. Den övre delen är en cirka 450 meter lång flugfiskesträcka där endast flugspö är tillåtet. Skyltning finns på plats.
+
+### Malmyrströmmen
+
+Den 4,7 kilometer långa strömmen nedströms Morvall. Den övre delen håller det bästa öringfisket på hela sträckan. I den nedre delen går vattnet att vada från båda sidor. Agnad krok är förbjuden på hela Ljusdals strömsträcka.
+
+### Edängeforsen
+
+Den sista och kortaste strömmen i Ljusdals del, cirka 300 meter lång och strid. Endast landfiske är möjligt här. Bjuder främst på harr och öring.
+
+## Säsongsöversikt
+
+| Månad | Bästa art | Bästa metod |
+|-------|-----------|-------------|
+| Januari | Säsong stängd | Strömfisket vilar |
+| Februari | Säsong stängd | Strömfisket vilar |
+| Mars | Säsong stängd | Strömfisket vilar |
+| April | Säsong stängd | Strömfisket vilar |
+| Maj | Öring | Flugfiske (från 15 maj) |
+| Juni | Öring, harr | Flugfiske |
+| Juli | Harr | Flugfiske, torrfluga |
+| Augusti | Harr, öring | Flugfiske |
+| September | Harr | Flugfiske, nymf |
+| Oktober | Harr | Flugfiske, nymf |
+| November | Säsong stängd | Strömfisket vilar |
+| December | Säsong stängd | Strömfisket vilar |
+
+Inom Färila FVOF får öring fiskas 15 maj till 31 augusti och harr 15 maj till 31 oktober. Öringen är fredad 1 september till 1 november. Ljusdals FVOF har egna datum, och öringen är där fredad 1 september till 31 december. Kontrollera Laforsens flöde inför resan, eftersom snabba flödesförändringar påverkar både vadning och fiske.
+
+## Kostråd och miljögifter
+
+Det finns inget särskilt lokalt kostråd för Mellanljusnan, men Livsmedelsverkets nationella råd om kvicksilver gäller. Råden omfattar rovfisk som abborre, gädda och lake, som kan innehålla förhöjda halter av kvicksilver. Den som är eller planerar att bli gravid, samt den som ammar, bör enligt Livsmedelsverket inte äta sådan fisk mer än två till tre gånger per år. Övriga vuxna kan äta den högst en gång i veckan. Harr och öring omfattas inte av kvicksilverrådet på samma sätt, och den hårda återutsättningsförvaltningen gör att merparten av dessa fiskar ändå släpps tillbaka.
+
+Aktuella kostråd finns på [livsmedelsverket.se](https://www.livsmedelsverket.se).
+
+## Infrastruktur och praktisk information
+
+### Fiskeguider och information
+
+Lokal guidning och information om fisket finns via flugfiskemellanljusnan.se. Lokala fiskebutiker som Färila Fritid säljer kort och utrustning och ger råd om aktuella förhållanden.
+
+### Landfiske och tillgänglighet
+
+Mellanljusnan är i grunden ett vad- och strömfiskevatten, och båt får bara användas på lugnvattnen, inte i forsarna. Naturreservatet har flera skyltade entréer från väg 84 med parkering, vindskydd och eldstad, bland annat vid Lassekrog, Kölströmmen, Håvrahällan och Knutnäsudden på sydvästra sidan samt Kasteln och Enå mynne på den nordöstra. Vid Henriksfors finns tillgänglighetsanpassat strömfiske från brygga och kastbalkonger.
+
+### Boende
+
+- **Mellanljusnans Strömfiskecamp** (vid Morvallströmmen): stugor och plats för tält och husvagn, öppet 15 maj till 15 oktober.
+- **STF Hovra vandrarhem** (Korskrogen): enkelt boende nära den övre delen av älven.
+- **Färila Camping**: camping och stugor centralt i Färila.
+- **Ljusdals Camping och Stugor**: bas för fiske i Ljusdals del av älven.
+
+### Kommunikationer
+
+Ljusdal ligger på Norra stambanan med tågförbindelse från bland annat Gävle och Sundsvall. Med bil når du området via väg 83 och väg 84. Väg 84 löper norrut från Ljusdal längs älven förbi Korskrogen mot Laforsen och utgör den naturliga tillfartsvägen till de flesta fiskeplatserna.
+
+### Sjösäkerhet
+
+Mellanljusnan är en reglerad älv där flödet kan ändras snabbt vid tappning från Laforsens kraftverk. Vada alltid försiktigt och använd vadarstav, eftersom botten är storstenig, djup och förändras mellan åren. Håll dig informerad om aktuellt flöde innan du går ut i vattnet.
+
+## Historik och bakgrund
+
+Laforsen var med sitt 22 meter höga fall södra Norrlands högsta vattenfall innan älven byggdes ut. Kraftverket vid Laforsen togs i drift 1953 och ägs i dag av Fortum. När laxen historiskt kunde vandra upp i Ljusnan nådde den ända till Laforsen, men kraftverksutbyggnaden stängde definitivt av vandringsvägen. Flottningen, som länge präglade älven, upphörde 1968 och har lämnat efter sig de stenkistor och flottledsarmar som fortfarande syns längs stränderna.
+
+Mellanljusnans rykte som fiskevatten vilar i hög grad på ett medvetet fiskevårdsarbete. Ljusdals FVOF inledde omkring år 2000 omfattande biotopåterställningar i kombination med nya regler i form av fångstkvoter och höjda minimimått. Resultatet är ett successivt starkare bestånd av harr och öring. Naturreservatet Mellanljusnan, som skyddar den fritt strömmande sträckan mellan Laforsen och Korskrogen, bildades 2015 och utvidgades därefter.
+
+Den största återkommande risken för fisket är snabba flödessänkningar. Den 16 maj 2024 sänkte Fortum flödet vid Laforsen från 137 till 61 kubikmeter per sekund. Stora delar av älven torrlades och rommen efter harrens lek torkade bort eller åts av fåglar. Färila FVOF bedömde att merparten av årets reproduktion sannolikt slogs ut. Fortum uppgav att åtgärden låg inom företagets tillstånd och berodde på lägre snötillgång än väntat, medan Länsstyrelsen meddelade att händelsen skulle utredas.
+
+## Snabbfakta
+
+| | |
+|---|---|
+| Fritt handredskapsfiske | Nej, fiskekort krävs i hela älven |
+| Förvaltas av | Färila FVOF (övre delen) och Ljusdals FVOF (nedre delen) |
+| Fiskekort, övre (Färila) | 150 kr/dygn via Fiskekort.se eller Swish |
+| Fiskekort, nedre (Ljusdal) | 70 kr/dygn via ifiske.se |
+| Fångstfönster harr (Färila) | 25–30 cm |
+| Minimimått öring (Färila) | 40 cm |
+| Fångstkvot (Färila) | Max 4 fiskar/dag, harr och öring sammanlagt |
+| Fredningstid öring (Färila) | 1 september–1 november |
+| Närmaste tätort | Färila och Ljusdal |
+| Koordinater | 61.92°N, 15.64°Ö (Kölströmmen) |
+
+---
+
+*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
+```
+
 ## src/content/destinations/mockeln.mdx
 ```
 ---
@@ -19733,7 +20248,7 @@ Kräftfiske i Möckeln är förbehållet fiskerättsinnehavare och ingår inte i
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Gädda, abborre, gös och lake kan innehålla höga halter kvicksilver. Läs mer längre ned i artikeln.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -20293,6 +20808,856 @@ Vill du testa till lägre kostnad, börja med FVO Ebbemåla–Åmma i april (300
 *Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
+## src/content/destinations/nissan.mdx
+```
+---
+title: "Nissan"
+slug: "nissan"
+description: "Nissan är en av Sydsveriges längsta åar med kompensationsodlat laxfiske i Halmstad och gädd- och gösvatten i sjöarna uppströms."
+heroImage: "/images/destinations/nissan.jpg"
+lat: 56.6745
+lng: 12.8580
+län: "Jönköping, Halland"
+primarySpecies: ["Lax", "Havsöring", "Gädda", "Abborre", "Gös"]
+waterType: "river"
+iFiskeUrl: "https://www.ifiske.se/fiske-nissan.htm"
+excerpt: "Halländsk laxå med fiske från Småland ner till Halmstad."
+recommendedGear: []
+publishedAt: "2026-06-14"
+updatedAt: "2026-06-14"
+kostrad: ["kvicksilver"]
+---
+
+Nissan är en av Sydsveriges längsta åar och rinner knappt 20 mil från trakten kring Taberg söder om Jönköping ner till Laholmsbukten i Kattegatt vid Halmstad. Ån är känd för sitt laxfiske på den nedre sträckan, en cirka 20 km lång del från Oskarström ner till havet som förvaltas av Nissans nedre fiskevårdsområdesförening. Laxen är till stor del kompensationsodlad. Statkraft sätter ut omkring 30 000 fettfeneklippta laxsmolt per år, samtidigt som naturlig reproduktion förekommer i ån och i biflödet Senneån. Längre uppströms, i Jönköpings län, dominerar gädda, gös, abborre och vitfisk i Nissasjöarna och de lugnflytande sträckorna. Fiskekort krävs på i stort sett alla sträckor.
+
+## Fiskekort och regler
+
+Det fria handredskapsfisket gäller inte i Nissan. Det lagstadgade fria fisket täcker landets fem största sjöar och kusten, inte vattendrag. Samtliga fiskbara sträckor i ån förvaltas av fiskevårdsområden som kräver fiskekort. Barn fiskar däremot kostnadsfritt i de flesta föreningarna.
+
+### Vad är fritt och vad kräver tillstånd?
+
+Havsfisket i Laholmsbukten utanför å-mynningen är fritt för handredskapsfiske, men kustens fredningsregler för lax och öring gäller. Från mynningen och uppströms krävs fiskekort. Laxsträckan i Halmstad förvaltas av Nissans nedre FVOF, sjöarna och de övre sträckorna i Jönköpings län av Nissasjöarnas FVO och en separat flugfiskesträcka vid Nissaforsbruk.
+
+### Var köper du fiskekort?
+
+Fiskekort till laxsträckan köps via [ifiske.se](https://www.ifiske.se/fiske-nissan.htm) och Halmstad Tourist Center. Kort till Nissasjöarna säljs via iFiske och lokala återförsäljare i Gislaved och Hestra. Fångstrapportering är obligatorisk via iFiske på laxsträckan. Barn under 12 år fiskar kostnadsfritt i målsmans sällskap.
+
+### Priser 2026 (Nissans nedre FVO)
+
+| Kort | Pris |
+|---|---|
+| Dagkort, vuxen | 200 kr |
+| Dagkort, ungdom 12–18 år | 100 kr |
+| 3-dagarskort | 520 kr |
+| 7-dagarskort | 800 kr |
+| Årskort, vuxen | 1 100 kr |
+| Årskort, ungdom | 400 kr |
+| Oktoberkort (flugfiske, pool 9) | 500 kr |
+| Barn under 12 år | Kostnadsfritt |
+
+Antalet årskort är begränsat och försäljningen av årskort pågår till 30 juni. Kontrollera alltid aktuella priser och regler hos fiskevårdsområdet före besök, eftersom de kan ändras under säsongen.
+
+### Minimimått och maxmått
+
+| Art | Mått |
+|---|---|
+| Lax | Minst 45 cm |
+| Öring och havsöring | Minst 45 cm |
+| Gädda | Högst 75 cm |
+| Abborre | Högst 35 cm |
+
+### Fisketider och fredning
+
+Laxsträckan fiskas 1 mars till 30 september, klockan 05.00 till 22.00. Pool 1 och 8 får fiskas till klockan 24.00 under 1 mars till 31 augusti. Pool 9 fiskas endast 1 till 14 oktober som flugfiske med särskilt begränsat dagkort. Under 1 oktober till sista februari får pool 0 till 7 fiskas under dygnets ljusa timmar, men all lax och öring ska då ovillkorligen återutsättas. I Hallands kustvatten är fiske efter lax och öring förbjudet 1 oktober till 31 mars.
+
+### Fångstbegränsning och återutsättning
+
+Högst två laxar och två öringar får behållas per säsong och fiskekort. Utlekt lax och öring, så kallad besa, ska alltid återutsättas. Felkrokad fisk återutsätts. Ryckfiske är förbjudet enligt lag. Endast enkelkrok är tillåten i pool 0 och 1 under 1 mars till 30 april, trekrok tillåts från 1 maj. Hullinglös enkelkrok rekommenderas för fisk som ska släppas tillbaka.
+
+> Aktuella regler finns alltid på [HaV:s webbplats](https://www.havochvatten.se) och via [Länsstyrelsens sidor](https://www.lansstyrelsen.se). Fiskevårdsområdets egna regler kan avvika och gäller alltid vid sidan av det nationella regelverket.
+
+---
+
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
+
+---
+
+## Fiskarter
+
+### Lax
+
+Nissans laxstam är till stor del kompensationsodlad. Statkraft sätter årligen ut omkring 30 000 laxsmolt från odlingen i Laholm som ersättning för vattenkraftsutbyggnaden. Smolten är fettfeneklippt så att odlad fisk kan skiljas från naturfödd. Återvandringen uppskattas till mellan 5 och 10 procent och varierar mellan åren. Naturlig reproduktion förekommer, och de första naturligt producerade laxungarna påträffades redan i början av 1980-talet. Medelvikten ligger kring 3 till 4 kg, med enstaka storlaxar en bra bit över 10 kg under höstuppvandringen. Laxfisket är ofta som bäst i september.
+
+[Läs mer om lax](/arter/lax/)
+
+### Havsöring
+
+Havsöring fångas på laxsträckan främst under våren och hösten och är ett vanligare fångstmål än laxen sett till antalet fiskar. Snittvikten ligger kring 1 till 1,5 kg, men öringar över 4 kg har fångats. Beståndet bygger på både utsatt och naturfödd fisk. Havsöring med kvar fettfena är naturfödd och bör behandlas varsamt och återutsättas.
+
+[Läs mer om havsöring](/arter/havsoring/)
+
+### Öring
+
+Stationär öring förekommer på strömsträckorna högre upp i systemet, bland annat vid Nissaforsbruk där det finns ett litet men stabilt bestånd. Dessa sträckor fiskas som flugfiske efter stationär öring och är skilda från laxfisket nedströms. Öringen i Nissasjöarnas övre vatten är fredad 16 september till 31 mars.
+
+[Läs mer om öring](/arter/oring/)
+
+### Gädda, gös och abborre
+
+Uppströms Oskarström, i Nissasjöarna och de lugnflytande sträckorna, dominerar gädda, gös och abborre. Sjösystemen i Gislaved- och Hestratrakten håller goda bestånd av gädda och gös, och abborre finns i hela systemet. Jiggfiske, vertikalfiske och trolling är de vanligaste metoderna i sjöarna, och isfiske bedrivs vintertid när isen lägger sig.
+
+[Läs mer om gädda](/arter/gadda/)
+
+[Läs mer om gös](/arter/gos/)
+
+[Läs mer om abborre](/arter/abborre/)
+
+### Övriga arter
+
+Vitfisk som mört, braxen, id, sarv, sutare, siklöja och lake förekommer i de lugnflytande delarna och sjöarna. Ål finns i systemet men är fredad och bör inte behållas. Ålfiske är endast tillåtet långt uppströms, mer än tre definitiva vandringshinder från havet, med minimimått 70 cm.
+
+## Ånens karaktär
+
+### Grundfakta
+
+| | |
+|---|---|
+| Längd (huvudfåran) | Cirka 14 mil |
+| Avrinningsområde | Cirka 2 682 km² |
+| Årsmedelvattenföring (mynningen) | Cirka 48 m³/s |
+| Källa | Trakten kring Taberg, cirka 290 m ö.h. |
+| Mynnar | Laholmsbukten, Kattegatt |
+
+### Topografi och sträckor
+
+Nissan rinner upp på Sydsvenska höglandet nära Taberg, går först nordväst och sedan sydväst genom Småland förbi Gislaved, Smålandsstenar och Hyltebruk, korsar länsgränsen till Halland vid Rydöbruk och fortsätter via Torup, Oskarström och Åled ner till Halmstad. De övre delarna är lugnflytande med myrpåverkat, bärnstensfärgat vatten och flera sjöar. Strömsträckor och forsar koncentreras till mellandelen och den nedre laxförande sträckan. Ån är hårt utbyggd med vattenkraft, och tio kraftverk räknas i huvudfåran.
+
+### Vattenfärg och flöden
+
+Vattnet är ofta humusfärgat på grund av avrinning från myrmarker uppströms, vilket gör att starkt färgade flugor och drag fungerar bra. Flödet kan stiga snabbt vid kraftverksdrift och under höst- och vinterflöden. SMHI har vid flera tillfällen utfärdat flödesvarningar för ån.
+
+### Biflöden och naturvård
+
+Senneån är det fiskemässigt viktigaste biflödet och bidrar till den naturliga laxreproduktionen. Statkraft rev ut dammarna vid Rydöbruk under 2022 för att återskapa en strömmande forssträcka och förbättra vandringsmöjligheterna. EU-finansierade vattenvårdsprojekt arbetar i flera av Nissans biflöden.
+
+## Fiskemetoder
+
+Detaljerade anvisningar finns på respektive tekniksida. Nedan beskrivs vad som är specifikt för Nissan.
+
+### Spinnfiske
+
+Spinnfiske är den vanligaste metoden på laxsträckan och passar de anvisade poolerna i och kring Halmstad. Skeddrag och wobbler i gult, rött och orange fungerar väl i det ofta humusfärgade vattnet. Enkelkrok krävs tidigt på säsongen i de nedre poolerna. Spinnfisket lämpar sig väl för den som inte flugfiskar.
+
+[Läs mer om spinnfiske](/teknik/spinnfiske/)
+
+### Flugfiske
+
+Flugfiske är populärt på laxsträckan och bedrivs vid bland annat pool 3 och pool 8, som är reserverade för flugfiske, samt vid pool 9 under oktoberfisket. Det färgade vattnet gör att kraftigt färgade flugor ofta fungerar bättre än diskreta mönster. Stationär öring uppströms vid Nissaforsbruk fiskas som klassiskt strömflugfiske.
+
+[Läs mer om flugfiske](/teknik/flugfiske/)
+
+### Jiggfiske
+
+I Nissasjöarna uppströms är jiggfiske den vanligaste metoden för gädda, gös och abborre. Gummibeten fiskas längs kanter, vid vegetationsbryn och över djupare partier. Metoden fungerar året runt och är effektiv när fisken står djupt.
+
+[Läs mer om jiggfiske](/teknik/jiggfiske/)
+
+### Mete
+
+Mete med mask fungerar för abborre, mört och braxen i de lugnflytande delarna och sjöarna. Tänk på att mete med mask är förbjudet på laxsträckan 1 oktober till 30 april.
+
+[Läs mer om mete](/teknik/mete/)
+
+## Hotspots och lokaler
+
+### Pool 1 vid Slottsmöllan
+
+Slottsmöllans kraftverk är det nedersta vandringshindret och samlar uppvandrande lax och havsöring. Pool 1 nedanför är en av de mest besökta platserna och fiskas som spinnfiske. Området närmast kraftverket är delvis avlyst för kast. Lättillgängligt centralt i Halmstad.
+
+### Taxipoolen vid Sennan
+
+Strömsträcka uppströms Halmstad där fisk samlas under uppvandringen. Anvisad för spinn- och flugfiske beroende på pool. Parkering i närheten och landfiske från stigar längs ån.
+
+### Militärvadet och Heljarpsforsen
+
+Forsande sträckor med tydliga ståndplatser för lax och havsöring. Passar både spinn- och flugfiske. Kräver vana vid att läsa strömmande vatten och vadning bör ske med försiktighet.
+
+### Flugfiskepoolerna (pool 3 och 8)
+
+Två pooler reserverade för flugfiske, med löpare och tydliga insideslinjer. Rotationsfiske kan tillämpas vid högt tryck. Vältrampade stigar leder fram till de vanligaste ståndplatserna.
+
+### Pool 9 (oktoberfisket)
+
+Den nedersta flugfiskepoolen som öppnar 1 till 14 oktober med särskilt begränsat dagkort och begränsat antal fiskare per dag. Sen säsong då uppvandrande fisk samlas inför leken.
+
+### Nissasjöarna (Gislaved och Hestra)
+
+Sjösystemet uppströms i Jönköpings län håller gädda, gös, abborre och vitfisk. Fiske med kanot och båt är vanligt, och båtramper finns vid flera av sjöarna. Lämpligt för jigg, vertikalfiske och trolling.
+
+### Nissaforsbruk
+
+Flugfiskesträcka efter stationär öring från dammen vid Nissafors Bruk ner till sista strömmen vid Ettö. Förvaltas separat från laxfisket nedströms.
+
+## Säsongsöversikt
+
+| Månad | Bästa art | Bästa metod |
+|---|---|---|
+| Mars | Havsöring | Spinnfiske, flugfiske |
+| April | Havsöring, tidig lax | Spinnfiske, flugfiske |
+| Maj | Lax, havsöring | Spinnfiske, flugfiske |
+| Juni | Lax, gädda (sjöarna) | Spinnfiske, jiggfiske |
+| Juli | Gädda, gös, abborre (sjöarna) | Jiggfiske, trolling |
+| Augusti | Gädda, gös, uppvandrande lax | Jiggfiske, spinnfiske |
+| September | Storlax, havsöring | Spinnfiske, flugfiske |
+| Oktober (1–14) | Lax, havsöring (pool 9) | Flugfiske |
+| Oktober (15–31) | Gädda, abborre (sjöarna) | Jiggfiske, isfiske |
+| November–februari | Gädda, abborre (sjöarna) | Jiggfiske, isfiske |
+
+Laxfisket på den nedre sträckan är öppet 1 mars till 30 september. Under oktober till februari får lax och öring i pool 0 till 7 endast fångas och återutsättas.
+
+## Kostråd och miljögifter
+
+Nissan mynnar i Kattegatt och berörs inte av Livsmedelsverkets dioxin- och PCB-råd för östersjöfisk. Det rådet gäller vildfångad lax och öring från Östersjön och Bottniska viken med deras älvar, samt Vänern och Vättern. Nissans lax och öring omfattas alltså inte av det rådet.
+
+Däremot gäller kvicksilverrådet för rovfisk från insjövatten, vilket berör gädda, gös, abborre och lake i Nissasjöarna och de lugnflytande delarna.
+
+| Målgrupp | Råd |
+|---|---|
+| Gravida, ammande, de som planerar graviditet | Max 2–3 gånger per år för gädda, gös, abborre och lake |
+| Övriga vuxna | Max 1 gång per vecka för gädda, gös, abborre och lake |
+
+Ål är fredad i hela landet och bör inte ätas oavsett fångstplats, eftersom ål kan innehålla höga halter av dioxin och PCB.
+
+För aktuella råd, se [livsmedelsverket.se](https://www.livsmedelsverket.se).
+
+## Infrastruktur och praktisk information
+
+### Båtramper
+
+| Plats | Notering |
+|---|---|
+| Norra Gussjön | Nissasjöarna, uppströms |
+| Algustorpasjön | Nissasjöarna, uppströms |
+| Viksjön | Nissasjöarna, uppströms |
+
+### Boende
+
+- **Vandrarhem i Åled.** Nära den nedre laxsträckan och Halmstad.
+- **Öreryds vandrarhem.** I de övre delarna av systemet i Jönköpings län.
+- **Isaberg Mountain Resort.** Nära Nissasjöarna, med uthyrning och aktiviteter.
+- **Hestravikens Wärdshus.** Vid de övre vattnen, med båt- och kanotuthyrning.
+
+### Kommunikationer
+
+Väg 26, den gamla Nissastigen, följer ån genom hela dalgången. E6 ger snabbt tillträde till Halmstad och laxsträckan. Tåg och buss når Halmstad, och därifrån är det nära till de centrala poolerna. Bil krävs för att nå de övre sträckorna och Nissasjöarna.
+
+### Säkerhet
+
+Vattennivån på laxsträckan kan stiga snabbt på grund av kraftverksdrift uppströms. Var försiktig vid vadning, särskilt under höstflöden, och håll koll på vattennivån innan du vadar ut.
+
+## Historik och bakgrund
+
+Nissan har en lång laxhistoria. Den berömda Halmstadlaxen fångades i ån och i havet utanför Halmstad och exporterades redan på 1600-talet. Fram till tidigt 1900-tal sträckte sig en stor laxgård tvärs över ån nedströms Slottsmöllan. Vattenkraftsutbyggnaden och industrins utsläpp under tidigt 1900-tal slog ut den vilda laxstammen, och de sista vilda laxarna fångades vid Slottsmöllan i början av 1920-talet.
+
+Ett återuppbyggnadsarbete inleddes under efterkrigstiden. En kläckningsanstalt byggdes vid Oskarström 1970, de första laxsmolten sattes ut på försök i slutet av 1970-talet, och naturligt producerade laxungar påträffades på nytt i början av 1980-talet. I dag svarar Statkraft för kompensationsutsättningarna från odlingen i Laholm. Omfattande kalkning har motverkat försurningen i avrinningsområdet.
+
+Slottsmöllans kraftverk cirka 4 km från mynningen är det första definitiva vandringshindret. Dess äldre fiskvägar fungerar dåligt, och lax och havsöring har skadats vid lekvandringen, vilket fått stor uppmärksamhet lokalt. Nissans kraftverk omfattas av den nationella planen för moderna miljövillkor, som ska ge alla kraftverk moderna miljövillkor men vars tidplan har försenats och pausats vid flera tillfällen. Frågan om fungerande vandringsvägar förbi Slottsmöllan är central för om en mer livskraftig laxstam ska kunna återetableras i Nissan.
+
+## Snabbfakta
+
+| | |
+|---|---|
+| Fritt handredskapsfiske | Nej (kräver fiskekort utom i havet) |
+| Laxfiskesäsong (nedre sträckan) | 1 mars–30 september |
+| Fiskekort (dagkort, vuxen) | 200 kr |
+| Fiskekort (barn under 12 år) | Kostnadsfritt |
+| Var köps kortet | ifiske.se, Halmstad Tourist Center |
+| Minimimått lax och havsöring | 45 cm |
+| Fångstbegränsning | Max 2 lax och 2 öring per säsong och kort |
+| Rapportering | Obligatorisk via iFiske på laxsträckan |
+| Första vandringshinder | Slottsmöllans kraftverk, Halmstad |
+| Närmaste tätort | Halmstad (laxsträckan), Gislaved (Nissasjöarna) |
+| Länsstyrelser | Halland, Jönköping |
+
+*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
+```
+
+## src/content/destinations/oland.mdx
+```
+---
+title: "Öland"
+slug: "oland"
+description: "Öland är ett av Sveriges främsta vatten för kustnära storgädda och havsöring. Fritt handredskapsfiske längs hela kusten, fredning 1 mars till 31 maj."
+heroImage: "/images/destinations/oland.jpg"
+heroSource: photo
+heroCredit: "Karin Lehtonen"
+heroCreditUrl: "https://unsplash.com/@karin_lehtonen"
+lat: 56.748
+lng: 16.659
+län: "Kalmar"
+primarySpecies: ["Gädda", "Havsöring", "Abborre", "Horngädda", "Skrubbskädda", "Piggvar"]
+waterType: "coastal"
+iFiskeUrl: "https://www.ifiske.se/fiske-oland.htm"
+excerpt: "Sveriges mest kända kust för storgädda och vild havsöring."
+recommendedGear: []
+kostrad: ["kvicksilver", "dioxin"]
+publishedAt: "2026-06-13"
+updatedAt: "2026-06-13"
+---
+
+Öland är ett av Sveriges mest kända vatten för riktigt stor gädda och för vild havsöring längs öppen kust. De långrunda, grunda vikarna på östra sidan värms snabbt på våren och hyser lokala, genetiskt åtskilda gäddstammar som drar specialister från hela landet. Längs hela kusten gäller fritt handredskapsfiske utan fiskekort, och du når det mesta vadande från land. Bestånden är samtidigt pressade av storspigg, säl och skarv, vilket gör att ett varsamt fiske och återutsättning av stor fisk har blivit norm bland dem som känner ön.
+
+## Fiskekort och regler
+
+Fiske med handredskap är fritt för alla längs Ölandskusten. Du behöver inget fiskekort för att fiska med spö, pilk eller liknande rörligt redskap med lina och högst tio krokar från land eller förankrad båt. Trolling räknas inte till det fria handredskapsfisket och kräver fiskerättsägarens tillstånd på enskilt vatten.
+
+Öland tillhör ICES delområde 25 i Egentliga Östersjön. Det nationella regelverket för delområdet gäller, och Länsstyrelsen Kalmar har kompletterande lokala bestämmelser, framför allt mynningsfredningar.
+
+Allt fiske i öländskt sötvatten är enskilt och kräver tillstånd av fiskerättsägaren. Det gäller åar, bäckar och insjöar, inklusive Hornsjön. Det finns inga fiskevårdsområden av fastlandstyp på ön, och inget öländskt insjökort säljs i dag via iFiske.
+
+### Vad är fritt och vad kräver tillstånd?
+
+| Fiske | Tillstånd |
+|---|---|
+| Handredskap från kust och förankrad båt | Fritt, inget kort |
+| Trolling på enskilt vatten | Fiskerättsägarens tillstånd |
+| Fiske i åar, bäckar och insjöar | Fiskerättsägarens tillstånd |
+| Nät, ryssjor och fasta redskap | Fiskerätt eller särskilt tillstånd |
+
+### Minimimått och fångstbegränsning
+
+| Art | Minimimått | Notering |
+|---|---|---|
+| Gädda | 40–75 cm (fönsteruttag) | Max 3 gädda och gös sammanlagt per dygn |
+| Gös | 45–60 cm (fönsteruttag) | Gäller handredskap och ryssjor |
+| Havsöring | 50 cm | Max 1 icke fenklippt öring per dygn |
+| Lax | 60 cm | Max 1 fenklippt lax per dygn |
+| Torsk | 38 cm | Allt fritidsfiske förbjudet |
+| Piggvar | 30 cm | Fredning 1 juni–31 juli i delområde 25 |
+| Abborre | saknas | Fredad 1 mars–31 maj |
+| Ål | saknas | Fritidsfiske förbjudet |
+
+### Fredningstider och fredningsområden
+
+Gädda och abborre är fredade runt hela Öland från 1 mars till 31 maj. Fredningen gäller allt riktat fiske, inte bara redskapsfiske. Det förlängda fredningsfönstret beslutades av Havs- och vattenmyndigheten 2021 efter vikande gäddbestånd och gäller kusten från Torhamns udde i Blekinge till Emåns mynning, Öland inräknat.
+
+Havsöring i öländska vattendrag är fredad från 1 oktober till sista februari, upp till första definitiva vandringshindret. Vid flera åmynningar gäller dessutom egna fredningsområden där allt fiske är förbjudet under samma period.
+
+| Vattendrag | Kommun | Fredning |
+|---|---|---|
+| Silverbäcken | Borgholm | 1 okt–28 feb |
+| Strömmen | Borgholm | 1 okt–28 feb |
+| Pelnabrobäcken | Borgholm | 1 okt–28 feb |
+| Bröttorpsbäcken | Mörbylånga | 1 okt–28 feb |
+| Åbybäcken (Gårdby) | Mörbylånga | 1 okt–28 feb |
+| Frösslundabäcken | Mörbylånga | 1 okt–28 feb |
+| Klevabäcken | Mörbylånga | 1 okt–28 feb |
+
+Sedan 1 januari 2024 är allt fritidsfiske efter torsk förbjudet i Östersjön. Förbudet gäller även 2026 och omfattar alla redskap, även handredskap. Fångad torsk ska omedelbart återutsättas. Fritidsfiske efter ål är förbjudet i hela Sverige sedan 2007.
+
+Hela Öland är skyddsområde för flodkräfta sedan 2013. Det är förbjudet att flytta levande kräftor till eller mellan öländska vatten, och redskap, båtar och vadarstövlar som använts i sötvatten utanför ön ska desinficeras innan de används på Öland.
+
+> Aktuella regler finns alltid på [HaV:s webbplats](https://www.havochvatten.se) och via [Länsstyrelsens sidor](https://www.lansstyrelsen.se). Fiskevårdsområdets egna regler kan avvika och gäller alltid vid sidan av det nationella regelverket.
+
+---
+
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
+
+---
+
+## Fiskarter
+
+### Gädda
+
+Gäddan är Ölands signaturfisk. De långrunda, grunda vikarna på östra sidan är ett av Sveriges mest kända vatten för riktigt stor gädda, och fisk över tio kilo fångas varje säsong av dem som lär sig läsa vattenståndet. Gäddan står ofta på 40 till 100 centimeters djup, och vattenstånd en bit över det normala drar in storfisken på de varma grundflaken. Östra sidan kommer igång tidigt på våren eftersom den är långgrund och värms snabbt, medan höstfisket från slutet av augusti till oktober ofta är det mest pålitliga.
+
+Beståndet är pressat. Yrkesfiskets gäddfångster i området har minskat kraftigt under de senaste decennierna, och storspigg, säl och skarv tär hårt på rovfisken. Forskning vid Linnéuniversitetet visar att de öländska vattendragens gäddor är genetiskt åtskilda, både från fastlandsgäddor och från varandra, vilket gör de lokala stammarna särskilt skyddsvärda. Gäddan återvänder till sitt födelsevatten för att leka. Fönsteruttag 40 till 75 centimeter gäller, och fisken är fredad 1 mars till 31 maj.
+
+[Läs mer om gädda](/arter/gadda/)
+
+### Havsöring
+
+Norra Öland räknas som en av de bästa havsöringskusterna i norra Europa. Öringen söks längs hela kusten, men västra sidan med sina lättillgängliga stenpartier och uddar är ett naturligt förstaval, liksom norra udden och sydspetsen vid Ottenby. Vanlig fångststorlek ligger på 1 till 2 kilo, men fiskar på 3 till 6 kilo förekommer. Bästa säsong är vår från mars till maj samt höst och tidig vinter, när vattnet är svalt. Sommarmånaderna är svagare.
+
+Utlekt och mager öring bör återutsättas. Fenklippt odlad fisk får tas, medan den vilda, icke fenklippta öringen är begränsad till en fisk per dygn för att skydda de öländska bäckstammarna. Fredningstid vid mynnande vattendrag 1 oktober till sista februari.
+
+[Läs mer om havsöring](/arter/havsoring/)
+
+### Abborre
+
+Abborre finns runt hela ön och fångas både på grunda vikar och från hamnar och pirar. Storabborre förekommer, men beståndet pressas av samma faktorer som gäddan, framför allt storspiggens utbredning på de grunda lekvikarna. Bäst fiske är höst och vinter. Abborren är fredad 1 mars till 31 maj och saknar minimimått i Östersjön.
+
+[Läs mer om abborre](/arter/abborre/)
+
+### Horngädda
+
+Horngäddan är en sommargäst som vandrar in mot Ölandskusten i maj och juni för att leka på grunt vatten. Det är ett kort, intensivt och lättillgängligt fiske som passar bra för den som vill ha action från land. Vanlig storlek är 50 till 70 centimeter. Fisken tas på lätt spinn, fluga eller flöte med sillstrimla.
+
+[Läs mer om horngädda](/arter/horngadda/)
+
+### Skrubbskädda
+
+Skrubbskädda, ofta kallad flundra, finns i goda bestånd runt ön och hör till de stabilaste fiskemöjligheterna. Den fångas med bottenmete från kust, hamnar och pirar, bäst under sensommar och höst. Ett tacksamt fiske för nybörjare och familjer.
+
+[Läs mer om skrubbskädda](/arter/skrubbskadda/)
+
+### Piggvar
+
+Piggvar förekommer på sand- och grusbottnar och fångas ibland av havsöringsfiskare på drag under senvåren, bäst i maj och juni. Fredning 1 juni till 31 juli i delområde 25 gäller.
+
+[Läs mer om piggvar](/arter/piggvar/)
+
+Övriga förekommande arter: gös, sik, sill och strömming, id och mört. I Hornsjön finns insjöarter som braxen, sarv, sutare och ruda.
+
+## Vattnets karaktär
+
+### Grundfakta
+
+- Kustlängd: cirka 40 mil runt ön
+- Vattentyp: brackvatten, Egentliga Östersjön delområde 25
+- Salthalt: låg, cirka 7 ‰
+- Djup: mestadels grundt längs kusten, östra vikarna ofta under 2 meter
+- Största insjö: Hornsjön, cirka 200 hektar, maxdjup cirka 4 meter
+
+### Topografi och kusttyp
+
+Öland är Sveriges sjöfattigaste landskap, och fisket sker till största delen i havet. Östra sidan domineras av långrunda, grunda vikar och alvarsnära kust med klapper- och kalkstensstränder. De grunda flaken värms snabbt på våren och är kärnan i öns storgäddfiske. Västra sidan har mer sten- och tångbotten med inslag av sand, och kustvägen följer vattnet längs stora delar, vilket gör havsöringslokalerna lättillgängliga. Hornsjön i norr är en kalkrik, grund insjö i Horns kungsgårds naturreservat, ursprungligen en havsvik som snörts av genom landhöjningen.
+
+### Vattentemperatur och isläggning
+
+Yttemperaturen varierar från någon grad i februari till uppemot 20 grader i juli och augusti. De grunda östvikarna kan lägga is under kalla vintrar, men islägena är ostadiga och bör aldrig beträdas utan noggrann kontroll. När isen släpper tidigt på våren startar storgäddfisket på de först uppvärmda flaken.
+
+### Naturreservat och skyddade områden
+
+Stora delar av Ölands kust ingår i naturreservat och sjömarker av internationell betydelse för fågellivet. Fiske från land kan vara begränsat inom häckningsområden under häckningssäsongen. Kontrollera Länsstyrelsens reservatskartor innan du fiskar nya lokaler.
+
+## Fiskemetoder
+
+Detaljerade teknikanvisningar för respektive metod finns på Strömkasts tekniksidor.
+
+### Spinnfiske
+
+Spinnfiske är huvudmetoden för både havsöring och storgädda längs Ölandskusten. För öring kastas långsmala skedar och kustwobblers i 10 till 25 gram längs strand, uddar och stenrev. För gädda på de grunda östvikarna fungerar grunt gående och ytnära beten bäst, eftersom fisken ofta står på under två meters djup. Kusten är genomgående grund, och vadarbyxor ger fördel när du vill nå längre ut.
+
+[Läs mer om spinnfiske](/teknik/spinnfiske/)
+
+### Jiggfiske
+
+Jiggfiske med shadjigg på lätt skalle tar abborre längs kanter, bryggor och stenpartier, och fungerar även på gädda i vikarna. Djupen är sällan stora i det landbaserade fisket, så lätta skallar på 3 till 10 gram är väl anpassade till Ölands grunda strukturer.
+
+[Läs mer om jiggfiske](/teknik/jiggfiske/)
+
+### Flugfiske
+
+Flugfiske efter havsöring fungerar väl längs öns stenkuster i lugnt väder och klart vatten. Vadande flugfiskare når bra lägen utan båt, framför allt längs västsidan och norra udden. Streamers och betesfiskimiterande mönster fungerar bäst. Horngäddan tas också på fluga under försommaren.
+
+[Läs mer om flugfiske](/teknik/flugfiske/)
+
+### Mete
+
+Mete med mask eller maggot på botten ger skrubbskädda och abborre från kust, hamnar och pirar. Horngäddan metas med flöte och sillstrimla under maj och juni. Mete passar bra för nybörjare och familjer vid öns många bryggor.
+
+[Läs mer om mete](/teknik/mete/)
+
+### Trolling
+
+Trolling efter havsöring och lax förekommer i öppna vatten utanför Öland, men kräver båt och, på enskilt vatten, fiskerättsägarens tillstånd. Allmänt vatten börjar 300 meter från strandlinjen.
+
+[Läs mer om trolling](/teknik/trolling/)
+
+## Hotspots och lokaler
+
+### Östra sidans storgäddevikar
+
+De långrunda vikarna längs östra Öland är öns mest kända storgäddvatten. Här söks fisken aktivt på 0,5 till 2 meters djup med grunt gående beten, och vattenståndet styr var fisken står. Mest landfiske och vadning, med båt som klar fördel. Många vikar fiskas sällan. Tänk på att gäddan är fredad 1 mars till 31 maj.
+
+### Grankullaviken
+
+Stor, skyddad vik på norra udden med hög produktion av storgädda, havsöring, abborre och horngädda. Här finns motorbåtsuthyrning, båtramp och stugor via fritidsbyn på platsen, vilket gör viken till en praktisk bas för flera dagars fiske. Intill ligger naturreservatet Trollskogen och Bödabukten.
+
+### Västsidans havsöringskust
+
+Längs västra sidan följer kustvägen vattnet, och stenpartier och uddar från Äleklinta och norrut ger lättillgängligt havsöringsfiske utan båt. Vadarbyxor och spinn eller fluga. Landfiske med kostnadsfri parkering på flera platser längs vägen.
+
+### Byrums sandvik och norra udden
+
+Norra Ölands sandstränder och stenrev vid Byxelkrok, Långe Erik och Trollskogen är klassiska havsöringslägen med god tillgänglighet. Vadande fiske med spinn och fluga.
+
+### Ottenby och sydspetsen
+
+Vid Långe Jan på öns sydspets möts två vatten, och strömmarna koncentrerar både havsöring och betesfisk. Landbaserat fiske, men exponerat. Kontrollera vind innan du åker, och respektera fågelskyddsområdets begränsningar under häckningssäsong.
+
+### Hamnar och pirar
+
+Öns hamnar och pirar ger abborre, horngädda och skrubbskädda med enkel tillgänglighet, och passar bra för mete och familjefiske. Många hamnar har parkering och bryggor på gångavstånd.
+
+### Hornsjön
+
+Ölands enda större insjö, i Horns kungsgårds naturreservat på norra ön. Grund och kalkrik med gädda, abborre, sutare och ruda. Landfiske från stränderna. Fiskerätten är enskild, så kontrollera tillstånd lokalt innan du fiskar.
+
+## Säsongsöversikt
+
+| Månad | Bästa art | Bästa metod |
+|-------|-----------|-------------|
+| Januari | Gädda, havsöring | Spinn, jigg |
+| Februari | Gädda, havsöring | Spinn, jigg |
+| Mars | Havsöring | Spinn, fluga (gädda/abborre fredade) |
+| April | Havsöring | Spinn, fluga (gädda/abborre fredade) |
+| Maj | Havsöring, horngädda | Spinn, fluga (gädda/abborre fredade t.o.m. 31/5) |
+| Juni | Horngädda, abborre, skrubbskädda | Mete, spinn, fluga |
+| Juli | Abborre, skrubbskädda | Mete, jigg |
+| Augusti | Gädda, abborre | Spinn, jigg |
+| September | Gädda, havsöring | Spinn, jigg, fluga |
+| Oktober | Gädda, havsöring | Spinn, jigg, fluga |
+| November | Havsöring, gädda | Spinn, jigg, fluga |
+| December | Havsöring, gädda | Spinn, jigg |
+
+Gädda och abborre är fredade 1 mars till 31 maj runt hela Öland. Havsöring fredas vid mynnande vattendrag 1 oktober till sista februari. Torsk är förbjudet att fiska hela året. Piggvar är fredad 1 juni till 31 juli.
+
+## Kostråd och miljögifter
+
+Livsmedelsverkets kostråd om dioxin och PCB gäller all vildfångad fet fisk från hela Östersjön, inklusive vattnen runt Öland. Råden är inte platsspecifika för Öland utan gäller det större Östersjöområdet.
+
+Råden gäller feta arter: vildfångad lax, vildfångad öring och sill och strömming från Östersjön.
+
+**Barn upp till 18 år, gravida, ammande och den som planerar graviditet:** ät dessa arter högst 2 till 3 gånger per år.
+
+**Övriga vuxna:** kan äta dessa arter upp till en gång per vecka.
+
+För insjöfisk gäller separata råd om kvicksilver. Abborre, gädda, gös och lake kan innehålla höga halter, och halten varierar mellan olika sjöar. Livsmedelsverket rekommenderar att man inte äter dessa arter oftare än en gång per vecka och varierar med andra fiskar. Ett högt intag av kvicksilver under graviditet kan skada fostrets nervsystem.
+
+Kontrollera alltid aktuella kostråd på [livsmedelsverket.se](https://www.livsmedelsverket.se).
+
+## Infrastruktur och praktisk information
+
+### Fiskeguider och charter
+
+Flera guider arbetar på Öland med inriktning på havsöring och gädda. Sweden Fishing Guide är verksam i Kalmar- och Ölandsområdet, och Ölands Sportfiskeklubb är en god lokal kunskapskälla. Kontrollera aktörernas egna webbplatser för aktuella priser och tillgänglighet.
+
+### Båtramper
+
+| Plats | Notering |
+|---|---|
+| Grankullavik, norra Öland | Ramp vid fritidsbyn, motorbåtsuthyrning på plats |
+| Hamnar längs väst- och ostkusten | Sjösättning vid flera kommunala hamnar |
+
+Fler ramper listas på [batramper.se](https://www.batramper.se) och via Naturkartan. Kontrollera aktuell avgift och tillgänglighet lokalt.
+
+### Boende
+
+- Grankullavik Fritidsby, norra Öland
+- Stugor och camping i Böda och Löttorp
+- Campingar längs både väst- och ostkusten
+
+### Kommunikationer
+
+Öland nås via Ölandsbron från Kalmar. Närmaste tågstation är Kalmar Resecentrum, med tåg från bland annat Stockholm och Malmö. Buss på ön körs av Kalmar Länstrafik, och direktbussen Silverlinjen trafikerar sträckan Öland till Kalmar och vidare. Kalmar Öland Airport har reguljärflyg till Stockholm.
+
+### Sjösäkerhet
+
+Östra Ölands kust är öppen och exponerad, och vinden kan öka snabbt och bygga korta, branta vågor över de grunda flaken. Sydspetsen vid Ottenby är särskilt utsatt. Kontrollera SMHI:s sjöväderprognos innan du ger dig ut med liten båt.
+
+## Historik och bakgrund
+
+Gäddan har en lång historia på Öland. Gäddben har påträffats i stenåldersboplatser, och äldre ölänningar minns ljustring av lekgädda i strandgölar. Under 1800- och 1900-talen torrlades en stor del av öns våtmarker genom utdikning, vilket slog ut lekområden för gädda och abborre. Sjösänkningen av Hornsjön slutfördes 1910.
+
+Under 2010-talet inleddes ett aktivt fiskevårdsarbete för att vända de vikande bestånden. Sportfiskarnas projekt Ölandsvatten restaurerade sex våtmarker längs kustmynnande vattendrag för att stärka gäddans och abborrens lek, med stöd från Länsstyrelsen Kalmar och Borgholms kommun. En fortsättning har planerats. Liknande gäddvåtmarker har anlagts på fastlandssidan kring Kalmar, där provfisken visar att fisken vandrar upp och leker.
+
+Parallellt har ekosystemet längs kusten förändrats. Storspiggen har brett ut sig kraftigt i de grunda vikarna och äter rom och yngel av gädda och abborre, vilket bryter rovfiskens rekrytering. Säl- och skarvpopulationerna har vuxit sedan 1980-talet och står i dag för ett mycket större uttag av abborre och gädda längs kusten än yrkes- och fritidsfisket tillsammans. Mot den bakgrunden beslutade Havs- och vattenmyndigheten 2021 om skärpta regler för ostkusten, bland annat den förlängda fredningstiden för gädda och abborre och fönsteruttag på gädda och gös.
+
+Torsken, som historiskt var ryggraden i södra Östersjöns fiske, har kollapsat. Allt riktat yrkesfiske efter torsk har varit förbjudet sedan 2019 och allt fritidsfiske sedan 2024, ett stopp som kvarstår 2026.
+
+## Snabbfakta
+
+| | |
+|---|---|
+| Fritt handredskapsfiske | Ja, längs hela kusten |
+| Kräver tillstånd | Trolling på enskilt vatten, sötvatten, nät och ryssjor |
+| Var köps fiskekort | Inget kustkort behövs, sötvatten via fiskerättsägare |
+| Minimimått gädda | 40–75 cm fönsteruttag, max 3 gädda/gös per dygn |
+| Minimimått havsöring | 50 cm, max 1 icke fenklippt per dygn |
+| Fredningstid gädda/abborre | 1 mars–31 maj |
+| Torsk | Allt fritidsfiske förbjudet |
+| Ål | Fritidsfiske förbjudet |
+| Närmaste tätort | Borgholm, Färjestaden, Mörbylånga |
+| Vattentyp | Brackvatten, Östersjön delområde 25 |
+
+*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
+```
+
+## src/content/destinations/oresund.mdx
+```
+---
+title: "Öresund"
+slug: "oresund"
+description: "Öresund är ett av Sveriges artrikaste havsområden tack vare trålförbudet sedan 1932. Havsöring i världsklass, men torsken är fredad 2026."
+heroImage: "/images/destinations/oresund.jpg"
+heroSource: photo
+heroCredit: "Karl Hörnfeldt"
+heroCreditUrl: "https://unsplash.com/@karlhornfeldt"
+lat: 55.89
+lng: 12.75
+län: "Skåne"
+primarySpecies: ["Havsöring", "Torsk", "Sill", "Makrill", "Horngädda", "Rödspätta"]
+waterType: "coastal"
+iFiskeUrl: "https://www.ifiske.se/fiske-oresund.htm"
+excerpt: "Havsöring i världsklass och unik torskhistoria i sundet mot Danmark."
+recommendedGear: []
+kostrad: ["dioxin"]
+publishedAt: "2026-06-13"
+updatedAt: "2026-06-13"
+---
+
+Öresund är sundet mellan Skåne och Själland, tröskeln där Kattegatts saltare vatten möter Östersjöns bräckta. Trålförbudet sedan 1932 har gjort sundet till ett av Sveriges artrikaste havsområden, med fler än tusen registrerade djur- och växtarter och över femtio fiskarter som förekommer regelbundet. För sportfiskaren betyder det havsöring i världsklass längs Skånekusten, ett välkänt turbåtsfiske efter sill och makrill, och en torskstam som länge var Sveriges starkaste. Torsken är dock fredad för fritidsfiske sedan 2024, och förbudet gäller hela 2026.
+
+## Fiskekort och regler
+
+Handredskapsfiske är fritt för alla längs hela den svenska Öresundskusten. Du behöver inget fiskekort för att fiska med spö, pirk eller liknande rörliga redskap från land eller båt. Fritidsfiskaren får använda högst sex redskap. Fiske i åar och sötvatten kräver fiskekort av fiskerättsägaren, och fasta redskap eller nät på allmänt vatten kräver tillstånd från Länsstyrelsen. Trolling på enskilt vatten kräver fiskerättsägarens tillstånd.
+
+Öresund tillhör ICES delområde 23. Det nationella regelverket för Östersjön gäller, och Länsstyrelsen Skåne har kompletterande lokala fredningsområden längs kusten.
+
+### Torsk är fredad
+
+Allt fritidsfiske efter torsk är förbjudet i Öresund under hela 2026. Förbudet infördes 1 januari 2024 och utökades därefter till hela Östersjön, delområde 22 till 32, där Öresund ingår. EU:s ministerråd beslutade i oktober 2025 att behålla förbudet för 2026. En fångad torsk ska omedelbart återutsättas. Förbudet gäller allt fritidsfiske, både handredskap och nät. ICES rekommenderar nollfångst för det västra torskbeståndet både 2026 och 2027. Kontrollera alltid aktuell status hos Havs- och vattenmyndigheten inför din tur, eftersom reglerna ses över varje årsskifte.
+
+### Minimimått och fredningstider
+
+| Art | Minimimått | Notering |
+|---|---|---|
+| Havsöring | 50 cm | Söder om Kullens fyr. Max 2 per fiskare och dygn |
+| Lax | 60 cm | Fredad vid åmynningar tillsammans med havsöring |
+| Torsk | Fredad | Allt fritidsfiske förbjudet 2026 |
+| Rödspätta | 27 cm | Gäller inte handredskapsfiske i kustzonen |
+| Skrubbskädda | 23 cm | Gäller inte handredskapsfiske i kustzonen |
+| Piggvar | 30 cm | Gäller inte handredskapsfiske i kustzonen |
+| Ål | Fredad | Fritidsfiske förbjudet sedan 2007 |
+
+Havsöring och lax är fredade i kustvattnet söder om Kullens fyr från 15 september till 31 december. Säsongen öppnar 1 januari, vilket skiljer Öresund från västkusten norr om Kullen där säsongen öppnar först 1 april. Vid åmynningar gäller särskilda fredningsområden med egna datum och avståndskrav. Vid Råån får du till exempel inte fiska närmare än tusen meter från mynningen under fredningstiden. Dessa datum varierar mellan områdena och ska kontrolleras område för område inför fisket.
+
+> Aktuella regler finns alltid på [HaV:s webbplats](https://www.havochvatten.se) och via [Länsstyrelsens sidor](https://www.lansstyrelsen.se). Fiskevårdsområdets egna regler kan avvika och gäller alltid vid sidan av det nationella regelverket.
+
+---
+
+**Att äta fångsten:** Det finns kostråd att känna till för fet fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
+
+---
+
+## Fiskarter
+
+### Havsöring
+
+Havsöringen är Öresundskustens paradgren och håller en nivå som Länsstyrelsen Skåne beskriver som världsklass. Sundet och de skånska åarna föder ett starkt bestånd med fiskar i spannet 40 till 70 cm, och exemplar på 2 till 5 kg fångas regelbundet av den som känner kusten. Öringen söker grunda, blockrika och tångrika partier där den jagar tobis, spigg och räka. Bästa säsong är vår och sensommar till tidig höst, med januari till medio september som den praktiska säsongen söder om Kullen. Minimimått 50 cm och max två fiskar per dygn. Fredad i kustvattnet 15 september till 31 december.
+
+[Läs mer om havsöring](/arter/havsoring/)
+
+### Torsk
+
+Öresundstorsken var länge Sveriges starkaste torskstam. Trålförbudet sedan 1932 gjorde att sundet enbart fiskades med passiva redskap, och torsken behöll en betydligt bättre storleksfördelning än i Kattegatt och övriga Östersjön. Stora fiskar på över 10 kg har fångats på det djupa vattnet runt Ven. Beståndet har dock försvagats även här under 2000-talet, och allt fritidsfiske efter torsk är förbjudet 2026. Den som får torsk på kroken ska återutsätta den omedelbart. Torsk från djupt vatten överlever återutsättning sämre, så fiska grunt om du vill undvika att skada fisken.
+
+[Läs mer om torsk](/arter/torsk/)
+
+### Sill
+
+Sill är stommen i Öresunds turbåtsfiske. Stora feta stim drar in i sundet under höst och vinter och fångas på sillhäcklor från båt över djupare vatten. Sillen är fritt fiskbar och saknar minimimått vid handredskapsfiske i kustvattnet. Höstsillen är en av de mest tillgängliga formerna av havsfiske i regionen och passar nybörjare väl.
+
+[Läs mer om sill](/arter/sill/)
+
+### Makrill
+
+Makrillen är en sommargäst som kommer in i sundet när strömmar och temperatur passar, vanligen från juni. Den fångas effektivt med makrilltåg och pilk från pirar, bryggor och båt. Makrillen är fritt fiskbar utan minimimått, men ta inte mer än vad som går åt till direkt konsumtion. Den feta makrillen fångas snabbt i mängd när stimmen står tätt.
+
+[Läs mer om makrill](/arter/makrill/)
+
+### Horngädda
+
+Horngäddan kommer in i Öresund i stora stim på försommaren, oftast i maj, och är en uppskattad och tillgänglig art för landfiskaren. Den tar små drag, flugor och flötfiskade beten i ytan. Köttet är magert och det gröna fiskbenet är ofarligt. Horngäddan är fritt fiskbar utan minimimått och passar bra för den som vill fiska aktivt från strand under en kort intensiv säsong.
+
+[Läs mer om horngädda](/arter/horngadda/)
+
+### Plattfisk
+
+Rödspätta och skrubbskädda är Öresunds vanligaste plattfiskar, med inslag av piggvar och slätvar. De fiskas med bottenmete och släptackel agnat med havsborstmask eller räka, både från land och från turbåt över sand- och grusbottnar. Minimimåtten gäller inte handredskapsfiske i kustzonen. Plattfiskmete är ett enkelt och givande fiske som fungerar stora delar av året och är populärt från turbåtarna runt Ven.
+
+[Läs mer om rödspätta](/arter/rodspatta/)
+
+Övriga förekommande arter: vitling, sej, multe, havskatt och enstaka blåfenad tonfisk, som de senaste åren återvänt till sundet och fiskas under licensierade märkningsprogram med återutsättning.
+
+## Vattnets karaktär
+
+### Grundfakta
+
+- Längd: cirka 118 km (Kullen i norr till Falsterbo i söder)
+- Bredd: cirka 4 km som smalast (Helsingborg till Helsingör), cirka 40 km som bredast
+- Salthalt: cirka 8 promille i ytan, upp mot 30 till 34 promille nära botten
+- Vattentyp: övergångsvatten mellan Östersjön och Kattegatt, ICES delområde 23
+- Djup: cirka 50 m i Landskronadjupet vid Ven, 7 till 8 m i söder vid Saltholm
+- Öar: Ven mitt i sundet utanför Landskrona
+
+### Topografi och salthaltsskiktning
+
+Öresund delas hydrografiskt av en tröskel i söder. Vid Saltholm går två rännor, Flintrännan på svensk sida och Drogden på dansk sida, där minsta djupet är cirka 8 m. Norr om tröskeln öppnar sig djupare vatten med Landskronadjupet runt Ven på omkring 50 m. Bräckt ytvatten från Östersjön strömmar norrut ovanpå tyngre saltvatten från Kattegatt som strömmar söderut. De båda vattenmassorna skiljs av ett språngskikt på cirka 10 till 20 m djup. Den skarpa salthaltsgränsen är skälet till att Öresund hyser så många arter. Sundet fungerar som en biologisk korridor mellan Östersjön och Nordsjön.
+
+### Vattentemperatur och strömmar
+
+Yttemperaturen varierar från några få grader i februari till omkring 18 till 20 grader i juli och augusti. Ytströmmen är nordgående ungefär 60 procent av tiden och sydgående ungefär 35 procent, styrd av lufttryck och vind. I de smala rännorna kan strömmen vid kuling överstiga 2 knop. Strömläget är avgörande för fisket, och turbåtarna planerar sina turer efter det. Det välomblandade vattnet i de grunda södra delarna ger god syresättning.
+
+### Naturreservat och skyddade områden
+
+Längs kusten finns flera fredningsområden och naturreservat med egna regler. I Lundåkrabukten och Foteviken är allt fiske förbjudet utom handredskap som inte kräver båt. Barsebäck är ett fredningsområde. Kontrollera Länsstyrelsen Skånes reservats- och fredningskartor innan du fiskar nya lokaler.
+
+## Fiskemetoder
+
+Detaljerade teknikanvisningar för respektive metod finns på Strömkasts tekniksidor.
+
+### Spinnfiske
+
+Spinnfiske är den vanligaste metoden för havsöring längs Öresundskusten. Smala skedar och små wobblers kastas längs uddar, stenrevlar och tångbälten. Kusten är ofta grund, och vadarbyxor ger fördel eftersom man når längre ut. Havsöring söker strömkanter och övergångar mellan sand och sten. Horngädda och makrill tas också på lätt spinn under sina säsonger.
+
+[Läs mer om spinnfiske](/teknik/spinnfiske/)
+
+### Flugfiske
+
+Flugfiske efter havsöring fungerar väl längs Skånekustens grunda och blockrika partier i lugnt väder och klart vatten. Vadande flugfiskare når bra lägen utan båt. Streamers och beten som imiterar tobis, räka och spigg fungerar bäst. Horngäddan tar gärna fluga i ytan under sin försommarsäsong.
+
+[Läs mer om flugfiske](/teknik/flugfiske/)
+
+### Havsfiske
+
+Havsfiske från turbåt är Öresunds klassiska båtfiske efter sill, makrill, vitling och plattfisk. Sillhäcklor och pilk används över djupare vatten, ofta runt Ven och i de centrala delarna. Båtarna utgår från Helsingborg, Råå, Landskrona och Limhamn och hyr ofta ut utrustning ombord. Torsk får inte behållas under 2026.
+
+[Läs mer om havsfiske](/teknik/havsfiske/)
+
+### Mete
+
+Mete med bottentackel ger plattfisk, framför allt rödspätta och skrubbskädda, på sand- och grusbottnar. Havsborstmask och räka är de vanligaste betena. Mete fungerar bra för nybörjare och familjer vid sundets bryggor, pirar och sandstränder, och kräver lite utrustning.
+
+[Läs mer om mete](/teknik/mete/)
+
+### Trolling
+
+Trolling efter havsöring och lax förekommer i Öresund, men kräver båt och, på enskilt vatten, fiskerättsägarens tillstånd. Allmänt vatten börjar 300 meter från strandlinjen. Metoden används främst under vinter och vår när öringen står ute i sundet.
+
+[Läs mer om trolling](/teknik/trolling/)
+
+## Hotspots och lokaler
+
+### Ven
+
+Ön mitt i sundet utanför Landskrona, omgiven av djupare vatten i Landskronadjupet. Klassiskt vatten för plattfisk och tidigare det främsta torskvattnet, i dag med torsken fredad. Havsöring fångas runt hela ön, och man väljer sida efter vinden. Färja går från Landskrona till Bäckviken. Turbåtarna når djuprännorna runt Ven på omkring femton minuter.
+
+### Helsingborg och Hittarpsrevet
+
+Pirar och kuststräckor i och norr om Helsingborg ger havsöring, med Pålsjö, Sofiero och Hittarpsrevet som välkända lägen. Fiske är förbjudet i hamnbassänger och nära färjelägen. Helsingborg nås enkelt med tåg och är en bra utgångspunkt för både land- och båtfiske.
+
+### Landskrona och Borstahusen
+
+Landskrona ligger centralt i sundet mitt för Ven och är en av de bästa utgångspunkterna för havsöring och båtfiske. Borstahusen har småbåtshamn och guideverksamhet. Härifrån når man snabbt det djupa vattnet runt Ven.
+
+### Lommabukten och åmynningarna
+
+Lommabukten i sundets sydöstra del tar emot Höje å och Kävlingeån, vilket ger bra havsöring under vår och höst. Tänk på fredningsområdena vid mynningarna och håll föreskrivet avstånd under fredningstiden. Grunda sandbottnar i bukten ger även plattfiske.
+
+### Malmö, Limhamn och Sibbarp
+
+Limhamn och Sibbarp söder om Malmö hör till de mest fiskade lägena i södra sundet, med havsöring, horngädda och plattfisk. Sibbarps badplats och kustlinjen mot Öresundsbron är tillgängliga landfiskelokaler. Limhamn fungerar som utgångshamn för turbåt med ramp och kran i småbåtshamnen.
+
+### Klagshamn och Öresundsbron
+
+Klagshamns udde och området kring brofästet är grunda lägen i söder, bra för havsöring och plattfisk. Strukturer och stenrevlar koncentrerar fisken. Landbaserat fiske med bilväg fram.
+
+### Falsterbo och Höllviken
+
+Sundets sydligaste del vid Falsterbohalvön har långa grunda sandstränder och rev. Havsöring fiskas vadande, och plattfiske fungerar på sandbottnarna. Området ligger i övergången mellan Öresund och Östersjön.
+
+## Säsongsöversikt
+
+| Månad | Bästa art | Bästa metod |
+|-------|-----------|-------------|
+| Januari | Havsöring | Spinn, fluga |
+| Februari | Havsöring | Spinn, fluga |
+| Mars | Havsöring | Spinn, fluga |
+| April | Havsöring | Spinn, fluga |
+| Maj | Havsöring, horngädda | Spinn, fluga, flöt |
+| Juni | Horngädda, makrill, plattfisk | Spinn, pilk, mete |
+| Juli | Makrill, plattfisk | Pilk, mete |
+| Augusti | Makrill, havsöring, plattfisk | Pilk, spinn, mete |
+| September | Havsöring, sill, plattfisk | Spinn, häckla, mete |
+| Oktober | Sill, plattfisk | Häckla, mete |
+| November | Sill, havsöring | Häckla, spinn |
+| December | Sill, havsöring | Häckla, spinn |
+
+Havsöring och lax är fredade i kustvattnet söder om Kullens fyr 15 september till 31 december. Torsk är förbjudet att fiska hela året. Fredningsområden vid åmynningar har egna datum som ska kontrolleras lokalt.
+
+## Kostråd och miljögifter
+
+Livsmedelsverkets kostråd om dioxin och PCB gäller fet fisk från hela Östersjön, och Öresund räknas dit. Råden gäller vildfångad lax, öring och strömming eller sill från Östersjön samt all ål. Mager fisk som rödspätta, skrubbskädda och piggvar har låg fetthalt och berörs inte av råden.
+
+**Barn upp till 18 år, gravida, ammande och den som planerar graviditet:** ät dessa feta arter högst 2 till 3 gånger per år.
+
+**Övriga vuxna:** kan äta dessa arter upp till en gång per vecka.
+
+Sverige har sedan 2012 ett permanent EU-undantag för att sälja vildfångad fet fisk från Östersjöområdet på den inhemska marknaden, trots att halterna överstiger EU:s normala gränsvärden. Halterna har sjunkit långsamt sedan industriutsläppen minskade. Kontrollera alltid aktuella kostråd på [livsmedelsverket.se](https://www.livsmedelsverket.se).
+
+## Infrastruktur och praktisk information
+
+### Fiskeguider och charter
+
+Flera turbåtar och guider är verksamma längs den svenska Öresundskusten. Rååbåtarna utgår från Råå utanför Helsingborg och kör turer efter sill, makrill, vitling och plattfisk. Landskronabåtarna når djuprännorna runt Ven från Landskrona. Vid Borstahusen finns guidad verksamhet för kustnära artfiske. I Limhamn utanför Malmö utgår mindre turbåtar för sill, makrill och plattfisk. Kontrollera aktörernas egna webbplatser för aktuella priser och tillgänglighet.
+
+### Båtramper
+
+| Plats | Notering |
+|---|---|
+| Helsingborg, Norra hamnen | God tillgänglighet, norra sundet |
+| Råå | Två ramper söder om Helsingborg |
+| Domsten | Norr om Helsingborg |
+| Landskrona | Centralt läge mitt för Ven |
+| Limhamn, småbåtshamnen | Ramp med bom och kran upp till 20 ton |
+
+Fler ramper listas via Naturkartan och båtrampstjänster.
+
+### Boende
+
+- Campingar i Helsingborgsområdet
+- Landskrona med läge mitt i sundet
+- Lomma och Lommabukten
+- Falsterbo och Höllviken på sydspetsen
+
+Kontrollera aktuella anläggningar och priser inför säsongen.
+
+### Kommunikationer
+
+Helsingborg, Landskrona och Malmö nås med tåg via Öresundståg och Pågatåg. Öresundsbron förbinder Malmö med Köpenhamn för bil och tåg. HH-färjan trafikerar Helsingborg till Helsingör med täta avgångar. Färja till Ven går från Landskrona till Bäckviken.
+
+### Sjösäkerhet
+
+Öresund är ett av världens mest trafikerade sund med tät yrkestrafik. Strömmen kan vara stark i de smala rännorna, och vinden ökar snabbt i de öppna delarna. Kontrollera SMHI:s sjöväderprognos innan du ger dig ut med liten båt, och håll dig utanför farlederna.
+
+## Historik och bakgrund
+
+Trålförbudet i Öresund från 1932 är centralt i sundets historia. Det infördes av sjösäkerhetsskäl, eftersom den intensiva fartygstrafiken gjorde trålning farlig, men blev i efterhand ett ofrivilligt naturvårdsexperiment. Medan Kattegatts torskbestånd kollapsade behöll Öresund ett relativt starkt bestånd som enbart fiskades med garn och krok. Forskare vid Havsmiljöinstitutet har beskrivit skillnaden som total, med en betydligt bättre situation i Öresund än i både Kattegatt och Skagerrak. Genomsnittstorsken i sundet har varit större än i östra Östersjön.
+
+Bilden har dock nyanserats av forskare vid ICES, som menar att även Öresund påverkats negativt och att det relativt sett bättre läget ändå inte är gott i absoluta termer. Det västra torskbeståndet har legat under biologiskt säkra gränser sedan mitten av 2010-talet, vilket ledde fram till fritidsfiskeförbudet 2024.
+
+Yrkesfisket i sundet bedrivs uteslutande med passiva redskap från små hamnar som Råå, Borstahusen och Limhamn. Huvudarterna har historiskt varit torsk och sill, periodvis även rödspätta, sjurygg och ål. Den skarpa salthaltsgränsen gör Öresund till en biologisk korridor mellan Östersjön och Nordsjön, och de senaste åren har blåfenad tonfisk återvänt till sundet och blivit föremål för märkningsprojekt med återutsättning.
+
+## Snabbfakta
+
+| | |
+|---|---|
+| Fritt handredskapsfiske | Ja, längs hela kusten |
+| Kräver tillstånd | Trolling på enskilt vatten, nät och fasta redskap |
+| Var köps fiskekort | Inget krävs för handredskap på kusten |
+| Minimimått havsöring | 50 cm söder om Kullens fyr, max 2 per dygn |
+| Fredningstid havsöring | 15 september till 31 december söder om Kullen |
+| Torsk | Allt fritidsfiske förbjudet 2026 |
+| Ål | Fritidsfiske förbjudet |
+| Närmaste tätort | Helsingborg, Landskrona, Malmö |
+| Vattentyp | Övergångsvatten, ICES delområde 23 |
+
+*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
+```
+
 ## src/content/destinations/ostergotlands-skargard.mdx
 ```
 ---
@@ -20348,7 +21713,7 @@ Områdenas exakta gränser anges i Havs- och vattenmyndighetens föreskrifter oc
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Fisk från Östersjön kan innehålla höga halter dioxin, PCB och kvicksilver. Läs mer längre ned i artikeln.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -20632,7 +21997,7 @@ Kräftfiske i Övre Fryken kräver fiskerättsägarens tillstånd. I Värmland f
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Abborre, gädda, gös och lake kan innehålla höga kvicksilverhalter. Nationella kostråd från Livsmedelsverket gäller. Läs mer längre ned i artikeln.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -20934,7 +22299,7 @@ Catch and release är ett krav för all öring utanför fönstermåttet 30–45 
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Livsmedelsverket avråder barn, unga och den som planerar graviditet från att äta vildlax och havsöring från Bottniska viken oftare än 2–3 gånger per år. Läs mer under avsnittet Kostråd och miljögifter längre ned.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -21220,7 +22585,7 @@ Levande betesfisk är förbjudet i Sverige. Använd aldrig levande agn.
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Gädda, gös, abborre och lake kan innehålla förhöjda halter kvicksilver. Livsmedelsverkets nationella kostråd gäller. Läs mer längre ned i artikeln.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -21518,7 +22883,7 @@ Catch and release är en regel i Roxen, inte bara en rekommendation. All gädda 
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Gädda, abborre, gös och lake kan innehålla förhöjda halter kvicksilver. Läs mer längre ned i artikeln.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -21766,7 +23131,7 @@ Siljan är en av Sveriges mest karaktärsfulla fiskesjöar. Sjön ligger i Silja
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Abborre, gädda, gös och lake kan innehålla höga kvicksilverhalter. Nationella kostråd från Livsmedelsverket gäller. Läs mer längre ned i artikeln.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -22066,6 +23431,315 @@ Bliktfisket är ett levande kulturarv. Traditionellt notfiske (landvad) efter si
 *Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
+## src/content/destinations/sommen.mdx
+```
+---
+title: "Sommen"
+slug: "sommen"
+description: "Sommen är en av Sveriges djupaste klarvattensjöar med relikt storröding. Guide till fiskekort, regler, rödingfredning, arter och hotspots."
+heroImage: "/images/destinations/sommen.jpg"
+lat: 58.02
+lng: 15.28
+län: "Östergötlands län, Jönköpings län"
+primarySpecies: ["Röding", "Öring", "Gädda", "Abborre", "Gös", "Sik"]
+waterType: "lake"
+iFiskeUrl: "https://www.ifiske.se/fiske-sommen.htm"
+excerpt: "Djup klarvattensjö med relikt storröding och storvuxen öring."
+recommendedGear: []
+publishedAt: "2026-06-14"
+updatedAt: "2026-06-14"
+kostrad: ["kvicksilver"]
+---
+
+Sommen är en av Sveriges djupaste och klaraste sjöar, en sprickdalssjö med skärgårdskaraktär på gränsen mellan Östergötlands och Jönköpings län. Sjön är mest känd för sin storröding, ett reliktbestånd som överlevt sedan istiden och i dag är akut hotat. Hit kommer sportfiskare framförallt för den djuplevande rödingen och den storvuxna sjööringen, men Sommen är också ett gediget gädd- och abborrvatten. Det klara vattnet, de många öarna och de stora djupen ställer höga krav på den som vill nå fisken, och reglerna kring de laxartade arterna är striktare än i de flesta insjöar.
+
+## Fiskekort och regler
+
+Fiske i Sommen kräver fiskekort i hela sjön. Det finns inga delar av Sommen där fritt handredskapsfiske gäller. Allt fiske förvaltas av Sommens fiskevårdsområdesförening (Sommens FVO), och ett gemensamt fiskekort gäller hela sjön över både läns- och kommungränser. Kortet ger rätt till handredskapsfiske. Trolling och kräftfiske kräver särskilda tillstånd.
+
+### Var köper du fiskekort?
+
+Fiskekort köps enklast digitalt via iFiske.se eller i iFiske-appen, där kortet levereras direkt till mobilen. Sommens FVO har gått över helt till digitala kort. Lokala ombud finns även i området kring Tranås och Österbymo.
+
+### Priser 2026
+
+| Korttyp | Pris |
+|---------|------|
+| Dagkort | 150 kr |
+| Veckokort | 600 kr |
+| Årskort | 900 kr |
+| Dygnskort trolling | 600 kr |
+
+Barn och ungdomar till och med 15 år fiskar utan kort.
+
+### Minimimått
+
+| Art | Minimimått |
+|-----|-----------|
+| Röding | 60 cm |
+| Insjööring | 60 cm |
+| Gädda | 40 cm |
+| Gös | 40 cm |
+| Ål | 70 cm |
+
+Sommens FVO anger inga maxmått eller fönsteruttag i sina egna regler. Däremot gäller en fångstbegränsning på högst en laxartad fisk, det vill säga röding eller öring, per fiskekort och dygn.
+
+### Redskap och metodregler
+
+Handredskapsfiske får ske med högst två redskap per kort. Trolling kräver ett särskilt trollingkort och får ske med högst sex fiskande beten per båt. Ytutterfiske, lodutterfiske och trolling med planerboards är inte tillåtet. Alla ombord som trollar måste ha trollingkort.
+
+Vertikalfiske med ekolod är bara tillåtet i Sommens västra bäcken, det vill säga Sommenfjärden, Boxholmsfjärden, Tranåssjön och Torpafjärden, med begränsning vid Torpöbron i söder och Färjeläget i norr. Fiske får inte ske närmare än 50 meter från brygga eller bebyggd tomt utan tillstånd.
+
+### Fredningstider och fredningsområden
+
+Röding och insjööring är fredade i hela sjön 16 september–31 december. Under den perioden är riktat fiske mot dessa arter förbjudet, och fångad fisk ska återutsättas. Fredningen sammanfaller med arternas lek på sjöns grundområden.
+
+Sjön har dessutom ett antal namngivna fredningsområden enligt FVO:s karta. I områdena A, B och C är endast handredskapsfiske tillåtet 16 september–31 december. I områdena 1 till 4 är allt fiske förbjudet under samma period. I område 5 råder generellt fiskeförbud året runt. Vid norslekplatserna a, b och c är allt fiske förbjudet 15 april–15 maj. Kontrollera den aktuella fredningskartan innan du fiskar nära tillflöden och grundområden.
+
+### Kräftfiske
+
+Kräftfiske ingår inte i det vanliga fiskekortet. Sommen ligger inom Havs- och vattenmyndighetens hanteringsområde för signalkräfta, vilket innebär att kräftfiske bara får utövas av fiskerättsägaren eller den som har fiskerättsägarens tillstånd. Allmänheten får alltså inte fiska kräftor på fiskekortet. Arten i sjön är signalkräfta. Minimimåttet är 10 centimeter mätt från pannspetsen till stjärtspetsen, och endast kräftbur är tillåtet redskap. Den som vill kräftfiska i Sommen behöver kontakta Sommens FVO eller berörd fiskerättsägare.
+
+> Aktuella regler finns alltid på [HaV:s webbplats](https://www.havochvatten.se) och via [Länsstyrelsens sidor](https://www.lansstyrelsen.se). Fiskevårdsområdets egna regler kan avvika och gäller alltid vid sidan av det nationella regelverket.
+
+---
+
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
+
+---
+
+## Fiskarter
+
+Sommen är näringsfattig och artrik med ett tjugotal fiskarter. Sjöns identitet vilar på de laxartade arterna, röding och öring, som båda är reliktbestånd och omfattas av särskilda regler.
+
+### Röding
+
+Sommenrödingen är sjöns signaturart och ett av Sveriges sydligaste rödingbestånd. Det är en storröding, en djuplevande relikt som klassats som akut hotad i den nationella rödlistan. Rödingen står normalt djupt under språngskiktet och söker sig upp på grundare lekgrund under hösten, där lek sker på vatten så grunt som en halvmeter. Beståndet är starkast i de tre stora armarna Tranåsfjärden, Asbyfjärden och Norra Vifjärden. Stora exemplar förekommer, och Sommen har historiskt producerat svenska rekordrödingar. Minimimåttet är 60 cm och arten är fredad 16 september–31 december.
+
+[Läs mer om röding](/arter/roding/)
+
+### Öring
+
+Sommenöringen är ett storvuxet sjölevande bestånd där exemplar över tio kilo har fångats. Beståndet är genetiskt särpräglat och leker i sjöns tillflöden, främst Svartån och Bulsjöån. En del av öringen är dessutom nedströmslekande, vilket är ovanligt. Öringen söker sitt byte i de fria vattenmassorna och längs strukturer på medeldjup. Minimimåttet är 60 cm och arten omfattas av samma höstfredning som rödingen.
+
+[Läs mer om öring](/arter/oring/)
+
+### Gädda
+
+Gäddan är vanlig i hela sjön och växer sig stor i det västra, något varmare bäckenet. De grundare vikarna i väster, med rikligare vitfisk, ger gäddan goda förutsättningar. Bästa fisket sker på vår och höst längs vasskanter och grundområden, och vintertid genom isen. Minimimåttet är 40 cm.
+
+[Läs mer om gädda](/arter/gadda/)
+
+### Abborre
+
+Abborren finns rikligt i hela Sommen och är en av sjöns mest tillgängliga arter för den som fiskar från land. Stora abborrar står ofta djupt och följer norsstimmen, vilket gör vinterns pimpelfiske på 10–20 meters djup särskilt produktivt. Under den varma delen av året tar abborren jigg och drop-shot vid grynnor och bottenövergångar.
+
+[Läs mer om abborre](/arter/abborre/)
+
+### Gös
+
+Gösen förekommer i begränsad omfattning och håller främst till i den västra, varmare och något grumligare delen av sjön. Beståndet är inte i klass med renodlade gösvatten som Åsnen eller Mälaren, men gös fångas vid kvälls- och nattfiske över djupövergångar under sommaren. Minimimåttet är 40 cm.
+
+[Läs mer om gös](/arter/gos/)
+
+### Sik
+
+Siken är liksom rödingen en relikt i Sommen och en viktig bytesfisk för de stora rovfiskarna. Den fångas på pimpel och med små beten på djupare vatten. Siken är en del av sjöns kallvattenfauna tillsammans med nors och taggmärla.
+
+[Läs mer om sik](/arter/sik/)
+
+### Övriga arter
+
+Utöver de viktigaste sportfiskearterna förekommer siklöja, nors, lake, ål, mört, braxen, sutare, vimma, löja och gärs. Norsen bildar stora stim på djupt vatten och är basföda för både röding, abborre och öring. Ålen är akut hotad nationellt och omfattas av strikta fångstregler.
+
+## Sjöns karaktär
+
+### Grundfakta
+
+| | |
+|--|--|
+| Yta | ca 132 km² (13 204 ha) |
+| Maxdjup | 53 m |
+| Medeldjup | 17 m |
+| Höjd över havet | 146 m |
+| Antal öar | ca 260 |
+| Strandlinje | ca 449 km |
+| Län | Östergötlands och Jönköpings län |
+
+### Topografi och bäcken
+
+Sommen är en sprickdalssjö, formad av parallella och korsande sprickor i berggrunden. Det ger en starkt flikig sjö med långa armar, djupa fjärdar och ett myller av öar. Sjön delas i två bäcken. Det västra bäckenet vid Tranås är grundare och varmare, med ett medeldjup runt 14 meter, och hyser gädda, abborre och gös. Det östra bäckenet är djupare och kallare, med ett medeldjup runt 18 meter, och är rödingens och sikens kärnområde.
+
+### Vattentemperatur och skiktning
+
+Sommen är ett klart och näringsfattigt vatten med ett siktdjup på 8–10 meter under goda förhållanden, bäst i den östra delen. Under sommaren skiktar sig sjön, och rödingen står under språngskiktet i det kalla, syrerika bottenvattnet. Den utpräglade skiktningen är förklaringen till att rödingen över huvud taget överlevt så långt söderut. Vattnet i ytan värms sällan lika högt som i grundare slättsjöar.
+
+### Isläggning
+
+Sommen lägger sig normalt under december till januari, men de stora djupen och de öppna fjärdarna gör att isen lägger sig senare och mer ojämnt än i mindre sjöar. Pimpelfisket efter abborre och röding är populärt under stabila isar. Isförhållandena varierar kraftigt mellan olika delar av sjön och från år till år. Kontrollera alltid isen lokalt innan du ger dig ut.
+
+### Tillflöden och utflöde
+
+Sommens viktigaste tillflöden för sportfisket är Svartån, som rinner in vid Tranås, och Bulsjöån, som mynnar vid Norra Vifjärden. Båda är lekvattendrag för Sommenöringen. Sjön avvattnas av Svartån vid Laxberg, varifrån ån rinner vidare norrut mot Boxholm och Mjölby och slutligen mynnar i Roxen. Bulsjöån förbinder Sommen med sjöarna Östra och Västra Lägern.
+
+### Naturreservat och skyddade områden
+
+Sommen är riksintresse för friluftsliv och omges av flera naturreservat, bland annat på och kring Torpön, sjöns största ö. På Torpöns nordspets ligger Naturum Sommen, en bra startpunkt för den som vill lära känna sjön. Ett tiotal öar är fågelskyddsområden med tillträdesförbud under häckningstid. Kontrollera Länsstyrelsens kartmaterial innan du fiskar nära öarna.
+
+## Fiskemetoder
+
+Sommen lämpar sig för flera djupinriktade metoder. Detaljerade instruktioner finns på respektive tekniksida.
+
+### Trolling
+
+Trolling är en av de mest effektiva metoderna för att nå Sommens djuplevande röding och öring. Under sommaren körs djuprigg eller paravan på 15–35 meters djup över de stora fjärdarna i östra bäckenet. Trolling kräver särskilt trollingkort och högst sex beten per båt. Metoden fungerar även för gädda på medeldjup i den västra delen.
+
+[Läs mer om trolling](/teknik/trolling/)
+
+### Vertikalfiske
+
+Vertikalfiske med ekolod är bara tillåtet i Sommens västra bäcken och riktas där mot gädda, gös och abborre över djuphålor och branta bottenövergångar. Ekolod är nödvändigt för att hitta fisken i det klara, djupa vattnet. Reglerna för var vertikalfiske får ske är specifika för Sommen och måste följas.
+
+[Läs mer om vertikalfiske](/teknik/vertikalfiske/)
+
+### Isfiske
+
+Sommen är ett klassiskt pimpelvatten för abborre och röding. Norsabborren fångas på 10–20 meters djup på nyisen i hela sjön. Röding kan fås på pimpel i den östra delen. Vid snötäckt is söker sig många fiskare till den grundare västra delen, där abborren står strandnära på 3–6 meter. Sjöns djup och öppna lägen gör isen opålitlig på sina håll.
+
+[Läs mer om isfiske](/teknik/isfiske/)
+
+### Spinnfiske
+
+Spinnfiske längs vasskanter och runt grynnor är effektivt för gädda från vår till höst, framförallt i den västra delen. Abborre tar mindre beten vid strukturer under hela den isfria säsongen.
+
+[Läs mer om spinnfiske](/teknik/spinnfiske/)
+
+### Jiggfiske
+
+Jiggfiske efter abborre och gädda fungerar bra vid bottenövergångar och längs grynnkanter. Större abborre står ofta djupt och nås med jigg över de djupare partierna i väster.
+
+[Läs mer om jiggfiske](/teknik/jiggfiske/)
+
+### Mete
+
+De grundare vikarna med mjukbotten lämpar sig för mete efter mört, braxen och sutare under sommarmånaderna. Bottenmete kvälls- och nattetid kan ge ål, men kom ihåg att ålen omfattas av strikta fångstregler.
+
+[Läs mer om mete](/teknik/mete/)
+
+## Hotspots och lokaler
+
+### Tranåsfjärden och västra bäckenet
+
+Den grundare och varmare delen vid Tranås är sjöns bästa område för gädda, abborre och gös. Här är vertikalfiske med ekolod tillåtet. Storgädda fångas längs vasskanter och över djuphålor, och gös tar bete vid kvälls- och nattfiske. Goda landfiskemöjligheter finns på flera platser kring staden.
+
+### Asbyfjärden
+
+En av sjöns stora östra armar och ett kärnområde för rödingen. Fiskas djupt med trolling och pimpel. Båtramp finns vid Asby. Området kräver båt och ekolod för effektivt rödingfiske.
+
+### Norra Vifjärden
+
+Nordöstra delen av Sommen, vid Bulsjöåns mynning, är både rödingområde och relevant för öringen som vandrar i ån. Båtramp finns vid Norra Vi. Djupt och kallt vatten med stark struktur.
+
+### Laxberg
+
+Vid Svartåns utlopp i sjöns norra del. Historisk öringlekplats och en lokal som länge förknippats med sjööringen. Strömmande vatten i anslutning till utloppet.
+
+### Torpön
+
+Sjöns största ö, nådd med linfärja under sommarhalvåret. Runt ön finns omväxlande djup och grund samt naturreservat och Naturum Sommen. Bra utgångspunkt för fiske i de centrala delarna och för den som kombinerar fiske med friluftsliv.
+
+### Malexander
+
+Vid sjöns östra ände, i ett område starkt förknippat med rödingfisket. Båtramp och boende finns i byn. Härifrån når man de djupa östra fjärdarna.
+
+## Säsongsöversikt
+
+| Månad | Bästa art | Bästa metod |
+|-------|-----------|-------------|
+| Januari | Abborre, röding | Isfiske |
+| Februari | Abborre, röding | Isfiske |
+| Mars | Abborre, gädda | Isfiske, spinnfiske |
+| April | Gädda, abborre | Spinnfiske, jigg |
+| Maj | Gädda, abborre | Spinnfiske, jigg |
+| Juni | Röding, öring, gädda | Trolling |
+| Juli | Röding, öring | Trolling |
+| Augusti | Röding, gös | Trolling, nattfiske |
+| September | Gädda, abborre | Spinnfiske, jigg (röding och öring fredade från 16 sep) |
+| Oktober | Gädda, abborre | Jigg, spinnfiske |
+| November | Gädda, abborre | Jigg |
+| December | Abborre, gädda | Isfiske (vid is) |
+
+Röding och insjööring är fredade i hela sjön 16 september–31 december. Vid norslekplatserna gäller fiskeförbud 15 april–15 maj.
+
+## Kostråd och miljögifter
+
+Livsmedelsverkets nationella kostråd om kvicksilver gäller för fisk från Sommen. Det finns inga publicerade lokala kostråd specifika för sjön.
+
+Abborre, gädda, gös och lake kan innehålla förhöjda halter kvicksilver. Livsmedelsverket rekommenderar att den som äter dessa fiskar regelbundet inte gör det mer än en gång per vecka. Den som är gravid, försöker bli gravid eller ammar rekommenderas att inte äta dessa fiskarter mer än 2 till 3 gånger per år.
+
+Stor öring och röding kan utöver kvicksilver innehålla fettlösliga miljögifter. Den som äter stora exemplar regelbundet bör hålla sig informerad om aktuella råd.
+
+Se aktuella råd på [livsmedelsverket.se](https://www.livsmedelsverket.se).
+
+## Infrastruktur och praktisk information
+
+### Båtramper
+
+| Plats | Noteringar |
+|-------|------------|
+| Tranås | Västra bäckenet, nära stad och service |
+| Asby | Tillgång till Asbyfjärden |
+| Norra Vi | Nordöstra delen, nära Bulsjöån |
+| Malexander | Östra änden, rödingområdet |
+| Blåvik | Vid färjeläget mot Torpön |
+| Torpön | Färjeläget på ön |
+
+Kontakta Sommens FVO för komplett lista och aktuell status på ramperna.
+
+### Boende
+
+Runt sjön finns campingar och stugor, bland annat Sommens Camping nära Tranås, Torpöns camping och färjeläge på ön samt boende i Malexander. Hotell finns i Tranås. Båtuthyrning erbjuds på flera platser.
+
+### Kommunikationer
+
+Tranås station ligger på Södra stambanan med goda tågförbindelser. Riksväg 32 löper längs sjöns västra sida mellan Mjölby, Boxholm och Tranås. Närmaste flygplatser är Linköping och Jönköping. Linfärjan Viktoria går mellan Sundsudden vid Blåvik och Torpön under sommarhalvåret, normalt från slutet av april till slutet av september.
+
+### Sjösäkerhet
+
+Sommen är en stor, djup och vindexponerad sjö med komplex topografi. Plötsliga väderomslag och hög sjö förekommer på de öppna fjärdarna. Använd sjökort, ha flytväst och planera turen efter vädret. De många öarna och sunden gör navigering utan kartstöd svårt även för den som känner sjön.
+
+## Historik och bakgrund
+
+Sommen är en relikt klarvattensjö där flera arter har överlevt sedan inlandsisen drog sig tillbaka för ungefär elvatusen år sedan. Storröding, nors, sik och taggmärla är glacialrelikter som klarat sig tack vare sjöns stora djup med kallt och syrerikt bottenvatten. Sommen ligger något över högsta kustlinjen och har därför aldrig stått i förbindelse med havet på samma sätt som många andra sjöar.
+
+Sommenrödingen är sjöns mest värdefulla art ur både biologisk och bevarandemässig synvinkel. Storrödingen har gått kraftigt tillbaka i hela södra Sverige under det senaste seklet, och i dag finns bara ett fåtal sjöar söder om Dalälven med kvarvarande bestånd. I Sommen betraktades rödingen som starkt hotad redan på 1970-talet. Forskare har beskrivit Sommenrödingen som en mycket känslig och genetiskt intressant fisk, och beståndet är i dag klassat som akut hotat i den nationella rödlistan. Förvaltningen bygger på höstfredning, ett minimimått på 60 cm och löpande beståndsövervakning, där lekrödingen märks på lekgrunden för att följa beståndets utveckling.
+
+Öringen har på senare år gynnats av åtgärder i tillflödena. Tranås Energi har byggt faunapassager förbi vandringshinder i Svartåns och Bulsjöåns system. Den sista passagen vid Oppeby blev klar hösten 2025 och öppnade en lång sammanhängande vandringsväg mellan Sommen och Västra Lägern. Hundratals öringar har sedan dess vandrat upp i Bulsjöån.
+
+Sommens kräftfiske har lång tradition. Den ursprungliga flodkräftan slogs tillbaka av kräftpest, och signalkräftan introducerades senare på samma sätt som i många andra svenska sjöar. Signalkräftan är i dag den art som fiskas, men den är invasiv och bärare av kräftpest, vilket gör att hanteringen av levande kräftor är reglerad.
+
+## Snabbfakta
+
+| | |
+|--|--|
+| Fritt handredskapsfiske | Nej, kort krävs i hela sjön |
+| Fiskekort krävs för | Allt handredskapsfiske |
+| Var köps kortet | iFiske.se och lokala ombud |
+| Minimimått röding | 60 cm |
+| Minimimått öring | 60 cm |
+| Minimimått gädda | 40 cm |
+| Fredning röding och öring | 16 september–31 december |
+| Fångstbegränsning laxfisk | 1 röding eller öring per kort och dygn |
+| Trolling | Särskilt trollingkort, max 6 beten per båt |
+| Kräftfiske | Endast med fiskerättsägarens tillstånd |
+| Barn t.o.m. 15 år | Fiskar utan kort |
+| Närmaste stad | Tranås |
+| Yta | ca 132 km² |
+| Maxdjup | 53 m |
+
+*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
+```
+
 ## src/content/destinations/stockholms-skargard.mdx
 ```
 ---
@@ -22157,7 +23831,7 @@ Aktuella koordinater och kartor finns hos [Länsstyrelsen Stockholm](https://www
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Livsmedelsverket har kostråd för fisk från Östersjön och Stockholms skärgård på grund av förhöjda halter av dioxiner och PCB. Råden gäller framför allt strömming, lax, öring och ål. Läs mer i avsnittet om kostråd längre ned i artikeln.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -22534,7 +24208,7 @@ Barn och ungdomar upp till 15 år fiskar utan kostnad i sällskap med vuxen.
 
 ---
 
-**Obs för den som planerar att äta fångsten:** Länsstyrelsen Jämtland publicerade uppdaterade kostråd 2022 för Storsjön på grund av förhöjda halter av PFAS, PCB, dioxiner och kvicksilver i flera arter. Läs mer längre ned i artikeln.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -22906,7 +24580,7 @@ Tidans nedre publicerar inga egna numeriska minimimått. Eftersom ån står i f�
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Abborre, gädda, gös och lake kan innehålla höga halter kvicksilver, och Vänerns vildfångade lax, öring och sik kan innehålla dioxin och PCB. Läs mer längre ned i artikeln.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -23825,7 +25499,7 @@ Catch and release är ett krav för all vild havsöring och för felkrokad fisk.
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Livsmedelsverket avråder barn, unga, gravida och ammande från att äta vildfångad lax och öring från Bottniska viken och dess älvar oftare än 2–3 gånger per år. Läs mer under avsnittet Kostråd och miljögifter längre ned.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -24083,7 +25757,7 @@ Länsstyrelsen i Värmland är samordningslän för Vänern och publicerar brosc
 
 ---
 
-**Obs för den som planerar att äta fångsten:** Livsmedelsverket har kostråd för fisk från Vänern på grund av förhöjda halter av dioxiner, PCB och kvicksilver. Läs mer längre ned i artikeln.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -24460,7 +26134,7 @@ Aktuella regler finns alltid på vattern.org och via Havs- och vattenmyndigheten
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Livsmedelsverket har kostråd för röding, lax, öring och sik från Vättern på grund av förhöjda halter av dioxiner och PCB. Läs mer längre ned i artikeln.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
@@ -24851,7 +26525,7 @@ Flera fiskevårdsområden har strängare lokala regler. I Vindelbygdens FVO och 
 
 ---
 
-**Obs för den som planerar att äta sin fångst:** Livsmedelsverket avråder barn, unga och den som planerar graviditet från att äta vildlax och havsöring från Bottniska vikens älvar oftare än 2 till 3 gånger per år. Läs mer under avsnittet Kostråd och miljögifter längre ned.
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
 
 ---
 
