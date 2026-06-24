@@ -1,0 +1,69 @@
+---
+/**
+ * LinValjareIsland.astro
+ * Serverwrapper som hämtar flätlinor och fluorocarbontafsar ur gear-reviews-
+ * collectionen och matar dem till den interaktiva LinValjare-islanden. Inkludera
+ * bara den här i guiden om val av flätlina, så lever väljaren bara där.
+ */
+import { getCollection } from 'astro:content';
+import LinValjare from './LinValjare.tsx';
+
+const LINE_SLUGS = new Set<string>([
+  'hurricane-x8-braid-012mm',
+  'kinetic-4-braid-012mm',
+  'kinetic-8-braid-014mm',
+  'shimano-kairiki-8-013mm',
+  'strike-wire-extreme-015mm',
+  'westin-w10-13-braid-coastal',
+  'westin-w3-8-braid-smokey-grey',
+  'westin-w6-8-braid-0148mm',
+]);
+
+const LEADER_SLUGS = new Set<string>([
+  'strike-wire-fluorocarbon-022mm-invisible',
+  'westin-w6-st5-soft-038mm',
+  'westin-w6-st3-hard-062mm',
+  'westin-w6-st5-soft-030mm',
+  'strike-wire-shockleader-090mm',
+]);
+
+const MONO_SLUGS = new Set<string>([
+  'stroft-abr-028mm',
+  'stroft-abr-030mm',
+  'stroft-abr-040mm',
+]);
+
+const allReviews = await getCollection('gear-reviews');
+
+const toProduct = (entry: (typeof allReviews)[number]) => ({
+  slug: entry.data.slug,
+  title: entry.data.title,
+  brand: entry.data.brand,
+  price: entry.data.price,
+  affiliateUrl: entry.data.affiliateUrl,
+  merchant: entry.data.merchant,
+});
+
+const lines = allReviews
+  .filter((entry) => {
+    const category = (entry.data.category ?? '').toLowerCase();
+    return LINE_SLUGS.has(entry.data.slug) || /fl[aä]tlin|braid/.test(category);
+  })
+  .map(toProduct);
+
+const leaders = allReviews
+  .filter((entry) => {
+    const category = (entry.data.category ?? '').toLowerCase();
+    return LEADER_SLUGS.has(entry.data.slug) || /fluorocarbon/.test(category);
+  })
+  .map(toProduct);
+
+const monos = allReviews
+  .filter((entry) => {
+    const category = (entry.data.category ?? '').toLowerCase();
+    return MONO_SLUGS.has(entry.data.slug) || /nylon/.test(category);
+  })
+  .map(toProduct);
+---
+
+<LinValjare client:load lines={lines} leaders={leaders} monos={monos} />

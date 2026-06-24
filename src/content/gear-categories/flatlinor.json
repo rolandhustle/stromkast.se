@@ -1,6 +1,7 @@
 {
   "title": "Flätlinor",
   "slug": "flatlinor",
-  "description": "Handplockade flätlinor för predatorfiske. Budget till premium, 4-trådig till 13-trådig — vi hjälper dig hitta rätt lina för ditt fiske.",
-  "heroImage": "/images/gear/flatlinor.jpg"
+  "description": "Handplockade flätlinor för predatorfiske. Budget till premium, 4-trådig till 13-trådig. Vi hjälper dig hitta rätt lina för ditt fiske.",
+  "heroImage": "/images/gear/flatlinor.jpg",
+  "guideUrl": "/guider/valja-fiskelina/"
 }
