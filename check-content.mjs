@@ -4,13 +4,15 @@
  *
  * Kors med:  node check-content.mjs   (eller: npm run check)
  *
- * Strukturfel (brutna slug-referenser, interna lankar utan avslutande slash)
- * ger avslutskod 1 sa att ett bygge kan stoppas. Stilvarningar (en-streck med
- * mellanslag, em-streck) skrivs ut men paverkar inte avslutskoden.
+ * Strukturfel (brutna slug-referenser, interna lankar utan avslutande slash,
+ * gear-review med felaktig category) ger avslutskod 1 sa att ett bygge kan
+ * stoppas. Stilvarningar (en-streck med mellanslag, em-streck) skrivs ut men
+ * paverkar inte avslutskoden.
  *
  * Konventioner som respekteras:
  *   topDestinations, targetTechniques -> valideras mot SLUGS
  *   targetSpecies, primarySpecies     -> valideras mot ARTNAMN (titel eller slug)
+ *   gear-reviews category             -> valideras mot gear-kategorins SLUG
  */
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
@@ -75,6 +77,7 @@ const destSlugs = new Set();
 const techSlugs = new Set();
 const speciesIds = new Set();          // lowercased: filnamn, slug och titel
 const speciesTitleByFold = new Map();  // fold(slug|titel) -> kanoniskt visningsnamn
+const gearCategorySlugs = new Set();   // filnamn + JSON-slug for gear-categories
 
 function baseId(path) {
   return path.split('/').pop().replace(/\.(mdx?|json)$/, '');
@@ -93,6 +96,14 @@ for (const f of files) {
   const id = baseId(f);
   if (coll === 'destinations') { destSlugs.add(id); if (slug) destSlugs.add(slug); }
   if (coll === 'techniques') { techSlugs.add(id); if (slug) techSlugs.add(slug); }
+  if (coll === 'gear-categories') {
+    // JSON-fil: getField traffar inte "slug": "...", sa las slug via JSON ocksa.
+    gearCategorySlugs.add(id);
+    try {
+      const j = JSON.parse(readFileSync(f, 'utf-8'));
+      if (j.slug) gearCategorySlugs.add(j.slug);
+    } catch { /* trasig JSON fangas av Astros schema vid bygge */ }
+  }
   if (coll === 'species') {
     speciesIds.add(id.toLowerCase());
     if (slug) speciesIds.add(slug.toLowerCase());
@@ -130,6 +141,19 @@ function checkRefs(file, coll, fm) {
       if (!valid.has(probe)) {
         errors.push(`${file}: ${field} "${v}" matchar ingen befintlig ${kind}`);
       }
+    }
+  }
+  // Felregel: gear-review category maste vara en gear-kategoris slug.
+  // Kategorisidan filtrerar pa "review.data.category === cat.data.slug", sa
+  // fel skiftlage eller displaynamn ger en TOM kategorisida utan felmeddelande.
+  // category ar z.string() i schemat, sa Astro fangar inte detta vid bygge.
+  if (coll === 'gear-reviews') {
+    const cat = getField(fm, 'category');
+    if (cat && !gearCategorySlugs.has(cat)) {
+      errors.push(
+        `${file}: category "${cat}" matchar ingen gear-kategori. ` +
+        `Anvand kategorins slug med sma bokstaver (t.ex. flatlinor, fluorocarbon, nylon), inte displaynamnet.`
+      );
     }
   }
   // Varningsregel: primarySpecies ar visningstext.
