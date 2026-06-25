@@ -1,0 +1,13 @@
+name: Daglig ombyggnad (SMHI)
+
+on:
+  schedule:
+    - cron: '0 5 * * *'   # 05:00 UTC = 06:00 vintertid / 07:00 sommartid
+  workflow_dispatch:        # manuell trigga-knapp
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Anropa Vercel deploy hook
+        run: curl -fsS -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
