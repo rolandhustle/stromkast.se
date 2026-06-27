@@ -128,12 +128,12 @@ for f in src/content/gear-categories/*.json; do
 done
 
 # ---------------------------------------------------------------------------
-# 9. Content — gear-reviews (JSON, alla)
+# 9. Content — gear-reviews (MDX, alla)
 # ---------------------------------------------------------------------------
 echo "" >> "$OUT"
 echo "# Content: gear-reviews" >> "$OUT"
 
-for f in src/content/gear-reviews/*.json; do
+for f in src/content/gear-reviews/*.mdx; do
   [ -f "$f" ] && section "$f" "$f"
 done
 
@@ -194,6 +194,20 @@ echo "" >> "$OUT"
 echo "# Promptmallar" >> "$OUT"
 
 for f in prompt_*.md; do
+  [ -f "$f" ] && section "$f" "$f"
+done
+
+# ---------------------------------------------------------------------------
+# 16. Verktyg och drift (CI + deploy)
+# ---------------------------------------------------------------------------
+echo "" >> "$OUT"
+echo "# Verktyg och drift" >> "$OUT"
+
+# Innehållsvalidering (npm run check)
+section "check-content.mjs" "check-content.mjs"
+
+# GitHub Actions-workflows (t.ex. daglig ombyggnad för SMHI-data)
+for f in .github/workflows/*.yml .github/workflows/*.yaml; do
   [ -f "$f" ] && section "$f" "$f"
 done
 

@@ -23,6 +23,10 @@ src/components/FiskeKarta.tsx
 src/components/Footer.astro
 src/components/Header.astro
 src/components/KalenderWidget.tsx
+src/components/linvaljare
+src/components/linvaljare/.DS_Store
+src/components/linvaljare/LinValjare.tsx
+src/components/linvaljare/LinValjareIsland.astro
 src/components/NewsletterForm.astro
 src/components/quiz
 src/components/quiz/SpoQuiz.tsx
@@ -34,6 +38,7 @@ src/content/articles
 src/content/articles/.DS_Store
 src/content/articles/basta-fiskespon-2026.mdx
 src/content/articles/nappkalender-guide.mdx
+src/content/articles/valja-fiskelina.mdx
 src/content/authors
 src/content/authors/rikard-giby.json
 src/content/destinations
@@ -46,14 +51,17 @@ src/content/destinations/bohuslan-skargard.mdx
 src/content/destinations/bolmen.mdx
 src/content/destinations/byskealven.mdx
 src/content/destinations/dalalven.mdx
+src/content/destinations/delsjoarna.mdx
 src/content/destinations/eman.mdx
 src/content/destinations/gota-alv.mdx
 src/content/destinations/gotland.mdx
+src/content/destinations/helge-a.mdx
 src/content/destinations/hjalmaren.mdx
 src/content/destinations/hornavan.mdx
 src/content/destinations/indalsalven.mdx
 src/content/destinations/kalixalven.mdx
 src/content/destinations/kalmarsund.mdx
+src/content/destinations/kavlingean.mdx
 src/content/destinations/klaralven.mdx
 src/content/destinations/kultsjon.mdx
 src/content/destinations/lagan.mdx
@@ -81,14 +89,29 @@ src/content/destinations/vanern.mdx
 src/content/destinations/vattern.mdx
 src/content/destinations/vindelalven.mdx
 src/content/gear-categories
+src/content/gear-categories/ekolod.json
 src/content/gear-categories/flatlinor.json
+src/content/gear-categories/fluorocarbon.json
 src/content/gear-categories/haspelrullar.json
+src/content/gear-categories/nylon.json
 src/content/gear-categories/spon.json
 src/content/gear-categories/trollingspon.json
 src/content/gear-reviews
 src/content/gear-reviews/bft-lizzard-x-stefan-trumstedt.mdx
 src/content/gear-reviews/bft-ninety-two-mimic-stick.mdx
 src/content/gear-reviews/bft-raptor-g2-jerkbait.mdx
+src/content/gear-reviews/deeper-smart-sonar-chirp-plus-3.mdx
+src/content/gear-reviews/deeper-smart-sonar-chirp-plus-4.mdx
+src/content/gear-reviews/deeper-smart-sonar-pro-plus-2.mdx
+src/content/gear-reviews/deeper-start-global.mdx
+src/content/gear-reviews/garmin-echomap-uhd2-52cv.mdx
+src/content/gear-reviews/garmin-echomap-uhd2-92sv.mdx
+src/content/gear-reviews/garmin-striker-cast-no-gps.mdx
+src/content/gear-reviews/garmin-striker-cast-worldwide.mdx
+src/content/gear-reviews/garmin-striker-vivid-4cv.mdx
+src/content/gear-reviews/garmin-striker-vivid-5cv.mdx
+src/content/gear-reviews/garmin-striker-vivid-7cv.mdx
+src/content/gear-reviews/garmin-striker-vivid-9sv.mdx
 src/content/gear-reviews/hurricane-x8-braid-012mm.mdx
 src/content/gear-reviews/kinetic-4-braid-012mm.mdx
 src/content/gear-reviews/kinetic-8-braid-014mm.mdx
@@ -113,6 +136,11 @@ src/content/gear-reviews/shimano-vanford-fa-2500.mdx
 src/content/gear-reviews/shimano-vanford-fa-4000.mdx
 src/content/gear-reviews/shimano-yasei-bb-pike-xh.mdx
 src/content/gear-reviews/strike-wire-extreme-015mm.mdx
+src/content/gear-reviews/strike-wire-fluorocarbon-022mm-invisible.mdx
+src/content/gear-reviews/strike-wire-shockleader-090mm.mdx
+src/content/gear-reviews/stroft-abr-028mm.mdx
+src/content/gear-reviews/stroft-abr-030mm.mdx
+src/content/gear-reviews/stroft-abr-040mm.mdx
 src/content/gear-reviews/westin-w10-13-braid-coastal.mdx
 src/content/gear-reviews/westin-w2-powercast-t-spinnspo.mdx
 src/content/gear-reviews/westin-w2-predator-trolling.mdx
@@ -128,6 +156,9 @@ src/content/gear-reviews/westin-w6-dropshot-haspelspo.mdx
 src/content/gear-reviews/westin-w6-jerk-swimbait-t-2nd.mdx
 src/content/gear-reviews/westin-w6-powercast-t-spinnspo.mdx
 src/content/gear-reviews/westin-w6-powerteez-haspelspo.mdx
+src/content/gear-reviews/westin-w6-st3-hard-062mm.mdx
+src/content/gear-reviews/westin-w6-st5-soft-030mm.mdx
+src/content/gear-reviews/westin-w6-st5-soft-038mm.mdx
 src/content/species
 src/content/species/.DS_Store
 src/content/species/abborre.mdx
@@ -2393,6 +2424,589 @@ export default function KalenderWidget({
     </div>
   );
 }
+```
+
+## src/components/linvaljare/LinValjare.tsx
+```
+import { useMemo, useState } from 'react';
+import { trackAffiliateClick } from '../../lib/track';
+
+/**
+ * LinValjare
+ * En deterministisk linväljare för guiden om val av flätlina.
+ * Till skillnad från SpoQuiz är det ingen flerstegsquiz utan en live-panel:
+ * art + teknik (+ om du vill läsa hugget på linan) ger direkt rekommendation
+ * av diameter/PE, färg och tafs, plus matchande flätlina och fluorocarbontafs
+ * ur sortimentet där en finns.
+ *
+ * Komponenten är medvetet ärlig om sortimentets gränser: när rätt svar är
+ * monofilament (trolling, lax) säger den det rakt ut i stället för att tvinga
+ * fram en flätlina, och den varnar för gäddtafs och flätförbud på laxsträckor.
+ */
+
+interface LineProduct {
+  slug: string;
+  title: string;
+  brand: string;
+  price: number;
+  affiliateUrl: string;
+  merchant: string;
+}
+
+interface Props {
+  lines: LineProduct[];
+  leaders: LineProduct[];
+  monos: LineProduct[];
+}
+
+type Art = 'abborre' | 'gadda' | 'gos' | 'havsoring' | 'lax' | 'blandat';
+type Teknik = 'jigg' | 'dropshot' | 'vertikal' | 'spinn' | 'jerkbait' | 'trolling';
+
+const ARTER: { value: Art; label: string }[] = [
+  { value: 'abborre', label: 'Abborre' },
+  { value: 'gadda', label: 'Gädda' },
+  { value: 'gos', label: 'Gös' },
+  { value: 'havsoring', label: 'Havsöring / kust' },
+  { value: 'lax', label: 'Lax (älv)' },
+  { value: 'blandat', label: 'Blandat' },
+];
+
+const TEKNIKER: { value: Teknik; label: string }[] = [
+  { value: 'jigg', label: 'Jigg / softbait' },
+  { value: 'dropshot', label: 'Dropshot' },
+  { value: 'vertikal', label: 'Vertikal' },
+  { value: 'spinn', label: 'Spinn / wobbler' },
+  { value: 'jerkbait', label: 'Jerkbait' },
+  { value: 'trolling', label: 'Trolling' },
+];
+
+interface Rec {
+  /** Huvudlina som flätlina, eller null när mono är rätt val */
+  braid: string | null;
+  /** Tafsrekommendation i text */
+  leader: string;
+  /** Slugs på flätlinor i prioritetsordning */
+  preferred: string[];
+  /** Slugs på fluorocarbontafsar i prioritetsordning */
+  leaderSlugs: string[];
+  /** Sätts när monofilament är rätt huvudlina i stället för fläta */
+  mono?: { dim: string; why: string };
+  /** Gädda kräver alltid stål/titan eller grov FC */
+  wireWarning?: boolean;
+  /** Lax: flätförbud och Östersjöregler */
+  laxWarning?: boolean;
+  /** Extra not, t.ex. lucka i sortimentet */
+  note?: string;
+}
+
+function recommend(art: Art, teknik: Teknik): Rec {
+  // Trolling hanteras separat för alla arter: mono dämpar huggen.
+  if (teknik === 'trolling') {
+    if (art === 'gadda') {
+      return {
+        braid: null,
+        leader: 'Stål, titan eller grov fluorocarbon, minst 0,60 till 0,80 mm. Aldrig enbart fläta eller tunn FC mot gädda.',
+        preferred: [],
+        leaderSlugs: ['westin-w6-st3-hard-062mm'],
+        mono: {
+          dim: 'Nylon 0,30 till 0,40 mm, eller fläta 0,28 till 0,33 mm med mono- eller FC-topshot.',
+          why: 'Vid trolling dämpar monofilamentets stretch de hårda huggen och minskar antalet lösryckta krokar. Fläta används för djupare gång men då med stötdämpande topshot.',
+        },
+        wireWarning: true,
+        note: 'Sortimentet har i dag ingen ren trollinglina. Flätlinorna nedan fungerar som djupfläta bakom planerboard eller downrigger, men komplettera med mono- eller FC-topshot.',
+      };
+    }
+    return {
+      braid: null,
+      leader: 'Fluorocarbon 0,30 till 0,40 mm beroende på art.',
+      preferred: [],
+      leaderSlugs: ['westin-w6-st5-soft-038mm'],
+      mono: {
+        dim: 'Nylon 0,28 till 0,40 mm, eller fläta med mono- eller FC-topshot.',
+        why: 'Vid trolling dämpar monofilamentets stretch de hårda huggen och minskar antalet lösryckta krokar.',
+      },
+      note: 'Sortimentet har i dag ingen ren trollinglina i mono.',
+    };
+  }
+
+  switch (art) {
+    case 'abborre':
+      return {
+        braid: '0,08 till 0,13 mm (ungefär PE 0,4 till 0,8)',
+        leader: 'Fluorocarbon 0,18 till 0,30 mm, 0,5 till 1 meter. Vid risk för gädda: tunn stål- eller titantafs, eller grov FC från 0,40 mm.',
+        preferred: ['shimano-kairiki-8-013mm', 'hurricane-x8-braid-012mm', 'westin-w3-8-braid-smokey-grey'],
+        leaderSlugs: ['strike-wire-fluorocarbon-022mm-invisible', 'westin-w6-st5-soft-030mm'],
+      };
+    case 'gos':
+      return {
+        braid: '0,10 till 0,15 mm (ungefär PE 0,6 till 1,0)',
+        leader: 'Fluorocarbon 0,28 till 0,40 mm, 0,5 till 1 meter. Gösen är inte ledarskygg men huggtänderna kan skada tunnare tafs.',
+        preferred: ['shimano-kairiki-8-013mm', 'westin-w6-8-braid-0148mm', 'strike-wire-extreme-015mm', 'kinetic-8-braid-014mm'],
+        leaderSlugs: ['westin-w6-st5-soft-038mm', 'westin-w6-st5-soft-030mm'],
+      };
+    case 'gadda':
+      if (teknik === 'jerkbait') {
+        return {
+          braid: '0,20 till 0,30 mm (ungefär PE 1,5 till 3,0)',
+          leader: 'Stål, titan eller grov fluorocarbon, minst 0,60 till 0,80 mm. Vid stora jerkbaits ofta 0,90 till 1,2 mm. Aldrig enbart fläta eller tunn FC mot gädda.',
+          preferred: ['strike-wire-extreme-015mm', 'westin-w6-8-braid-0148mm', 'kinetic-8-braid-014mm'],
+          leaderSlugs: ['strike-wire-shockleader-090mm', 'westin-w6-st3-hard-062mm'],
+          wireWarning: true,
+          note: 'Sortimentet saknar i dag en grövre gäddafläta (0,20 till 0,28 mm). Linorna nedan fungerar för lättare jerkfiske. För tunga jerkbaits vill du ha en grövre lina med högre brottstyrka.',
+        };
+      }
+      return {
+        braid: '0,17 till 0,25 mm (ungefär PE 1,2 till 2,0)',
+        leader: 'Stål, titan eller grov fluorocarbon, minst 0,60 till 0,80 mm. Aldrig enbart fläta eller tunn FC mot gädda.',
+        preferred: ['strike-wire-extreme-015mm', 'westin-w6-8-braid-0148mm', 'kinetic-8-braid-014mm', 'kinetic-4-braid-012mm'],
+        leaderSlugs: ['westin-w6-st3-hard-062mm', 'strike-wire-shockleader-090mm'],
+        wireWarning: true,
+        note: 'För tunga gummibeten och stora gäddor vill du ha en grövre lina (0,20 till 0,28 mm) än de tunnaste i sortimentet.',
+      };
+    case 'havsoring':
+      return {
+        braid: '0,12 till 0,17 mm (ungefär PE 0,8 till 1,2)',
+        leader: 'Fluorocarbon 0,30 till 0,40 mm, 1,5 till 2 meter. Skyddar mot sten och musselkanter och ger diskret presentation.',
+        preferred: ['westin-w10-13-braid-coastal', 'westin-w3-8-braid-smokey-grey'],
+        leaderSlugs: ['westin-w6-st5-soft-038mm', 'westin-w6-st5-soft-030mm'],
+        note: 'Lågsynlig färg rekommenderas i klart kustvatten oavsett om du vill läsa hugget på linan.',
+      };
+    case 'lax':
+      return {
+        braid: null,
+        leader: 'Nylon eller fluorocarbon från 0,40 mm, grövre i högt och grumligt vatten.',
+        preferred: [],
+        leaderSlugs: [],
+        mono: {
+          dim: 'Nylon 0,40 till 0,50 mm, många kör 0,50 till 0,60 mm.',
+          why: 'Stretchen parerar laxens rusningar och minskar lösryckta krokar, och nylon tål nötning mot sten bättre än fläta.',
+        },
+        laxWarning: true,
+        note: 'Flätlina är förbjuden på många laxsträckor. Kontrollera alltid de lokala kortreglerna innan du fiskar.',
+      };
+    case 'blandat':
+    default:
+      return {
+        braid: '0,12 till 0,15 mm (ungefär PE 0,8 till 1,0) som allround',
+        leader: 'Fluorocarbon 0,25 till 0,40 mm beroende på art. Stål eller titan om gädda kan dyka upp.',
+        preferred: ['kinetic-8-braid-014mm', 'westin-w6-8-braid-0148mm', 'hurricane-x8-braid-012mm'],
+        leaderSlugs: ['westin-w6-st5-soft-038mm', 'westin-w6-st3-hard-062mm'],
+      };
+  }
+}
+
+const COLOR_HIGHVIS =
+  'High-vis (gul, orange, ljusgrön). Du ser linan, läser subtila hugg och håller koll på linvinkeln. Bäst vid dropshot, vertikal och isfiske.';
+const COLOR_LOWVIS =
+  'Lågsynlig (smokey grey, moss green, grått). Diskret i klart vatten och mot skygg fisk.';
+const COLOR_CAVEAT =
+  'Färgen spelar störst roll för dig, inte för fisken. Det är fluorocarbontafsen närmast betet som avgör synligheten mot fisken.';
+
+/** Nylonlinor som matchar väljarens mono-fall (trolling och lax). */
+function monoSlugsFor(art: Art, teknik: Teknik): string[] {
+  if (teknik === 'trolling') {
+    return art === 'gadda' ? ['stroft-abr-030mm'] : ['stroft-abr-028mm', 'stroft-abr-030mm'];
+  }
+  if (art === 'lax') {
+    return ['stroft-abr-040mm'];
+  }
+  return [];
+}
+
+function priceFormat(price: number): string {
+  return new Intl.NumberFormat('sv-SE', {
+    style: 'currency',
+    currency: 'SEK',
+    maximumFractionDigits: 0,
+  }).format(price);
+}
+
+export default function LinValjare({ lines, leaders, monos }: Props) {
+  const [art, setArt] = useState<Art>('abborre');
+  const [teknik, setTeknik] = useState<Teknik>('jigg');
+  const [readLine, setReadLine] = useState(false);
+
+  const rec = useMemo(() => recommend(art, teknik), [art, teknik]);
+
+  const matched = useMemo(() => {
+    const bySlug = new Map(lines.map((l) => [l.slug, l]));
+    return rec.preferred
+      .map((slug) => bySlug.get(slug))
+      .filter((l): l is LineProduct => Boolean(l))
+      .slice(0, 2);
+  }, [lines, rec]);
+
+  const matchedLeaders = useMemo(() => {
+    const bySlug = new Map(leaders.map((l) => [l.slug, l]));
+    return rec.leaderSlugs
+      .map((slug) => bySlug.get(slug))
+      .filter((l): l is LineProduct => Boolean(l))
+      .slice(0, 2);
+  }, [leaders, rec]);
+
+  const matchedMonos = useMemo(() => {
+    const bySlug = new Map(monos.map((l) => [l.slug, l]));
+    return monoSlugsFor(art, teknik)
+      .map((slug) => bySlug.get(slug))
+      .filter((l): l is LineProduct => Boolean(l))
+      .slice(0, 2);
+  }, [monos, art, teknik]);
+
+  const colorAdvice = art === 'havsoring' ? COLOR_LOWVIS : readLine ? COLOR_HIGHVIS : COLOR_LOWVIS;
+
+  return (
+    <div className="max-w-xl mx-auto bg-mist/40 border border-mist rounded-3xl p-6 sm:p-8 not-prose">
+      <div className="mb-6">
+        <h2 className="font-display text-2xl font-bold text-deep mb-2">Linväljaren</h2>
+        <p className="text-stone text-sm leading-relaxed">
+          Välj art och teknik. Du får direkt rätt diameter, färg och tafs, plus en matchande lina ur
+          sortimentet där en finns. Är rätt svar mono säger vi det rakt ut.
+        </p>
+      </div>
+
+      {/* Art */}
+      <fieldset className="mb-5">
+        <legend className="text-xs font-semibold uppercase tracking-wider text-stone mb-2">Art</legend>
+        <div className="flex flex-wrap gap-2">
+          {ARTER.map((a) => {
+            const active = art === a.value;
+            return (
+              <button
+                key={a.value}
+                type="button"
+                aria-pressed={active}
+                onClick={() => setArt(a.value)}
+                className={`px-4 py-2 rounded-full text-sm font-medium border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 ${
+                  active
+                    ? 'bg-pine text-white border-pine'
+                    : 'bg-white text-deep border-mist hover:border-pine'
+                }`}
+              >
+                {a.label}
+              </button>
+            );
+          })}
+        </div>
+      </fieldset>
+
+      {/* Teknik */}
+      <fieldset className="mb-5">
+        <legend className="text-xs font-semibold uppercase tracking-wider text-stone mb-2">Teknik</legend>
+        <div className="flex flex-wrap gap-2">
+          {TEKNIKER.map((t) => {
+            const active = teknik === t.value;
+            return (
+              <button
+                key={t.value}
+                type="button"
+                aria-pressed={active}
+                onClick={() => setTeknik(t.value)}
+                className={`px-4 py-2 rounded-full text-sm font-medium border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 ${
+                  active
+                    ? 'bg-pine text-white border-pine'
+                    : 'bg-white text-deep border-mist hover:border-pine'
+                }`}
+              >
+                {t.label}
+              </button>
+            );
+          })}
+        </div>
+      </fieldset>
+
+      {/* Läsa hugg på linan */}
+      <div className="mb-7 flex items-center justify-between gap-4 bg-white border border-mist rounded-2xl px-4 py-3">
+        <span className="text-sm text-deep font-medium">
+          Vill du läsa hugget på linan?
+          <span className="block text-xs text-stone font-normal">Påverkar rekommenderad färg</span>
+        </span>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={readLine}
+          onClick={() => setReadLine((v) => !v)}
+          disabled={art === 'havsoring'}
+          className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 disabled:opacity-40 ${
+            readLine ? 'bg-rust' : 'bg-stone/30'
+          }`}
+        >
+          <span
+            className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+              readLine ? 'translate-x-5' : 'translate-x-0.5'
+            }`}
+          />
+        </button>
+      </div>
+
+      {/* Resultat */}
+      <div className="space-y-4">
+        {/* Diameter / huvudlina */}
+        <div className="bg-white rounded-2xl border-2 border-pine/30 p-5">
+          <p className="text-xs font-semibold uppercase tracking-wider text-pine mb-1">Huvudlina</p>
+          {rec.braid ? (
+            <p className="text-deep font-medium leading-relaxed">Flätlina {rec.braid}</p>
+          ) : (
+            <p className="text-deep font-medium leading-relaxed">
+              Här är monofilament rätt val, inte flätlina.
+            </p>
+          )}
+        </div>
+
+        {/* Mono-förklaring */}
+        {rec.mono && (
+          <div className="bg-white rounded-2xl border border-mist p-5">
+            <p className="text-xs font-semibold uppercase tracking-wider text-stone mb-1">Monofilament</p>
+            <p className="text-deep font-medium leading-relaxed mb-1">{rec.mono.dim}</p>
+            <p className="text-stone text-sm leading-relaxed">{rec.mono.why}</p>
+
+            {/* Matchande nylonlinor */}
+            {matchedMonos.length > 0 && (
+              <div className="mt-4 space-y-2">
+                {matchedMonos.map((mono, i) => (
+                  <div
+                    key={mono.slug}
+                    className="flex items-center justify-between gap-3 bg-mist/40 border border-mist rounded-xl px-4 py-2.5"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-deep truncate">{mono.title}</p>
+                      <p className="text-xs text-stone">{priceFormat(mono.price)}</p>
+                    </div>
+                    <a
+                      href={mono.affiliateUrl || `/utrustning/test/${mono.slug}/`}
+                      onClick={() => {
+                        if (mono.affiliateUrl) {
+                          trackAffiliateClick(mono.merchant, mono.slug, i, 'article');
+                        }
+                      }}
+                      className="shrink-0 inline-flex items-center gap-1 text-pine text-sm font-semibold hover:text-deep transition-colors underline underline-offset-2"
+                      target={mono.affiliateUrl ? '_blank' : undefined}
+                      rel={mono.affiliateUrl ? 'noopener noreferrer sponsored' : undefined}
+                    >
+                      Se lina
+                      <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                        <path d="M2 10L10 2M10 2H4M10 2v6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </a>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Färg */}
+        <div className="bg-white rounded-2xl border border-mist p-5">
+          <p className="text-xs font-semibold uppercase tracking-wider text-stone mb-1">Färg</p>
+          <p className="text-deep leading-relaxed mb-2">{colorAdvice}</p>
+          <p className="text-stone text-sm leading-relaxed">{COLOR_CAVEAT}</p>
+        </div>
+
+        {/* Tafs */}
+        <div
+          className={`rounded-2xl p-5 border ${
+            rec.wireWarning ? 'bg-amber-50 border-amber-200' : 'bg-white border-mist'
+          }`}
+        >
+          <p
+            className={`text-xs font-semibold uppercase tracking-wider mb-1 ${
+              rec.wireWarning ? 'text-amber-700' : 'text-stone'
+            }`}
+          >
+            {rec.wireWarning ? 'Tafs (obligatoriskt mot gädda)' : 'Tafs'}
+          </p>
+          <p className="text-deep leading-relaxed">{rec.leader}</p>
+
+          {/* Matchande fluorocarbontafsar */}
+          {matchedLeaders.length > 0 && (
+            <div className="mt-4 space-y-2">
+              {matchedLeaders.map((leader, i) => (
+                <div
+                  key={leader.slug}
+                  className="flex items-center justify-between gap-3 bg-white/70 border border-mist rounded-xl px-4 py-2.5"
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-deep truncate">{leader.title}</p>
+                    <p className="text-xs text-stone">{priceFormat(leader.price)}</p>
+                  </div>
+                  <a
+                    href={leader.affiliateUrl || `/utrustning/test/${leader.slug}/`}
+                    onClick={() => {
+                      if (leader.affiliateUrl) {
+                        trackAffiliateClick(leader.merchant, leader.slug, i, 'article');
+                      }
+                    }}
+                    className="shrink-0 inline-flex items-center gap-1 text-pine text-sm font-semibold hover:text-deep transition-colors underline underline-offset-2"
+                    target={leader.affiliateUrl ? '_blank' : undefined}
+                    rel={leader.affiliateUrl ? 'noopener noreferrer sponsored' : undefined}
+                  >
+                    Se tafs
+                    <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                      <path d="M2 10L10 2M10 2H4M10 2v6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </a>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Lax-varning */}
+        {rec.laxWarning && (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5">
+            <p className="text-xs font-semibold uppercase tracking-wider text-amber-700 mb-1">
+              Regler att kontrollera
+            </p>
+            <p className="text-deep text-sm leading-relaxed">
+              Flätlina är förbjuden på många laxsträckor. Kontrollera alltid de lokala kortreglerna. Riktat
+              laxfiske i Östersjön är i grunden förbjudet sedan 2025, och endast fettfeneklippt lax får
+              behållas där fiske alls är tillåtet.
+            </p>
+          </div>
+        )}
+
+        {/* Not om sortimentet */}
+        {rec.note && <p className="text-stone text-sm leading-relaxed px-1">{rec.note}</p>}
+
+        {/* Matchande flätlinor */}
+        {matched.length > 0 ? (
+          <div className="pt-1">
+            <p className="text-xs font-semibold uppercase tracking-wider text-stone mb-3">
+              {rec.braid ? 'Matchande linor i sortimentet' : 'Närmast i sortimentet'}
+            </p>
+            <div className="space-y-3">
+              {matched.map((line, i) => (
+                <div
+                  key={line.slug}
+                  className={`bg-white rounded-2xl p-5 border-2 ${i === 0 ? 'border-rust' : 'border-mist'}`}
+                >
+                  {i === 0 && rec.braid && (
+                    <span className="inline-block bg-rust text-white text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wide mb-3">
+                      Bästa match
+                    </span>
+                  )}
+                  <p className="text-xs text-stone font-medium uppercase tracking-wider mb-1">{line.brand}</p>
+                  <h3 className="font-display font-bold text-deep text-lg mb-3">{line.title}</h3>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-xl font-bold text-deep">{priceFormat(line.price)}</p>
+                    <a
+                      href={line.affiliateUrl || `/utrustning/test/${line.slug}/`}
+                      onClick={() => {
+                        if (line.affiliateUrl) {
+                          trackAffiliateClick(line.merchant, line.slug, i, 'article');
+                        }
+                      }}
+                      className="inline-flex items-center gap-1.5 bg-pine text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-deep transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine"
+                      target={line.affiliateUrl ? '_blank' : undefined}
+                      rel={line.affiliateUrl ? 'noopener noreferrer sponsored' : undefined}
+                    >
+                      {line.affiliateUrl ? `Se pris hos ${line.merchant}` : 'Läs recension'}
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                        <path d="M2 10L10 2M10 2H4M10 2v6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white rounded-2xl border border-mist p-5">
+            <p className="text-deep text-sm leading-relaxed mb-3">
+              Vi har i dag ingen flätlina i sortimentet som matchar exakt för det här fisket. Råden ovan
+              gäller ändå.
+            </p>
+            <a
+              href="/utrustning/"
+              className="inline-flex items-center gap-1.5 text-pine text-sm font-semibold hover:text-deep transition-colors underline underline-offset-2"
+            >
+              Se all utrustning
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <path d="M3 6h6M6 3l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </a>
+          </div>
+        )}
+      </div>
+
+      <p className="text-xs text-stone/60 text-center mt-6">
+        Rekommendationerna bygger på vår redaktionella bedömning. Affiliatelänkar kan förekomma.
+      </p>
+    </div>
+  );
+}
+```
+
+## src/components/linvaljare/LinValjareIsland.astro
+```
+---
+/**
+ * LinValjareIsland.astro
+ * Serverwrapper som hämtar flätlinor och fluorocarbontafsar ur gear-reviews-
+ * collectionen och matar dem till den interaktiva LinValjare-islanden. Inkludera
+ * bara den här i guiden om val av flätlina, så lever väljaren bara där.
+ */
+import { getCollection } from 'astro:content';
+import LinValjare from './LinValjare.tsx';
+
+const LINE_SLUGS = new Set<string>([
+  'hurricane-x8-braid-012mm',
+  'kinetic-4-braid-012mm',
+  'kinetic-8-braid-014mm',
+  'shimano-kairiki-8-013mm',
+  'strike-wire-extreme-015mm',
+  'westin-w10-13-braid-coastal',
+  'westin-w3-8-braid-smokey-grey',
+  'westin-w6-8-braid-0148mm',
+]);
+
+const LEADER_SLUGS = new Set<string>([
+  'strike-wire-fluorocarbon-022mm-invisible',
+  'westin-w6-st5-soft-038mm',
+  'westin-w6-st3-hard-062mm',
+  'westin-w6-st5-soft-030mm',
+  'strike-wire-shockleader-090mm',
+]);
+
+const MONO_SLUGS = new Set<string>([
+  'stroft-abr-028mm',
+  'stroft-abr-030mm',
+  'stroft-abr-040mm',
+]);
+
+const allReviews = await getCollection('gear-reviews');
+
+const toProduct = (entry: (typeof allReviews)[number]) => ({
+  slug: entry.data.slug,
+  title: entry.data.title,
+  brand: entry.data.brand,
+  price: entry.data.price,
+  affiliateUrl: entry.data.affiliateUrl,
+  merchant: entry.data.merchant,
+});
+
+const lines = allReviews
+  .filter((entry) => {
+    const category = (entry.data.category ?? '').toLowerCase();
+    return LINE_SLUGS.has(entry.data.slug) || /fl[aä]tlin|braid/.test(category);
+  })
+  .map(toProduct);
+
+const leaders = allReviews
+  .filter((entry) => {
+    const category = (entry.data.category ?? '').toLowerCase();
+    return LEADER_SLUGS.has(entry.data.slug) || /fluorocarbon/.test(category);
+  })
+  .map(toProduct);
+
+const monos = allReviews
+  .filter((entry) => {
+    const category = (entry.data.category ?? '').toLowerCase();
+    return MONO_SLUGS.has(entry.data.slug) || /nylon/.test(category);
+  })
+  .map(toProduct);
+---
+
+<LinValjare client:load lines={lines} leaders={leaders} monos={monos} />
 ```
 
 ## src/components/quiz/SpoQuiz.tsx
@@ -6101,7 +6715,7 @@ const breadcrumbSchema = {
 ---
 
 <BaseLayout
-  title={`Bästa ${c.title} 2026: test och recensioner`}
+  title={`Bästa ${c.title}: recensioner och köpguide`}
   description={c.description}
   ogImage={c.heroImage}
   schema={breadcrumbSchema}
@@ -6122,7 +6736,7 @@ const breadcrumbSchema = {
   <div class="max-w-[1280px] mx-auto px-4 sm:px-6 py-12">
     <!-- Header -->
     <div class="mb-12">
-      <h1 class="font-display text-4xl sm:text-5xl font-bold text-deep mb-4">Bästa {c.title} i test 2026</h1>
+      <h1 class="font-display text-4xl sm:text-5xl font-bold text-deep mb-4">Bästa {c.title}</h1>
       <p class="text-stone text-lg max-w-2xl leading-relaxed">{c.description}</p>
     </div>
 
@@ -7063,13 +7677,36 @@ export function trackQuizCompleted(result_product_ids: string[]): void {
 
 # Content: gear-categories
 
+## src/content/gear-categories/ekolod.json
+```
+{
+  "title": "Ekolod",
+  "slug": "ekolod",
+  "description": "Handplockade ekolod för sportfiskare. Kastbara modeller för land, kajak och isfiske samt fastmonterade fishfinders och kartplotters för båt.",
+  "heroImage": "/images/gear/ekolod.jpg"
+}
+```
+
 ## src/content/gear-categories/flatlinor.json
 ```
 {
   "title": "Flätlinor",
   "slug": "flatlinor",
-  "description": "Handplockade flätlinor för predatorfiske. Budget till premium, 4-trådig till 13-trådig — vi hjälper dig hitta rätt lina för ditt fiske.",
-  "heroImage": "/images/gear/flatlinor.jpg"
+  "description": "Handplockade flätlinor för predatorfiske. Budget till premium, 4-trådig till 13-trådig. Vi hjälper dig hitta rätt lina för ditt fiske.",
+  "heroImage": "/images/gear/flatlinor.jpg",
+  "guideUrl": "/guider/valja-fiskelina/"
+}
+```
+
+## src/content/gear-categories/fluorocarbon.json
+```
+{
+  "title": "Fluorocarbontafsar",
+  "slug": "fluorocarbon",
+  "description": "Handplockade fluorocarbontafsar för predatorfiske. Mjuka tafsar för finess och styva tafsar för gädda, i diametrar från abborre till storgädda.",
+  "heroImage": "/images/gear/fluorocarbon.jpg",
+  "guideUrl": "/guider/valja-fiskelina/",
+  "excerpt": "Fluorocarbontafsar för abborre, gös, gädda och kust."
 }
 ```
 
@@ -7080,6 +7717,18 @@ export function trackQuizCompleted(result_product_ids: string[]): void {
   "slug": "haspelrullar",
   "description": "Handplockade haspelrullar för abborre, gädda och gös. Vi har valt ut de bästa alternativen i varje prisklass.",
   "heroImage": "/images/gear/haspelrullar.jpg"
+}
+```
+
+## src/content/gear-categories/nylon.json
+```
+{
+  "title": "Nylonlinor",
+  "slug": "nylon",
+  "description": "Handplockade nylonlinor för trolling och laxfiske. Stretch som dämpar hugg och nötningstålighet för fiske mot sten och struktur.",
+  "heroImage": "/images/gear/nylon.jpg",
+  "guideUrl": "/guider/valja-fiskelina/",
+  "excerpt": "Nylonlinor för trolling och laxfiske i älv."
 }
 ```
 
@@ -7106,6 +7755,2544 @@ export function trackQuizCompleted(result_product_ids: string[]): void {
 ```
 
 # Content: gear-reviews
+
+## src/content/gear-reviews/bft-lizzard-x-stefan-trumstedt.mdx
+```
+---
+title: "BFT Lizzard X Stefan Trumstedt 7 10\  MH 130g"
+slug: "bft-lizzard-x-stefan-trumstedt"
+description: "Signaturspö från BFT i samarbete med Stefan Trumstedt. Lätt och känsligt trots MH-aktionen, med kastvikt upp till 130g för de tyngsta gäddriggar."
+heroImage: "/images/gear/bft-lizzard-x-stefan-trumstedt.jpg"
+brand: "BFT"
+category: "spon"
+price: 2899
+rating: 4.7
+pros:
+  - Signaturmodell från erfaren gäddfiskare
+  - Lätt för kastvikten
+  - Bred användning för jigg och wobbler
+  - Hög prestige i gäddkretsar
+cons:
+  - Högt pris
+  - Begränsat lager
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/bft-lizzard-x-stefan-trumstedt-710-mh-130g-2pcs-multi/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - gadda
+techniques:
+  - spinn
+  - wobbler
+  - jigg
+priceRange: "premium"
+quizEnabled: true
+---
+
+BFT Lizzard X Stefan Trumstedt är ett 2-delat gäddspö på 239 cm med MH-aktion och kastvikt upp till 130 g. Spöet är designat av Stefan Trumstedt inom Catch with Care Fishing Team och placerar sig i topsegmentet med komponenter som sällan syns i den här prisklassen.
+
+Alps-titanringar är bland de lättaste och mest hållbara ringarna på marknaden och kombineras här med ultralätta rullfästen från American Tackle Company. Klingan är tvärlindad med förstärkande kolfibertape, vilket ökar styvheten lateralt utan att lägga till vikt. Shrink-to-Fit gummiförseglade EVA-handtag ger ett fast grepp och balanserar spöet väl trots den långa längden. Spigot-skarven och medföljandefodralet är praktiska detaljer som gör det enklare att transportera.
+
+MH-aktionen är mjukare än de flesta gäddspön med liknande kastvikt, vilket gör det lättare att kasta jerkbaits och mjukbeten med precision utan att tröttas ut. Det passar bra för skärgårdsfiske och större insjöar där man växlar mellan olika betestyper. Jämfört med Westin W6 Powercast-T, som har XXH-aktion och är mer specialiserad för tyngre beten, är Lizzard X ett mer nyanserat alternativ för den som värdesätter känsla och precision lika högt som rå kraft.
+```
+
+## src/content/gear-reviews/bft-ninety-two-mimic-stick.mdx
+```
+---
+title: "BFT Ninety Two Mimic Stick 7-21g"
+slug: "bft-ninety-two-mimic-stick"
+description: "Jerkbaitspö för abborre med medium aktion och obruten 1+1-klinga. Passar hårdbeten som jerkbaits och dödande löja på grunt till meddjupt vatten."
+heroImage: "/images/gear/bft-ninety-two-mimic-stick.jpg"
+brand: "BFT"
+category: "spon"
+price: 1599
+rating: 4.3
+pros:
+  - "Obruten 1+1-klinga ger hög känslighet och hållbarhet"
+  - "Medium aktion passar jerkbaits och hårdbeten"
+  - "Fuji-komponenter i hela serien"
+  - "Monocoque-bakhandtag för direkt känsla"
+cons:
+  - "Specialiserat för hårdbeten - inte för jigg eller dropshot"
+  - "Begränsat lagersaldo"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/bft-ninety-two-mimic-stick-multi-71-7-21g-2pcs/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "abborre"
+techniques:
+  - "wobbler"
+  - "jerkbait"
+priceRange: "mellanklass"
+quizEnabled: true
+---
+
+BFT Ninety Two Mimic Stick är ett 2-delat spö med obruten 1+1-klinga på 7,1 fot och kastvikt 7–21 g. Konstruktionen med en obruten klinga innebär att skarven sitter i handtaget, inte i klingan, vilket ger samma känslighet och svängegenskaper som ett endelat spö. Det är ett genomtänkt val för jerkbaitfiske där direktkontakt med betet är avgörande.
+
+Spöet bygger på högmodulärt grafitmaterial med Fuji-komponenter i rullfäste och spöringar. Monocoque-bakhandtaget för vibrationer direkt till handen utan dämpning, vilket gör det lättare att känna hur ett hårdbete rör sig och registrera kontakt med vegetation eller botten. Medium-aktionen ger en livlig rörelse åt jerkbaits och dödande löja utan att spöet är för styvt för abborrens försiktigare hugg.
+
+Kastvikten 7–21 g passar beten i 5–10 cm-klassen, vilket täcker de flesta abborrjerkbaits och mindre wobblers. Det är inte ett spö för jigg eller dropshot. För den som fiskar hårdbeten målmedvetet efter abborre är det ett välbyggt alternativ i mellanklass, och 1+1-konstruktionen gör det enklare att transportera utan att kompromissa med prestandan.
+```
+
+## src/content/gear-reviews/bft-raptor-g2-jerkbait.mdx
+```
+---
+title: "BFT Raptor G2 Jerkbait 150g 2pcs"
+slug: "bft-raptor-g2-jerkbait"
+description: "Jerkbaitspö för gädda med måttlig aktion och spigot-skarv. Prisvärt alternativ för den som vill prova jerkbaitfiske."
+heroImage: "/images/gear/bft-raptor-g2-jerkbait.jpg"
+brand: "BFT"
+category: "spon"
+price: 999
+rating: 3.9
+pros:
+  - "Prisvärt jerkbaitspö för gädda"
+  - "Spigot-skarv ger god klingastabilitet"
+  - "Fodral ingår"
+  - "Lätt konstruktion på 166 gram"
+cons:
+  - "Rostfria stålsringar i stället för SiC"
+  - "Begränsad komponentkvalitet jämfört med dyrare alternativ"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/bft-raptor-g2-jerkbait-66-150g-2pcs-multi/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: true
+targetSpecies:
+  - "gadda"
+techniques:
+  - "jerkbait"
+  - "wobbler"
+priceRange: "budget"
+quizEnabled: true
+---
+
+BFT Raptor G2 Jerkbait är ett 2-delat spö på 201 cm med måttlig aktion och kastvikt upp till 150 g. Spigot-skarven delar klingan i en 123 cm toppdel och 80 cm bottendel, vilket gör det smidigt att transportera utan att kompromissa med klingans egenskaper. Moderataction ger mjukare kaströrelse än de flesta jerkbaitspön, vilket minskar trötthet vid längre fiskepass med tyngre beten.
+
+Komponentvalet speglar prisnivån. Rostfria stålringar fungerar men är tyngre och har sämre friktionsegenskaper än keramiska alternativ vid flätlina. Lättviktsrullfästet och det delade EVA-skumhandtaget med gummiändstycke ger ett funktionellt grepp utan att lägga till onödig vikt. Medföljandefodralet är en praktisk detalj som ofta saknas i den här prisklassen.
+
+Kastvikten upp till 150 g täcker de flesta jerkbaits och gliders för gädda. Det är ett rimligt första jerkbaitspö för den som vill prova tekniken utan att investera i topsegmentet, eller ett reservspö för den som redan har ett dyrare alternativ. Den som fiskar jerkbait regelbundet och vill ha bättre känsla och komponentkvalitet bör titta på BFT Lizzard X eller Westin W6 Jerk och Swimbait.
+```
+
+## src/content/gear-reviews/deeper-smart-sonar-chirp-plus-3.mdx
+```
+---
+title: "Deeper Smart Sonar CHIRP+ 3"
+slug: "deeper-smart-sonar-chirp-plus-3"
+description: "Kastbart CHIRP-ekolod fran Deeper med 3D-kartor i realtid, GPS och tre konvinklar. 1 cm malseaparation och 15 timmars batteritid for langre fiskepass."
+heroImage: "/images/gear/deeper-smart-sonar-chirp-plus-3.jpg"
+brand: "Deeper"
+category: "ekolod"
+price: 3695
+rating: 4.7
+pros:
+  - "3-frekvens CHIRP for hog detaljrikedom"
+  - "3D-kartor i realtid via Fish Deeper-appen"
+  - "GPS, GLONASS, Galileo, BeiDou och QZSS"
+  - "15 timmars batteritid"
+  - "5 ars garanti"
+cons:
+  - "Hogt pris for ett kastbart ekolod"
+  - "Ingen AI-fiskidentifiering (finns i CHIRP+ 4)"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://fritidvildmark.se/products/deeper-smart-sonar-chirp-3"
+merchant: "Frilufts och Vildmark"
+featured: true
+budgetPick: false
+targetSpecies:
+  - "abborre"
+  - "gos"
+  - "gadda"
+  - "lax"
+  - "oring"
+techniques:
+  - "spinn"
+  - "jigg"
+  - "isfiske"
+  - "trolling"
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Deeper CHIRP+ 3 tar det kastbara ekolodet till nasta niva med kraftfull CHIRP-teknik pa tre frekvenser. 47 grader vid 100 kHz for bred skanning, 20 grader vid 240 kHz for detaljanalys och 7 grader vid 675 kHz for isfiske och vertikalfiske. Med 1 cm malseaparation kan du tydligt skilja mellan fiskar aven i stim eller nara botten - en precision som saknas i ekolod utan CHIRP.
+
+En av de mest praktiska nyheterna ar 3D-kartor i realtid direkt i Fish Deeper-appen. Kartorna byggs upp live medan du fiskar och visar bottentopografi, strukturer och fiskens rorelser pa ett satt som traditionella 2D-kartor inte kan. All data sparas automatiskt och kan nas fran valfri enhet.
+
+GPS med stod for GPS, GLONASS, Galileo, BeiDou och QZSS ger hog positionsnoggrannhet oavsett var du fiskar. 15 timmars batteritid med snabbladdning (80 procent pa 60 minuter) och 5 ars garanti gor det till ett langsiktigt kop. Den som vill ha AI-baserad fiskidentifiering i realtid bor titta pa CHIRP+ 4, men for de flesta sportfiskare levererar CHIRP+ 3 mer an tillrackligt.
+```
+
+## src/content/gear-reviews/deeper-smart-sonar-chirp-plus-4.mdx
+```
+---
+title: "Deeper Smart Sonar CHIRP+ 4"
+slug: "deeper-smart-sonar-chirp-plus-4"
+description: "Toppmodellen bland kastbara ekolod fran Deeper med AI-baserad fiskidentifiering i realtid, CHIRP-teknik och detaljerade 2D- och 3D-kartor."
+heroImage: "/images/gear/deeper-smart-sonar-chirp-plus-4.jpg"
+brand: "Deeper"
+category: "ekolod"
+price: 4495
+rating: 4.8
+pros:
+  - "AI-baserad fiskidentifiering i realtid"
+  - "Fyra ganger hogre detaljrikedom i grunt vatten"
+  - "Triple beam CHIRP med tre skanningsvinklar"
+  - "Skapar 2D- och 3D-kartor"
+  - "USB-C laddning"
+  - "5 ars garanti"
+cons:
+  - "Hogst pris bland kastbara ekolod"
+  - "AI-funktionen krar stabilt Wi-Fi-signal"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://fritidvildmark.se/products/deeper-smart-sonar-chirp-4"
+merchant: "Frilufts och Vildmark"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "abborre"
+  - "gos"
+  - "gadda"
+  - "lax"
+  - "oring"
+techniques:
+  - "spinn"
+  - "jigg"
+  - "isfiske"
+  - "trolling"
+priceRange: "premium"
+quizEnabled: false
+---
+
+Deeper CHIRP+ 4 ar toppmodellen i Deepersortimentet och for med sig AI-baserad fiskidentifiering som analyserar ekolodsdata i realtid och hjalper dig identifiera fisk direkt pa skramen. Det gor att du kan fokusera mer pa sjala fisket istallet for att tolka ekolodsbilder manuellt. AI-systemet forbattras dessutom via framtida uppdateringar.
+
+Triple beam CHIRP-tekniken med tre skanningsvinklar ger fyra ganger hogre detaljrikedom i grunt vatten jamfort med tidigare generationer, vilket gor fisk, kanter, vegetation och strukturer tydligare och enklare att skilja at aven pa djup ner till fem meter. Detaljerade 2D- och 3D-kartor visar djupkurvor, bottenhardhet, vegetation och markerade fiskpositioner.
+
+Med 94 grams vikt, USB-C laddning och upp till 15 timmars batteritid ar CHIRP+ 4 praktisk att anvanda under langre fiskepass. For den som vill ha det absolut basta i kastbara ekolod och vill anvanda AI-funktionen for smidigare fiskidentifiering ar CHIRP+ 4 svaret. For de flesta sportfiskare levererar dock CHIRP+ 3 tillracklig prestanda till 800 kr lagre pris.
+```
+
+## src/content/gear-reviews/deeper-smart-sonar-pro-plus-2.mdx
+```
+---
+title: "Deeper Smart Sonar PRO+ 2"
+slug: "deeper-smart-sonar-pro-plus-2"
+description: "Kastbart ekolod fran Deeper med tre konvinklar, inbyggd GPS och Wi-Fi. Skapar sjokort fran land, kajak eller bat och fungerar utmarkt vid isfiske."
+heroImage: "/images/gear/deeper-smart-sonar-pro-plus-2.jpg"
+brand: "Deeper"
+category: "ekolod"
+price: 2595
+rating: 4.4
+pros:
+  - "Tre konvinklar (47, 20 och 7 grader)"
+  - "Inbyggd GPS for kartlaggning fran land"
+  - "Utmarkt for isfiske"
+  - "1 cm malseaparation"
+  - "Upp till 100 meters djup"
+cons:
+  - "Inte CHIRP - lagre upplostning an CHIRP+ 3"
+  - "9 timmars batteritid"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://fritidvildmark.se/products/deeper-smart-sonar-pro-2"
+merchant: "Frilufts och Vildmark"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "abborre"
+  - "gos"
+  - "gadda"
+  - "lax"
+  - "oring"
+techniques:
+  - "spinn"
+  - "jigg"
+  - "isfiske"
+  - "trolling"
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Deeper PRO+ 2 ar ett kraftfullt kastbart ekolod med tre konvinklar som ger full kontroll over hur du laser av vattnet. 47 graders bred vinkel for snabb skanning, 20 graders mellanvinklar for mer detaljerad analys och 7 graders smal strale for isfiske och vertikalfiske. Djupkapaciteten pa 100 meter och 1 cm malseaparation ger tydliga avlasningar aven pa djupare vatten.
+
+Den inbyggda GPS-funktionen gor att du kan skapa sjokort direkt fran land genom att kasta ut och veva in - utan bat. Kartorna sparas automatiskt i Fish Deeper-appen och kan nas fran valfri enhet. Det ar en av de storsta fordelarna jamfort med Garmin Striker Cast, dar GPS-varianten klarar samma sak men med lagre ekolodskvalitet.
+
+Deeper pryftar sarskilt fram PRO+ 2:s lampligehte for isfiske, och den 7 graders smala stralen och kyltoleransen ner till -20 grader gor den till ett solitt val for vinterfiske. Den som vill ha CHIRP-teknik for hogre upplostning och mer detaljerade avlasningar bor titta pa CHIRP+ 3.
+```
+
+## src/content/gear-reviews/deeper-start-global.mdx
+```
+---
+title: "Deeper START Global"
+slug: "deeper-start-global"
+description: "Enklaste kastbara ekolodet fran Deeper. Visar djup, fisk och bottenstruktur direkt i mobilen via Wi-Fi. Passar nyborrjare och landfiske utan GPS."
+heroImage: "/images/gear/deeper-start-global.jpg"
+brand: "Deeper"
+category: "ekolod"
+price: 1295
+rating: 3.9
+pros:
+  - "Lat och smidig - bara 65 gram"
+  - "Enkel att komma igang med"
+  - "Tydlig Fish Deeper-app"
+  - "Fungerar fran land, brygga och bat"
+cons:
+  - "Ingen GPS - kan inte skapa kartor"
+  - "Enkel strale - lagre detaljrikedom an CHIRP"
+  - "Passar ej isfiske"
+  - "Endast 50 meters rackvidd"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://fritidvildmark.se/products/deeper-start-global"
+merchant: "Frilufts och Vildmark"
+featured: false
+budgetPick: true
+targetSpecies:
+  - "abborre"
+  - "gos"
+  - "gadda"
+techniques:
+  - "spinn"
+  - "jigg"
+  - "mete"
+priceRange: "budget"
+quizEnabled: false
+---
+
+Deeper START ar den enklaste modellen i Deeper-familjen och riktar sig till fiskare som vill komma igang med ekolodsfiske utan att investera i avancerad teknik. Med en vikt pa 65 gram och trådlos Wi-Fi-anslutning kastar du ut enheten, kopplar upp mobilen och ser djup, fisk och bottenstruktur i realtid via Fish Deeper-appen.
+
+Enkeltrale-konstruktionen med 120 kHz och 40 graders konvinkel ger en bred overblick over vad som hander under ytan. Du ser fiskikoner, bottenkonturer och vegetation med fargkodad bild som ar enkel att tolka. Radickvidden pa 50 meter och djupkapaciteten pa 50 meter racker for de flesta insjositutationer vid landfiske och brygga.
+
+Deeper START saknar GPS och kan darfor inte skapa kartor, och den ar inte anpassad for isfiske. For den som vill ha GPS-kartlaggning eller isfiske passar Garmin Striker Cast eller Deeper PRO+ 2 battre. Men for den som vill ha ett enkelt, latt och prisvaert forsta ekolod for landfiske ar START ett funktionellt val som ger direkt insyn i vattnet under ytan.
+```
+
+## src/content/gear-reviews/garmin-echomap-uhd2-52cv.mdx
+```
+---
+title: "Garmin Echomap UHD2 52CV ink GT20"
+slug: "garmin-echomap-uhd2-52cv"
+description: "Kompakt kartplotter med ekolod fran Garmin med 5 tums skarm, CHIRP, ClearVu och stod for Garmin Navionics-sjokort. Perfekt for den som vill kombinera fiske och navigering."
+heroImage: "/images/gear/garmin-echomap-uhd2-52cv.jpg"
+brand: "Garmin"
+category: "ekolod"
+price: 4195
+rating: 4.5
+pros:
+  - "Stod for Garmin Navionics-sjokort"
+  - "Traditionellt CHIRP och ClearVu"
+  - "Wi-Fi och ActiveCaptain-stod"
+  - "Inbyggd GPS med Galileo och WAAS"
+  - "Quickdraw Contours for egna kartor"
+cons:
+  - "Knappstyrning - ingen pekskarm"
+  - "5 tums skarm - liten for splitview"
+  - "Navionics-sjokort koper separat"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://fritidvildmark.se/products/garmin-echomap-uhd2-52cv-ink-gt20"
+merchant: "Frilufts och Vildmark"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "gadda"
+  - "gos"
+  - "abborre"
+  - "lax"
+  - "oring"
+techniques:
+  - "trolling"
+  - "jigg"
+  - "spinn"
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Garmin ECHOMAP UHD2 52cv ar det naturliga steget upp fran Striker Vivid-serien for den som vill ha fardiga sjokort. Med stod for Garmin Navionics+ och Navionics Vision+ kan du anvanda detaljerade sjokort for planering och navigering pa ett satt som Striker Vivid-modellerna inte klarar. Det ar den viktigaste skillnaden och det som motiverar prisskillnaden.
+
+Den medfoljandeGT20-givaren ger traditionellt Garmin CHIRP-ekolod och ClearVu med tydliga fargpaletter. Den 5 tums WVGA IPS-skarm (800x480 pixlar) ar ljusstark och lattlast. Wi-Fi med ActiveCaptain-integration ger tillgang till OneChart, Garmin Quickdraw Community och programvaruuppdateringar. Inbyggd GPS med stod for Galileo och WAAS ger precis positionering.
+
+Quickdraw Contours lat er komplettera med egna kartor pa vatten dar Navionics inte har tillracklig detalj. 5 000 waypoints och 50 sparade spor ger gott om utrymme for att markera och aterkomma till dina basta fiskeplatser. For den som vill ha en storre skarm, SideVu och mer avancerade funktioner ar ECHOMAP UHD2 92sv nasta steg.
+```
+
+## src/content/gear-reviews/garmin-echomap-uhd2-92sv.mdx
+```
+---
+title: "Garmin Echomap UHD2 92SV ink GT56"
+slug: "garmin-echomap-uhd2-92sv"
+description: "Avancerad kartplotter med ekolod fran Garmin med 9 tums pekskarm, CHIRP, ClearVu, SideVu och stod for LiveScope. Multi band GPS och Navionics-sjokort."
+heroImage: "/images/gear/garmin-echomap-uhd2-92sv.jpg"
+brand: "Garmin"
+category: "ekolod"
+price: 11195
+rating: 4.8
+pros:
+  - "9 tums pekskarm med knappar"
+  - "SideVu for skanning at sidorna"
+  - "Stod for LiveScope och Panoptix"
+  - "Multi band GPS med GLONASS, Galileo och BeiDou"
+  - "NMEA 2000 och Garmin Marine Network"
+  - "Navionics-sjokort och Quickdraw Contours"
+cons:
+  - "Mycket hogt pris"
+  - "Livescope-givare koster extra"
+  - "Kraver 12V stromforsorrjning i bat"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://fritidvildmark.se/products/garmin-echomap-uhd2-92sv-ink-gt56"
+merchant: "Frilufts och Vildmark"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "gadda"
+  - "gos"
+  - "abborre"
+  - "lax"
+  - "oring"
+techniques:
+  - "trolling"
+  - "jigg"
+  - "spinn"
+priceRange: "premium"
+quizEnabled: false
+---
+
+Garmin ECHOMAP UHD2 92sv ar den mest avancerade enheten i den har kategorin och representerar toppnivan for batmonterade kartplotters med ekolod. Den 9 tums pekskarm med knappar (1024x600 pixlar) ger utmarkt overblick, och med GT56-givaren far du traditionellt CHIRP-ekolod, ClearVu och SideVu i ett paket.
+
+SideVu lat er skanna av storre omraden at sidorna, vilket ar sarskilt anvandbart nar du letar efter kanter, stenpartier, betesfisk och platser dar rovfisken garna star. Stod for LiveScope och Panoptix gor det dessutom mojligt att bygga vidare systemet med realtids ekolod om du vill ta fiskeupplevelsen till nasta niva.
+
+Multi band GPS med stod for GPS, GLONASS, Galileo och BeiDou ger hog positionsnoggrannhet. NMEA 2000-stod och Garmin Marine Network gor enheten till ett nav i batens elsystem. Navionics+ och Navionics Vision+-stod ger tillgang till detaljerade sjokort. Wi-Fi med ActiveCaptain, AIS-stod och mojlighet att ansluta Force trollingmotor kompletterar en imponerande funktionslista.
+
+ECHOMAP UHD2 92sv ar for den som fiskar mycket fran bat, vill ha det basta tillgangliga och ar beredd att investera darefter. For de flesta sportfiskare raecker ECHOMAP UHD2 52cv eller Striker Vivid 7cv gott.
+```
+
+## src/content/gear-reviews/garmin-striker-cast-no-gps.mdx
+```
+---
+title: "Garmin Striker Cast no GPS"
+slug: "garmin-striker-cast-no-gps"
+description: "Portabelt kastbart ekolod fran Garmin utan GPS. Forvandlar mobilen till en fishfinder med tydlig ekolodsbild, fiskikoner och vattentemperatur via STRIKER Cast-appen."
+heroImage: "/images/gear/garmin-striker-cast-no-gps.jpg"
+brand: "Garmin"
+category: "ekolod"
+price: 1495
+rating: 4.1
+pros:
+  - "Garmin STRIKER Cast-appen ar intuitiv och lattanvand"
+  - "AutoGain for tydligare ekolodsbild"
+  - "Visar vattentemperatur"
+  - "Over 10 timmars batteritid"
+  - "Fungerar vid isfiske"
+cons:
+  - "Ingen GPS - kan inte skapa kartor"
+  - "260 och 455 kHz - inte CHIRP"
+  - "60 meters rackvidd"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://fritidvildmark.se/products/garmin-striker-cast-no-gps"
+merchant: "Frilufts och Vildmark"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "abborre"
+  - "gos"
+  - "gadda"
+techniques:
+  - "spinn"
+  - "jigg"
+  - "isfiske"
+priceRange: "budget"
+quizEnabled: false
+---
+
+Garmin Striker Cast ar ett kastbart ekolod som forvandlar din smartphone till en fishfinder. Du kastar ut enheten, vevar in den och ser fisk, djup, bottenstruktur och vattentemperatur direkt i Garmin STRIKER Cast-appen via trådlos Wi-Fi med upp till 60 meters rackvidd.
+
+AutoGain-tekniken justerar ekolodsbilden automatiskt for tydligare avlasning utan manuell instaallning. Traditionellt 2D ekolod och realtidsvisning for isfiske ger flexibilitet for olika fiskesituationer. Fiskikoner visar pa vilket djup fisken befinner sig och justerbar djuplinje och djupomradeskugga gor bilden enklare att tolka.
+
+Jamfort med Deeper START ger Striker Cast en tydligare app-upplevelse och fungerar aven vid isfiske. Den saknar dock GPS och kan inte skapa kartor, vilket Garmin Striker Cast Worldwide klarar. For den som vill ha GPS-kartlaggning ar Worldwide-varianten for 500 kr mer ett naturligt steg upp.
+```
+
+## src/content/gear-reviews/garmin-striker-cast-worldwide.mdx
+```
+---
+title: "Garmin Striker Cast Worldwide"
+slug: "garmin-striker-cast-worldwide"
+description: "Kastbart ekolod fran Garmin med inbyggd GPS och Quickdraw Contours. Skapar egna djupkartor med 0,3 meters konturer direkt via mobilen."
+heroImage: "/images/gear/garmin-striker-cast-worldwide.jpg"
+brand: "Garmin"
+category: "ekolod"
+price: 1995
+rating: 4.3
+pros:
+  - "Inbyggd GPS for egna Quickdraw-kartor"
+  - "0,3 meters konturintervall"
+  - "Fungerar vid isfiske"
+  - "Over 10 timmars batteritid"
+  - "AutoGain for tydligare ekolodsbild"
+cons:
+  - "260 och 455 kHz - inte CHIRP"
+  - "60 meters rackvidd"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://fritidvildmark.se/products/garmin-striker-cast-worldwide"
+merchant: "Frilufts och Vildmark"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "abborre"
+  - "gos"
+  - "gadda"
+techniques:
+  - "spinn"
+  - "jigg"
+  - "isfiske"
+priceRange: "budget"
+quizEnabled: false
+---
+
+Garmin Striker Cast Worldwide ar samma kastbara ekolod som no GPS-varianten men med inbyggd GPS och stod for Garmin Quickdraw Contours. Det innebar att du kan skapa egna djupkartor med 0,3 meters konturintervall direkt via enheten nar du fiskar - perfekt for att kartlagga mindre sjoar, lokala vatten och intressanta bottenformationer som du vill hitta tillbaka till.
+
+5 000 waypoints kan sparas och alla kartor lagras i appen och ar atkomliga fran valfri enhet. AutoGain justerar ekolodsbilden automatiskt, och traditionellt 2D ekolod kombinerat med realtidsvisning for isfiske ger flexibilitet for bade sommar och vinter.
+
+For 500 kr mer an no GPS-varianten far du GPS-kartlaggning som ar det mest praktiska tillskottet for den som fiskar samma vatten upprepade ganger och vill bygga upp detaljerad bottenkunskap. Den som vill ha CHIRP-teknik och djupare rackvidd bor titta pa Deeper PRO+ 2 eller CHIRP+ 3.
+```
+
+## src/content/gear-reviews/garmin-striker-vivid-4cv.mdx
+```
+---
+title: "Garmin Striker Vivid 4CV ink GT20"
+slug: "garmin-striker-vivid-4cv"
+description: "Kompakt fastmonterat ekolod fran Garmin med 4 tums fargskarm, CHIRP och ClearVu. Inbyggd GPS och Quickdraw Contours for egna kartor. Enkel att installera i baten."
+heroImage: "/images/gear/garmin-striker-vivid-4cv.jpg"
+brand: "Garmin"
+category: "ekolod"
+price: 1995
+rating: 4.2
+pros:
+  - "Traditionellt CHIRP och ClearVu"
+  - "Inbyggd GPS med waypoints"
+  - "Quickdraw Contours for egna kartor"
+  - "Kompakt 4 tums skarm"
+  - "IPX7 vattenklassad"
+cons:
+  - "4 tums skarm kan vara liten vid starka solljus"
+  - "Laser inga Navionics-sjokort"
+  - "Knappstyrning - ingen pekskarm"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://fritidvildmark.se/products/garmin-striker-vivid-4cv-ink-gt20"
+merchant: "Frilufts och Vildmark"
+featured: false
+budgetPick: true
+targetSpecies:
+  - "gadda"
+  - "gos"
+  - "abborre"
+  - "lax"
+  - "oring"
+techniques:
+  - "trolling"
+  - "jigg"
+  - "spinn"
+priceRange: "budget"
+quizEnabled: false
+---
+
+Garmin Striker Vivid 4cv ar ett kompakt fastmonterat ekolod for den som vill ha ett palitligt verktyg i baten utan att betala for en full kartplotter. Den medfoljandeGT20-givaren ger bade traditionellt Garmin CHIRP-ekolod och ClearVu, vilket ger en tydlig overblick over fisk och djup samt en mer detaljerad vy av struktur och botten.
+
+Den 4 tums fargstarka skarm med QSVGA-panel (272x480 pixlar) ar latt att avlasa med tydliga kontraster mellan fisk, botten och vegetation. Inbyggd GPS med stod for WAAS ger precis positionering, och med Quickdraw Contours kan du skapa egna kartor over dina fiskevatten med 30 cm konturintervall. Enheten klarar kartor over upp till 80 000 hektar.
+
+Striker Vivid 4cv lasa inte Navionics- eller Garmin-sjokort, vilket skiljer den fran ECHOMAP-serien. For den som enbart vill ha GPS-markering, ekolod och egna kartor utan behov av fardiga sjokort ar Striker Vivid 4cv ett prisvaert och funktionellt val. Den som behoever fardiga sjokort bor titta pa Garmin ECHOMAP UHD2 52cv.
+```
+
+## src/content/gear-reviews/garmin-striker-vivid-5cv.mdx
+```
+---
+title: "Garmin Striker Vivid 5CV ink GT20"
+slug: "garmin-striker-vivid-5cv"
+description: "Fastmonterat ekolod fran Garmin med 5 tums fargskarm, CHIRP och ClearVu. Inbyggd GPS, Quickdraw Contours och 500W uteffekt for tydliga avlasningar."
+heroImage: "/images/gear/garmin-striker-vivid-5cv.jpg"
+brand: "Garmin"
+category: "ekolod"
+price: 3395
+rating: 4.4
+pros:
+  - "5 tums skarm - tydligare an 4cv"
+  - "500W uteffekt for djupare avlasningar"
+  - "Traditionellt CHIRP och ClearVu"
+  - "Inbyggd GPS med Quickdraw Contours"
+  - "IPX7 vattenklassad"
+cons:
+  - "Laser inga Navionics-sjokort"
+  - "Knappstyrning - ingen pekskarm"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://fritidvildmark.se/products/garmin-striker-vivid-5cv-ink-gt20"
+merchant: "Frilufts och Vildmark"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "gadda"
+  - "gos"
+  - "abborre"
+  - "lax"
+  - "oring"
+techniques:
+  - "trolling"
+  - "jigg"
+  - "spinn"
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Garmin Striker Vivid 5cv ger samma ekolodsteknik som 4cv-modellen men med en storre 5 tums WVGA-skarm (800x480 pixlar) som ger battre overblick och ar enklare att avlasa aven i starkt solljus. Den medfoljandeGT20-givaren ger traditionellt Garmin CHIRP-ekolod och ClearVu med 500W uteffekt, vilket ger tydligare avlasningar pa djupare vatten jamfort med 4cv:s 300W.
+
+Inbyggd GPS med WAAS-stod ger precis positionering, och Quickdraw Contours lat er skapa egna djupkartor med 30 cm konturintervall over upp till 80 000 hektar. Enheten levereras med GT20-givare, lut ningsbart faste och allt monteringsmaterial for installation pa akterspegel eller trollingmotor.
+
+Steget fran 4cv till 5cv ar framst i skarmstorlek och uteffekt. For den som fiskar mycket fran bat och vill ha en tydligare bild utan att betala for en kartplotter ar Striker Vivid 5cv ett naturligt val i mellanklass. Den som behoever fardiga Navionics-sjokort bor titta pa ECHOMAP UHD2 52cv.
+```
+
+## src/content/gear-reviews/garmin-striker-vivid-7cv.mdx
+```
+---
+title: "Garmin Striker Vivid 7CV ink GT20"
+slug: "garmin-striker-vivid-7cv"
+description: "Fastmonterat ekolod fran Garmin med 7 tums fargskarm, CHIRP, ClearVu och Wi-Fi. Inbyggd GPS, Quickdraw Contours och ActiveCaptain-stod."
+heroImage: "/images/gear/garmin-striker-vivid-7cv.jpg"
+brand: "Garmin"
+category: "ekolod"
+price: 4695
+rating: 4.5
+pros:
+  - "7 tums skarm for utmarkt overblick"
+  - "Wi-Fi och ActiveCaptain-stod"
+  - "Traditionellt CHIRP och ClearVu"
+  - "Inbyggd GPS med Quickdraw Contours"
+  - "IPX7 vattenklassad"
+cons:
+  - "Laser inga Navionics-sjokort"
+  - "Knappstyrning - ingen pekskarm"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://fritidvildmark.se/products/garmin-striker-vivid-7cv-ink-gt20"
+merchant: "Frilufts och Vildmark"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "gadda"
+  - "gos"
+  - "abborre"
+  - "lax"
+  - "oring"
+techniques:
+  - "trolling"
+  - "jigg"
+  - "spinn"
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Garmin Striker Vivid 7cv ger samma ekolodsprestanda som 5cv-modellen men pa en 7 tums WVGA-skarm som ger markbart battre overblick och ar enklare att avlasa i alla ljusforhallanden. Det storre formatet gor det praktiskt att kora delad skarm med bade traditionellt ekolod och ClearVu samtidigt utan att bilden blir svarlast.
+
+Wi-Fi-anslutningen och ActiveCaptain-appen ar det storsta tillskottet jamfort med 5cv. Du kan fora over waypoints, fa smartaviseringar, laddanedprogramvaruuppdateringar och fa tillgang till Garmin Quickdraw Community dar andra anvandare delar sina kartor. Det gor det mojligt att fa tillgang till bottendata pa fiskevatten du aldrig kartlagt sjalv.
+
+For den som fiskar mycket fran bat och vill ha en stor och lattlast skarm med Wi-Fi-funktionalitet ar Striker Vivid 7cv ett starkt mellanklass-alternativ. Den som dessutom vill ha fardiga Navionics-sjokort for navigering bor titta pa ECHOMAP UHD2 52cv eller 92sv.
+```
+
+## src/content/gear-reviews/garmin-striker-vivid-9sv.mdx
+```
+---
+title: "Garmin Striker Vivid 9SV ink GT52"
+slug: "garmin-striker-vivid-9sv"
+description: "Komplett fastmonterat ekolod fran Garmin med 9 tums skarm, CHIRP, ClearVu och SideVu. Soker av omraden at sidorna och ger en komplett bild av undervattenmiljon."
+heroImage: "/images/gear/garmin-striker-vivid-9sv.jpg"
+brand: "Garmin"
+category: "ekolod"
+price: 6495
+rating: 4.6
+pros:
+  - "9 tums skarm for utmarkt overblick"
+  - "SideVu for skanning at sidorna"
+  - "Traditionellt CHIRP, ClearVu och SideVu"
+  - "Tva 4-poliga givarportar"
+  - "Wi-Fi och ActiveCaptain-stod"
+cons:
+  - "Laser inga Navionics-sjokort"
+  - "Knappstyrning - ingen pekskarm"
+  - "Stor enhet - kraver mer monsteringsutrymme"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://fritidvildmark.se/products/garmin-striker-vivid-9sv-ink-gt52"
+merchant: "Frilufts och Vildmark"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "gadda"
+  - "gos"
+  - "abborre"
+  - "lax"
+  - "oring"
+techniques:
+  - "trolling"
+  - "jigg"
+  - "spinn"
+priceRange: "premium"
+quizEnabled: false
+---
+
+Garmin Striker Vivid 9sv ar toppmodellen i Striker Vivid-serien och tillfor SideVu till CHIRP och ClearVu. Med den medfoljandeGT52-givaren kan du skanna av storre omraden at sidorna om baten, vilket gor det markbart enklare att hitta kanter, stenpartier, vastlighet, betesfisk och platser dar rovfisken garna star - utan att behova kora over hela omradet.
+
+Den 9 tums WVGA-skarmen (800x480 pixlar) ger generost med utrymme for delad skarm dar du kan kora traditionellt ekolod, ClearVu och SideVu samtidigt. Tva 4-poliga givarportar ger flexibilitet for den som vill koppla in ytterligare givare. Wi-Fi och ActiveCaptain-stod ger tillgang till Quickdraw Community och smartaviseringar.
+
+Striker Vivid 9sv laser inte Navionics-sjokort, vilket ar den tydligaste begransningen jamfort med ECHOMAP UHD2 92sv. For den som enbart vill ha ekolod med SideVu och GPS utan behov av fardiga sjokort ar 9sv ett starkt val. Vill du ha fardiga sjokort for trygg navigering ar ECHOMAP UHD2 92sv raett svar.
+```
+
+## src/content/gear-reviews/hurricane-x8-braid-012mm.mdx
+```
+---
+title: "Hurricane X8 Braid Fluo Yellow 0,12mm 10kg 135m"
+slug: "hurricane-x8-braid-012mm"
+description: "8-tradig flatlinor fran Wiggler i signalgult. Hog brottstyrka, tyst gang och lang kastlangd till ett mycket prisvaert pris."
+heroImage: "/images/gear/hurricane-x8-braid-012mm.jpg"
+brand: "Hurricane"
+category: "flatlinor"
+price: 145
+rating: 4.6
+pros:
+  - "8-tradig for rundare profil och battre kastlangd"
+  - "Fluo Yellow for enkel linobservation"
+  - "Hog brottstyrka for diametern"
+  - "Tyst och mjuk gang genom ringarna"
+cons:
+  - "Kortare spole pa 135m"
+  - "Fluo Yellow syns i klart vatten"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/hurricane-x8-braid-fluo-yellow-012mm-10kg-135m/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: true
+targetSpecies:
+  - "abborre"
+  - "gos"
+  - "gadda"
+techniques:
+  - "jigg"
+  - "dropshot"
+  - "spinn"
+priceRange: "budget"
+quizEnabled: false
+---
+
+Hurricane X8 Braid ar en 8-tradig flatlinor fran Wiggler som testats harda under tva ars period tillsammans med flera fabrikat. Den 8-tradiga konstruktionen ger en rundare profil an 4-tradiga alternativ, vilket resulterar i lagre friktion genom ringarna och langre kast. 100 procent PE-fiber och hog knutstyrka gor den palitig i kritiska situationer.
+
+Fluo Yellow-fargen ger utmarkt linobservation vid spinnfiske och jiggfiske, dar det ar viktigt att se nar linan slappar vid ett hugg. Linan ar tyst, mjuk och langkastad, med hog brottstyrka i forhallande till diametern. 0,12mm med 10kg brottstyrka ar ett bra allround-val for predatorfiske i insjomiljon.
+
+Jamfort med Kinetic 4 Braid ger Hurricane X8 markbart battre kastprestanda och rundare profil tack vare 8 tradar. For den som vill ha en 8-tradig lina till budgetpris utan att kompromissa pa grundkvalitet ar Hurricane X8 ett av de basta alternativen pa marknaden.
+```
+
+## src/content/gear-reviews/kinetic-4-braid-012mm.mdx
+```
+---
+title: "Kinetic 4 Braid 150m 0,12mm 10,3kg Dusty Green"
+slug: "kinetic-4-braid-012mm"
+description: "Prisvaerd 4-tradig flatlinor fran Kinetic i klassisk Dusty Green. Slat yta och hog kanslighet for abborre och gos till ett mycket fornuftigt pris."
+heroImage: "/images/gear/kinetic-4-braid-012mm.jpg"
+brand: "Kinetic"
+category: "flatlinor"
+price: 65
+rating: 4.5
+pros:
+  - "Extremt prisvaerd"
+  - "Slat yta for lag friktion genom ringarna"
+  - "Ultrahog molekylar polyeten"
+  - "Taligtagen och notningsbestandig"
+cons:
+  - "4-tradig ger inte lika rund profil som 8-tradig"
+  - "Begransad kastlangd jamfort med tunnare 8-tradiga alternativ"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/kinetic-4-braid-150m-012mm-103kg-dusty-green/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: true
+targetSpecies:
+  - "abborre"
+  - "gos"
+  - "gadda"
+techniques:
+  - "jigg"
+  - "dropshot"
+  - "spinn"
+priceRange: "budget"
+quizEnabled: false
+---
+
+Kinetic 4 Braid ar en 4-tradig flatlinor i ultrahog molekylar polyeten med en slat yta som susar ljudlost genom spoets ringar. 0,12mm-varianten med 10,3kg brottstyrka passar de flesta abborrjiggar och gosriggar och ar tillrackligt stark for de flesta predatorfisksituationer i insjomiljon.
+
+4-tradig konstruktion ger en tillplattat profil jamfort med 8-tradiga alternativ, vilket kan ge nagot hogre friktion genom ringarna men kompenseras av den slata ytbehandlingen. Linans kanslighet ar god for prisnivan och ger direktkontakt med betet vid jigg och dropshot. Dusty Green-fargen ar diskret och syns inte lika tydligt i klart vatten som gula eller oranga alternativ.
+
+For den som vill komma igang med flatlinor utan att betala mycket ar Kinetic 4 Braid ett utmarkt forstaval. Den som fiskar ofta och vill ha battre kastlangd, rundare profil och hogre kanslighet bor titta pa en 8-tradig lina som Kinetic 8 Braid eller Westin W3.
+```
+
+## src/content/gear-reviews/kinetic-8-braid-014mm.mdx
+```
+---
+title: "Kinetic 8 Braid 150m 0,14mm 11,5kg Black"
+slug: "kinetic-8-braid-014mm"
+description: "Prisvaerd 8-tradig flatlinor fran Kinetic med oval profil och ultrahog molekylar polyeten. Praktiskt taget ingen tojning for direkt kanslighet vid jigg och dropshot."
+heroImage: "/images/gear/kinetic-8-braid-014mm.jpg"
+brand: "Kinetic"
+category: "flatlinor"
+price: 119
+rating: 4.1
+pros:
+  - "8-tradig for symmetrisk profil"
+  - "Praktiskt taget ingen tojning"
+  - "Bra pris for en 8-tradig lina"
+  - "Ultrahog molekylar polyeten"
+cons:
+  - "Oval profil istallet for rund"
+  - "Black syns inte lika bra vid linobservation"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/kinetic-8-braid-150m-014mm-115kg-black/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: true
+targetSpecies:
+  - "abborre"
+  - "gos"
+  - "gadda"
+techniques:
+  - "jigg"
+  - "dropshot"
+  - "spinn"
+priceRange: "budget"
+quizEnabled: false
+---
+
+Kinetic 8 Braid ar Kinetics mest avancerade flatlinor och tillverkad av atta vavda fibrer i ultrahog molekylar polyeten. Den 8-tradiga konstruktionen ger en symmetrisk profil som gor fisket smidigare an en 4-tradig lina, med praktiskt taget ingen tojning vilket ger direkt kanslighet och kontakt med betet vid jigg och dropshot.
+
+Jämfört med Kinetic 4 Braid ger 8 Braid markbart bättre kanslighet och rundare profil tack vare de extra traadarna. 0,14mm med 11,5kg brottstyrka passar abborrjigg, gosriggar och lättare gaddspinn. Black-färgen är diskret i vattnet men gör linobservation svårare än gula eller oranga alternativ.
+
+Till priset är Kinetic 8 Braid ett av de bästa alternativen for den som vill ta steget fran 4-tradig till 8-tradig utan att betala mellanklasspris. Den som vill ha rundare profil och bättre kastprestanda bör titta på Hurricane X8 Braid eller Shimano Kairiki 8+.
+```
+
+## src/content/gear-reviews/kinetic-brutalis-5000-fd.mdx
+```
+---
+title: "Kinetic Brutalis Haspelrulle 5000-FD"
+slug: "kinetic-brutalis-5000-fd"
+description: "Kraftfull budgetrulle fran Kinetic med forstarkt grafitkropp och CNC-bearbetad aluminiumspole. Passar gaddspinn och havsfiske."
+heroImage: "/images/gear/kinetic-brutalis-5000-fd.jpg"
+brand: "Kinetic"
+category: "haspelrullar"
+price: 449
+rating: 3.8
+pros:
+  - "Kraftfull konstruktion for prisnivan"
+  - "CNC-bearbetad aluminiumspole"
+  - "Ergonomisk EVA-vevknopp"
+  - "Japonska kullager i rostfritt stal"
+cons:
+  - "Grafitkropp ar tyngre an aluminium"
+  - "Begransat lagersaldo"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/kinetic-brutalis-haspelrulle-5000-fd/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "gadda"
+  - "gos"
+techniques:
+  - "spinn"
+  - "jigg"
+  - "wobbler"
+priceRange: "budget"
+quizEnabled: false
+---
+
+Kinetic Brutalis 5000-FD ar en kraftfullare budgetrulle an Marshall-serien, med forstarkt grafitkropp och datorbalanserad grafitrotor. CNC-bearbetad aluminiumspole och japanska kullager i rostfritt stal ar ovanliga detaljer i den har prisklassen och bidrar till en jamnare gang an man kan forvanta sig.
+
+Bromssystemet med filt- och kolfiberlameller ger mer kontrollerad kraft an enkla fjaderbromsystem, vilket ar en fordel vid drillning av storre gadda. Maskinskuret huvuddrev och rostfri overdimensionerad bygel och lintrissa bidrar till haltbarheten. EVA-knoppen ger ett bekvamat grepp aven vid langre fiskepass.
+
+Storleken 5000 ar optimerad for gaddspinn och kaststyrka med tyngre beten. Det ar inte en rulle for finessefiske efter abborre. For den som vill ha en funktionell och taligtagen rulle till ett budgetgaddspinn ar Brutalis ett vettigt val, sarskilt for den som fiskar i tuffare miljoer dar man inte vill riskera dyrare utrustning.
+```
+
+## src/content/gear-reviews/kinetic-marshall-4000-fd.mdx
+```
+---
+title: "Kinetic Haspelrulle Marshall 4000-FD inkl. flatlinor"
+slug: "kinetic-marshall-4000-fd"
+description: "Prisvaerd budgetrulle fran Kinetic med grafitkomposit-stativ och rotor. Levereras med Kinetic 4-braid flatlina pa spolen."
+heroImage: "/images/gear/kinetic-marshall-4000-fd.jpg"
+brand: "Kinetic"
+category: "haspelrullar"
+price: 399
+rating: 3.7
+pros:
+  - "Mycket prisvaerd"
+  - "Levereras med flatlina"
+  - "Laminerat bromssystem"
+  - "Bra for nyborrjare"
+cons:
+  - "Grafitkomposit-stativ ar tyngre an aluminium"
+  - "Begransad kanslighet"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/kinetic-haspelrulle-marshall-4000-fd-inkl-020mm-flatlina-dusty-green/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: true
+targetSpecies:
+  - "abborre"
+  - "gadda"
+  - "gos"
+techniques:
+  - "spinn"
+  - "jigg"
+priceRange: "budget"
+quizEnabled: false
+---
+
+Kinetic Marshall 4000-FD ar en budgetrulle i grafitkomposit med stativ och rotor i samma material. Det gor den lattare an manga rullar i samma prisklass med aluminiumkropp, men nagot kansligare for vridning under hoga laster. Bromssystemet med lameller ger jamn kraft och ar enkelt att justera for olika fiskesituationer.
+
+En praktisk detalj ar att rullen levereras med Kinetic 4-braid flatlina pa spolen, vilket sparar in ett kop och gor den direkt klar att anvanda. Pressgjuten aluminiumspole, rostfri ovardimensionerad bygel och laminerat bromssystem ar de tekniska hojdpunkterna for prisnivan.
+
+Storleken 4000 ar mer lamplig for gadda och gos an for abborrfiske med latta beten. For den som vill ha en enkel och billig rulle till ett gaddspinn eller ett grovre abborrspinn ar Marshall 4000 ett funktionellt forstaval. Den som vill ha bra kanslighet och lang livslangd bor titta pa nagot hogre upp i prisskalan.
+```
+
+## src/content/gear-reviews/kinetic-xarann-predator-trigger-ct.mdx
+```
+---
+title: "Kinetic Xarann Predator Trigger CT 40-120g"
+slug: "kinetic-xarann-predator-trigger-ct"
+description: "Kraftfullt gäddspö till budgetpris från Kinetic. Kastvikten 40-120g täcker de flesta wobblers och jiggar för gädda i sjö och kustvatten."
+heroImage: "/images/gear/kinetic-xarann-predator-trigger-ct.jpg"
+brand: "Kinetic"
+category: "spon"
+price: 699
+rating: 3.9
+pros:
+  - Mycket prisvärt
+  - Bred kastviktsrange
+  - Passar både sjö och kust
+  - Bra grundspö för gäddnybörjare
+cons:
+  - Tyngre än dyrare alternativ
+  - Begränsad känslighet
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/kinetic-xarann-predator-trigger-ct-multi-86-259cm-3xh-kastvikt-40-120g/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: true
+targetSpecies:
+  - gadda
+techniques:
+  - spinn
+  - wobbler
+  - jigg
+priceRange: "budget"
+quizEnabled: true
+---
+
+Kinetic Xarann Predator Trigger CT är ett 2-delat spinnspö på 259 cm med kastvikt 40–120 g och 3XH-aktion. Det är ett kraftfullt spö byggt för tyngre gäddriggar med wobblers, jiggar och mjukbeten i mellanstor till stor storlek.
+
+CarbonTech-klingan är konstruerad för att ge kraft i nedre delen av spöet, vilket underlättar att pressa och styra större fiskar. Det är en konstruktionsprincip som passar bra för gäddspinnfiske från båt, där man ofta behöver kontrollera fisken nära båten. Underlindade trebenta ringar håller ner vikten och de trebenta stöden ger stabila ringar som tål hårt bruk. EVA-handtaget med screw down-rullfäste är ett enkelt och funktionellt val som håller rullen på plats under intensiva fiskepass.
+
+Kastvikten 40–120 g gör det till ett utpräglat gäddspö för tyngre beten. Det passar inte för lätta abborrjiggar eller finessefiske. För den som söker ett första gäddspö till ett rimligt pris och fiskar med wobblers och större mjukbeten är det ett funktionellt val. Den som vill ha ett mer mångsidigt spö som hanterar både lättare och tyngre beten bör titta på något med bredare kastviktsrange.
+```
+
+## src/content/gear-reviews/mikado-inazuma-pro-zander.mdx
+```
+---
+title: "Mikado Rod Inazuma Pro Zander 214cm"
+slug: "mikado-inazuma-pro-zander"
+description: "Lätt och känsligt jigg- och dropshotspö till ett mycket förmånligt pris. Passar utmärkt för abborre och gös i sjö och kust."
+heroImage: "/images/gear/mikado-inazuma-pro-zander.jpg"
+brand: "Mikado"
+category: "spon"
+price: 699
+rating: 4.0
+pros:
+  - Mycket prisvärt
+  - Bra känslighet för prisnivån
+  - Lämplig kastvikt för jigg och dropshot
+  - Passar både abborre och gös
+cons:
+  - Begränsad lagerstatus
+  - Inte lika finkänsligt som dyrare alternativ
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/mikado-rod-inazuma-pro-zander-214cm-kastvikt-22g-2-delat/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: true
+targetSpecies:
+  - abborre
+  - gos
+techniques:
+  - jigg
+  - dropshot
+priceRange: "budget"
+quizEnabled: true
+---
+
+Mikado Inazuma Pro Zander är ett 2-delat haspelspö på 214 cm med kastvikt upp till 22 g. Kombinationen av snabb toppaktion och känslig klinga gör det lämpligt för jigg och dropshot, där det gäller att känna subtila hugg och ge snabba mothugg.
+
+Komponentvalet är genomtänkt för prisnivån. Seaguide-spöringar håller ner vikten utan att kompromissa med hållbarheten, och Fuji TVS-rullfästet ger ett stabilt och balanserat grepp. Resultatet är ett spö som känns mer välgjort än priset antyder.
+
+Spöet är primärt riktat mot gös men fungerar lika bra för abborre, särskilt på lite djupare vatten där jigg och dropshot är de naturliga teknikvalen. Kastvikten på 22 g täcker de flesta abborrjiggar och gösbeten i mellanstorleken, men är för lätt för tyngre gäddriggar.
+```
+
+## src/content/gear-reviews/okuma-ceymar-hd-2500a.mdx
+```
+---
+title: "Okuma Ceymar HD CHD-2500A Haspelrulle"
+slug: "okuma-ceymar-hd-2500a"
+description: "Lat haspelrulle fran Okuma med grafitkropp och overdimensionerat drev. EFR II linspridare med DLC-belaggning ger lang livslangd."
+heroImage: "/images/gear/okuma-ceymar-hd-2500a.jpg"
+brand: "Okuma"
+category: "haspelrullar"
+price: 899
+rating: 4.1
+pros:
+  - "EFR II linspridare med DLC-belaggning"
+  - "Overdimensionerat HD-drev"
+  - "Progressiv multi-disc broms"
+  - "Bra pris for funktionsnivan"
+cons:
+  - "Grafitkropp tyngre an aluminium"
+  - "Inte lika lattviktig som Shimano-alternativ"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/okuma-ceymar-hd-chd-2500a-haspelrulle-utvaxling-5-31/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "abborre"
+  - "gos"
+techniques:
+  - "jigg"
+  - "dropshot"
+  - "spinn"
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Okuma Ceymar HD CHD-2500A kombinerar en grafitkropp i lattviksdesign med ett overdimensionerat HD-drev for jamn och kraftfull invevning. Droppstabiliserade pinjongdrev i bada andarna okar kraftoverforing och styrka, vilket ger en markbart jamnare invevning an vad grafitkroppen antyder.
+
+EFR II linspridaren med DLC-belaggning ar en av de mer haltbara lintrissorna i mellanklass och minskar slitaget pa barade flatlinor markbart over tid. Progressiv multi-disc broms med karbon- och rostfria brickor ger jamn och kontrollerbar kraft vid drillning. Quick-Set anti-reverse roller bearing sokerstar ett direktt mothugg utan glapp.
+
+Storleken 2500A passar abborrfiske med jigg och dropshot samt lattare gosriggar. Det ar inte en rulle for tyngre gaddspinn. For den som soker en funktionell mellanklass-rulle med lang livslangd och bra bromskontroll ar Ceymar HD ett alternativ som levererar mer an priset antyder.
+```
+
+## src/content/gear-reviews/okuma-inspira-2500a.mdx
+```
+---
+title: "Okuma Inspira 2500A Haspelrulle"
+slug: "okuma-inspira-2500a"
+description: "Lat och smidig mellanklass-rulle fran Okuma med aluminium TCA-konstruktion och Flite Drive-system. Passar jigg och dropshot efter abborre."
+heroImage: "/images/gear/okuma-inspira-2500a.jpg"
+brand: "Okuma"
+category: "haspelrullar"
+price: 1199
+rating: 4.2
+pros:
+  - "Aluminium TCA-konstruktion for styvhet och latthet"
+  - "Flite Drive-system for jamn gang"
+  - "8+1 kullager"
+  - "Braid-ready spole"
+cons:
+  - "Lite tyngre an Shimano-alternativ i samma prisklass"
+  - "Begransat lagersaldo"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/okuma-inspira-2500a-haspelrulle-utvaxling-5-31/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "abborre"
+  - "gos"
+techniques:
+  - "jigg"
+  - "dropshot"
+  - "spinn"
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Okuma Inspira 2500A bygger pa aluminium TCA-konstruktion som ger hogre styvhet an grafitkomposit utan att vikten okar proportionellt. Flite Drive-systemet okar kugghjulens stabilitet och smidighet genom precisionsfrasade komponenter, vilket ger en markbart jamnare invevningskansla an rullar med enklare drev i samma prisklass.
+
+Overdimensionerat HDGII-drev med maskinskurna massingsdrev och 8+1 kullager bidrar till en invevning som kanner sig mer som en dyrare rulle. Den braid-ready aluminiumspolen ar forberedd for flatlina utan adapter, och Torsion Control Armor-designen minimerar vridningen av rullhuset under last.
+
+Storleken 2500A passar abborr- och gosjigg samt dropshot pa meddjupt vatten. Med 8 kullager och aluminium TCA-kropp levererar Inspira mer kanslighet och precision an Ceymar HD till ett hogre men fortfarande rimligt pris. Det ar ett naturligt steg upp for den som vill ha battre invevningskvalitet utan att ga till Shimano Miravel-nivaen.
+```
+
+## src/content/gear-reviews/okuma-itx-cb-2500h.mdx
+```
+---
+title: "Okuma ITX CB 2500H Haspelrulle High Speed"
+slug: "okuma-itx-cb-2500h"
+description: "Lat premium-inspirerad rulle fran Okuma med hel kolfiberkropp och 6.0:1 utaxling. Byggd for bade sot- och saltvattenfiske."
+heroImage: "/images/gear/okuma-itx-cb-2500h.jpg"
+brand: "Okuma"
+category: "haspelrullar"
+price: 1669
+rating: 4.3
+pros:
+  - "Hel kolfiberkropp for minimal vikt"
+  - "6.0:1 High Speed-utaxling"
+  - "CFR Cyclonic Flow Rotor-teknologi"
+  - "7+1 kullager"
+cons:
+  - "Kolfiberkropp kan vara kansligare for stot an aluminium"
+  - "High Speed passar inte alla tekniker"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/okuma-itx-cb-2500h-haspelrulle-utvaxling-6-01-high-speed/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "abborre"
+  - "gos"
+  - "gadda"
+techniques:
+  - "jigg"
+  - "spinn"
+  - "dropshot"
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Okuma ITX CB 2500H bygger pa ett helt kolfiber-koncept dar bade kropp och rotor ar tillverkade i kolfibermaterial, vilket ger en markbart lagre totalvikt an traditionella aluminiumkonstruktioner. CFR Cyclonic Flow Rotor-teknologin optimerar rotorns aerodynamik for snabbare och jamnare invevning, vilket syns tydligast vid snabb betesinvevning.
+
+6.0:1 High Speed-utaxlingen ger 85 cm lintag per vev, vilket passar tekniker som krav snabb betesaterhemtning eller snabb linupptagning efter kast. Multi-disk Carbon Drag-bromsen med Hydro Block-packning talar vatten utan att bromskraften paverkas. Vandardbar knopp i kolfiberhandtag och maskinbearbetade aluminiumspoletter kompimerer konstruktionen.
+
+Storleken 2500H passar abborrjigg, gosjigg och lattare gaddteknik. High Speed-utaxlingen ar en fordel for jiggfiske och snabb spinnfiske men kanner sig overdriven vid slow-roll-tekniker eller dropshot. For den som vill ha en lattare rulle med mer japansk premiumkansla an Okumas standardsortiment ar ITX CB ett intressant alternativ i oveganget mellan mellanklass och premium.
+```
+
+## src/content/gear-reviews/okuma-magda-finn-trolling-combo.mdx
+```
+---
+title: "Okuma Magda Finn Trolling Combo 7 210cm Classic CLX-300La"
+slug: "okuma-magda-finn-trolling-combo"
+description: "Komplett trollingkombo fran Okuma med spo och Classic CLX-300La-rulle. Bra startpaket for den som vill komma igang med trollingfiske direkt."
+heroImage: "/images/gear/okuma-magda-finn-trolling-combo.jpg"
+brand: "Okuma"
+category: "trollingspon"
+price: 999
+rating: 4.0
+pros:
+  - "Komplett kombo - bada spo och rulle ingaar"
+  - "Classic CLX-300La ar en slitstark trollingrulle"
+  - "Bra pris for ett komplett startpaket"
+  - "Leveransklart direkt"
+cons:
+  - "Kortare spo pa 210cm an de flesta trollingspoon"
+  - "Komboprodukter ar saellan optimala for bada delarna"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/okuma-magda-finn-trolling-combo-7-210cm-classic-clx-300la/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "lax"
+  - "gadda"
+  - "gos"
+techniques:
+  - "trolling"
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Okuma Magda Finn Trolling Combo bestar av Magda Finn Trollingspoet i 210 cm kombinerat med Classic CLX-300La, en slitstark trollingrulle fran Okuma. CLX-300La ar en konventionell multiplikatorrulle som taal harda tag och fungerar bra aven under transport till och fran vattnet, vilket ar ett praktiskt attribut for trollingfiske.
+
+Kombon ger allt som behovs for att komma igang med trollingfiske direkt utan att kopa spo och rulle separat. Spoet pa 15-30lbs klarar de flesta trollingriggar for lax och gadda, och rulle och spo ar vaelbalanserade for varandra. Startkitet passar den som vill prova trolling for forsta gangen eller som soker en enkel reservutrustning.
+
+Den som fiskar trolling mer seriost och vill ha basta mojliga kanslighet och komponentkvalitet far mer varde av att valja spo och rulle separat. Men for enkelheten och prisvaerdigheten ar Magda Finn Combo ett genomtankt alternativ i mellanklass.
+```
+
+## src/content/gear-reviews/okuma-magda-finn-trollingspo.mdx
+```
+---
+title: "Okuma Magda Finn Trollingspo 8.0 15-30lbs 2-delat"
+slug: "okuma-magda-finn-trollingspo"
+description: "Robust och prisvaerd trollingspo fran Okuma med styrka pa 15-30lb. Passar trolling efter lax, gadda och storre rovfiskar."
+heroImage: "/images/gear/okuma-magda-finn-trollingspo.jpg"
+brand: "Okuma"
+category: "trollingspon"
+price: 449
+rating: 3.8
+pros:
+  - "Mycket prisvaert"
+  - "15-30lb styrka for storre rovfiskar"
+  - "2-delat for enkel transport"
+  - "Kraftfull klinga for tunga beten"
+cons:
+  - "Begransad produktinfo"
+  - "Begransat lagersaldo"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/okuma-magda-finn-trollingspo-80-15-30lbs-2-delat/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: true
+targetSpecies:
+  - "lax"
+  - "gadda"
+  - "gos"
+techniques:
+  - "trolling"
+priceRange: "budget"
+quizEnabled: false
+---
+
+Okuma Magda Finn Trollingspo ar ett 2-delat spoo pa 244 cm med en styrka pa 15-30lb, dimensionerat for trolling efter storre rovfiskar som lax, gadda och gos. Den kraftfulla klingan ger stabilitet och kontroll vid trollingfiske och klarar harda belastningar fran tunga sidoparavaner och djuplodsbeten.
+
+Det tvadelade utforandet gor spoet smidigt att transportera och forvarar utan att kompromissa med klingans styrka. Konstruktionen ar optimerad for att hantera beten och riggar i tyngre klass, vilket gor det lampligt for sportfiskare som vill prova trolling utan att investera i ett dyrt spoo.
+
+Magda Finn ar det naturliga borjanspoet for trollingfiske. Det levererar funktionell prestanda till ett pris som gor det tillgangligt for den som vill testa tekniken. Den som fiskar trolling regelbudet och vill ha hogre komponentkvalitet och battre kanslighet bor titta pa Westin W2 eller W3 Predator Trolling.
+```
+
+## src/content/gear-reviews/shimano-26-zodias-haspelspo.mdx
+```
+---
+title: "Shimano 26 Zodias Haspelspö M 7-21g"
+slug: "shimano-26-zodias-haspelspo"
+description: "JDM-haspelspö från Shimanos Zodias 2026-serie med Hi-Power X-klinga och Carbon Monocoque-handtag. Byggt för finesse- och jiggfiske efter abborre."
+heroImage: "/images/gear/shimano-26-zodias-haspelspo.jpg"
+brand: "Shimano"
+category: "spon"
+price: 2495
+rating: 4.6
+pros:
+  - "Hi-Power X-klinga ger precisa kast och minskad vridning"
+  - "Carbon Monocoque-handtag för hög känslighet"
+  - "Fuji Alconite-spöringar optimerade för flatlinor"
+  - "CI4+ rullfäste håller vikten nere"
+  - "JDM-kvalitet från Shimanos premiumserie"
+cons:
+  - "Högt pris för kastviktsrangen"
+  - "Specialiserat för finesse och jigg, inte för tyngre beten"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/shimano-26-zodias-haspelspo-m-fast-213m-70-7-21g-2-delat/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "abborre"
+  - "gos"
+techniques:
+  - "jigg"
+  - "dropshot"
+  - "spinn"
+priceRange: "premium"
+quizEnabled: true
+---
+
+Shimano Zodias 2026 är ett haspelspö från Shimanos JDM-sortiment, en serie som ursprungligen utvecklades för den japanska marknaden och nu finns tillgänglig i Sverige. M Fast-aktionen på 2,13 m med kastvikt 7-21 g är optimerad för finessefiske och jigg efter abborre, där precision och känslighet väger tyngre än råa kaststyrka.
+
+Hi-Power X-teknologin minskar klingens vridning vid kast och mothugg, vilket ger direktare kontakt med betet och mer exakta kast än vad många spön i samma kastviktsrange klarar. Carbon Monocoque-handtaget, där vibrationer förs direkt till handen utan att dämpas av ett konventionellt handtagsskaft, är samma konstruktion som används i Shimanos professionella Expride-serie. Fuji Alconite-spöringar är optimerade för tunna flatlinor och ger smidig kastning utan friktion.
+
+CI4+ rullfästet håller totalvikten nere och bidrar till den balanserade känslan som gör spöet lämpligt för längre fiskepass. Kastvikten 7-21 g täcker de flesta abborrjiggar och dropshotriggar. Det är inte ett spö för tyngre gäddriggar eller kastning med stora wobblers. För den som fiskar abborre regelbundet med jigg och dropshot och vill ha ett spö med dokumenterad JDM-kvalitet är Zodias ett naturligt val i premiumsegmentet.
+```
+
+## src/content/gear-reviews/shimano-expride-haspelspo-198m.mdx
+```
+---
+title: "Shimano Expride Haspelspö 1,98m 3-10g"
+slug: "shimano-expride-haspelspo-198m"
+description: "Lätt finessespö från Shimano med hög känslighet. Blank i Ci4+ och Spiral X-teknik för abborrfiske med jigg och dropshot på grunt till meddjupt vatten."
+heroImage: "/images/gear/shimano-expride-haspelspo-198m.jpg"
+brand: "Shimano"
+category: "spon"
+price: 2999
+rating: 4.8
+pros:
+  - Enastående känslighet
+  - Extremt lätt konstruktion
+  - Toppkvalitet från Shimano
+  - Perfekt för dropshot och light jigg
+cons:
+  - Högt pris
+  - Smal kastviktsrange
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/shimano-expride-haspelspo-198m-66-3-10g-2-delat/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - abborre
+techniques:
+  - dropshot
+  - jigg
+priceRange: "premium"
+quizEnabled: true
+---
+
+Shimano Expride är Shimanos mellanpremiumserie för finessefiske, utvecklad med teknik hämtad från det professionella Poison Adrena-spöet. Hi-Power X-konstruktionen minskar klingans vridning vid kast och mothugg, vilket ger en direktare kontakt med betet och mer exakta kast än vad klingan ser ut att kunna leverera.
+
+Carbon Monocoque-handtaget är det som skiljer Expride från spön i lägre prisklasser. Konstruktionen gör att vibrationer från botten och hugg förs vidare till handen utan att dämpas av ett konventionellt handtagsskaft. Fuji SiC-ringar och Shimano Ci4+ rullfäste håller vikten nere och är optimerade för haspelrullar i storlek 2000–2500.
+
+Kastvikten 3–10 g gör det till ett utpräglat finessespö för abborre med lätta jiggar och dropshot. Det är inte byggt för tyngre beten eller gäddfiske. Jämfört med Shimano Nexave i samma sortiment är steget upp till Expride märkbart i känsla och komponentkvalitet, men prisskillnaden är också betydande. Det passar den som fiskar abborre regelbundet och vill ha ett spö som faktiskt levererar på känslan.
+```
+
+## src/content/gear-reviews/shimano-kairiki-8-013mm.mdx
+```
+---
+title: "Shimano Line Kairiki 8+ 150m 0,13mm 8,3kg Grey"
+slug: "shimano-kairiki-8-013mm"
+description: "Premium 8-tradig flatlinor fran Shimano med VT Method-konstruktion och 3-lagers silikonbaserad ytbehandling. Extremt mjuk, tyst och langkastad."
+heroImage: "/images/gear/shimano-kairiki-8-013mm.jpg"
+brand: "Shimano"
+category: "flatlinor"
+price: 249
+rating: 4.6
+pros:
+  - "VT Method ger tatare och rundare profil"
+  - "3-lagers silikonbaserad ytbehandling"
+  - "Extremt mjuk och tyst gang"
+  - "Fungerar i sot- och saltvatten"
+cons:
+  - "Hogre pris an Hurricane och Kinetic"
+  - "Grey ar diskret men svarare att se vid linobservation"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/shimano-line-kairiki-8-150m-0-13mm-8-3kg-grey/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "abborre"
+  - "gos"
+  - "gadda"
+  - "oring"
+techniques:
+  - "jigg"
+  - "dropshot"
+  - "spinn"
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Shimano Kairiki 8+ anvander VT Method-konstruktionen dar fibrerna sammanfogas under konstant och jamn flervinklad spanning. Varje fiber komprimeras optimalt och skapar en tatare, rundare och mer kompakt flatlinor med markbart battre profil an konventionella 8-tradiga linor. Resultatet ar minskad diameter, okad kastlangd, battre precision och hogre kanslighet.
+
+Den 3-lagers silikonbaserade ytbehandlingen ar det som skiljer Kairiki 8+ fran manga andra flatlinor. Belaggningen stoter bort vatten och smuts och minskar friktionen for annu battre linfloede genom ringarna. Linan fungerar i bade sotvatten och saltvatten och ar speciellt lamplig for forsiktiga presentationer dar lag ljudniva och hog kanslighet ar avgorande.
+
+0,13mm med 8,3kg brottstyrka passar abborrjiggar och gosrigg. Den diskreta Grey-fargen syns inte i vattnet men kraver mer uppmarksamhet vid linobservation. For den som vill ha Shimanos toppkvalitet i en flatlina utan att ga till Kairiki 8 SX-nivaen ar Kairiki 8+ det naturliga valet.
+```
+
+## src/content/gear-reviews/shimano-miravel-2500.mdx
+```
+---
+title: "Shimano Haspelrulle Miravel 2500"
+slug: "shimano-miravel-2500"
+description: "Prisvard mellanklass-rulle fran Shimanos Magnumlite-serie med CI4+ kompositkropp och HAGANE Gear. Lat, smidig och byggd for langvarig anvandning."
+heroImage: "/images/gear/shimano-miravel-2500.jpg"
+brand: "Shimano"
+category: "haspelrullar"
+price: 1299
+rating: 4.4
+pros:
+  - "CI4+ kompositkropp ger utmarkt latthet"
+  - "HAGANE Gear for slitstyrka"
+  - "X-SHIP och Silent Drive for jamn gang"
+  - "Duracross drag for precis bromskontroll"
+cons:
+  - "Bara 5 kullager"
+  - "Inte lika lattviktig som Vanford"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/shimano-haspelrulle-miravel-2500/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "abborre"
+  - "gos"
+techniques:
+  - "jigg"
+  - "dropshot"
+  - "spinn"
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Shimano Miravel 2500 tillhor Magnumlite-serien och bygger pa CI4+ kompositkropp, ett material som Shimano anvander tvers igenom sina mellanklass- och premiumrullar for att kombinera latthet med styvhet. HAGANE Gear-vaxeln ger hallfasthet och precision over tid, medan X-SHIP och Silent Drive samverkar for en tyst och smidig invevning som kanner sig betydligt dyrare an priset.
+
+Duracross-draget ger exakt och jamn bromskontroll vid kamp med storre fiskar, och Anti-Twist Fin kontrollerar trycket pa linan nar den passerar linrullen. AR-C-spolen optimerar kastlangden och minskar friktion med tunna flatlinor. Med 5 kullager ar Miravel ingen rekordrulle pa kullagerantalet, men gangkvaliteten kompenserar for det.
+
+Storleken 2500 passar abborr- och gosjigg, dropshot och latt spinnfiske. Miravel ar det naturliga valet for den som vill ha ett kannt Shimano-varumärke med bevisad teknik till ett pris som fortfarande ar overkomligt. Steget upp fran Nexave ar markbart i invevningskansla och materialval.
+```
+
+## src/content/gear-reviews/shimano-nexave-fi-2500.mdx
+```
+---
+title: "Shimano Haspelrulle Nexave FI 2500"
+slug: "shimano-nexave-fi-2500"
+description: "Prisvaerd budgetrulle fran Shimano med G-Free Body-design och AR-C-spole. Passar abborrfiske och latt predatorfiske."
+heroImage: "/images/gear/shimano-nexave-fi-2500.jpg"
+brand: "Shimano"
+category: "haspelrullar"
+price: 599
+rating: 4.0
+pros:
+  - "Shimano-kvalitet till budgetpris"
+  - "G-Free Body for battre balans"
+  - "AR-C-spole for langre kast"
+  - "Justerbar broms"
+cons:
+  - "Bara 3 kullager"
+  - "Inte for tyngre beten"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/shimano-haspelrulle-nexave-fi-2500/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: true
+targetSpecies:
+  - "abborre"
+  - "gos"
+techniques:
+  - "spinn"
+  - "jigg"
+  - "dropshot"
+priceRange: "budget"
+quizEnabled: false
+---
+
+Shimano Nexave FI 2500 ar Shimanos most prisvarda haspelrulle och anvander G-Free Body-designen som flyttar de interna komponenterna hogre i kroppen for battre balans och minskad tratthet vid langvarig anvandning. Det ar samma konstruktionsprincip som anvands i betydligt dyrare Shimano-rullar.
+
+AR-C-spolen har en specialdesignad vinklad lapp som minskar friktion och mojliggor langre och mer precisa kast an en konventionell spole. Bromssystemet ar latt att justera och hanterar storre fiskar utan problem trots det blygsamma priset. Med 3 kullager ar gangsmidigheten godkand men markbart under dyrare alternativ.
+
+Storleken 2500 passar abborrfiske med jigg, dropshot och latt spinnfiske. Kombinerat med ett Shimano Nexave-spo ger det en funktionell och balanserad kombination till ett mycket fornuftigt totalpris. For den som vill ha Shimano-varumärket utan att betala for mellanklass ar detta det naturliga valet.
+```
+
+## src/content/gear-reviews/shimano-nexave-haspelspo-191m.mdx
+```
+---
+title: "Shimano Nexave Haspelspö 1,91m 3-14g"
+slug: "shimano-nexave-haspelspo-191m"
+description: "Pålitligt nybörjarspö från Shimano. Snabb aktion och smal kastviktsrange gör det lämpligt för lätta beten och abborrfiske längs strandzoner."
+heroImage: "/images/gear/shimano-nexave-haspelspo-191m.jpg"
+brand: "Shimano"
+category: "spon"
+price: 799
+rating: 3.9
+pros:
+  - Välkänt varumärke
+  - Snabb aktion passar abborre
+  - Prisvärt för Shimano
+  - Bra grundspö för nybörjare
+cons:
+  - Smal kastviktsrange
+  - Begränsat lagersaldo
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/shimano-nexave-haspelspo-fast-191m-63-3-14g-2-delat/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: true
+targetSpecies:
+  - abborre
+techniques:
+  - spinn
+  - jigg
+priceRange: "budget"
+quizEnabled: true
+---
+
+Shimano Nexave är ett haspelspö byggt på en Full Carbon-blank, vilket är ovanligt i den här prisklassen. Klingan är lätt och responsiv med snabb aktion, vilket ger bra kastkänsla och tillräcklig känslighet för att märka hugg vid jigg och lätt spinnfiske.
+
+Spöringar från Seaguide XOG håller linhanteringen problemfri och materialkvaliteten är genomgående högre än vad priset antyder. Handtaget är i EVA på den här modellen, ett praktiskt val som håller greppet även i blött väder.
+
+Kastvikten 3–14 g passar lätta abborrjiggar, små wobblers och light spinn. Det är inte ett spö för tyngre gäddriggar eller djupjigg, men för strandfiske och jiggfiske efter abborre från brygga eller båt fungerar det mycket bra. Ett rimligt första spö för den som vill prova på predatorfiske utan att investera mer än nödvändigt.
+```
+
+## src/content/gear-reviews/shimano-stella-fk-2500.mdx
+```
+---
+title: "Shimano Haspelrulle Stella FK 2500"
+slug: "shimano-stella-fk-2500"
+description: "Shimanos flaggskepp bland haspelrullar med Infinity Evolution, InfinityXross och 12 kullager. For den som vill ha det absolut basta utan kompromiss."
+heroImage: "/images/gear/shimano-stella-fk-2500.jpg"
+brand: "Shimano"
+category: "haspelrullar"
+price: 7999
+rating: 5.0
+pros:
+  - "Shimanos absoluta toppmodell"
+  - "Infinity Evolution-konstruktion"
+  - "InfinityXross Gears for extrem vaxelstyrka"
+  - "12 kullager"
+  - "InfinityLoop for optimal linlaggning"
+cons:
+  - "Extremt hogt pris"
+  - "Svart att motivera for de flesta fiskare"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/shimano-haspelrulle-stella-fk-2500/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "abborre"
+  - "gos"
+  - "oring"
+techniques:
+  - "jigg"
+  - "dropshot"
+  - "spinn"
+priceRange: "premium"
+quizEnabled: false
+---
+
+Shimano Stella FK ar flaggskeppet i Shimanos haspelrullsortiment och representerar det basta den japanska tillverkaren kan producera. Infinity Evolution-konstruktionen ar en genomgripande omdesign av hela rullen dar varje komponent omdefinieras for maximal prestanda och hallbarhet. InfinityXross Gears ger en vaxelstyrka som overtraffar konventionella HAGANE-vaxlar, vilket syns som en direktare och jamnare invevningskansla aven under extrem belastning.
+
+InfinityDrive och InfinityLoop ger kraftfull och lat rotation med ultralangsam spolvibration som forbattrar linlaggningen och minskar friktionen for langre och mer precisa kast. Anti-Twist Fin och Duracross-bromssystemet kompletterar en teknisk utrustningslista dar ingenting ar kompromissat. Med 12 kullager och ett totalvikt pa 210 gram levererar Stella FK en kombination av latthet, styrka och gangkvalitet som inte har nagot direkt jamforbart alternativ pa marknaden.
+
+Storleken 2500 passar finessefiske och jiggfiske efter abborre och gos. Priset pa nara 8 000 kr ar svart att motivera for de flesta sportfiskare, och Vanford FA eller Stradic FM levererar 90 procent av prestandan till en brakdel av kostnaden. For den professionella fiskaren eller den som enkelt vill ha det basta oavsett pris ar Stella FK det enda svaret.
+```
+
+## src/content/gear-reviews/shimano-stradic-fm-c3000-hg.mdx
+```
+---
+title: "Shimano Haspelrulle Stradic FM C3000 HG"
+slug: "shimano-stradic-fm-c3000-hg"
+description: "Premiuminspirerad mellanklass-rulle fran Shimano med HAGANE-vaxel, Infinity Drive och Long Stroke Spool. Vattenresistent och byggd for langvarig anvandning."
+heroImage: "/images/gear/shimano-stradic-fm-c3000-hg.jpg"
+brand: "Shimano"
+category: "haspelrullar"
+price: 2349
+rating: 4.6
+pros:
+  - "HAGANE Gear, X-Ship och MicroModule II"
+  - "Infinity Drive for kraftfull och lat rotation"
+  - "Long Stroke Spool for langre kast"
+  - "X-Protect vattenresistens"
+  - "Anti-Twist Fin"
+cons:
+  - "Hogt pris for mellanklass"
+  - "HG-utaxling passar inte alla tekniker"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/shimano-haspelrulle-stradic-fm-c3000-hg/"
+merchant: "FiskeOnline"
+featured: true
+budgetPick: false
+targetSpecies:
+  - "abborre"
+  - "gos"
+  - "oring"
+techniques:
+  - "jigg"
+  - "dropshot"
+  - "spinn"
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Shimano Stradic FM C3000 HG ar i praktiken en premiuminspirerad rulle till mellanklasspris och anvander flera teknologier som tidigare bara fans i Shimanos dyraste modeller. HAGANE Gear-vaxeln kombineras med MicroModule II och X-SHIP for en extremt tyst och smidig invevning. Infinity Drive minskar motstandet vid invevning och ger kraftfull och lat rotation aven under last, vilket markas tydligt vid jiggfiske pa djupare vatten.
+
+Long Stroke Spool ger upp till 10 procent langre kast an konventionella spolar, och X-Protect-vattenresistensen ger en hog skyddsniva for en rulle utan fullstandig tating. Anti-Twist Fin och avancerad oscillation for jamn linlaggning kompletterar en teknisk utrustningslista som imponerar for prisnivan. Duracross-draget ger exakt kontroll vid kamp med storre fiskar.
+
+C3000 HG-varianten med High Gear-utaxling passar jigg- och dropshotfiske samt spinnfiske dar snabb betesaterhemtning ar en fordel. Den som fiskar slow-roll eller behover extra kraft vid invevning av tunga beten bor titta pa en variant med lagre utaxling. Stradic FM satter standarden for vad som ar mojligt att fa i mellanklass fran Shimano.
+```
+
+## src/content/gear-reviews/shimano-vanford-fa-2500.mdx
+```
+---
+title: "Shimano Haspelrulle Vanford FA 2500"
+slug: "shimano-vanford-fa-2500"
+description: "Lat premiumrulle fran Shimanos Magnumlite-serie med CI4+ kropp och HAGANE Gear. Byggd for finessefiske dar varje gram raknas."
+heroImage: "/images/gear/shimano-vanford-fa-2500.jpg"
+brand: "Shimano"
+category: "haspelrullar"
+price: 2295
+rating: 4.7
+pros:
+  - "Extremt lat CI4+ kompositkropp"
+  - "HAGANE Gear, X-SHIP och MicroModule II"
+  - "InfinityDrive for kraftfull lat rotation"
+  - "X-Protect vattentatlighet"
+  - "Long Stroke Spool"
+cons:
+  - "Hogt pris"
+  - "Specialiserad for finesse - inte for tyngre beten"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/shimano-reel-vanford-fa-2500/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "abborre"
+  - "gos"
+techniques:
+  - "jigg"
+  - "dropshot"
+  - "spinn"
+priceRange: "premium"
+quizEnabled: false
+---
+
+Shimano Vanford FA 2500 tillhor Magnumlite-serien och ar en av Shimanos lattaste haspelrullar med sin CI4+ Magnumlite-kropp och Magnumlite Rotor. Vikt runt 175 gram gor den patagligt lattare an de flesta konkurrenter i samma prestandaklass, vilket syns direkt i balansen mot ett finessespo och minskar tratthet vid langre fiskepass.
+
+HAGANE Gear, MicroModule II, X-SHIP, InfinityDrive och Silent Drive samverkar for att leverera en tyst, smidig och kraftfull invevningskansla som kanner sig mer som en rulle i hogre prisklassen. Duracross-draget ger exakt bromskontroll, och Anti-Twist Fin kontrollerar linhanteringen vid kastning med latta beten. X-Protect vattenresistens ger skydd mot stank och regn.
+
+Storleken 2500 med standard-utaxling passar finessefiske med jigg och dropshot efter abborre och gos. Det ar inte en rulle for tyngre gaddfiske. For den som fiskar abborre regelbudet och vill ha Shimanos basta teknik utan att betala for Vanquish eller Stella ar Vanford FA det naturliga valet.
+```
+
+## src/content/gear-reviews/shimano-vanford-fa-4000.mdx
+```
+---
+title: "Shimano Haspelrulle Vanford FA 4000"
+slug: "shimano-vanford-fa-4000"
+description: "Lat premiumrulle fran Shimanos Magnumlite-serie i storlek 4000. Passar spinnfiske efter gadda, oring och havsfiske dar latthet och precision ar avgOrande."
+heroImage: "/images/gear/shimano-vanford-fa-4000.jpg"
+brand: "Shimano"
+category: "haspelrullar"
+price: 2495
+rating: 4.7
+pros:
+  - "Extremt lat for storleken"
+  - "HAGANE Gear, X-SHIP och MicroModule II"
+  - "InfinityDrive och Long Stroke Spool"
+  - "X-Protect vattentatlighet"
+cons:
+  - "Hogt pris"
+  - "Storlek 4000 passar inte finessefiske"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/shimano-reel-vanford-fa-4000/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "gadda"
+  - "gos"
+  - "oring"
+  - "havsoring"
+techniques:
+  - "spinn"
+  - "jigg"
+  - "wobbler"
+priceRange: "premium"
+quizEnabled: false
+---
+
+Shimano Vanford FA 4000 ar storebror till Vanford 2500 och delar samma Magnumlite-teknik men i en storlek lamplig for spinnfiske efter gadda, gos och oring. Vikten runt 215 gram ar markbart lagre an de flesta aluminium-rullar i storlek 4000, vilket gors mojligt av CI4+ Magnumlite-kroppen och Magnumlite Rotor.
+
+HAGANE Gear, MicroModule II, X-SHIP och InfinityDrive ger samma premiumkansla i invevningen som Vanford 2500. Long Stroke Spool optimerar kastlangden med tunna flatlinor, och X-Protect vattenresistens ger ett bra skydd for saltvattenanvandning. Duracross-draget med 11 kg maxbroms hanterar storre fiskar med precision.
+
+Storleken 4000 med HG-utaxling ger 87 cm lintag per vev, vilket passar aktiv betesaterhemtning vid gaddspinn och gosjigg. For den som vill ha Shimanos basta Magnumlite-teknik i ett format for storre predatorfiske ar Vanford FA 4000 ett naturligt val. Jämfört med Stradic FM i samma prisklass ar Vanford markbart lattare men med liknande teknisk utrustning.
+```
+
+## src/content/gear-reviews/shimano-yasei-bb-pike-xh.mdx
+```
+---
+title: "Shimano Yasei BB Pike XH 2,30m 30-90g"
+slug: "shimano-yasei-bb-pike-xh"
+description: "Dedikerat gäddspö från Shimano med XH-aktion för kraftfull huggtagning. Passar wobblers och stora mjuka jiggar i sjöar och kustvatten."
+heroImage: "/images/gear/shimano-yasei-bb-pike-xh.jpg"
+brand: "Shimano"
+category: "spon"
+price: 1299
+rating: 4.5
+pros:
+  - Känt Shimano-varumärke
+  - XH-aktion för säker huggtagning
+  - Bred kastviktsrange
+  - Bra pris för Shimano
+cons:
+  - XH kan vara hård för nybörjare
+  - Lite tyngre än Westin-alternativen
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/shimano-yasei-bb-pike-xh-multi-230m-30-90g-2-delat/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - gadda
+techniques:
+  - spinn
+  - wobbler
+priceRange: "mellanklass"
+quizEnabled: true
+---
+
+Shimano Yasei BB Pike XH är ett gäddspö i Full Carbon med XH-aktion och kastvikt 30–90 g. Diaflash-teknologin stärker klingan utan att lägga till vikt, vilket ger ett spö som känns lättare i handen än kastvikten antyder. XH-aktionen är styvare än de flesta gäddspön i mellanklass, vilket passar bra för kraftfull huggtagning med stora wobblers och swimbaits men kräver lite mer vana för att kasta exakt med lättare beten.
+
+Fuji Fazlite-ringarna är ett genomgående val i Shimanos mellanklasserier och hanterar flätlina väl utan onödig friktion. Fuji-rullfästet och det delade EVA-handtaget är standardkomponenter som fungerar pålitligt under hårt bruk. Inget i komponentvalet överraskar, men kvaliteten är konsekvent och håller vad Shimano-namnet lovar.
+
+Kastvikten 30–90 g täcker de flesta gäddriggar från medelstora wobblers till större mjukbeten. Det är ett spö för den som fiskar gädda målmedvetet och vill ha ett välkänt varumärke med dokumenterad hållbarhet. Jämfört med Westin W2 Powercast-T i samma prisklass är aktionen snarlik, men Shimano-alternativet passar bättre för den som föredrar Fuji-komponenter och ett mer traditionellt spöutseende.
+```
+
+## src/content/gear-reviews/strike-wire-extreme-015mm.mdx
+```
+---
+title: "Strike Wire Extreme 0,15mm 11kg 135m H-V Yellow"
+slug: "strike-wire-extreme-015mm"
+description: "Premiumlina fran CWC med tatt flatsad Micro-fiber-konstruktion och rund linprofil. Superkompakt och vattentatlstande for predatorfiske i alla miljoer."
+heroImage: "/images/gear/strike-wire-extreme-015mm.jpg"
+brand: "Strike Wire"
+category: "flatlinor"
+price: 269
+rating: 4.5
+pros:
+  - "Tatt flatsad Micro-fiber ger superkompakt profil"
+  - "Nastan intill rund linprofil"
+  - "Vattentatlstande konstruktion"
+  - "Passar haard kraevande havsfiske och jerkfiske"
+cons:
+  - "Kortare spole pa 135m"
+  - "Hogre pris an Westin W3"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/strike-wire-extreme-015mm-11kg-135m-h-v-yellow/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "gadda"
+  - "gos"
+  - "abborre"
+techniques:
+  - "jigg"
+  - "spinn"
+  - "jerkbait"
+  - "wobbler"
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Strike Wire Extreme ar en premiumlina fran CWC tillverkad av tatt flatsade Micro-fibrer som ger en nastan intill rund linprofil. Det ar en av fa flatlinor pa marknaden som verkligen kan sta for en rund profil, vilket ger superb linfloede genom ringarna, extremt langa kastlangder och minimal risk for trassel. Konstruktionen ar superkompakt och vattentatlstande, som i sin tur ger perfekt linupplagning.
+
+Lamps speciellt val for kraevande fiske dar linans prestanda ar avgorande, som haard havsfiske, jerkfiske och vertikalfiske. 0,15mm med 11kg brottstyrka ger tillracklig styrka for de flesta predatorfisksituationer. H-V Yellow-fargen ger utmarkt linobservation vid spinnfiske och jiggfiske.
+
+Jamfort med Westin W3 8 Braid ar Strike Wire Extreme mer specialiserad for kraevande miljoer och tekniker dar linans rundhet och kompakthet ar extra viktigt. For allround predatorfiske i sotvatten ar Westin W3 ett mer kostnadseffektivt alternativ. Strike Wire Extreme ar valet for den som inte vill kompromissa pa linans prestanda.
+```
+
+## src/content/gear-reviews/strike-wire-fluorocarbon-022mm-invisible.mdx
+```
+---
+title: "Strike Wire Fluorocarbon 0,22 mm"
+slug: "strike-wire-fluorocarbon-022mm-invisible"
+description: "Tunn och prisvärd fluorocarbon i 0,22 mm på 100-metersspole. Fungerar som diskret tafs till abborre och gös eller som klen huvudlina."
+heroImage: "/images/gear/strike-wire-fluorocarbon-022mm-invisible.jpg"
+heroSource: "illustration"
+brand: "Strike Wire"
+category: "fluorocarbon"
+price: 159
+rating: 4
+pros:
+  - "100 meter på spolen, räcker länge"
+  - "Diskret under ytan i klart vatten"
+  - "Fungerar både som tafs och klen huvudlina"
+cons:
+  - "För klen för gädda"
+  - "Tunn fluorocarbon kräver noggrant fuktade knutar"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/strike-wire-fluorocarbon-022mm-336kg-100m-invisible/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: true
+targetSpecies: ["abborre", "gos"]
+techniques: ["jigg", "dropshot", "spinn"]
+priceRange: "budget"
+---
+
+Strike Wire Fluorocarbon i 0,22 mm är en tunn fluorocarbon som går att använda både som tafs och som klen huvudlina. Den är märkt Invisible och tappar mycket av sin synlighet under ytan, vilket är hela poängen med fluorocarbon mot skygg fisk i klart vatten. Materialet är tätare och styvare än nylon, vilket ger bra känsla och rimlig nötningstålighet även i den här klena dimensionen.
+
+100-metersspolen är det som skiljer den från de flesta tafsrullar, som ofta ligger på 20 till 30 meter. I finessfiske knyter du om tafsen ofta, och med 100 meter räcker en spole länge. Brottstyrkan på 3,36 kg är fullt tillräcklig för abborre och normal gös. Tunn fluorocarbon är samtidigt känsligare för dåligt fuktade knutar, så fukta alltid och dra åt långsamt.
+
+Den passar dig som fiskar abborre och gös med jigg, dropshot och lättare spinn och vill ha en diskret tafs utan att betala premiumpris. Behöver du grövre material mot gädda är Westin W6 ST3 i 0,62 mm rätt val i stället. Strike Wire finns i flera dimensioner, så du kan bygga en hel uppsättning kring samma märke.
+```
+
+## src/content/gear-reviews/strike-wire-shockleader-090mm.mdx
+```
+---
+title: "Strike Wire Shockleader 0,90 mm"
+slug: "strike-wire-shockleader-090mm"
+description: "Grov fluorocarbon shockleader i 0,90 mm och 80 lb. Japanskt tafsmaterial för tunga jerkbaits och storgädda där klenare tafs inte räcker."
+heroImage: "/images/gear/strike-wire-shockleader-090mm.jpg"
+heroSource: "illustration"
+brand: "Strike Wire"
+category: "fluorocarbon"
+price: 359
+rating: 4
+pros:
+  - "Grövsta fluorocarbon för storgädda"
+  - "Starkt japanskt material"
+  - "En spole räcker länge"
+cons:
+  - "Styv och kräver rätt knut"
+  - "Onödigt grov för vanligt gäddfiske"
+  - "Högst pris i kategorin"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/strike-wire-fluorocarbon-shockleader-090mm-80lb-25m/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["gadda"]
+techniques: ["jerkbait", "spinn", "trolling"]
+priceRange: "premium"
+---
+
+Strike Wire Shockleader i 0,90 mm är en grov fluorocarbon avsedd som stötande tafs i tungt fiske. Materialet kommer från Japan och är både styvt och starkt, vilket är vad en shockleader ska vara. Den grova dimensionen tar upp belastningen vid hårda kast med tunga beten och ger marginal mot gäddans tänder.
+
+80 lb brottstyrka och 0,90 mm placerar den i toppen av det som används som tafs till gädda. Det är inte material för finess utan för situationer där en klenare tafs inte håller. Grov fluorocarbon är styv och kräver rätt knut. En FG-knut eller en kraftig dubbel uni mot flätan fungerar bättre än en enkel knut i den här dimensionen.
+
+Den passar dig som fiskar storgädda med stora jerkbaits, glidare och tunga gummibeten. För vanligt gäddfiske med mindre beten räcker Westin W6 ST3 i 0,62 mm, som är billigare och lättare att hantera. Shockleadern är en nischprodukt för den som medvetet jagar stor fisk och vill ha grövsta möjliga fluorocarbon i stället för wire. 25-metersspolen räcker länge eftersom du bara använder en kort bit per tafs.
+```
+
+## src/content/gear-reviews/stroft-abr-028mm.mdx
+```
+---
+title: "Stroft ABR Nylon 0,28 mm"
+slug: "stroft-abr-028mm"
+description: "Silikon-teflonhärdad nylon i 0,28 mm på 200-metersspole. Slät, nötningstålig och köldtålig, för lättare trolling, allround och tafs."
+heroImage: "/images/gear/stroft-abr-028mm.jpg"
+heroSource: "illustration"
+brand: "Stroft"
+category: "nylon"
+price: 189
+rating: 4.5
+pros:
+  - "Silikon-teflonhärdad yta, låg friktion och bra kast"
+  - "Nötnings- och UV-tålig genom hela livslängden"
+  - "Köldtålig till -45 grader, fungerar även på vintern"
+cons:
+  - "Stretchen ger mindre direktkänsla än fläta"
+  - "För klen för laxfiske i älv"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/stroft-abr-200m-028mm-730kg/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: true
+targetSpecies: ["gos", "oring"]
+techniques: ["trolling", "mete"]
+priceRange: "budget"
+---
+
+Stroft ABR i 0,28 mm är en nylonlina från tyska Stroft, byggd kring en silikon- och teflonhärdad yta. Härdningen förseglar linan och ger låg friktion, vilket märks både i kasten och i hur länge linan behåller sina egenskaper. Den förseglade ytan gör den också tålig mot nötning och solljus, två saker som annars sliter ut nylon i förtid.
+
+Linan är svagt ljusbrun och bryter ljuset ungefär som vatten, så den är diskret under ytan men fortfarande synlig för dig ovanför. Nylon har den stretch som flätlina saknar, och vid trolling fungerar töjningen som en stötdämpare mot hugg i fart. 0,28 mm med 7,3 kg brottstyrka är en lagom dimension för lättare fiske, och 200-metersspolen räcker att fylla en mindre rulle.
+
+Den passar lättare trolling efter gös, öring och röding, men fungerar lika bra som allround monolina och som tafsmaterial. Köldtåligheten ner till -45 grader gör den användbar även på vintern. För grövre trolling efter gädda är 0,30 mm ett steg upp, och för laxfiske i älv väljer du 0,40 mm i samma serie.
+```
+
+## src/content/gear-reviews/stroft-abr-030mm.mdx
+```
+---
+title: "Stroft ABR Nylon 0,30 mm"
+slug: "stroft-abr-030mm"
+description: "Silikon-teflonhärdad allround nylon i 0,30 mm på 200-metersspole. Slät och nötningstålig för trolling efter gädda, gös och öring."
+heroImage: "/images/gear/stroft-abr-030mm.jpg"
+heroSource: "illustration"
+brand: "Stroft"
+category: "nylon"
+price: 199
+rating: 4
+pros:
+  - "Allround dimension för trolling och allmänt fiske"
+  - "Silikon-teflonhärdad, slät och nötningstålig"
+  - "Svagt ljusbrun med låg synlighet under ytan"
+cons:
+  - "Mindre direktkänsla än flätlina"
+  - "Tunnare diameter krävs för riktigt djup trolling"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/stroft-abr-200m-030mm-810kg/"
+merchant: "FiskeOnline"
+featured: true
+budgetPick: false
+targetSpecies: ["gadda", "gos", "oring"]
+techniques: ["trolling", "mete"]
+priceRange: "budget"
+---
+
+Stroft ABR i 0,30 mm är en allround nylonlina från tyska Stroft. Den är härdad med silikon och teflon, vilket förseglar ytan och ger låg friktion. Resultatet är jämna kast och en lina som behåller sina egenskaper länge, även efter att ha skavt mot bottenstrukturer och vassa kanter. Den förseglade ytan står också emot nötning och solljus.
+
+Linan är svagt ljusbrun och bryter ljuset ungefär som vatten, vilket gör den diskret under ytan. Nylonets stretch är en fördel vid trolling, eftersom töjningen dämpar hugg i fart och håller fisken säkrare krokad än en stum flätlina. 0,30 mm med 8,1 kg brottstyrka klarar gädda, gös och öring i normal trolling, och 200-metersspolen räcker att fylla de flesta trolling- och multirullar.
+
+Den passar dig som trollar efter gädda, gös och öring och vill ha en pålitlig nylonlina i mellandimension. Den fungerar också som topshot framför flätlina och som allround lina till mete. Köldtålig till -45 grader klarar den även vinterfiske. Vill du ha klenare lina finns 0,28 mm, och för lax den grova 0,40 mm.
+```
+
+## src/content/gear-reviews/stroft-abr-040mm.mdx
+```
+---
+title: "Stroft ABR Nylon 0,40 mm"
+slug: "stroft-abr-040mm"
+description: "Grov, silikon-teflonhärdad nylon i 0,40 mm på 200-metersspole. Stark och nötningstålig för laxfiske i älv mot sten och hård ström."
+heroImage: "/images/gear/stroft-abr-040mm.jpg"
+heroSource: "illustration"
+brand: "Stroft"
+category: "nylon"
+price: 249
+rating: 4.5
+pros:
+  - "Grov och stark för lax"
+  - "Nötningstålig yta mot sten och ström"
+  - "Tillåten där flätlina är förbjuden"
+cons:
+  - "För grov för vanligt spinnfiske"
+  - "Stretchen ger mindre direktkänsla"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/stroft-abr-200m-040mm-140kg/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["lax", "oring"]
+techniques: ["spinn", "trolling"]
+priceRange: "mellanklass"
+---
+
+Stroft ABR i 0,40 mm är den grova nylonlinan i serien, avsedd för tungt fiske. Som de klenare varianterna är den härdad med silikon och teflon, vilket förseglar ytan och ger låg friktion och hög tålighet mot nötning. I den här grovleken handlar det framför allt om laxfiske i strömmande älv, där linan möter sten och hård ström.
+
+0,40 mm med 14 kg brottstyrka ger marginal när en lax går ut i strömmen, och nylonets stretch fungerar som en buffert mellan fisk och spö som parerar rusningar utan att slita kroken loss. Den förseglade, nötningståliga ytan motstår skador från sten och grus bättre än tunnare mono. 200-metersspolen ger gott om lina för att fylla en kraftig rulle.
+
+Den passar laxfiske i älv med spinn och trolling, och annat grovt fiske där styrka och nötningstålighet väger tyngre än känsla. Flätlina är förbjuden på många laxsträckor, vilket gör en grov nylonlina till ett naturligt förstaval. För lättare fiske räcker 0,30 eller 0,28 mm i samma serie.
+```
+
+## src/content/gear-reviews/westin-w10-13-braid-coastal.mdx
+```
+---
+title: "Westin W10 13 Braid Coastal Morning Mist 0,148mm 150m 8,7kg"
+slug: "westin-w10-13-braid-coastal"
+description: "Westins absoluta toppmodell i flatlinor med 13-tradig CORE-konstruktion och Advanced Ultra High PIC med 56 vavningar per tum. Byggd for havsfiske i tuffa forhallanden."
+heroImage: "/images/gear/westin-w10-13-braid-coastal.jpg"
+brand: "Westin"
+category: "flatlinor"
+price: 629
+rating: 4.9
+pros:
+  - "13-tradig CORE-konstruktion for maximal styrka"
+  - "Advanced Ultra High PIC med 56 vavningar per tum"
+  - "Dubbel Dura-Coating for maximal vattenavstotning"
+  - "Coastal Morning Mist passar havsfiske"
+cons:
+  - "Mycket hogt pris"
+  - "Svart att motivera for sotvattensfiske"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w10-13-braid-coastal-morning-mist-0-148mm-150m-8-7kg/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "havsoring"
+  - "lax"
+  - "gadda"
+  - "gos"
+techniques:
+  - "jigg"
+  - "spinn"
+  - "trolling"
+priceRange: "premium"
+quizEnabled: false
+---
+
+Westin W10 Coastal Braid ar Westins absoluta flaggskepp inom flatlinor, speciellt utvecklad for havsfiske och saltvattensfiske dar linan utsatts for de tuffaste forhallanden. Den 13-tradiga CORE-konstruktionen bestar av 12 fibrer tatt vavda runt en central karna for att skapa en enhetlig rund lina med forbattrad styrka. Advanced Ultra High PIC-konstruktionen med 56 vavningar per tum ger hogre notningsbestandighet, en smidigare yta for langre och mer precisa kast.
+
+W10 Coastal har en dubbel Dura-Coating-teknologi som sakerstaller en styvare lina for farre vindknutar, maximal vattenavstotning, minskad friktion och en supersmidig yta. Processen med Dura-Coating gel gor flatlinan smidigare och hydrofobisk, vilket reducerar absorption av vatten och minskar friktionen. Dubbel gel-coat forseglar linan for forbattrad livslangd.
+
+Coastal Morning Mist-fargen ar designad for havsfiske och ger bra synlighet i kustnara miljoer. 0,148mm med 8,7kg brottstyrka ar dimensionerat for havsoring, lax och storre predatorfisk. For sotvattensfiske efter abborre och gos ar W6 ett mer kostnadseffektivt alternativ. W10 Coastal ar valet for den som fiskar hav och kust och kraver det allra basta av sin lina.
+```
+
+## src/content/gear-reviews/westin-w2-powercast-t-spinnspo.mdx
+```
+---
+title: "Westin W2 Powercast-T Spinnspö 8'3\" 20-80g"
+slug: "westin-w2-powercast-t-spinnspo"
+description: "Mångsidigt gäddspö i mellanklass från Westin. Kastvikten 20-80g passar de flesta wobblers och mjuka jiggar för gädda i insjö och brackvatten."
+heroImage: "/images/gear/westin-w2-powercast-t-spinnspo.jpg"
+brand: "Westin"
+category: "spon"
+price: 949
+rating: 4.3
+pros:
+  - Bra pris för Westin
+  - Bred kastviktsrange
+  - Passar de flesta gäddsituationer
+  - Bra rea-pris
+cons:
+  - Inte lika lätt som W3/W6
+  - XH-aktion kan vara hård för nybörjare
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w2-powercast-t-spinnspo-till-multirulle-83-248cm-xh-kastvikt-20-80g/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - gadda
+techniques:
+  - spinn
+  - wobbler
+  - jigg
+priceRange: "mellanklass"
+quizEnabled: true
+---
+
+Westin W2 Powercast-T är ett spinnspö för multirulle med kastvikt 20–80 g och XH-aktion. Den progressiva aktionen är konstruerad för att minska trötthet vid långvarig kastning med tyngre beten, vilket märks tydligt jämfört med spön med ren snabb aktion i samma kastviktsrange.
+
+Klingan är byggd i 24/30 ton High Performance Carbon, ett mellanting som ger bra känslighet utan att klingan blir för styv för mjuka beten. Seaguide SXQLSG-ringarna är premium-alternativet i Seaguides sortiment och ger jämn linhantering även med tjockare flätlinor. VFC-2 rullfästet är optimerat för multirulle och ger ett stabilt grepp under kastet.
+
+Kastvikten 20–80 g täcker de flesta gäddriggar från medelstora wobblers upp till stora mjukbeten. Det är ett bredare register än många renodlade gäddspön i samma prisklass, vilket gör det till ett praktiskt val för den som varierar betesstorleken beroende på säsong och vatten. Jämfört med W3 Hybridcast-T, som fungerar med både haspel och multirulle, är W2 Powercast-T dedikerad för multirulle och passar den som redan har bestämt sig för den rulletypen.
+```
+
+## src/content/gear-reviews/westin-w2-predator-trolling.mdx
+```
+---
+title: "Westin W2 Predator Trolling 8.6 255cm H 60-180g 2-delat"
+slug: "westin-w2-predator-trolling"
+description: "Premiumtrolingspo fran Westins W2-serie med 24/30 ton kolfiberklinga och AAA-korkhandtag. Byggt for kraaevande trollingfiske efter gadda, gos, lax och musky."
+heroImage: "/images/gear/westin-w2-predator-trolling.jpg"
+brand: "Westin"
+category: "trollingspon"
+price: 1049
+rating: 4.5
+pros:
+  - "24/30 ton High Performance Carbon-klinga"
+  - "Premium AAA-korkhandtag"
+  - "Seaguide SXBLSG-ringar"
+  - "DPS rullfaste for saekert grepp"
+cons:
+  - "Inte lika avancerad som W3-serien"
+  - "H-aktion kraver erfarenhet"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w2-predator-trolling-86-255cm-h-60-180g-2-delat/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "lax"
+  - "gadda"
+  - "gos"
+techniques:
+  - "trolling"
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Westin W2 Predator Trolling ar ett 2-delat trollingspo pa 255 cm med H-aktion och kastvikt 60-180g, specialbyggt for trollingfiske efter gadda, gos, lax och musky med stora beten i sotvatten. Klingan i 24/30 ton High Performance Carbon ger exceptionell styrka och kansla, och klarar av att hantera tunga beten och inmonterade sidoparavaner for alla kraevande trollingtekniker.
+
+DPS rullfaste, Seaguide SXBLSG-ringar och Premium AAA-korkhandtag satter W2 over manga konkurrenter i samma prisklass. Korkhandtaget ger ett bekvamt och varmt grepp aven i kallt vader och ar ett material som ofta reserveras for dyrare spoon. Seaguide Dhook-krokhallare kompletterar utrustningslistan.
+
+Jamfort med W3 Predator Trolling ar W2 faktiskt lite billigare men med likvardiga eller hogre specifikationer pa nyckelkomponenter som klingan och handtaget. Det gor W2 till ett utmarkt val for den erfarne trollingfiskaren som vill ha premiumkansla utan att betala for W3-serien. Kastvikten 60-180g tackar samma register som W3 och passar de flesta sotvatten-trollingriggar.
+```
+
+## src/content/gear-reviews/westin-w3-4000-fd.mdx
+```
+---
+title: "Westin W3 Haspelrulle 4000 FD 7+1 Kullager"
+slug: "westin-w3-4000-fd"
+description: "Allround-haspelrulle fran Westin med aluminiumkropp och Carbon Drag-bromssystem. Passar spinnfiske efter gadda, oring och predatorfisk i sot- och saltvatten."
+heroImage: "/images/gear/westin-w3-4000-fd.jpg"
+brand: "Westin"
+category: "haspelrullar"
+price: 1649
+rating: 4.3
+pros:
+  - "Robust aluminiumkropp och gavel"
+  - "Carbon Drag-broms for jamn kraft"
+  - "Keramisk lintrissa minskar friktion"
+  - "IPX5-klassad vattenskyddsniva"
+cons:
+  - "Tyngre an Shimano-alternativ i samma prisklass"
+  - "Storlek 4000 passar inte finessefiske"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w3-haspelrulle-4000-fd-71-kullager/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "gadda"
+  - "gos"
+  - "oring"
+techniques:
+  - "spinn"
+  - "jigg"
+  - "wobbler"
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Westin W3 4000 FD ar byggd for tufft fiske med robust aluminiumkropp och gavel som haller formen aven under hoga laster. Carbon Drag-bromsen levererar jamn och kontrollerbar kraft vid drillning, vilket gors mojligt av kolfiberlamelldrivna skivor som talar bade snabba rusningar och tyngre fiskar. Den keramiska lintrissam minskar friktion och motverkar linvridning, sarskilt viktigt vid anvandning av flatlina.
+
+CNC-frast aluminiumhandtag med TPR-grepp ger ett stabilt och bekvamt grepp under hela fiskepasset. Dubbelanodiserad aluminiumspole ar optimerad for langa kast och smidig linhantering. IPX5-klassad vattenskydssniva gor rullen lamplig for kutsfiske och saltvattenmiljoer.
+
+Storleken 4000 ar optimerad for gaddspinn, gosjigg och oringfiske i storre vatten. Det ar inte en rulle for finessefiske eller lattare abborrtekniker. For den som soker en paltlig och allsidig rulle till medeltungt spinnfiske ar W3 4000 ett genomtankt val som levererar bra prestanda i en bred rad fiskesituationer.
+```
+
+## src/content/gear-reviews/westin-w3-8-braid-smokey-grey.mdx
+```
+---
+title: "Westin W3 8 Braid Smokey Grey 150m 0,148mm 6,1kg"
+slug: "westin-w3-8-braid-smokey-grey"
+description: "8-tradig flatlinor fran Westin i diskret Smokey Grey. Konstruerad med japanska UHMPE-fibrer och Dura-Coating for lang livslangd och smidig kastning."
+heroImage: "/images/gear/westin-w3-8-braid-smokey-grey.jpg"
+brand: "Westin"
+category: "flatlinor"
+price: 229
+rating: 4.6
+pros:
+  - "Japanska premium UHMPE-fibrer"
+  - "32 vavningar per tum for rund profil"
+  - "Dura-Coating for vattenavstotning och lag friktion"
+  - "Diskret Smokey Grey passar klart vatten"
+cons:
+  - "Hogre pris an Kinetic och Hurricane"
+  - "Smokey Grey svarare att se vid linobservation"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w3-8-braid-smokey-grey-150m-0148mm-61kg/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "abborre"
+  - "gos"
+  - "gadda"
+techniques:
+  - "jigg"
+  - "dropshot"
+  - "spinn"
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Westin W3 8 Braid Smokey Grey ar tillverkad av premium japanska Ultra High Molecular Polyethylene-fibrer med en 8X-design och 32 vavningar per tum, vilket ger en stel och styv lina med farre vindknutar och utmarkt vattenavstotning. Den hogre vavningsgraden jamfort med standard 8-tradiga linor ger en jamnare och rundare profil for battre kastprestanda och lagre friktion.
+
+Dura-Coating-teknologin sakerstaller att linan ar stel och styv for farre vindknutar med utmarkt vattenavstotning, en slatare yta och lagre friktion for langre och mer exakta kast. For att uppna maximal fargstabilitet blotlaggs W3 Braid i fargtankar och hardas i ugn for att baka in pigmenten, vilket ger suveran fargstabilitet over tid.
+
+Smokey Grey-fargen ar diskret och passar klart vatten dar synliga linor kan skrammas av fisken, men kraver mer upmarksamhet vid linobservation an gula eller oranga alternativ. 0,148mm med 6,1kg brottstyrka ar optimalt for abborrjiggar och latta gosriggar. Den som vill ha Orange-varianten for battre synlighet hittar den som Dutch Orange i samma serie.
+```
+
+## src/content/gear-reviews/westin-w3-finesse-jig-3rd.mdx
+```
+---
+title: "Westin W3 Finesse Jig 3rd 5-20g"
+slug: "westin-w3-finesse-jig-3rd"
+description: "Dedikerat jiggspö för abborre med medium fast aktion. Kastvikten 5-20g täcker de flesta abborrjiggar och ger god huggkänsel."
+heroImage: "/images/gear/westin-w3-finesse-jig-3rd.jpg"
+brand: "Westin"
+category: "spon"
+price: 1489
+rating: 4.4
+pros:
+  - Bra huggkänsel
+  - Bredare kastviktsrange än T&C
+  - Passar jigg och dropshot
+  - Medium Fast aktion
+cons:
+  - Inte lika känsligt som rena finessespön
+  - Lite längre än idealiskt för smala platser
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w3-finesse-jig-3rd-haspelspo-73-221cm-l-kastvikt-5-20g/"
+merchant: "FiskeOnline"
+featured: true
+budgetPick: false
+targetSpecies:
+  - abborre
+techniques:
+  - jigg
+  - dropshot
+priceRange: "mellanklass"
+quizEnabled: true
+---
+
+Westin W3 Finesse Jig 3rd är ett dedikerat jiggspö byggt på Torayca High Performance Carbon. Klingan är tunad för snabb aktion, vilket betyder att toppen är känslig nog för att registrera försiktiga hugg men att spöet har tillräcklig kraft i mitten för säkra mothugg. Det är en balans som är svår att hitta i den här prisklassen.
+
+Carbon SKS-LS rullfästet håller vikten nere och bidrar till den direkta känslan mellan hand och bete. EUKTLTSG-ringarna är optimerade för flätlina, vilket är standardvalet för jigg och dropshot där känsla och huggregistrering är avgörande. Handtaget i premium EVA ger ett bekvämt grepp vid längre fiskepass.
+
+Kastvikten 5–20 g täcker de flesta abborrjiggar och gösbeten i mellanstorleken. Det är ett spö för den som fiskar jigg och dropshot målmedvetet, inte för den som vill ha ett allroundspö för flera tekniker. Den som söker något mer mångsidigt bör titta på W3 Finesse T&C i samma serie, som hanterar ett bredare spektrum av tekniker.
+```
+
+## src/content/gear-reviews/westin-w3-finesse-tc-2nd.mdx
+```
+---
+title: "Westin W3 Finesse T&C 2nd 2-10g"
+slug: "westin-w3-finesse-tc-2nd"
+description: "Extremt lätt och känsligt finessespö för abborre med lätta beten. Passar jigg, dropshot och light spinn på grunt till meddjupt vatten."
+heroImage: "/images/gear/westin-w3-finesse-tc-2nd.jpg"
+brand: "Westin"
+category: "spon"
+price: 997
+rating: 4.5
+pros:
+  - Utmärkt känslighet
+  - Lätt och balanserat
+  - Passar light jigg och dropshot
+  - Bra rea-pris
+cons:
+  - Smal kastviktsrange
+  - Inte för tyngre beten
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w3-finesse-tc-2nd-haspelspo-71-213cm-l-kastvikt-2-10g/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - abborre
+techniques:
+  - jigg
+  - dropshot
+  - spinn
+priceRange: "mellanklass"
+quizEnabled: true
+---
+
+Westin W3 Finesse T&C 2nd är ett lätt finessespö byggt för Texas- och Carolina-rigg, men fungerar lika bra för dropshot och lätta jiggar efter abborre. Klingan är tillverkad i Torayca High Performance Carbon med 1K woven carbon-förstärkning, vilket ger ett spö som är lätt nog för känslig presentation men har tillräcklig kraft för att sätta kroken vid mothugg.
+
+Kastvikten 2–10 g gör det till ett utpräglat finessespö. Det passar bäst för beten i 3–7 cm-klassen och lätta jiggkrokar. SKC-rullfästet och LTS-ringarna håller vikten nere och bidrar till den känsliga presentationen som tekniken kräver.
+
+Det delade handtaget med premium EVA och gummikorksinslag ger ett bekvämt grepp även under långa fiskepass. Jämfört med W3 Finesse Jig, som är optimerad för jigg och dropshot, är T&C-varianten något mer allround och passar bättre för den som växlar mellan flera tekniker under samma utflykt.
+```
+
+## src/content/gear-reviews/westin-w3-hybridcast-t-3rd.mdx
+```
+---
+title: "Westin W3 Hybridcast-T 3rd 7'3\" 30-90g"
+slug: "westin-w3-hybridcast-t-3rd"
+description: "Mångsidigt spö som fungerar med både haspel och multirulle. Bra val för den som vill ha ett spö till gädda och gös med frihet att välja rulletyp."
+heroImage: "/images/gear/westin-w3-hybridcast-t-3rd.jpg"
+brand: "Westin"
+category: "spon"
+price: 1649
+rating: 4.4
+pros:
+  - Fungerar med haspel och multirulle
+  - Bred kastviktsrange
+  - Fast aktion ger bra huggkänsel
+  - Passar gädda och gös
+cons:
+  - Kompromiss. Inte specialiserat för varken teknik
+  - MH-aktion kan kännas lite mjuk för stora wobblers
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w3-hybridcast-t-3rd-multi-73-221cm-mh-kastvikt-30-90g/"
+merchant: "FiskeOnline"
+featured: true
+budgetPick: false
+targetSpecies:
+  - gadda
+  - gos
+techniques:
+  - spinn
+  - wobbler
+  - jigg
+priceRange: "mellanklass"
+quizEnabled: true
+---
+
+Westin W3 Hybridcast-T 3rd är ett spö för multirulle med kastvikt 30–90 g och MH-aktion i Torayca High Performance Carbon. Det är konstruerat för att fungera med ett brett spektrum av beten, från glidebaits och crankbaits till mjuka jiggar och bladjiggar, vilket gör det till ett praktiskt val för den som varierar teknik och betestyp under samma utflykt.
+
+Carbon SKC-LS rullfästet är optimerat för multirulle och ger ett stabilt grepp. Seaguide WOXOLSG-ringarna hanterar flätlina väl och är ett genomgående val i Westins mellanklass. Det specialformade bakhandtaget i premium EVA ger stöd under armen vid längre fiskepass, vilket märks vid intensiv kastning med tyngre beten.
+
+Kastvikten 30–90 g är bredare än många specialiserade gäddspön, vilket är poängen med hybridkonceptet. Det passar bra för kanaler och åar där man behöver variera betesvikten snabbt beroende på strömförhållanden och djup. Jämfört med W6 Powercast-T, som är optimerad för tyngre beten och större vatten, är W3 Hybridcast-T ett mer lätthanterat alternativ för den som fiskar mindre och medelstora vatten.
+```
+
+## src/content/gear-reviews/westin-w3-powerteez-3rd.mdx
+```
+---
+title: "Westin W3 Powerteez 3rd 14-49g"
+slug: "westin-w3-powerteez-3rd"
+description: "Dedikerat gösspö med längd och känslighet för jiggfiske på djupare vatten. 8 4  ger bra kastlängd och kastvikten 14-49g täcker de flesta gösjiggar."
+heroImage: "/images/gear/westin-w3-powerteez-3rd.jpg"
+brand: "Westin"
+category: "spon"
+price: 1749
+rating: 4.5
+pros:
+  - Bra längd för jiggfiske efter gös
+  - God kastviktsrange
+  - Känslig nog för subtila hugg
+  - Bra rea-pris
+cons:
+  - Lång. Inte idealisk från kajak eller liten båt
+  - M-aktion kan kännas mjuk vid kraftig huggtagning
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w3-powerteez-3rd-haspelspo-84-254cm-m-kastvikt-14-49g/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - gos
+techniques:
+  - jigg
+  - dropshot
+priceRange: "mellanklass"
+quizEnabled: true
+---
+
+Westin W3 Powerteez 3rd är ett haspelspö på 254 cm med M-aktion och kastvikt 14–49 g, byggt specifikt för jiggfiske efter gös. Längden ger bra kastdistans och hävstång vid mothugg på avstånd, vilket är en fördel vid djupjigg från båt där fisken ofta hugger långt ifrån.
+
+Klingan i Torayca High Performance Carbon har en extra snabb aktion kombinerat med kraftfull nederdel, en konstruktion som ger känslig topp för att registrera subtila hugg och tillräcklig kraft för att sätta kroken vid snabba mothugg. Carbon SKS-LS rullfästet och EUKTLTSG-ringarna är samma komponentval som i W3 Finesse Jig-serien, optimerade för flätlina och låg totalvikt.
+
+Kastvikten 14–49 g täcker de flesta gösjiggar från grunt till djupt vatten. M-aktionen är mjukare än många gösspön i mellanklass, vilket gör det mer förlåtande vid kastning men kräver lite mer kraft vid mothugg jämfört med ett MH-spö. Den som fiskar gös på djupare vatten med tyngre jiggar bör titta på W6 Powerteez, som har MH-aktion och bredare kastviktsrange.
+```
+
+## src/content/gear-reviews/westin-w3-predator-trolling-3rd.mdx
+```
+---
+title: "Westin W3 Predator Trolling 3rd 8.6 259cm H 60-180g 2-delat"
+slug: "westin-w3-predator-trolling-3rd"
+description: "Kraftfullt trollingspo fran Westins W3-serie med Torayca-klinga och premiumkomponenter. Byggt for sotvattensfiske efter gadda, gos och musky."
+heroImage: "/images/gear/westin-w3-predator-trolling-3rd.jpg"
+brand: "Westin"
+category: "trollingspon"
+price: 1299
+rating: 4.4
+pros:
+  - "Torayca High Performance Carbon-klinga"
+  - "Progressiv aktion for kraftfull krokningsformaga"
+  - "Carbon SKS-LS rullfaste och Seaguide TUXBRAG-ringar"
+  - "Passar bredda trollingtekniker"
+cons:
+  - "H-aktion kan vara haard for nyborrjare"
+  - "Specialiserat for trolling - inte for spinnfiske"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w3-predator-trolling-3rd-86-259cm-h-60-180g-2-delat/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "lax"
+  - "gadda"
+  - "gos"
+techniques:
+  - "trolling"
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Westin W3 Predator Trolling 3rd ar ett 2-delat trollingspo pa 259 cm med H-aktion och kastvikt 60-180g, konstruerat for sotvattensfiske efter gadda, gos och musky med stora beten och olika trollingtekniker. Klingan i Torayca High Performance Carbon ger en exceptionell styrka och motstandskraft for att hantera tunga beten och linmonterade sidoparavaner.
+
+Den progressiva aktionen absorberar harda knyckar och rusningar fran storre fiskar, vilket sakerstalller att du behaller kontrollen hela vagen till haavet. Carbon SKS-LS rullfaste och Seaguide TUXBRAG-ringar kompletterar konstruktionen med komponenter som taal haard anvandning. Premium EVA-handtag ger ett bekvamt grepp under langa dagar pa vattnet.
+
+Kastvikten 60-180g tackaer de flesta trollingriggar for gadda och gos. W3 Predator Trolling levererar markbart hogre kanslighet och komponentkvalitet an Okuma Magda Finn och ar det naturliga steget upp for den som fiskar trolling regelbudet. Den som vill ha toppkvalitet bor titta pa W3:s storebror W2 Predator Trolling.
+```
+
+## src/content/gear-reviews/westin-w6-8-braid-0148mm.mdx
+```
+---
+title: "Westin W6 8 Braid Lime Punch 0,148mm 135m 6,8kg"
+slug: "westin-w6-8-braid-0148mm"
+description: "Premium 8-tradig flatlinor fran Westins W6-serie med Advanced High PIC-konstruktion och 36 vavningar per tum. Steg upp fran W3 for hogre kanslighet och styrka."
+heroImage: "/images/gear/westin-w6-8-braid-0148mm.jpg"
+brand: "Westin"
+category: "flatlinor"
+price: 359
+rating: 4.7
+pros:
+  - "Advanced High PIC med 36 vavningar per tum"
+  - "Starkare lina for sin diameter an W3"
+  - "Dura-Coating for vattenavstotning och lag friktion"
+  - "Lime Punch ger bra linobservation"
+cons:
+  - "Betydligt hogre pris an W3"
+  - "Kortare spole pa 135m"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w6-8-braid-lime-punch-0-148mm-135m-6-8kg/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "abborre"
+  - "gos"
+  - "gadda"
+techniques:
+  - "jigg"
+  - "dropshot"
+  - "spinn"
+priceRange: "premium"
+quizEnabled: false
+---
+
+Westin W6 8 Braid ar nasta steg upp fran W3-serien och anvander en unik konstruktionsprocess med japanska UHMPE-premiumfibrer och Advanced High PIC-konstruktionen med 36 vavningar per tum. Den tatare vavningen ger en starkare lina for sin diameter, en smidigare yta for langre och mer precisa kast samt hogre notningsbestandighet. Dura-Coating-teknologin ger maximal vattenavstotning och minskad absorption av vatten och smuts.
+
+Lime Punch-fargen ger bra linobservation utan att vara lika skrikig som Fluo Yellow, vilket gor den lamplig bade for jiggfiske dar linobservation ar viktigt och for spinnfiske i klart vatten. 0,148mm med 6,8kg brottstyrka passar abborrjiggar och gosriggar.
+
+Steget fran W3 till W6 ar markbart i kastprestanda och kanslighet, sarskilt vid jiggfiske pa djupare vatten dar varje extra meter kastlangd och direkt linkanslighet spelar roll. Den som fiskar abborre och gos regelbudet och vill ha det basta inom rimliga prisgranger bor titta serios pa W6. For de absolutt hogsta kraven finns W10-serien.
+```
+
+## src/content/gear-reviews/westin-w6-dropshot-haspelspo.mdx
+```
+---
+title: "Westin W6 Dropshot Haspelspö 7  4-21g"
+slug: "westin-w6-dropshot-haspelspo"
+description: "Dedikerat toppspö för dropshotfiske efter abborre. Byggd specifikt för tekniken med optimal balans mellan känslighet och styrka för att hantera djupare vatten."
+heroImage: "/images/gear/westin-w6-dropshot-haspelspo.jpg"
+brand: "Westin"
+category: "spon"
+price: 2659
+rating: 4.7
+pros:
+  - Byggd specifikt för dropshot
+  - Utmärkt huggkänsel
+  - Bra kastviktsrange för tekniken
+  - Premium Westin-kvalitet
+cons:
+  - Specialiserat. Inte för andra tekniker
+  - Högt pris
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w6-dropshot-haspelspo-7-210cm-ml-kastvikt-4-21g/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - abborre
+techniques:
+  - dropshot
+priceRange: "premium"
+quizEnabled: true
+---
+
+Westin W6 Dropshot är ett spö byggt specifikt för dropshottekniken, inte ett allroundspö med dropshot som en av flera tekniker. Klingan i Torayca High Performance Carbon ger en mjuk, känslig topp som registrerar kontakten med botten och subtila hugg, kombinerat med tillräcklig kraft i mitten för snabba mothugg. Medium/snabb aktion är rätt val för dropshot, där man vill att betet ska röra sig naturligt utan att spöet är för styvt.
+
+Fuji SiC-ringar med lågprofilindningar och det gummerade Fuji SKSS-rullfästet håller vikten nere och är optimerade för tunna flätlinor. Det delade EVA-handtaget med platt bakhandtag ger ett stabilt grepp och minskar trötthet vid långa fiskepass. KIGAN-krok- och sänkeshållaren är en praktisk detalj som håller riggen säkrad under förflyttning.
+
+Kastvikten 4–21 g täcker de flesta dropshotsänken och passar beten i 5–10 cm-klassen. Det är ett spö för den som fiskar dropshot målmedvetet efter abborre och gös. Den som vill ha ett spö för både jigg och dropshot bör titta på W3 Finesse Jig i stället, som hanterar båda teknikerna utan att vara lika specialiserat.
+```
+
+## src/content/gear-reviews/westin-w6-jerk-swimbait-t-2nd.mdx
+```
+---
+title: "Westin W6 Jerk & Swimbait-T 2nd H 30-80g"
+slug: "westin-w6-jerk-swimbait-t-2nd"
+description: "Dedikerat jerkbait- och swimbaitmspö från Westins toppseriet. H-aktion och kastvikt 30-80g passar stora beten och storgädda."
+heroImage: "/images/gear/westin-w6-jerk-swimbait-t-2nd.jpg"
+brand: "Westin"
+category: "spon"
+price: 3449
+rating: 4.2
+pros:
+  - Toppkvalitet från Westins W6-serie
+  - H-aktion ger kraft för stora jerkbaits och swimbaits
+  - Bred kastviktsrange 30-80g
+  - Passar både jerkbait och swimbait
+cons:
+  - Högt pris
+  - Specialiserat. Inte för allmänt gäddspinnfiske
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w6-jerk-swimbait-t-2nd-multi-73-221cm-h-kastvikt-30-80g/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - gadda
+techniques:
+  - wobbler
+priceRange: "premium"
+quizEnabled: true
+---
+
+W6 Jerk & Swimbait-T 2nd är Westins tyngsta artilleri för gädda. Klingen är byggd i Torayca T1100 och 40T kolfiber, samma materialtyp som används i högpresterande sportfiskespön i premiumsegmentet, och handtaget är gjutet i helkolfiber via Westins 3C-teknik. Det gör spöet ovanligt lätt för kastvikten och ger en direkt kontakt med betet som märks tydligt när du jobbar en jerkbait eller swimbait.
+
+Aktionen är mediumsnabb, vilket i det här sammanhanget betyder att spöet har tillräcklig rörlighet för att presentera betet naturligt men tillräcklig styrka för att sätta kroken i en stor gädda på avstånd. Fuji SIC-ringar och ett Fuji KSKSS-rullfäste håller kedjan av komponenter på rätt nivå för ett spö i den här prisklassen.
+
+Det passar bäst för den som fiskar med tunga hårdbeten, jerkbaits och större swimbaits mot storgädda. Det är inte ett allroundspö och är heller inte tänkt att vara det. Westin rekommenderar det i kombination med en baitcaster i storlek 200, vilket stämmer väl med spöets karaktär.
+```
+
+## src/content/gear-reviews/westin-w6-powercast-t-spinnspo.mdx
+```
+---
+title: "Westin W6 Powercast-T Spinnspö 7'9\" 40-130g"
+slug: "westin-w6-powercast-t-spinnspo"
+description: "Kraftfullt gäddspö från Westins toppline. XXH-aktion och kastvikt upp till 130g passar stora wobblers, swimbaits och djupa jiggar i Vänern och Vättern."
+heroImage: "/images/gear/westin-w6-powercast-t-spinnspo.jpg"
+brand: "Westin"
+category: "spon"
+price: 2849
+rating: 4.8
+pros:
+  - Byggd för stora gäddor och tunga beten
+  - XXH-aktion ger maximal kraft
+  - Toppkvalitet i varje detalj
+  - Bra för stora sjöar
+cons:
+  - Dyrt
+  - Överdrivet kraftfullt för genomsnittlig gäddfiskare
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w6-powercast-t-spinnspo-79-233cm-xxh-kastvikt-40-130g/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - gadda
+techniques:
+  - spinn
+  - wobbler
+  - jigg
+priceRange: "premium"
+quizEnabled: true
+---
+
+Westin W6 Powercast-T är ett toppspö för gäddspinnfiske med kastvikt 40–130 g och XXH-aktion i Torayca High Performance Carbon. Det är konstruerat för tyngre beten och starkare fiskar, med en djup aktion som fördelar belastningen längs hela klingan vid drillning. Det märks tydligt jämfört med spön med ren snabb aktion, som lägger mer tryck på toppen.
+
+Fuji SiC-ringar med lågprofilindningar och det gummerade Fuji PULS-rullfästet håller vikten nere och ger stabil linhantering även med tjocka flätlinor. Den specialdesignade gummiändbutten och det kompakta delade EVA-handtaget ger ett säkert grepp och minskar trötthet vid intensiv kastning. PacBay-krokhållaren är en praktisk detalj som håller betet säkrat under förflyttning.
+
+Kastvikten 40–130 g gör det till ett utpräglat storspö för den som fiskar med stora wobblers, swimbaits och tunga mjukbeten efter storgädda. Det passar bäst på större vatten som Vänern och Vättern, där långa kast och kraftfull drillning är avgörande. Den som söker ett mer mångsidigt gäddspö för varierande betestyngder bör titta på W3 Hybridcast-T med sin bredare kastviktsrange.```
+
+## src/content/gear-reviews/westin-w6-powerteez-haspelspo.mdx
+```
+---
+title: "Westin W6 Powerteez Haspelspö 8'4\" 21-70g"
+slug: "westin-w6-powerteez-haspelspo"
+description: "Jiggspö för gös från Westins W6-serie. MH-aktion och kastvikt 21-70g ger precision och räckvidd för djupfiske i Vänern, Vättern och Mälaren."
+heroImage: "/images/gear/westin-w6-powerteez-haspelspo.jpg"
+brand: "Westin"
+category: "spon"
+price: 2944
+rating: 4.8
+pros:
+  - Toppkänslighet för gösfiske
+  - MH-aktion balanserar känslighet och kraft
+  - Perfekt kastviktsrange för gösjiggar
+  - Premium Westin-kvalitet
+cons:
+  - Högt pris
+  - Specialiserat för jigg. Inte mångsidigt
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w6-powerteez-haspelspo-84-250cm-mh-kastvikt-21-70g/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - gos
+techniques:
+  - jigg
+  - dropshot
+priceRange: "premium"
+quizEnabled: true
+---
+
+Westin W6 Powerteez är ett haspelspö på 250 cm med MH-aktion och kastvikt 21–70 g, byggt för jiggfiske efter gös och storabborre. Det gummerade Fuji TVS-rullfästet och Fuji SiC-ringarna med lågprofilindningar är samma komponentval som i W6 Dropshot, vilket ger konsekvent hög komponentkvalitet genom hela W6-serien.
+
+Klingan i Torayca High Performance Carbon har supersnabb aktion kombinerat med kraftfull nederdel, en konstruktion som ger direkt kontakt med betet vid jiggning och tillräcklig kraft för att sätta kroken i en stor gös på djupt vatten. Den specialdesignade gummiändbutten och det delade EVA-handtaget ger ett stabilt grepp vid både båtfiske och landfiske. Spöet användes av Enrico Di Ventura när han vann World Predator Classic 2018, vilket ger en fingervisning om prestandan vid tävlingsnivå.
+
+Kastvikten 21–70 g täcker ett bredare register än W3 Powerteez, vilket gör det mer mångsidigt för den som varierar jiggvikten beroende på djup och strömförhållanden. MH-aktionen ger mer kraft vid mothugg jämfört med W3 Powerteez M-aktion, vilket passar bättre för den som fiskar på djupare vatten eller med tyngre jiggar. Det är ett naturligt uppsteg för den som vill ta gösfisket ett steg längre.
+```
+
+## src/content/gear-reviews/westin-w6-st3-hard-062mm.mdx
+```
+---
+title: "Westin W6 ST3 Hard Fluorocarbon 0,62 mm"
+slug: "westin-w6-st3-hard-062mm"
+description: "Styv och nötningstålig fluorocarbontafs i 0,62 mm. ST3-klassad gäddtafs som tål tänder och skav, med hög knutstyrka och kraftig brottstyrka."
+heroImage: "/images/gear/westin-w6-st3-hard-062mm.jpg"
+heroSource: "illustration"
+brand: "Westin"
+category: "fluorocarbon"
+price: 249
+rating: 4.5
+pros:
+  - "Styv och nötningstålig, byggd för gädda"
+  - "Hög brottstyrka"
+  - "Mer naturlig betesgång än stål"
+cons:
+  - "Styvheten gör knytning svårare"
+  - "Ger inte samma säkerhet mot avbett som wire"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w6-st3-hard-fluorocarbon-35m-062mm-261kg-clear/"
+merchant: "FiskeOnline"
+featured: true
+budgetPick: false
+targetSpecies: ["gadda"]
+techniques: ["jigg", "spinn", "jerkbait", "trolling"]
+priceRange: "mellanklass"
+---
+
+Westin W6 ST3 Hard i 0,62 mm är en styv fluorocarbontafs avsedd för gädda. ST3 ligger i den hårdare delen av Westins serie, och styvheten är poängen. En grov och hård fluorocarbon tål gäddans tänder och skav mot strukturer bättre än mjukt material, och 0,62 mm ligger över den dimension som brukar anges som lägsta gräns mot gädda.
+
+Med 26,1 kg brottstyrka är den byggd för kraft, inte finess. Den hårda ytan motstår de hack och skråmor som annars försvagar en tafs efter varje fisk. Du bör ändå kontrollera de yttersta centimetrarna efter varje gädda och kapa vid behov. Hög knutstyrka spelar roll i den här grovleken, eftersom styv fluorocarbon är svårare att knyta säkert än mjuk.
+
+Den passar gäddfiske med jigg, spinn och lättare jerk där du vill ha fluorocarbon i stället för stål eller titan. Många föredrar fortfarande wire för full säkerhet mot avbett, men en grov och hård fluorocarbon är ett rimligt alternativ som ger mer naturlig betesgång. För riktigt tunga jerkbaits och storgädda finns grövre material, till exempel Strike Wire Shockleader i 0,90 mm.
+```
+
+## src/content/gear-reviews/westin-w6-st5-soft-030mm.mdx
+```
+---
+title: "Westin W6 ST5 Soft Fluorocarbon 0,30 mm"
+slug: "westin-w6-st5-soft-030mm"
+description: "Mjuk fluorocarbontafs i 0,30 mm på 50-metersspole. Klen och diskret för gös, havsöring och abborre i riktigt klart vatten."
+heroImage: "/images/gear/westin-w6-st5-soft-030mm.jpg"
+heroSource: "illustration"
+brand: "Westin"
+category: "fluorocarbon"
+price: 149
+rating: 4
+pros:
+  - "Klen och diskret för klart vatten"
+  - "50 meter på spolen"
+  - "Mjuk med lågt linminne"
+cons:
+  - "För klen för gädda"
+  - "Lägre brottstyrka, inte för grovt fiske"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w6-st5-soft-fluorocarbon-50m-030mm-59kg-clear/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["abborre", "gos", "havsoring"]
+techniques: ["jigg", "dropshot", "spinn"]
+priceRange: "budget"
+---
+
+Westin W6 ST5 Soft i 0,30 mm är den klenare varianten av Westins mjukaste tafsklass. Den är tänkt för fiske där presentationen är avgörande och en grövre tafs skulle skrämma fisk. Mjukheten gör att tråden faller naturligt och att betet rör sig fritt, vilket märks tydligast i klart vatten och på fisk som hunnit bli försiktig.
+
+50-metersspolen ger mer material än standardtafsen på 30 meter, vilket är praktiskt eftersom du knyter om ofta i finessfiske. Lågt linminne gör att tråden ligger rak och inte spiralar sig. Brottstyrkan på 5,9 kg är anpassad till den klena dimensionen och passar gös och havsöring snarare än grovt fiske.
+
+Den passar dig som dropshottar och jiggar efter gös, fiskar havsöring i klart kustvatten eller vill ha en diskret tafs till större abborre. Behöver du lite mer marginal i brottstyrka är samma serie i 0,38 mm ett steg upp. Mot gädda är den för klen, och då ska du i stället välja ST3 Hard i grov dimension.
+```
+
+## src/content/gear-reviews/westin-w6-st5-soft-038mm.mdx
+```
+---
+title: "Westin W6 ST5 Soft Fluorocarbon 0,38 mm"
+slug: "westin-w6-st5-soft-038mm"
+description: "Mjuk fluorocarbontafs i 0,38 mm med lågt linminne. Mjukast i Westins serie och lätt att knyta, för gös, havsöring och större abborre."
+heroImage: "/images/gear/westin-w6-st5-soft-038mm.jpg"
+heroSource: "illustration"
+brand: "Westin"
+category: "fluorocarbon"
+price: 149
+rating: 4.5
+pros:
+  - "Mjuk och lätt att knyta"
+  - "Lågt linminne ger färre trassel"
+  - "Bra brottstyrka för gös och havsöring"
+cons:
+  - "30-metersspole, kortare än vissa konkurrenter"
+  - "Mjukheten gör den mindre nötningstålig än en hård tafs"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w6-st5-soft-fluorocarbon-30m-038mm-92kg-clear/"
+merchant: "FiskeOnline"
+featured: true
+budgetPick: false
+targetSpecies: ["gos", "havsoring"]
+techniques: ["jigg", "dropshot", "spinn"]
+priceRange: "budget"
+---
+
+Westin W6 ST5 Soft i 0,38 mm är en mjuk fluorocarbontafs. ST5 är den mjukaste klassen i Westins serie, och det märks i hur lätt tråden faller och hur naturligt betet presenteras. Mjukheten gör också att den knyts enkelt utan att vilja räta ut sig, vilket annars är en vanlig irritation med styvare fluorocarbon.
+
+Lågt linminne är den praktiska skillnaden mot billigare tafsmaterial. Tråden ligger rak direkt från spolen i stället för att hänga kvar i spiraler, och det ger färre trassel och en jämnare presentation. 0,38 mm med drygt 9 kg brottstyrka klarar gös och havsöring med marginal och tål skav mot sten och musselkanter. En kort tafs på 30-metersspolen räcker till många byten innan du behöver ny.
+
+Den passar gösfiske med jigg och dropshot, havsöring i skärgården och större abborre där en lite grövre tafs behövs. Vill du ha en klenare variant för riktigt klart vatten finns samma serie i 0,30 mm på 50-metersspole. Behöver du i stället en styv och mer nötningstålig tafs är ST3 Hard rätt gren av serien.
+```
 
 # Content: species
 
@@ -16248,6 +19435,300 @@ Nedre Dalälvens nationalparksbildning 1998 (Färnebofjärden) och biosfärområ
 *Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
+## src/content/destinations/delsjoarna.mdx
+```
+---
+title: "Delsjöarna"
+slug: "delsjoarna"
+description: "Delsjöarna är Göteborgs stadsnära vattentäkt med storabborre, gös och karp. Guide till Gula Kortet, regler, arter, hotspots och båtuthyrning."
+heroImage: "/images/destinations/delsjoarna.jpg"
+heroSource: "illustration"
+lat: 57.682
+lng: 12.048
+län: "Västra Götalands län"
+primarySpecies: ["Abborre", "Gös", "Gädda", "Karp", "Sutare", "Lake"]
+waterType: "lake"
+iFiskeUrl: "https://www.ifiske.se/fiske-gula-kortet-goteborg.htm"
+excerpt: "Stadsnära Göteborgssjöar med storabborre, gös och stor karp."
+recommendedGear: []
+publishedAt: "2026-06-22"
+updatedAt: "2026-06-22"
+kostrad: ["kvicksilver"]
+---
+
+Delsjöarna består av de två sammanhängande sjöarna Stora och Lilla Delsjön i östra Göteborg. Sjöarna ligger mitt i Delsjöområdets naturreservat och har vildmarkskänsla trots att de når innerstaden på en kvart. Det här är ett av regionens mest besökta friluftsområden och samtidigt ett klarvattenfiske med stor abborre, välväxt gös och riktigt stora karpar. Sjöarna är reservvattentäkt för Göteborg, vilket sätter tydliga ramar för båtfisket. Sportfiskarnas regionkontor Sjölyckan ligger på stranden och säljer fiskekort och hyr ut roddbåtar.
+
+## Fiskekort och regler
+
+Delsjöarna ingår i Gula Kortet, fiskekortet som förvaltas av Sportfiskarna Region Väst och gäller i ett sextiotal vatten i Göteborgsregionen. Det finns inget fritt handredskapsfiske i sjöarna. Allt fiske kräver Gula Kortet, och riktat karpfiske kräver dessutom ett särskilt karptillägg. Handredskapsfiske med spö och lina gäller, och båtfiske är tillåtet endast från Sportfiskarnas uthyrningsbåtar.
+
+### Var köper du fiskekort?
+
+Gula Kortet köps enklast digitalt via iFiske.se, där kortet levereras direkt till mobilen. Det går också att köpa kortet på Sportfiskarnas regionkontor Sjölyckan nordväst om Stora Delsjön och i ett antal sportfiskebutiker i regionen. På Sjölyckan kan du samtidigt hyra roddbåt och få lokala fisketips.
+
+### Priser 2026
+
+| Korttyp | Pris |
+|---------|------|
+| Dagkort | 100 kr |
+| Veckokort | 200 kr |
+| Årskort | 450 kr |
+| Karptillägg helår | 100 kr |
+| Karptillägg dygn eller vecka | 50 kr |
+
+Gula Kortet gäller för hela familjen, det vill säga make, maka, sambo och hemmaboende barn till och med 19 år som är skrivna på samma adress. Alla ungdomar under 16 år får fiska utan eget fiskekort i Gula Kortets vatten, så länge de följer fiskereglerna.
+
+### Antal spön och redskap
+
+Högst två spön per person får användas. Vid karpfiske med karptillägg får tre spön användas, och vid ismete högst fyra spön per person. Du måste vara närvarande vid dina spön. Ryckfiske är förbjudet.
+
+### Minimimått och maxmått
+
+| Art | Regel |
+|-----|-------|
+| Gädda | Minimimått 50 cm |
+| Gös | Minimimått 50 cm |
+| Abborre | Inget minimimått |
+| Karp | Måste återutsättas, karptillägg krävs |
+| Sutare | Måste återutsättas |
+
+För ett hållbart fiske rekommenderar Sportfiskarna att fisk över vissa längder återutsätts. Det gäller abborre över 40 cm, gös över 80 cm och gädda över 100 cm. Detta är en rekommendation, inte ett tvingande maxmått. Karp och sutare omfattas däremot av ett absolut förbud mot avlivning och ska alltid släppas tillbaka. Det gör Delsjöarna till ett rent fångst och återutsättningsvatten för dessa två arter.
+
+### Fredningstider
+
+Sjöarna saknar särskild gösfredning. Majfredningen för gös gäller bara Rådasjön och Stensjön inom Gula Kortet, inte Delsjöarna. Den som vill skydda lekande fisk bör ändå hantera gös och gädda varsamt under vårens lekperiod.
+
+### Kräftfiske
+
+Kräftfiske ingår inte i det vanliga Gula Kortet. Arten i sjöarna är signalkräfta, och allmänhetens kräftfiske sker bara vid Sportfiskarnas organiserade fisken som arrangeras varje augusti. Anmälan görs via iFiske och försäljningen öppnar normalt 1 juni. Ett fiskekort kostar 450 kr och inkluderar lån av sex mjärdar, två håvar och agn. Antalet kort är begränsat, och Stora Delsjön är indelad i fiskezoner. Minimimåttet för godkänd kräfta är 10 cm. Utanför det arrangerade fisket är riktat kräftfiske inte tillåtet på fiskekortet.
+
+> Aktuella regler finns alltid på [HaV:s webbplats](https://www.havochvatten.se) och via [Länsstyrelsens sidor](https://www.lansstyrelsen.se). Fiskevårdsområdets egna regler kan avvika och gäller alltid vid sidan av det nationella regelverket.
+
+---
+
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
+
+---
+
+## Fiskarter
+
+Stora och Lilla Delsjön har likartat fiske och samma artsammansättning. Sjöarna är artrika med abborre, gös, gädda, braxen, sutare, karp, lake, nors, mört, gärs och siklöja. Signalkräfta är vanlig och utgör en stor del av abborrens föda.
+
+### Abborre
+
+Abborren är Delsjöarnas signaturart. Beståndet håller hög medelvikt och de största exemplaren passerar två kilo, vilket är ovanligt stort för en svensk insjö. Förklaringen är god tillgång på bytesfisk och signalkräftor. Stora abborrar står ofta djupt vid kanterna och nås bäst från båt under sommaren, medan vintern bjuder på pålitligt pimpelfiske. Stora abborrar över ett kilo har genom åren rapporterats från sjöarna.
+
+[Läs mer om abborre](/arter/abborre/)
+
+### Gös
+
+Gösen i Delsjöarna beskrivs som ganska välväxt och är en uppskattad art bland dem som fiskar från Sportfiskarnas uthyrningsbåtar. Den håller till i de djupare partierna och jagar mest i skymning, gryning och under natten. Sommarens varma vatten ger det bästa gösfisket. Minimimåttet är 50 cm och det rekommenderade maxmåttet 80 cm.
+
+[Läs mer om gös](/arter/gos/)
+
+### Gädda
+
+Gäddan finns i båda sjöarna och tar gärna stora byten i det näringsfattiga vattnet. Vasskanter och grundområden i vikarna ger fisket på våren och hösten, medan större gäddor under sommaren ofta står djupare. Minimimåttet är 50 cm och Sportfiskarna rekommenderar att gäddor över 100 cm återutsätts.
+
+[Läs mer om gädda](/arter/gadda/)
+
+### Karp
+
+Delsjöarna är ett av regionens kända karpvatten. Både spegelkarp och fjällkarp förekommer, och fångster upp till runt 14 kilo har rapporterats från sjöarna. Riktat karpfiske kräver karptillägg, och avkrokningsmatta är obligatorisk. All karp måste återutsättas så skonsamt som möjligt. Det här är ett fiske för den tålmodige specialisten med rätt utrustning.
+
+[Läs mer om karp](/arter/karp/)
+
+### Sutare
+
+Sutarfisket är som bäst på sommaren i de grunda, vegetationsrika vikarna. Exemplar upp till två kilo förekommer, och metet efter sutare är en uppskattad form av lugnt sommarfiske. All sutare måste återutsättas enligt Gula Kortets regler.
+
+[Läs mer om sutare](/arter/sutare/)
+
+### Lake
+
+Laken finns i båda sjöarna men är ganska outforskad här. Den är en kallvattenart som blir aktiv under vinterhalvåret och fångas på bottenmete eller pimpel under den mörka delen av dygnet. Lakens potential i Delsjöarna utnyttjas av få fiskare.
+
+[Läs mer om lake](/arter/lake/)
+
+### Övriga arter
+
+Utöver sportfiskearterna ovan förekommer braxen, mört, nors, siklöja och gärs. Norsen är en viktig bytesfisk för rovfisken och bidrar till den höga medelvikten på abborre och gös. Sportfiskarna har tillsammans med Göteborgs stad inlett ett arbete med att återetablera öring i tillrinnande bäckar, men öring är ännu inte en etablerad sportfiskeart i själva sjöarna.
+
+## Sjöns karaktär
+
+### Grundfakta
+
+| | |
+|--|--|
+| Yta Stora Delsjön | ca 140 ha |
+| Yta Lilla Delsjön | ca 62 ha |
+| Maxdjup Stora Delsjön | ca 22 m |
+| Maxdjup Lilla Delsjön | ca 18 m |
+| Höjd över havet | ca 66 till 70 m |
+| Siktdjup | 5 till 7 m |
+| Vattentyp | Oligotrof klarvattensjö |
+| Län | Västra Götalands län |
+
+### Topografi och delbassänger
+
+Sjöarna ligger i en bruten terräng som präglas av bergsryggar i nordväst till sydöstlig riktning. Stränderna är till stor del klippstränder, med få sand och moränstränder. Stora Delsjön har branta kanter och flera djuphålor, medan Lilla Delsjön är grundare och har en jämnare bottentopografi. Namngivna uddar och åsar som Stora Torps Tånge och Bratteklevs udde sätter karaktär på Stora Delsjön. De två sjöarna binds samman av en kanal, tidigare den steniga bäcken Edsån.
+
+### Vattentemperatur och skiktning
+
+Delsjöarna tillhör de näringsfattiga, oligotrofa sjöarna med rent och klart vatten. Siktdjupet ligger på 5 till 7 meter. Under sommaren skiktar sig vattnet, och fisken söker sig ofta ner till djupare och svalare lager. Det klara vattnet ställer krav på finstämt fiske, särskilt under soliga sommardagar.
+
+### Isläggning
+
+Sjöarna lägger sig normalt under vintern och pimpelfisket efter abborre, gös och lake är populärt under stabila isar. Var extra försiktig nära in och utloppen. Vid Kotången i Lilla Delsjön pumpas vatten in från Göta älv, vilket kan ge svag och förrädisk is i området. Kontrollera alltid isen lokalt innan du ger dig ut.
+
+### Tillflöden och utflöde
+
+Sedan 1968 förses Delsjöarna med vatten från Göta älv via en drygt nio kilometer lång bergtunnel som mynnar vid hävertstationen Kotången på en udde i Lilla Delsjön. Vatten pumpas in i Lilla Delsjön och rinner ut från Stora Delsjön. Inflödet vid Kotången ger ett extra näringstillskott och drar till sig bytesfisk, vilket gör platsen intressant för den som söker rovfisk.
+
+### Naturreservat och skyddade områden
+
+Delsjöarna ligger i Delsjöområdets naturreservat på omkring 760 hektar, som i sin tur är en del av ett större friluftsområde av riksintresse på ungefär 2 400 hektar. Eftersom sjöarna är vattentäkt är bensinmotorer förbjudna i hela området. Eldning är bara tillåten på platser som förvaltaren anvisar. Bohusleden passerar genom området.
+
+## Fiskemetoder
+
+Delsjöarnas djup och klara vatten passar både djupinriktat båtfiske och lugnt mete i vikarna. Detaljerade teknikanvisningar finns på respektive tekniksida. Tänk på att båtfiske endast får ske från Sportfiskarnas uthyrningsbåtar, eftersom sjöarna är vattentäkt, och att endast elmotor får användas.
+
+### Mete
+
+Metet efter sutare, braxen och mört är som bäst sommartid i de grunda vikarna med mjukbotten. Karpmete kräver karptillägg, avkrokningsmatta och tålamod. Både sutare och karp ska återutsättas, så fisket är inriktat på upplevelsen snarare än på matfisk.
+
+[Läs mer om mete](/teknik/mete/)
+
+### Vertikalfiske
+
+Vertikalfiske med ekolod är en effektiv metod för att nå abborre och gös i Delsjöarnas djuphålor och längs de branta kanterna. Eftersom fisken ofta står djupt i det klara vattnet gör ekolodet stor nytta. Metoden förutsätter att du hyr roddbåt från Sjölyckan.
+
+[Läs mer om vertikalfiske](/teknik/vertikalfiske/)
+
+### Jiggfiske
+
+Jiggfiske fungerar bra för abborre och gös vid bottenövergångar och utmed grynnor och kanter. Större abborre står ofta djupt och nås med jigg över de djupare partierna. Lättare jiggar och naturtrogna beten lönar sig i det klara vattnet.
+
+[Läs mer om jiggfiske](/teknik/jiggfiske/)
+
+### Trolling
+
+Flötestrolling och djupparavan är beprövade sätt att täcka av Delsjöarnas öppna och djupa partier efter gädda, gös och abborre. Trollingfisket är begränsat av att det bara får bedrivas från Sportfiskarnas uthyrningsbåtar och med elmotor. Inom ramen för högst två spön per person kan metoden ändå vara effektiv på sommaren.
+
+[Läs mer om trolling](/teknik/trolling/)
+
+### Spinnfiske
+
+Spinnfiske längs vasskanter och runt grynnor ger gädda och abborre från vår till höst. Strandfiske går att bedriva på flera ställen längs klippstränderna, där djupt vatten ofta finns nära land. Visa hänsyn vid badplatser och bryggor, där badande har företräde.
+
+[Läs mer om spinnfiske](/teknik/spinnfiske/)
+
+### Isfiske
+
+Pimpel på vintern ger abborre, gös och lake. Den höga medelvikten på abborre gör Delsjöarna till ett uppskattat isfiskevatten. Sök fisken vid kanterna och över de djupare partierna. Undvik isen nära inflödet vid Kotången i Lilla Delsjön, där pumpat vatten försvagar isen.
+
+[Läs mer om isfiske](/teknik/isfiske/)
+
+## Hotspots och lokaler
+
+### Djuphålorna i Stora Delsjön
+
+De branta kanterna och djuphålorna i Stora Delsjön är kärnan i sommarfisket efter abborre, gös och gädda. Här fungerar vertikalfiske, jigg och flötestrolling från uthyrningsbåt. Ekolod underlättar för att hitta fisken på rätt djup.
+
+### Inflödet vid Kotången i Lilla Delsjön
+
+Vid Kotången i Lilla Delsjön pumpas vatten in från Göta älv. Näringstillskottet drar till sig bytesfisk och därmed rovfisk, vilket gör området intressant för abborre och gös. Var försiktig med isen här på vintern.
+
+### Kanalen mellan sjöarna
+
+Den smala kanalen som binder samman Stora och Lilla Delsjön samlar fisk som rör sig mellan bassängerna. Strömningen och strukturen gör passagen till en plats värd att prova för både rovfisk och vitfisk.
+
+### Vikarna med mjukbotten
+
+De grunda, vegetationsrika vikarna är sutarens och braxens domäner och Delsjöarnas bästa meteplatser sommartid. Här fångas också karp av den som har karptillägg och rätt utrustning.
+
+### Klippstränderna och Stora Torps Tånge
+
+Längs Stora Delsjöns klippstränder finns landfiskeplatser där djupt vatten når nära land. Uddar som Stora Torps Tånge och Bratteklevs udde ger åtkomst till kanter och djup utan båt. Det är ett bra alternativ för den som fiskar abborre och gädda från land.
+
+### Sjölyckan och Delsjöbadet
+
+Området nordväst om Stora Delsjön rymmer Sportfiskarnas regionkontor Sjölyckan och badplatsen Delsjöbadet. Här finns båtuthyrning och enkel tillgång till vattnet. Vid badplatsen har badande företräde, så anpassa fisket efter säsong och folkliv.
+
+## Säsongsöversikt
+
+| Månad | Bästa art | Bästa metod |
+|-------|-----------|-------------|
+| Januari | Abborre, gös, lake | Isfiske |
+| Februari | Abborre, gös, lake | Isfiske |
+| Mars | Abborre, gädda | Isfiske, spinnfiske |
+| April | Gädda, abborre | Spinnfiske, jigg |
+| Maj | Gädda, abborre | Spinnfiske, jigg |
+| Juni | Sutare, abborre, gös | Mete, vertikalfiske |
+| Juli | Karp, sutare, gös | Mete, nattfiske |
+| Augusti | Gös, karp, abborre | Vertikalfiske, mete |
+| September | Abborre, gädda | Jigg, spinnfiske |
+| Oktober | Gädda, abborre | Jigg, spinnfiske |
+| November | Abborre, gädda | Jigg, vertikalfiske |
+| December | Abborre, lake | Isfiske vid säker is |
+
+Karp och sutare ska alltid återutsättas. Det allmänna kräftfisket sker bara vid Sportfiskarnas organiserade fisken i augusti.
+
+## Kostråd och miljögifter
+
+Livsmedelsverkets nationella kostråd om kvicksilver gäller för insjöfisk från Delsjöarna. Det finns inga publicerade lokala kostråd specifika för sjöarna. Eftersom Delsjöarna ligger i Göta älvs system, som mynnar i Kattegatt, gäller inte de särskilda dioxinråd som finns för Östersjöns och Bottniska vikens fisk.
+
+Abborre, gädda, gös och lake kan innehålla förhöjda halter kvicksilver. Livsmedelsverket rekommenderar att den som äter dessa arter regelbundet inte gör det mer än en gång per vecka. Den som är gravid, försöker bli gravid eller ammar rekommenderas att inte äta dessa arter mer än 2 till 3 gånger per år.
+
+Karp och sutare ska enligt fiskereglerna alltid återutsättas och är därmed inte aktuella som matfisk. Se aktuella råd på [livsmedelsverket.se](https://www.livsmedelsverket.se).
+
+## Infrastruktur och praktisk information
+
+### Båtuthyrning
+
+Båtfiske i Delsjöarna får bara ske från Sportfiskarnas uthyrningsbåtar, eftersom sjöarna är vattentäkt. Egen båt, kanot eller liknande är inte tillåtet för fiske. Roddbåt hyrs vid Sportfiskarnas regionkontor Sjölyckan nordväst om Stora Delsjön under större delen av året. Endast elmotor får användas. Aktuella öppettider och villkor finns hos Sportfiskarna.
+
+### Landfiske
+
+Strandfiske går att bedriva på flera platser längs klippstränderna i båda sjöarna, där djupt vatten ofta finns nära land. Uddar som Stora Torps Tånge ger god åtkomst. Vid badplatser och bryggor har badande företräde och fiske bör undvikas under badsäsong.
+
+### Boende och service
+
+Delsjöområdet är stadsnära och saknar campingplatser inne i reservatet, men hela Göteborgs utbud av hotell och vandrarhem finns inom kort avstånd. Vid Skatås motionscentrum och runt sjöarna finns kaffestugor, rastplatser med grillplatser och vindskydd. Nordost om Stora Delsjön och i östra änden av Lilla Delsjön ligger kaffestugor med servering.
+
+### Kommunikationer
+
+Delsjöområdet ligger i östra Göteborg och nås enkelt med kollektivtrafik. Från spårvagnshållplatsen Töpelsgatan är det ungefär tio minuters promenad till Skatås motionscentrum och cirka tjugo minuter till Delsjöbadet vid Stora Delsjön. Det finns flera ingångar till området, bland annat via Härlanda Tjärn och Stora Torp. För bil finns parkering vid flera av entréerna.
+
+## Historik och bakgrund
+
+Delsjöarna har använts som vattentäkt för Göteborg under lång tid och är fortfarande reservvattentäkt för staden. Sedan 1968 förstärks sjöarna med vatten som pumpas från Göta älv genom en drygt nio kilometer lång bergtunnel till hävertstationen Kotången i Lilla Delsjön. Detta tillskott påverkar både näringsförhållanden och fiske, framför allt vid inflödet.
+
+Delsjöområdet är ett av Göteborgsregionens mest använda strövområden och skyddades som naturreservat för att bevara den tätortsnära naturen. Området har en lång mänsklig historia som sträcker sig tusentals år tillbaka, något som dokumenterats i lokal kulturhistorisk litteratur.
+
+Sportfiskarnas regionkontor Sjölyckan vid Stora Delsjön har under flera decennier varit en samlande punkt för det organiserade sportfisket i Göteborg och Västsverige. Härifrån bedrivs praktisk fiskevård, ungdomsverksamhet och miljöövervakning. Ett pågående arbete tillsammans med Göteborgs stad syftar till att återetablera öring i tillrinnande bäckar. Signalkräftan, som är en invasiv art, har etablerat sig i sjöarna och utgör i dag en viktig del av abborrens föda.
+
+## Snabbfakta
+
+| | |
+|--|--|
+| Fritt handredskapsfiske | Nej, Gula Kortet krävs |
+| Fiskekort krävs för | Allt handredskapsfiske |
+| Var köps kortet | iFiske.se, Sjölyckan och sportfiskebutiker |
+| Minimimått gädda | 50 cm |
+| Minimimått gös | 50 cm |
+| Karp och sutare | Måste återutsättas |
+| Karpfiske | Kräver karptillägg |
+| Båtfiske | Endast Sportfiskarnas uthyrningsbåtar, elmotor |
+| Kräftfiske | Endast vid Sportfiskarnas augustifiske |
+| Barn under 16 år | Fiskar utan eget kort |
+| Närmaste stad | Göteborg |
+| Yta | ca 140 + 62 ha |
+| Maxdjup | ca 22 m |
+
+*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
+```
+
 ## src/content/destinations/eman.mdx
 ```
 ---
@@ -17181,6 +20662,285 @@ Fiskevårdsarbetet inkluderar restaurering av vandringsvägar och lek- och uppv�
 | Torskfiske | Förbjudet, catch and release obligatoriskt |
 | Närmaste tätort | Visby |
 | Kommunikationer | Färja från Nynäshamn/Oskarshamn, flyg till Visby |
+
+*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
+```
+
+## src/content/destinations/helge-a.mdx
+```
+---
+title: "Helge å"
+slug: "helge-a"
+description: "Helge å är Skånes största å med havsöring, gädda och gös från Möckeln till mynningen i Hanöbukten. Guide till fiskekort, arter, regler och hotspots."
+heroImage: "/images/destinations/helge-a.jpg"
+heroSource: illustration
+lat: 55.9667
+lng: 14.1833
+län: "Skåne län, Kronobergs län"
+primarySpecies: ["Havsöring", "Gädda", "Abborre", "Gös", "Lax", "Id"]
+waterType: "river"
+iFiskeUrl: "https://www.ifiske.se/fiske-nedre-helgeans-fvof.htm"
+excerpt: "Skånes största å, från Vattenrikets sjöar till havsöringen i Hanöbukten."
+recommendedGear: []
+publishedAt: "2026-06-22"
+updatedAt: "2026-06-22"
+kostrad: ["kvicksilver", "dioxin"]
+---
+
+Helge å är Skånes största vattendrag och rinner cirka 190 km från det småländska höglandet norr om Älmhult ned till Hanöbukten vid Yngsjö. På sin väg passerar ån sjöarna Möckeln, Osbysjön, Araslövssjön och Hammarsjön innan den mynnar i Östersjön. Det nedre loppet kring Kristianstad ligger mitt i biosfärområdet Kristianstads Vattenrike och räknas till de artrikaste fiskevattnen i landet, med fler än 35 dokumenterade fiskarter. Här samsas vårfiske efter blank havsöring med gädda, gös och stor vitfisk i de grunda slättsjöarna.
+
+## Fiskekort och regler
+
+Helge å saknar fritt handredskapsfiske. Ån och sjöarna är enskilt vatten och fiskekort krävs på i stort sett alla sträckor. Undantaget är havet utanför mynningen, där kustfisket med handredskap är fritt, och kanalerna inne i centrala Kristianstad, där inget kort behövs. Systemet förvaltas av flera fiskevårdsområden med delvis olika regler.
+
+### Vad är fritt och vad kräver tillstånd?
+
+Det fria handredskapsfisket enligt fiskelagen gäller inte i själva ån. För att fiska i Helge å, Araslövssjön, Hammarsjön och de övre sjöarna krävs fiskekort från respektive fiskevårdsområde. Längs kusten i Hanöbukten är handredskapsfiske däremot fritt utan kort, vilket gäller havsöringsfisket från stranden söder om Kullens fyr. Gränsen mellan kort och fritt fiske går vid åns mynning.
+
+### Var köper du fiskekort?
+
+Det viktigaste kortet för sportfiskaren är Nedre Helgeåns fiskevårdsområde, som täcker ån från Torsebro kraftverk ned till havet samt Araslövssjön och Hammarsjön. Kortet köps via [ifiske.se](https://www.ifiske.se/fiske-nedre-helgeans-fvof.htm), på naturum Vattenriket i Kristianstad, Fiskeknuten i Kristianstad och Helge Å Camping i Yngsjö. Längre upp i systemet säljer Knislinge fiskevårdsområde kort för sträckan Torsebro till Emsfors, och i Östra Göinge finns kortområden mellan Osbysjön och Nöbbelöv. För Möckeln och de övre delarna kring Älmhult och Delary finns separata kort, många av dem via iFiske.
+
+### Minimimått och fångstbegränsning
+
+| Art | Minimimått | Noteringar |
+|-----|------------|------------|
+| Havsöring (Östersjön) | 50 cm | Gäller kustfisket i Hanöbukten |
+| Lax (Östersjön) | 50 cm | Gäller kustfisket i Hanöbukten |
+| Gädda (kustvatten söder om Kullens fyr) | 40 cm, max 75 cm | Max 3 gäddor per fiskare och dygn i havet |
+
+Måtten ovan gäller havet och kustvattnet. Inne i ån och sjöarna kan Nedre Helgeåns fiskevårdsområde ha egna minimimått och regler för uttag. Kontrollera alltid de aktuella kortvillkoren på nedrehelgean.se eller iFiske innan du behåller fisk. Priser och kortvillkor 2026 bör verifieras mot fiskevårdsområdets egen sida inför resan.
+
+### Fredningstider och fredningsområden
+
+I kustvattnet söder om Kullens fyr är fiske efter lax och havsöring förbjudet 15 september till 31 december. I vattendrag som mynnar i havet, Helge å inräknat, är fiske efter lax och öring förbjudet 1 oktober till 31 december. Vid åns mynning kan dessutom ett fredningsområde gälla, ofta cirka 500 meter på ömse sidor av mynningen fram till 1 april. De exakta gränserna och datumen för Helge ås mynning bör kontrolleras på svenskafiskeregler.se, eftersom åmynningsfredningar varierar och uppdateras.
+
+### Ål
+
+Ål är akut hotad och rödlistad. Fritidsfiskare får inte fånga eller behålla ål. Får du ål som bifångst ska den genast släppas tillbaka så skonsamt som möjligt. Det yrkesmässiga ålfisket vid Hanöbukten bedrivs endast med särskilt tillstånd.
+
+### Mal
+
+Malen förekommer i Helge å och är fridlyst i hela Sverige. Den får inte fångas avsiktligt och en mal som krokas av misstag ska återutsättas omedelbart. Nedre Helgeåns fiskevårdsområde tar gärna emot rapporter om malfångster för sin beståndsuppföljning.
+
+> Aktuella regler finns alltid på [HaV:s webbplats](https://www.havochvatten.se) och via [Länsstyrelsens sidor](https://www.lansstyrelsen.se). Fiskevårdsområdets egna regler kan avvika och gäller alltid vid sidan av det nationella regelverket.
+
+---
+
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
+
+---
+
+## Fiskarter
+
+Helge å-systemet är ett av de två artrikaste vattnen i Sverige. Nedan beskrivs de arter som betyder mest för sportfiskaren.
+
+### Havsöring
+
+Havsöringen är Helge ås mest kända sportfisk. Vårfisket efter blank öring är starkast på sträckan nedströms Hammarsjön, men fiskar fångas även i centrala Kristianstad och ute vid kusten. Öringen vandrar upp i ån för lek på hösten och vintern, och de största exemplaren väger åtskilliga kilo. En havsöring på 89 cm och 10,75 kg fångades i Nedre Helgeåns fiskevårdsområde 2004, vilket säger en del om vattnets potential. Minimimåttet i Östersjön är 50 cm.
+
+[Läs mer om havsöring](/arter/havsoring/)
+
+### Lax
+
+Laxen slogs i stort sett ut av industriutsläpp på 1960-talet men har förts tillbaka genom utsättningar av Mörrumsstam från mitten av 1990-talet och framåt. I dag finns ett uppbyggande bestånd, och laxar på 9 till 10 kg har fångats i systemet. Laxtrappan vid Torsebro och omlöp kring kraftverken i Almaån har öppnat lekområden uppströms. Försommarfisket efter uppvandrande lax kan bli riktigt bra. Samma fredningstider och minimimått som för havsöring gäller.
+
+[Läs mer om lax](/arter/lax/)
+
+### Gädda
+
+Gäddan finns i hela systemet och är talrik i Araslövssjön och Hammarsjön samt på de lugnflytande åsträckorna. De grunda, vegetationsrika slättsjöarna är klassisk gäddmiljö med gott om vass och näckrosor. Bästa fisket är vår och höst, men ytbete en stilla sommarkväll kan ge fina hugg över vegetationen. Stora gäddor finns för den som letar i de djupare partierna och kantzonerna.
+
+[Läs mer om gädda](/arter/gadda/)
+
+### Abborre
+
+Abborren är allmän i både ån och sjöarna och hör till de arter man oftast stöter på. Den står gärna vid bryggor, stenrösen och vegetationskanter. Sommar och tidig höst är bästa tiden, då stimmen jagar småfisk. Riktigt stora abborrar fångas i de öppnare delarna av Araslövssjön och Hammarsjön.
+
+[Läs mer om abborre](/arter/abborre/)
+
+### Gös
+
+Gösen trivs i det grumliga, näringsrika vattnet i slättsjöarna och på de djupare åsträckorna. Den är ljusskygg och fiskas bäst i skymning, gryning och under mulna dagar. Sommar och tidig höst är säsong. Araslövssjön och Hammarsjön samt sträckan kring Osbysjön och Nöbbelöv håller gös.
+
+[Läs mer om gös](/arter/gos/)
+
+### Id
+
+Iden leker i april uppströms Araslövssjön och kallas lokalt för Torsebrolax eller ort. Under leken metas den med majs, bröd, maggots eller mask, men den hugger även på små skeddrag och spinnare. På sommaren kan man se stim av id simma med ryggfenan över ytan i Yngsjögrop nära mynningen, och då ger smala spinnare och mete bra fiske. Iden är en uppskattad sportfisk på lätt redskap.
+
+[Läs mer om id](/arter/id/)
+
+Övriga arter som förekommer är mört, braxen, björkna, sarv, sutare, ruda, färna, karp, lake, sik och regnbåge. Björknan blir ovanligt stor i systemet. Det svenska rekordet på 1090 gram togs norr om Araslövssjön 1984.
+
+## Ånens karaktär
+
+Helge å är ett lågland vattendrag med lugnflytande karaktär på det nedre loppet, brutet av forsar och fall högre upp i systemet.
+
+### Grundfakta
+
+- Längd: cirka 190 km
+- Fallhöjd: cirka 160 m
+- Avrinningsområde: cirka 4 750 km²
+- Årsmedelflöde: cirka 45 m³/s
+- Genomflutna sjöar: Möckeln, Osbysjön, Araslövssjön, Hammarsjön med flera
+
+### Sträckor och delbassänger
+
+Ån rinner upp på det småländska höglandet och passerar Möckeln vid Diö innan den fortsätter söderut genom Osbysjön och vidare mot Kristianstadsslätten. På slätten breder den ut sig i de grunda sjöarna Araslövssjön och Hammarsjön, båda starkt vegetationsrika fågelsjöar i Vattenriket. Nedanför Hammarsjön rinner ån genom våtmarkerna och ut i Hanöbukten vid Yngsjö. Gränsen för sportfisket uppåt sätts i praktiken av Torsebro kraftverk.
+
+### Vattentemperatur och flöde
+
+De grunda slättsjöarna värms snabbt på våren och håller höga sommartemperaturer, vilket gynnar gädda, gös och karpfiskar. Vegetationen är tät, särskilt i Araslövssjön och Hammarsjön, vilket gör att en del partier är svårframkomliga med båt på sommaren. Flödet i ån varierar med årstid och nederbörd och påverkar både öringvandring och fiske på de strömmande partierna.
+
+### Isläggning
+
+Slättsjöarna kan lägga sig vissa vintrar, men det skånska klimatet är milt och säker is är ovanlig och kortvarig. Räkna inte med pålitligt isfiske. Kontrollera alltid isen noga och fiska aldrig på osäker is.
+
+### Naturreservat och skyddade områden
+
+Det nedre loppet ligger i biosfärområdet Kristianstads Vattenrike, utsett av Unesco. Hammarsjön och de omgivande våtmarkerna är skyddade för sitt rika fågelliv. Respektera fågelskyddsområden och eventuella beträdningsförbud under häckningstid.
+
+## Fiskemetoder
+
+Detaljerade teknikanvisningar finns på respektive tekniksida. Här beskrivs hur metoderna fungerar i just Helge å.
+
+### Spinnfiske
+
+Spinnfiske är den mest mångsidiga metoden i systemet och fungerar på gädda och abborre i sjöarna, gös på de djupare partierna och havsöring både i ån och från kusten. På öringfisket används skeddrag och kustdrag, medan gäddfisket i slättsjöarna ofta kräver beten som går grunt över vegetationen. Anpassa vikten efter det grunda vattnet.
+
+[Läs mer om spinnfiske](/teknik/spinnfiske/)
+
+### Flugfiske
+
+Flugfisket har sin tyngdpunkt på havsöringen, både i åns nedre lopp på våren och längs kusten i Hanöbukten. Kustflugfiske efter blank öring är en klassiker söder om mynningen. På de strömmande partierna högre upp kan flugfiske efter öring och vitfisk vara givande.
+
+[Läs mer om flugfiske](/teknik/flugfiske/)
+
+### Jiggfiske
+
+Jiggfiske är effektivt på gös och abborre i de djupare delarna av Araslövssjön och Hammarsjön samt på åsträckorna. Mjukbeten nära botten i skymning och gryning är ofta nyckeln till gösen. På grunt vatten fungerar lättare jiggar för abborre.
+
+[Läs mer om jiggfiske](/teknik/jiggfiske/)
+
+### Mete
+
+Mete passar systemets stora vitfiskbestånd. Id, braxen, björkna, sutare och mört nappar villigt på majs, bröd, maggots och mask. Vid Kanalhuset i Kristianstad finns en tillgänglighetsanpassad brygga där mete ger många arter. Iden under leken på våren är ett särskilt populärt metefiske.
+
+[Läs mer om mete](/teknik/mete/)
+
+### Havsfiske
+
+Utanför mynningen i Hanöbukten bedrivs kustfiske efter havsöring från stranden, fritt utan fiskekort söder om Kullens fyr. Säsongen startar redan på nyårsdagen och pågår fram till fredningen i september. Bottenmete från stranden en sommarkväll kan ge abborre och plattfisk, och kring Kristi himmelsfärd kommer horngäddan in mot kusten.
+
+[Läs mer om havsfiske](/teknik/havsfiske/)
+
+## Hotspots och lokaler
+
+### Sträckan nedströms Hammarsjön
+
+Den populäraste lokalen för havsöring på våren. Ån rinner här lugnt genom slättlandskapet med goda möjligheter till vandringsfiske från land. Kräver kort från Nedre Helgeåns fiskevårdsområde.
+
+### Centrala Kristianstad och kanalerna
+
+I kanalerna inne i staden behövs inget fiskekort. Det är ett lättillgängligt artfiske där mete ger mört, björkna, abborre och mer. Havsöring fångas tidvis även mitt i staden under vandringssäsongen.
+
+### Kanalhuset, Hammarslundsvallen och Kavrö bro
+
+Tre praktiska lokaler i Vattenriket. Kanalhuset har en tillgänglighetsanpassad brygga som passar mete. Hammarslundsvallen och Kavrö bro ger landfiske mot Hammarsjön och de förbindande sträckorna. Ytbete efter gädda en sommarkväll är ett tips.
+
+### Araslövssjön och Hammarsjön
+
+De grunda slättsjöarna håller gädda, abborre, gös och stor vitfisk. Sjöarna är vegetationsrika och kräver tålamod med båt, eftersom mycket växtlighet fastnar i propellern. Ytbete och mete fungerar bra under sommaren.
+
+### Yngsjö och mynningen
+
+Vid mynningen och Yngsjögrop fångas id på sommaren och havsöring under säsong. Helge Å Camping i Yngsjö är en bra utgångspunkt. Tänk på eventuell åmynningsfredning vid mynningen.
+
+### Kusten vid Nyehusen, Revhaken och Snickarhaken
+
+Längs kusten i Hanöbukten söder om mynningen bedrivs fritt kustfiske efter havsöring. Revhaken och Snickarhaken är kända öringlokaler, och vid Nyehusen fungerar bottenmete från stranden.
+
+### Osbysjön till Nöbbelöv
+
+Den övre delen av sportfiskeområdet erbjuder ett varierat fiske i lugnt vatten på gädda, gös, abborre och vitfisk, på en sträcka av flera kilometer med många fiskeplatser.
+
+### Möckeln
+
+Längst upp i systemet vid Älmhult ligger Möckeln, en större sjö med gädda, abborre och gös. Här fungerar både kastfiske och trolling på de öppnare vattnen. Eget kort gäller.
+
+## Säsongsöversikt
+
+| Månad | Bästa art | Bästa metod |
+|-------|-----------|-------------|
+| Januari | Havsöring (kust) | Spinnfiske, flugfiske |
+| Februari | Havsöring (kust) | Spinnfiske, flugfiske |
+| Mars | Havsöring | Spinnfiske, flugfiske |
+| April | Havsöring, id | Spinnfiske, mete |
+| Maj | Gädda, id, abborre | Spinnfiske, mete |
+| Juni | Gös, abborre | Jiggfiske, mete |
+| Juli | Gös, sutare, karpfiskar | Mete, jiggfiske |
+| Augusti | Gös, abborre, id | Jiggfiske, spinnfiske |
+| September | Gädda, abborre | Spinnfiske, jiggfiske |
+| Oktober | Gädda | Spinnfiske, jiggfiske |
+| November | Gädda, gös | Jiggfiske |
+| December | Gädda, lake | Jiggfiske |
+
+Lax och havsöring är fredade i kustvattnet 15 september till 31 december och i ån 1 oktober till 31 december. Vid mynningen kan en åmynningsfredning gälla fram till 1 april. Ål får inte fångas av fritidsfiskare och malen är fridlyst. Verifiera aktuella fredningstider och fredningsområden mot svenskafiskeregler.se inför säsongen.
+
+## Kostråd och miljögifter
+
+Helge å mynnar i Östersjön, vilket gör att Livsmedelsverkets kostråd om dioxin och PCB är relevanta för fet vandringsfisk från systemet.
+
+Vildfångad lax och öring från Östersjön och dess åar kan innehålla höga halter dioxin och PCB. Barn och unga upp till 18 år, gravida, ammande och den som vill bli gravid i framtiden rekommenderas att inte äta sådan fisk oftare än 2 till 3 gånger per år. Övriga vuxna bör inte äta den oftare än en gång per vecka.
+
+Abborre, gädda, gös och lake från insjövattnen kan innehålla höga halter kvicksilver. Halten varierar med var fisken är fångad. Vuxna som äter dessa arter oftare än en gång per vecka kan på sikt få i sig för mycket kvicksilver. Länsstyrelsen och kommunen har uppgifter om kvicksilverhalten i enskilda sjöar.
+
+Aktuella kostråd finns på [livsmedelsverket.se](https://www.livsmedelsverket.se). Ål omfattas av samma dioxinråd, men eftersom ål dessutom är rödlistad och inte får behållas av fritidsfiskare är frågan om att äta den inte aktuell.
+
+## Infrastruktur och praktisk information
+
+### Fiskeguider och kort
+
+naturum Vattenriket i Kristianstad är ett bra första stopp för information, kartor och fiskekort. Fiskekort säljs även hos Fiskeknuten i Kristianstad och Helge Å Camping i Yngsjö samt via iFiske. För digitala leder över Hammarsjön finns GPX filer att ladda ned via Visit Kristianstad.
+
+### Båtramper
+
+Det finns iläggningsplatser vid Araslövssjön och Hammarsjön. Tänk på att sjöarna är grunda och vegetationsrika, vilket begränsar framkomligheten på sommaren. Kontrollera lokala anvisningar för respektive ramp.
+
+### Landfiske
+
+Det nedre loppet och Vattenriket har gott om tillgängliga landfiskelokaler. Kanalhuset har en tillgänglighetsanpassad brygga. Kanalerna i centrala Kristianstad, Hammarslundsvallen och Kavrö bro är lätta att nå utan båt.
+
+### Boende
+
+Runt Kristianstad, Åhus och Yngsjö finns campingar, stugor och vandrarhem. Helge Å Camping i Yngsjö ligger nära både ån och kusten och är en praktisk bas för öringfisket.
+
+### Kommunikationer
+
+Kristianstad nås med tåg via Öresundståg och Pågatåg samt med bil via E22. Från Kristianstad är det korta avstånd till mynningen vid Yngsjö och till slättsjöarna.
+
+## Historik och bakgrund
+
+Helge å har en lång historia som fiskevatten, präglad av både nedgång och återhämtning. Vid mitten av 1960-talet slog industriutsläpp ut stora delar av fiskbeståndet i det nedre loppet, och kvar fanns främst stationära bestånd uppströms Torsebro. Ett undantag var Mjöån, där underjordiska källor tillförde rent vatten.
+
+Vattenkraften har satt tydliga spår. Torsebro kraftverk utgör i praktiken gränsen för havsöringens och laxens vandring uppåt, men en laxtrappa och omlöp kring kraftverken i Almaån har öppnat lekområden längre upp i systemet. För att återföra laxen inleddes utsättningar av Mörrumsstam 1995, och en större satsning på laxyngel gjordes tillsammans med Länsstyrelsen i Skåne under början av 2000-talet. Resultatet är ett uppbyggande bestånd av både lax och havsöring.
+
+Det nedre loppet är i dag en del av biosfärområdet Kristianstads Vattenrike, som lyfter fram våtmarkernas och vattendragens värden. Söder om mynningen ligger den skånska ålakusten kring Åhus, med en gammal tradition av ålafiske och ålagillen. I dag är ålen akut hotad och starkt skyddad, vilket har förändrat det fiske som en gång var en självklar del av kustens kultur.
+
+## Snabbfakta
+
+| | |
+|---|---|
+| Fritt handredskapsfiske | Nej i ån och sjöarna. Ja i havet och i Kristianstads kanaler |
+| Fiskekort krävs för | Helge å, Araslövssjön, Hammarsjön, övriga sjöar |
+| Var köps kortet | iFiske, naturum Vattenriket, Fiskeknuten, Helge Å Camping |
+| Viktigaste fiskevårdsområde | Nedre Helgeåns fvo (Torsebro till havet) |
+| Minimimått havsöring och lax | 50 cm i Östersjön |
+| Fredningstid lax och öring | 1 oktober till 31 december i ån |
+| Ål | Får inte fångas av fritidsfiskare |
+| Mal | Fridlyst, ska återutsättas |
+| Närmaste tätort | Kristianstad |
 
 *Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
@@ -18660,6 +22420,272 @@ Det historiska gränsdragningen mellan sill och strömming följer ett kungligt 
 | Ål | Fritidsfiske förbjudet |
 | Närmaste tätort | Kalmar |
 | Vattentyp | Brackvatten, Östersjön delområde 25 |
+
+*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
+```
+
+## src/content/destinations/kavlingean.mdx
+```
+---
+title: "Lödde å/Kävlingeån"
+slug: "kavlingean"
+description: "Kävlingeån och Lödde å är ett av Skånes artrikaste fiskevatten med stark havsöring och storgädda. Guide till fiskekort, fredning, arter och hotspots."
+heroImage: "/images/destinations/kavlingean.jpg"
+lat: 55.795
+lng: 13.108
+län: "Skåne"
+primarySpecies: ["Havsöring", "Gädda", "Abborre", "Id", "Mört", "Braxen"]
+waterType: "river"
+iFiskeUrl: "https://www.ifiske.se/fiske-kavlingeans-loddeans-fvof.htm"
+excerpt: "Skånsk havsöring och storgädda från Öresund upp till Lilla Harrie."
+recommendedGear: []
+kostrad: ["kvicksilver"]
+publishedAt: "2026-06-22"
+updatedAt: "2026-06-22"
+---
+
+Lödde å och Kävlingeån är två namn på samma vattendrag. Kävlingeån i de övre och mellersta delarna, Lödde å i de nedersta delarna närmast mynningen i Öresund vid Löddeköpinge. Ån är ett av Skånes artrikaste vatten med uppåt 28 fiskarter och en havsöringsstam som har stärkts tydligt de senaste decennierna. De lugnflytande sträckorna i jordbrukslandskapet ger storvuxen gädda och abborre, medan strömpartierna och mynningen drar havsöring under vårvintern. Hela sträckan från havet upp till Lilla Harrie förvaltas av ett och samma fiskevårdsområde, så ett fiskekort räcker långt.
+
+---
+
+## Fiskekort och regler
+
+### Vad är fritt och vad kräver tillstånd?
+
+Det mesta av Kävlingeån och Lödde å är enskilt vatten där du behöver fiskekort. I havet utanför mynningen gäller däremot fritt handredskapsfiske från land, så länge du håller dig utanför fredningsområdet och respekterar fredningstiderna. En kortare sträcka inom Örtofta åpromenad i Eslövs kommun är upplåten utan kort. Barn och ungdomar till och med 16 år fiskar utan kort inom fiskevårdsområdet.
+
+### Var köper du fiskekort?
+
+Kävlingeåns-Löddeåns fiskevårdsområde upplåter fisket i åns huvudfåra. Dygnskort säljs via iFiske.se. Årskort kan också lösas och gäller hela säsongen. Lokala återförsäljare finns i Löddeköpinge, bland annat Lödde Båt och Kanotcenter samt bensinstationer i orten. Kortet är personligt och ska kunna visas vid tillsyn.
+
+### Priser 2026
+
+| Korttyp | Pris |
+|---|---|
+| Dygnskort (via iFiske.se) | 85 kr |
+| Årskort (inkl. moms) | 750 kr |
+| Barn och ungdom t.o.m. 16 år | Utan kostnad |
+
+Priserna är hämtade från fiskevårdsområdets egen kortsida och gällde i december 2025. Kontrollera aktuellt pris i iFiske inför ditt besök.
+
+### Minimimått och fångstbegränsningar
+
+| Art | Regel |
+|---|---|
+| Lax och öring | Minimimått 50 cm. Fredade 1 oktober–31 december. Max 2 hemtagna fiskar per kort och dag övrig tid |
+| Gädda | Max 2 hemtagna per kort och dag. Gädda över 100 cm återutsätts |
+| Abborre | Max 3 hemtagna per kort och dag. Abborre över 40 cm återutsätts |
+| Totalt | Max 5 hemtagna fiskar per kort och dag oavsett art |
+
+Utlekt havsöring, som känns igen på den smala bakkroppen och det stora huvudet, bör återutsättas.
+
+### Fredningstider och fredningsområde
+
+I själva ån är lax och öring fredade 1 oktober–31 december. Utanför åmynningen gäller dessutom ett fiskeförbud i fredningsområdet 15 september–30 april. Fredningsområdet är en triangel som utgår från en punkt 1800 meter väster om åmynningens mitt och en punkt 600 meter sydost om mitten, med spetsen vid Löddekar ute i Öresund. Gränsen mellan sötvatten och kustvatten går i en rät linje mellan de yttersta mynningsuddarna. Ål är fredad i hela landet och får inte fiskas utan särskilt undantag.
+
+### Betesfiske och smittskydd
+
+Använder du betesfisk vid mete ska den vara fångad i Kävlingeån eller Lödde å. Att flytta fisk mellan olika vattendrag är förbjudet utan tillstånd enligt Havs- och vattenmyndighetens regler (FIFS 2011:13). Levande betesfisk är förbjudet i Sverige och får aldrig användas.
+
+> Aktuella regler finns alltid på [HaV:s webbplats](https://www.havochvatten.se) och via [Länsstyrelsens sidor](https://www.lansstyrelsen.se). Fiskevårdsområdets egna regler kan avvika och gäller alltid vid sidan av det nationella regelverket.
+
+---
+
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
+
+---
+
+## Fiskarter
+
+### Havsöring
+
+Havsöringen är åns signaturart för sportfiskaren och beståndet har ökat tydligt under de senaste decennierna i takt med att vattenkvaliteten förbättrats och fiskvägar byggts. Fisken stiger från Öresund och fångas främst i mynningsområdet och på de strömmande partierna. Bästa tiden är vårvintern, ungefär januari till april, då blank uppvandrande fisk söker sig in mot sötvattnet. Minimimåttet i ån är 50 cm och lax och öring är fredade 1 oktober–31 december för att skydda leken. Utlekt fisk bör återutsättas oavsett tidpunkt.
+
+[Läs mer om havsöring](/arter/havsoring/)
+
+### Gädda
+
+De lugnflytande nedre delarna håller ett storvuxet gäddbestånd och ån är känd för att leverera riktigt stora fiskar. Exemplar mellan 15 och 20 kg fångas årligen. Gäddan står vid vasskanter, i djuphålor och nedströms strömpartierna där bytesfisken samlas. Max två gäddor per kort och dag får tas hem, och gädda över 100 cm ska återutsättas för att skona de stora honorna.
+
+[Läs mer om gädda](/arter/gadda/)
+
+### Abborre
+
+Abborren är allmän i hela ån och blir storvuxen i de näringsrika lugnvattnen. Den tar både jigg och mask och samlas ofta kring strukturer som broar, bryggor och stenpartier. Max tre abborrar per kort och dag får behållas, och abborre över 40 cm ska återutsättas. Sensommar och tidig höst är ofta bästa tiden för de större fiskarna.
+
+[Läs mer om abborre](/arter/abborre/)
+
+### Id
+
+Id trivs i åns strömmande partier och i mynningsområdet, där den länge varit en uppskattad art för sommarmete. Den går i stim och kan ge ett livligt fiske på flöte med mask eller flytbröd under varma månader. Iden leker tidigt på våren i strömmande vatten och är som mest aktiv i värmen.
+
+[Läs mer om id](/arter/id/)
+
+### Övriga arter
+
+Ån är artrik och flera arter förekommer vid sidan av huvudarterna ovan. [Mört](/arter/mort/) och [braxen](/arter/braxen/) finns i goda bestånd i lugnvattnen och är vanliga vid mete. [Gös](/arter/gos/) förekommer främst i det uppströms liggande sjösystemet kring Vombsjön men kan följa med ned i åns djupare partier. Sarv, sutare och färna hör också till faunan. [Lax](/arter/lax/) regleras tillsammans med öring men den verkliga laxfisken i ån är havsöringen, och egentlig lax är sällsynt. [Ål](/arter/al/) finns kvar men är fredad och får inte fiskas.
+
+---
+
+## Ånens karaktär
+
+### Grundfakta
+
+- **Fiskevårdsområdets sträcka:** ca 3 mil, från mynningen i Öresund upp till Lilla Harrie
+- **Mynning:** Öresund vid Löddeköpinge, i gränslandet mellan Lomma och Kävlinge
+- **Källsjöar i systemet:** Vombsjön och Krankesjön i öster
+- **Större biflöde:** Klingavälsån
+- **Antal fiskarter:** uppåt 28
+
+### Sträckor och topografi
+
+Ån rinner genom ett öppet skånskt jordbrukslandskap. De nedre delarna är lugnflytande med djuphålor, vasskanter och en mjuk botten som passar storgädda och abborre. Längre upp, kring Kävlinge och vid de gamla möllorna, finns kortare strömpartier med stenbotten där havsöringen söker sig fram. Mynningsområdet vid Löddeköpinge är flackt och brett med vassområden och övergår i de grunda bottnarna i Lommabukten.
+
+### Vattenkvalitet och övergödning
+
+Kävlingeån är ett klassiskt näringsrikt jordbruksvattendrag och har historiskt belastats hårt av övergödning. Under den senaste 30-årsperioden har vattenkvaliteten förbättrats betydligt, bland annat genom det omfattande Kävlingeåprojektet med anlagda våtmarker och skyddszoner. Förbättringen har gynnat många arter, och havsöringen är ett tydligt exempel på en art som ökat.
+
+### Tillflöden och vandringshinder
+
+Längs ån ligger en rad gamla vattenmöllor vars trösklar och dämmen historiskt utgjort hinder för fiskens vandring. Flera fiskvägar har anlagts för att hjälpa havsöringen förbi hindren och nå lekområdena uppströms. Klingavälsån är ett viktigt biflöde i den övre delen av systemet.
+
+### Naturreservat vid mynningen
+
+Vid Löddeåns mynning ligger naturreservaten Löddeåns mynning norra och Löddeåns mynning södra, båda värdefulla fågellokaler med häckande vadare och änder. I delar av reservaten råder beträdnadsförbud under fåglarnas häckningstid, för norra delen 15 april–15 juli. Länsstyrelsen har även beslutat om fartbegränsning och ankringsförbud i delar av Lödde å och angränsande delar av Lommabukten. Respektera markeringar och skyltar på plats.
+
+---
+
+## Fiskemetoder
+
+Metoderna nedan är anpassade till Kävlingeåns förhållanden. Detaljerade teknikanvisningar finns på respektive tekniksida.
+
+### Spinnfiske
+
+Spinnfiske är den vanligaste metoden för havsöring i mynningsområdet och på strömpartierna, och fungerar lika bra för gädda och abborre i lugnvattnen. Blänken och mindre skeddrag tar havsöring i strömmande vatten under vårvintern. För gädda används större beten längs vasskanter och i djuphålor. Vid kustfisket utanför mynningen kastar du efter blankfisk från land.
+
+[Läs mer om spinnfiske](/teknik/spinnfiske/)
+
+### Mete
+
+Mete har lång tradition i ån och passar för abborre, id, mört, braxen och annan vitfisk i de lugnflytande partierna. Flöte med mask eller majs är en enkel ingång, och i mynningsområdet har sommarmete efter id och abborre länge varit populärt. Tänk på att betesfisk ska vara fångad i samma vattendrag.
+
+[Läs mer om mete](/teknik/mete/)
+
+### Flugfiske
+
+Flugfiske efter havsöring fungerar på strömpartierna och i mynningsområdet, framför allt under den blanka uppvandringen på vårvintern. Räk- och märlimitationer samt mörka mönster är klassiska val i kustnära och brackvattenpåverkat vatten. Anpassa storlek och sjunkhastighet efter flöde och vattentemperatur.
+
+[Läs mer om flugfiske](/teknik/flugfiske/)
+
+### Jiggfiske
+
+Jiggfiske är effektivt för abborre och gädda i de djupare lugnvattnen och kring strukturer. Mörka maskjiggar och mjukbeten fungerar väl, och metoden går också att använda för havsöring i åns absoluta nedre delar under den kalla delen av året.
+
+[Läs mer om jiggfiske](/teknik/jiggfiske/)
+
+---
+
+## Hotspots och lokaler
+
+### Mynningen, norra och södra sidan
+
+Åns mest kända havsöringsplats. Här fångas blank uppvandrande fisk under vårvintern, och det söta vattnet som rinner ut drar till sig öring när det är kallt i havet. Norra sidan är mer svårtillgänglig, södra sidan har fågeltorn och plattform. Observera fredningsområdet utanför mynningen, som är stängt 15 september–30 april.
+
+### Vikhögsvägen och Borgeby
+
+Lättillgängliga sträckor nära mynningen med landfiske efter gädda, abborre och vitfisk i lugnflytande vatten. Bra startpunkter för den som vill prova ån utan båt.
+
+### Löddeköpinge och Hög
+
+Sträckorna genom och ovanför Löddeköpinge ger ett blandfiske på gädda, abborre och vitfisk. Här finns parkering och stigar längs ån enligt fiskevårdsområdets karta.
+
+### Furulund
+
+Sträckan vid Furulund på södra sidan är en av de markerade fiskeplatserna med landfiske i lugnvatten. Gädda och abborre står längs vasskanterna.
+
+### Kävlinge, strömmarna
+
+Strömpartierna vid Kävlinge är en nyckellokal för havsöring under uppvandringen. Det strömmande vattnet med stenbotten ger ståndplatser och syresätter vattnet. Spinn och fluga fungerar båda här.
+
+### Rinnebäck och Krutmöllan
+
+Längre upp i systemet ligger strömsträckor och gamla möllor med anlagda fiskvägar. Krutmöllan är en av de klassiska möllorna längs ån. Strömpartierna håller havsöring under säsong och ger omväxling mot lugnvattnet.
+
+### Lilla Harrie
+
+Fiskevårdsområdets övre gräns. Lugnflytande vatten i jordbrukslandskapet med fiske efter gädda, abborre och vitfisk.
+
+---
+
+## Säsongsöversikt
+
+| Månad | Bästa art | Bästa metod |
+|-------|-----------|-------------|
+| Januari–februari | Havsöring (mynning) | Spinn, fluga, jigg |
+| Mars–april | Havsöring | Spinn, fluga (strömpartier) |
+| Maj | Gädda, abborre | Spinn, jigg |
+| Juni–augusti | Abborre, id, vitfisk | Mete, jigg |
+| September | Gädda, abborre | Spinn, jigg |
+| Oktober–december | Gädda, abborre | Spinn, jigg |
+
+Lax och öring är fredade i ån 1 oktober–31 december. Fredningsområdet utanför mynningen är stängt 15 september–30 april. Planera havsöringsfisket till vårvintern och håll koll på fredningsgränserna.
+
+---
+
+## Kostråd och miljögifter
+
+För stor gädda och abborre från sötvatten gäller Livsmedelsverkets generella råd om kvicksilver. Barn, samt den som är gravid, ammar eller planerar att skaffa barn, bör begränsa intaget av stor rovfisk som gädda, abborre och gös. Övriga vuxna rekommenderas att inte äta dessa arter oftare än en gång i veckan.
+
+Länsstyrelsen Skåne avråder dessutom från att äta fisk och kräftor från sjöar och vattendrag nedströms Malmö Airport (Sturup) på grund av förhöjda halter av PFAS. De namngivna vattnen är Fjällfotasjön, Klosterviken och Börringesjön. Kontrollera Länsstyrelsens aktuella råd om du fiskar i åns övre delar.
+
+Aktuella kostråd finns alltid på [livsmedelsverket.se](https://www.livsmedelsverket.se) och hos Länsstyrelsen Skåne.
+
+---
+
+## Infrastruktur och praktisk information
+
+### Landfiske och tillgänglighet
+
+Fiskevårdsområdet har markerade fiskeplatser längs hela sträckan med parkering och stigar, och flera platser är lättillgängliga från land. Inom området finns även tillgänglighetsanpassade fiskeplatser som är utmärkta på fiskevårdsområdets karta. Det mesta av fisket sker från land.
+
+### Boende
+
+Området ligger nära Lund och Malmö med ett brett utbud av boende. Camping, stugor och vandrarhem finns i regionen, och Löddeköpinge har service nära mynningen. Kontrollera aktuella öppettider och priser hos respektive aktör inför besöket.
+
+### Kommunikationer
+
+Kävlinge har egen station med Pågatåg och goda förbindelser mot Lund, Malmö och Helsingborg. Med bil når du ån via E6 och väg 16 från Lund. Mynningen vid Löddeköpinge nås från E6 norr om Lomma. Närheten till storstadsregionen gör ån till ett tacksamt vatten för en fisketur på kvällen eller en ledig dag.
+
+---
+
+## Historik och bakgrund
+
+Kävlingeåns-Löddeåns fiskevårdsområde bildades 1990 för att samla förvaltningen av ett vattendrag där fiskerätten är uppdelad på många jordbruksfastigheter längs ån. Bildandet gjorde det möjligt att upplåta fiske åt allmänheten genom fiskekort och att driva gemensam fiskevård.
+
+Längs ån vittnar en rad gamla vattenmöllor om en lång historia av vattenkraft i liten skala. Trösklarna och dämmena har varit hinder för fiskens vandring, och de fiskvägar som anlagts är ett led i arbetet med att återställa vandringsvägarna för havsöring.
+
+En av de viktigaste insatserna för ån är Kävlingeåprojektet, ett storskaligt restaureringsarbete som inleddes på 1990-talet med anlagda våtmarker och skyddszoner för att minska näringsläckaget från jordbruket. Tillsammans med förbättrad rening har detta höjt vattenkvaliteten och gynnat fiskbestånden. Havsöringens återhämtning följs bland annat med en smoltfälla som registrerar de unga fiskar som vandrar ut mot havet.
+
+Vid mynningen ligger Lödde kar, resterna av en hamnanläggning från sen vikingatid som daterats till omkring år 950 till 1100. Omkring 30 meter av konstruktionen är synlig ovanför vattenytan, och området har ankringsförbud. Här tros stora skepp en gång ha lastat om till mindre båtar för vidare färd uppför ån.
+
+---
+
+## Snabbfakta
+
+| | |
+|---|---|
+| Fritt handredskapsfiske | Nej i ån, ja från land i havet utanför fredningsområdet |
+| Fiskekort krävs för | Allt fiske i åns huvudfåra |
+| Var köps kortet | iFiske.se och lokala återförsäljare i Löddeköpinge |
+| Dygnskort | 85 kr |
+| Årskort | 750 kr |
+| Minimimått lax och öring | 50 cm |
+| Fredning i ån | Lax och öring 1 oktober–31 december |
+| Fredningsområde vid mynningen | 15 september–30 april |
+| Förvaltning | Kävlingeåns-Löddeåns fiskevårdsområde |
+| Närmaste tätort | Kävlinge och Löddeköpinge |
+
+---
 
 *Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
@@ -28804,6 +32830,107 @@ Kombinera kalenderdata med [förhållandesidan](/forhallanden/) för att se aktu
 
 För artspecifika kalenderöversikter med veckovis betningsindikator och säsongsbeskrivningar, gå direkt till [nappkalendern](/nappkalender/) och välj din art och region.```
 
+## src/content/articles/valja-fiskelina.mdx
+```
+---
+title: "Välja fiskelina: fläta, fluorocarbon och nylon"
+slug: "valja-fiskelina"
+description: "Hur du väljer rätt fiskelina efter art och teknik. Fläta som huvudlina, fluorocarbon som tafs och nylon för trolling och lax."
+excerpt: "Fläta, fluorocarbon eller nylon? Så väljer du rätt lina efter art och teknik."
+heroImage: "/images/articles/valja-fiskelina.jpg"
+heroSource: "illustration"
+publishedAt: "2026-06-24"
+updatedAt: "2026-06-24"
+author: "rikard-giby"
+category: "guide"
+faq:
+  - q: "Är 8-trådig flätlina bättre än 4-trådig?"
+    a: "Inte rakt av. 8-trådig är rundare, halare och tystare och kastar något längre. 4-trådig tål abrasion bättre och kostar mindre. Välj efter fisket, inte efter trådantalet."
+  - q: "Vilken flätlina ska jag ha till gädda?"
+    a: "Ungefär 0,17 till 0,25 mm för normalt fiske, grövre för stora jerkbaits. Viktigast är tafsen. Mot gädda krävs alltid stål, titan eller grov fluorocarbon på minst 0,60 till 0,80 mm."
+  - q: "Behöver jag fluorocarbontafs?"
+    a: "I de flesta fall ja. Fluorocarbon är nästan osynlig under ytan och tål nötning, vilket ger fler hugg och skyddar mot sten och tänder. Den knyts mellan flätlinan och betet."
+  - q: "Spelar flätlinans färg någon roll för fisken?"
+    a: "Liten. Eftersom du nästan alltid har en fluorocarbontafs närmast betet är det tafsen fisken ser, inte huvudlinan. Välj färg efter vad du själv behöver se."
+---
+
+import LinValjareIsland from '../../components/linvaljare/LinValjareIsland.astro';
+
+Valet av lina avgör mer än de flesta tror. Rätt lina i rätt dimension ger längre kast, fler hugg och färre tappade fiskar, medan fel lina kostar dig fisk utan att du förstår varför. Den här guiden går igenom hur du väljer efter art och teknik, från flätlinan på rullen till tafsen ytterst och de fall där nylon slår fläta.
+
+## Tre typer av lina och vad de gör
+
+De flesta sportfiskare behöver hålla reda på tre material. Flätlina är din huvudlina på rullen. Den är tunn i förhållande till sin styrka, har nästan ingen töjning och ger maximal känsla, men den syns i vattnet och tål nötning sämre än nylon. Fluorocarbon är nästan osynlig under ytan och nötningstålig, och används som tafs närmast betet. Nylon, alltså monofilament, har en stretch som de andra saknar, vilket gör den till ett bra val vid trolling och laxfiske.
+
+Den vanligaste uppställningen i sötvatten är flätlina på rullen och en fluorocarbontafs ytterst. Trolling och lax i älv är undantagen där nylon ofta är förstaval. Resten av guiden handlar om hur du landar rätt i varje del.
+
+## Flätlina: 4, 8 eller fler trådar
+
+Flätlina tillverkas av gelspunna polyetenfibrer, oftast under namnen Dyneema eller Spectra, som flätas samman till en lina. Antalet bärande trådar, vanligen 4, 8 eller 12 till 13, är antalet sådana garner. Materialet är i stort sett samma mellan tillverkare. Det är vävtätheten och beläggningen som skiljer.
+
+En 4-trådig lina har grövre enskilda fibrer. Den tål abrasion mot sten och vegetation bättre, kostar mindre och har en något kantig yta som ger ett svagt linljud genom ringarna. En 8-trådig lina är rundare, halare och tystare, och kastar oftast längre. Det är den bästa allroundbalansen för spinn, jigg och dropshot, och förstavalet på en haspelrulle eftersom rund lina spolar av jämnare.
+
+Skillnaden mellan 8 och 12 till 13 trådar är liten för vanligt fiske. De extra trådarna ger en aning rundare och tystare lina, men sällan en mätbar fördel som motiverar prisskillnaden. Undantaget är kustfiske efter havsöring, där en styv och tunn 13-trådig lina ger längre kast och färre vindknutar. Se trådantalet som en egenskap att välja efter fisket, inte som en kvalitetsstege där fler alltid är bättre.
+
+## Diameter och PE: läs brottstyrkan, inte millimetern
+
+Angiven diameter på flätlina är notoriskt opålitlig. Linan är inte perfekt rund, tillverkare mäter olika och den angivna millimetern är ofta optimistisk. Mono är mer konsekvent eftersom det är ett jämnt filament. Den japanska PE-skalan är mer tillförlitlig än mm men fortfarande ungefärlig. Som tumregel motsvarar PE 1.0 runt 0,165 mm och omkring 9 kg brottstyrka, och styrkan följer ungefär PE-numret uppåt och nedåt.
+
+Praktiken blir därför enkel. Jämför brottstyrka snarare än millimeter, och fyll rullen med faktisk lina tills den ligger ett par millimeter från spolkanten. Grovt sett vill du ha klen lina till abborre, mellandimension till gös, grövre till gädda och en tunn lina till havsöring. Exakt var du landar beror på teknik och betesvikt.
+
+Vill du slippa räkna om allt själv kan väljaren nedan göra jobbet. Välj art och teknik så får du rekommenderad diameter, färg och tafs, plus en matchande lina ur sortimentet där en finns.
+
+<LinValjareIsland />
+
+## Färg och synlighet
+
+Vatten absorberar färger olika. Rött tonas ut först och är i praktiken borta på några meters djup, medan grönt och blått når djupast. Det betyder att en röd lina inte blir osynlig på djupet, den blir bara grå och syns ändå som en mörk kontur.
+
+High-vis i gult, orange eller ljusgrönt hjälper dig att se linan, läsa subtila hugg och hålla koll på linvinkeln. Det är värt mest vid dropshot, vertikalfiske och isfiske, där hugget ofta läses på linan. Lågsynliga färger som smokey grey och moss green är att föredra i klart vatten och mot skygg fisk, till exempel havsöring och gös i klara sjöar.
+
+Det viktiga att förstå är att färgen spelar störst roll för dig, inte för fisken. Eftersom du nästan alltid har en fluorocarbontafs närmast betet är det tafsen fisken ser, inte huvudlinans färg. Är du orolig för synlighet är lösningen en bra tafs, inte att jaga rätt linfärg.
+
+## Coating och livslängd
+
+Coating är en beläggning, ofta silikon eller teflon, som gör linan halare, tystare och mer vattenavvisande och som håller färgen längre. Den slits gradvis bort under användning. Själva fibern åldras knappt av tid, så en flätlina blir sämre av nötning, inte av att ligga på hyllan.
+
+Byt linan när den blir luddig eller fransig i de yttersta metrarna, när färgen blekt kraftigt eller när knutarna börjar slira. Den enskilt mest värdefulla åtgärden är att vända linan på spolen en gång per säsong, så att den oslitna innerdelen hamnar ytterst. Skölj av efter saltvatten och förvara linan mörkt, eftersom UV-ljus bryter ner beläggningen över tid. Premiumlinor håller färg och rundhet längre än budgetlinor, vilket märks mest för den som fiskar ofta.
+
+## Tafs: fluorocarbon, stål och titan
+
+Tafsen är den bit lina du knyter mellan flätan och betet. För abborre, gös och havsöring är fluorocarbon standard, eftersom den är nästan osynlig under ytan och tål skav mot sten och musselkanter. Klena dimensioner kring 0,18 till 0,30 mm passar abborre, och 0,28 till 0,40 mm passar gös och havsöring. Fluorocarbon finns i mjuka varianter som knyts lätt och faller naturligt, och hårdare varianter som är styvare och mer nötningståliga.
+
+Gädda är ett eget kapitel. Tänderna kapar både flätlina och tunn fluorocarbon på ett enda hugg, och då sitter betet kvar i fiskens mun. Använd därför alltid stål, titan eller grov fluorocarbon på minst 0,60 till 0,80 mm vid gäddfiske, och kontrollera de yttersta centimetrarna efter varje fisk. Det här är ett säkerhetsråd för fiskens skull lika mycket som för din. Läs mer på sidorna om [gädda](/arter/gadda/) och [jiggfiske](/teknik/jiggfiske/).
+
+## Nylon för trolling och lax
+
+Vid trolling sitter krokarna ofta hårt och fisken hugger i fart. Då är nylonets stretch en fördel, eftersom töjningen dämpar rycket och håller fisken säkrare krokad än en stum flätlina. En nylonlina kring 0,28 till 0,40 mm är ett naturligt val för trolling, antingen som huvudlina eller som topshot framför flätan.
+
+Laxfiske i strömmande älv är det andra fallet. Här vill du ha en grov och nötningstålig nylonlina från 0,40 mm och uppåt, eftersom stretchen parerar laxens rusningar och materialet tål skav mot sten. Tänk också på att flätlina är förbjuden på många laxsträckor, vilket gör nylon till ett förstaval snarare än ett alternativ. Mer finns på sidorna om [trolling](/teknik/trolling/) och [lax](/arter/lax/).
+
+## Knutar och spolning
+
+Flätlinans hala yta gör knutval viktigare än med mono, eftersom vanliga monoknutar kryper och slirar. För skarven mellan fläta och fluorocarbon är FG-knuten smalast och starkast och glider lätt genom ringarna, medan en dubbel uni är enklare att lära och fungerar nästan lika bra. Direkt mot krok eller bete är Palomar ett tryggt val. Fukta alltid knuten innan du drar åt och dra långsamt.
+
+Lägg en monobackning under flätan på spolen. Bara flätlina mot en slät spolkärna slirar runt, vilket gör bromsen verkningslös mot större fisk. Monobackningen ger grepp och fyller dessutom spolen billigare än om du lägger dyr flätlina ända in.
+
+## Regler att känna till
+
+Linval påverkas av var och hur du får fiska. Riktat fritidsfiske efter torsk i Östersjön är förbjudet, och en oavsiktligt fångad torsk ska återutsättas. Riktat laxfiske i Östersjön är i grunden förbjudet, men du får behålla en fettfeneklippt lax per fiskare och dag, varefter laxfisket ska upphöra för dagen. På många laxsträckor i älv är dessutom flätlina förbjuden.
+
+Reglerna ändras löpande och skiljer sig mellan vatten. Kontrollera alltid de aktuella bestämmelserna hos [Havs- och vattenmyndigheten](https://www.havochvatten.se/) och i karttjänsten [Svenska fiskeregler](https://www.svenskafiskeregler.se/) innan du fiskar, särskilt för lax och torsk och för redskapsregler på enskilda laxsträckor.
+
+## Tre frågor innan du köper
+
+Vilken art och teknik fiskar du mest? Det avgör huvudlinans dimension och färg och vilken tafs du behöver. Fiskar du efter gädda är en kraftig tafs i stål, titan eller grov fluorocarbon obligatorisk.
+
+Behöver du se linan eller gömma den? High-vis om du läser hugget på linan, lågsynligt i klart vatten och mot skygg fisk.
+
+Är fläta rätt huvudlina, eller är det ett trolling- eller laxfiske där nylon passar bättre? Stretchen avgör. För allt vanligt kastfiske är fläta plus fluorocarbontafs grunden. Behöver du hjälp att välja spö till linan finns [spöväljaren](/spovaljaren/).
+
+*Strömkast finansieras via affiliate-länkar. Köper du utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar produkterna.*
+```
+
 # Content: authors
 
 ## src/content/authors/rikard-giby.json
@@ -28886,4 +33013,245 @@ Löptext i markdown utan rubriker. Längd: 150–250 ord. Tre stycken:
 - [ ] Ingen kopierad text från tillverkaren
 - [ ] Tekniska specifikationer stämmer mot källan
 - [ ] Texten säger något nytt utöver vad som redan finns i pros/cons
+```
+
+# Verktyg och drift
+
+## check-content.mjs
+```
+#!/usr/bin/env node
+/**
+ * check-content.mjs - innehallsvalidering for Stromkast
+ *
+ * Kors med:  node check-content.mjs   (eller: npm run check)
+ *
+ * Strukturfel (brutna slug-referenser, interna lankar utan avslutande slash,
+ * gear-review med felaktig category) ger avslutskod 1 sa att ett bygge kan
+ * stoppas. Stilvarningar (en-streck med mellanslag, em-streck) skrivs ut men
+ * paverkar inte avslutskoden.
+ *
+ * Konventioner som respekteras:
+ *   topDestinations, targetTechniques -> valideras mot SLUGS
+ *   targetSpecies, primarySpecies     -> valideras mot ARTNAMN (titel eller slug)
+ *   gear-reviews category             -> valideras mot gear-kategorins SLUG
+ */
+
+import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
+
+const ROOT = 'src/content';
+
+function walk(dir) {
+  if (!existsSync(dir)) return [];
+  let out = [];
+  for (const name of readdirSync(dir)) {
+    const p = join(dir, name);
+    if (statSync(p).isDirectory()) out = out.concat(walk(p));
+    else if (/\.(mdx?|json)$/.test(name)) out.push(p);
+  }
+  return out;
+}
+
+function splitFrontmatter(text) {
+  if (text.startsWith('---')) {
+    const end = text.indexOf('\n---', 3);
+    if (end !== -1) return { fm: text.slice(3, end), body: text.slice(end + 4) };
+  }
+  return { fm: text, body: '' };
+}
+
+function getField(fm, field) {
+  const m = fm.match(new RegExp(`^${field}:\\s*["']?(.+?)["']?\\s*$`, 'm'));
+  return m ? m[1].trim() : null;
+}
+
+// Hanterar bade inline ["a", "b"] och block-yaml (rader med "  - value")
+function getArray(fm, field) {
+  const lines = fm.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(new RegExp(`^${field}:\\s*(.*)$`));
+    if (!m) continue;
+    const rest = m[1].trim();
+    if (rest.startsWith('[')) {
+      const inner = rest.replace(/^\[/, '').replace(/\]$/, '');
+      if (!inner.trim()) return [];
+      return inner.split(',').map(s => s.trim().replace(/^["']|["']$/g, '')).filter(Boolean);
+    }
+    const vals = [];
+    for (let j = i + 1; j < lines.length; j++) {
+      const bm = lines[j].match(/^\s*-\s*(.+)$/);
+      if (bm) vals.push(bm[1].trim().replace(/^["']|["']$/g, ''));
+      else if (/^\S/.test(lines[j])) break;
+      else if (lines[j].trim() === '') continue;
+      else break;
+    }
+    return vals;
+  }
+  return null;
+}
+
+// --- Samla giltiga identifierare ---
+// Rutterna byggs pa filnamnet (entry.id), men frontmatter-slug kan skilja sig,
+// sa vi accepterar bada. Arter matchas dessutom mot titel (artnamn).
+const files = walk(ROOT);
+const destSlugs = new Set();
+const techSlugs = new Set();
+const speciesIds = new Set();          // lowercased: filnamn, slug och titel
+const speciesTitleByFold = new Map();  // fold(slug|titel) -> kanoniskt visningsnamn
+const gearCategorySlugs = new Set();   // filnamn + JSON-slug for gear-categories
+
+function baseId(path) {
+  return path.split('/').pop().replace(/\.(mdx?|json)$/, '');
+}
+
+// Vik ner till ASCII-nyckel sa att "gadda" och "gädda" hamnar pa samma plats.
+function fold(s) {
+  return s.toLowerCase().replace(/[åä]/g, 'a').replace(/ö/g, 'o');
+}
+
+for (const f of files) {
+  const coll = f.split('/')[2];
+  const { fm } = splitFrontmatter(readFileSync(f, 'utf-8'));
+  const slug = getField(fm, 'slug');
+  const title = getField(fm, 'title');
+  const id = baseId(f);
+  if (coll === 'destinations') { destSlugs.add(id); if (slug) destSlugs.add(slug); }
+  if (coll === 'techniques') { techSlugs.add(id); if (slug) techSlugs.add(slug); }
+  if (coll === 'gear-categories') {
+    // JSON-fil: getField traffar inte "slug": "...", sa las slug via JSON ocksa.
+    gearCategorySlugs.add(id);
+    try {
+      const j = JSON.parse(readFileSync(f, 'utf-8'));
+      if (j.slug) gearCategorySlugs.add(j.slug);
+    } catch { /* trasig JSON fangas av Astros schema vid bygge */ }
+  }
+  if (coll === 'species') {
+    speciesIds.add(id.toLowerCase());
+    if (slug) speciesIds.add(slug.toLowerCase());
+    if (title) speciesIds.add(title.toLowerCase());
+    if (title) {
+      speciesTitleByFold.set(fold(id), title);
+      if (slug) speciesTitleByFold.set(fold(slug), title);
+      speciesTitleByFold.set(fold(title), title);
+    }
+  }
+}
+
+// --- Kontroller ---
+const errors = [];
+const warnings = [];
+
+const MONTHS = 'januari|februari|mars|april|maj|juni|juli|augusti|september|oktober|november|december';
+
+function checkRefs(file, coll, fm) {
+  // Felregler: dessa falt genererar lankar, brutna varden ger trasiga lankar.
+  const errorRules = [];
+  if (coll === 'species') {
+    errorRules.push(['targetTechniques', techSlugs, 'teknik']);
+    errorRules.push(['topDestinations', destSlugs, 'destination']);
+  }
+  if (coll === 'techniques') {
+    errorRules.push(['targetSpecies', speciesIds, 'art']);
+    errorRules.push(['topDestinations', destSlugs, 'destination']);
+  }
+  for (const [field, valid, kind] of errorRules) {
+    const arr = getArray(fm, field);
+    if (!arr) continue;
+    for (const v of arr) {
+      const probe = kind === 'art' ? v.toLowerCase() : v;
+      if (!valid.has(probe)) {
+        errors.push(`${file}: ${field} "${v}" matchar ingen befintlig ${kind}`);
+      }
+    }
+  }
+  // Felregel: gear-review category maste vara en gear-kategoris slug.
+  // Kategorisidan filtrerar pa "review.data.category === cat.data.slug", sa
+  // fel skiftlage eller displaynamn ger en TOM kategorisida utan felmeddelande.
+  // category ar z.string() i schemat, sa Astro fangar inte detta vid bygge.
+  if (coll === 'gear-reviews') {
+    const cat = getField(fm, 'category');
+    if (cat && !gearCategorySlugs.has(cat)) {
+      errors.push(
+        `${file}: category "${cat}" matchar ingen gear-kategori. ` +
+        `Anvand kategorins slug med sma bokstaver (t.ex. flatlinor, fluorocarbon, nylon), inte displaynamnet.`
+      );
+    }
+  }
+  // Varningsregel: primarySpecies ar visningstext.
+  // - Art utan egen sida: ok om avsiktligt.
+  // - Art med sida men i slug-/fel form: bor skrivas som visningsnamn.
+  if (coll === 'destinations') {
+    const arr = getArray(fm, 'primarySpecies');
+    if (arr) {
+      for (const v of arr) {
+        const canonical = speciesTitleByFold.get(fold(v));
+        if (!canonical) {
+          warnings.push(`${file}: primarySpecies "${v}" saknar artsida (ok om avsiktligt)`);
+        } else if (v !== canonical) {
+          warnings.push(`${file}: primarySpecies "${v}" bor skrivas "${canonical}"`);
+        }
+      }
+    }
+  }
+}
+
+function checkLinks(file, text) {
+  const linkRe = /\]\((\/[^)\s]*)\)/g;
+  let m;
+  while ((m = linkRe.exec(text)) !== null) {
+    const path = m[1];
+    if (path.includes('#')) continue;                 // ankarlank
+    const last = path.split('/').filter(Boolean).pop() || '';
+    if (last.includes('.')) continue;                 // fil, t.ex. /rss.xml
+    if (!path.endsWith('/')) {
+      errors.push(`${file}: intern lank "${path}" saknar avslutande slash`);
+    }
+  }
+}
+
+function checkDashes(file, text) {
+  const lines = text.split('\n');
+  lines.forEach((line, idx) => {
+    if (line.includes('—')) {
+      warnings.push(`${file}:${idx + 1}: em-streck (—) - byt mot komma, kolon eller punkt`);
+    }
+    // en-streck med mellanslag, men inte i intervall (manad-manad / siffra-siffra)
+    if (/ – /.test(line)) {
+      const rangeOnly = line
+        .replace(new RegExp(`(${MONTHS})\\s*–\\s*(${MONTHS})`, 'gi'), '')
+        .replace(/\d\s*–\s*\d/g, '');
+      if (/ – /.test(rangeOnly)) {
+        warnings.push(`${file}:${idx + 1}: en-streck med mellanslag ( – ) i lopande text`);
+      }
+    }
+  });
+}
+
+for (const f of files) {
+  const coll = f.split('/')[2];
+  const raw = readFileSync(f, 'utf-8');
+  const { fm, body } = splitFrontmatter(raw);
+  checkRefs(f, coll, fm);
+  checkLinks(f, raw);
+  if (!f.endsWith('.json')) checkDashes(f, raw);
+}
+
+// --- Rapport ---
+console.log(`\nKontrollerade ${files.length} innehallsfiler.\n`);
+
+if (warnings.length) {
+  console.log(`VARNINGAR (${warnings.length}):`);
+  for (const w of warnings) console.log('  ! ' + w);
+  console.log('');
+}
+
+if (errors.length) {
+  console.log(`FEL (${errors.length}):`);
+  for (const e of errors) console.log('  x ' + e);
+  console.log('\nByggning bor stoppas tills felen ar atgardade.');
+  process.exit(1);
+}
+
+console.log(warnings.length ? 'Inga strukturfel. Se varningar ovan.' : 'Allt rent. Inga fel eller varningar.');
+process.exit(0);
 ```

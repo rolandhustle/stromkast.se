@@ -1,0 +1,45 @@
+---
+/**
+ * EkolodValjareIsland.astro
+ * Serverwrapper som hämtar de tolv ekoloden ur gear-reviews-collectionen och
+ * matar dem till den interaktiva EkolodValjare-islanden. Inkludera bara den här
+ * i ekolodsguiden, så lever väljaren bara där. Samma mönster som
+ * LinValjareIsland.astro.
+ */
+import { getCollection } from 'astro:content';
+import EkolodValjare from './EkolodValjare.tsx';
+
+const EKOLOD_SLUGS = new Set<string>([
+  'deeper-start-global',
+  'garmin-striker-cast-no-gps',
+  'garmin-striker-cast-worldwide',
+  'deeper-smart-sonar-pro-plus-2',
+  'deeper-smart-sonar-chirp-plus-3',
+  'deeper-smart-sonar-chirp-plus-4',
+  'garmin-striker-vivid-4cv',
+  'garmin-striker-vivid-5cv',
+  'garmin-striker-vivid-7cv',
+  'garmin-striker-vivid-9sv',
+  'garmin-echomap-uhd2-52cv',
+  'garmin-echomap-uhd2-92sv',
+]);
+
+const allReviews = await getCollection('gear-reviews');
+
+const ekolod = allReviews
+  .filter((entry) => {
+    const category = (entry.data.category ?? '').toLowerCase();
+    return EKOLOD_SLUGS.has(entry.data.slug) || category === 'ekolod';
+  })
+  .map((entry) => ({
+    slug: entry.data.slug,
+    title: entry.data.title,
+    brand: entry.data.brand,
+    price: entry.data.price,
+    priceRange: entry.data.priceRange,
+    affiliateUrl: entry.data.affiliateUrl,
+    merchant: entry.data.merchant,
+  }));
+---
+
+<EkolodValjare client:load ekolod={ekolod} />
