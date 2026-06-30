@@ -12,16 +12,6 @@ export default defineConfig({
   trailingSlash: 'always',
   output: 'static',
   adapter: vercel(),
-  redirects: {
-    '/guider/basta-ekolodet-2026/': {
-      status: 301,
-      destination: '/guider/basta-ekolod/',
-    },
-    '/guider/jiggfiske-for-nyborjare/': {
-      status: 301,
-      destination: '/teknik/jiggfiske/',
-    },
-  },
   integrations: [
     react(),
     sitemap({

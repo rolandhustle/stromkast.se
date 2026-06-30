@@ -9,6 +9,16 @@
       "source": "/sitemap-index.xml/",
       "destination": "/sitemap-index.xml",
       "permanent": false
+    },
+    {
+      "source": "/guider/basta-ekolodet-2026/",
+      "destination": "/guider/basta-ekolod/",
+      "permanent": true
+    },
+    {
+      "source": "/guider/jiggfiske-for-nyborjare/",
+      "destination": "/teknik/jiggfiske/",
+      "permanent": true
     }
   ]
 }
