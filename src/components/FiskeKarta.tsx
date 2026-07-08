@@ -8,6 +8,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { getScore, SPECIES } from '../data/calendar';
+import 'leaflet/dist/leaflet.css';
 
 function useIsMobile(breakpoint = 640): boolean {
   const [isMobile, setIsMobile] = useState(false);
@@ -318,13 +319,6 @@ export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props)
     if (!mapRef.current || leafletRef.current) return;
 
     import('leaflet').then(L => {
-      if (!document.getElementById('leaflet-css')) {
-        const link = document.createElement('link');
-        link.id   = 'leaflet-css';
-        link.rel  = 'stylesheet';
-        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-        document.head.appendChild(link);
-      }
 
       const swedenBounds = L.latLngBounds(L.latLng(55.2, 11.0), L.latLng(69.1, 24.2));
 
