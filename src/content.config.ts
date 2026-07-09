@@ -73,6 +73,7 @@ const gearCategories = defineCollection({
   schema: z.object({
     title: z.string(),
     slug: z.string(),
+    parent: z.enum(['beten', 'spon', 'rullar', 'linor']).optional(),
     description: z.string(),
     heroImage: z.string(),
     heroSource: z.enum(['illustration', 'photo']).default('illustration'),
