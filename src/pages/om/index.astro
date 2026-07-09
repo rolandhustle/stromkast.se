@@ -27,6 +27,12 @@ const authors = await getCollection('authors');
         <p>Sajten finansieras via affiliate-provisioner. När du köper något via en länk på Strömkast får vi en liten ersättning från återförsäljaren, utan kostnad för dig. Det påverkar aldrig vad vi skriver eller hur vi rangordnar produkter.</p>
       </div>
 
+      <div class="space-y-4 text-stone max-w-[65ch] mb-12">
+        <h2 class="font-display text-2xl font-bold text-deep">Så bedömer vi produkter</h2>
+        <p>Vi testar inte utrustning under kontrollerade former i labb. Våra omdömen bygger på tillverkarnas specifikationer, på hur redskapet fungerar i svenska vatten, och på hur erfarna svenska fiskare beskriver det.</p>
+        <p>När vi sätter betyg väger vi in styrkor och svagheter för det tänkta användningsområdet, inte bara vad produkten har. Vi skriver aldrig att vi provat något vi inte provat, och vi tar med nackdelar lika tydligt som fördelar. Priser och lager kan ändras, så kontrollera alltid aktuell uppgift hos återförsäljaren innan du köper.</p>
+      </div>
+
       <div class="space-y-6">
         {authors.map((author) => (
           <div class="bg-white rounded-2xl p-6 border border-mist flex flex-col sm:flex-row gap-5">
