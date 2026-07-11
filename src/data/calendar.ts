@@ -788,20 +788,47 @@ function moonAdjustment(phase: MoonDay['phase']): number {
   }
 }
 
+/**
+ * Linjar interpolation mellan ankarpunkter, klampad i andarna.
+ * Ersatter trappsteg. Ett trappsteg innebar att 18.0 grader ger +12 och
+ * 18.1 grader ger +5, alltsa att en tiondels grad flyttar poangen sju steg.
+ * Den klippkanten ar ett artefakt, inte en fiskesignal, och den gor att
+ * dygn i en prognos kan bli utpekade som "basta" pa fel grunder.
+ */
+function lerpAnchors(x: number, anchors: [number, number][]): number {
+  if (x <= anchors[0][0]) return anchors[0][1];
+  const last = anchors[anchors.length - 1];
+  if (x >= last[0]) return last[1];
+
+  for (let i = 0; i < anchors.length - 1; i++) {
+    const [x0, y0] = anchors[i];
+    const [x1, y1] = anchors[i + 1];
+    if (x >= x0 && x <= x1) {
+      const t = (x - x0) / (x1 - x0);
+      return y0 + t * (y1 - y0);
+    }
+  }
+  return 0;
+}
+
+// Ankarpunkterna foljer samma avsikt som den tidigare trappan, men kurvan
+// ar kontinuerlig. Spannvidden ar oforandrad (-25 .. +20).
+const TEMP_ANCHORS:   [number, number][] = [
+  [-10, -12], [0, -8], [4, 2], [8, 12], [17, 12], [21, 5], [25, -4], [32, -8],
+];
+const WIND_ANCHORS:   [number, number][] = [
+  [0, -3], [1, 5], [2.5, 8], [4, 6], [6, 3], [8, -1], [10, -8], [13, -16], [18, -22],
+];
+const PRECIP_ANCHORS: [number, number][] = [
+  [0, 0], [1, -1], [3, -3], [6, -6], [12, -8],
+];
+
 function weatherAdjustment(f: WeatherInput): number {
-  let w = 0;
-  if      (f.tempMean >= 8 && f.tempMean <= 18) w += 12;
-  else if (f.tempMean >= 4 && f.tempMean < 8)   w += 5;
-  else if (f.tempMean > 18 && f.tempMean <= 22) w += 5;
-  else if (f.tempMean < 0)                       w -= 12;
-  else                                            w -= 4;
-  if      (f.windSpeed >= 1 && f.windSpeed <= 4)  w += 8;
-  else if (f.windSpeed > 4 && f.windSpeed <= 8)   w += 3;
-  else if (f.windSpeed > 8 && f.windSpeed <= 10)  w -= 6;
-  else if (f.windSpeed > 10)                      w -= 18;
-  else                                            w -= 3;
-  if      (f.precip > 5)  w -= 6;
-  else if (f.precip >= 1) w -= 2;
+  const w =
+    lerpAnchors(f.tempMean,  TEMP_ANCHORS) +
+    lerpAnchors(f.windSpeed, WIND_ANCHORS) +
+    lerpAnchors(f.precip,    PRECIP_ANCHORS);
+
   return Math.max(-25, Math.min(20, w));
 }
 

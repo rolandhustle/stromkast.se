@@ -13,10 +13,16 @@ import {
   fetchSMHIForCoords,
   getMoonPhase,
   getBiteScore,
+  getOutlook,
+  getOutlookSummary,
+  getPeriodTopSpecies,
+  outlookBarHeight,
   windDirLabel,
   DOT_COLOR,
   DOT_BG,
 } from '../../lib/smhi';
+import { fetchForecastForCoords } from '../../lib/forecast';
+import { fetchHydroFlow, formatFlow, FLOW_LABEL } from '../../lib/hydro';
 
 const destinations = await getCollection('destinations');
 const now   = new Date();
@@ -29,11 +35,36 @@ const waterTypeLabels: Record<string, string> = {
   stream:  'Bäck',
 };
 
+// Veckodagsbokstav ur ISO-datum (0 = sondag)
+const WEEKDAY_SV   = ['S', 'M', 'T', 'O', 'T', 'F', 'L'];
+const WEEKDAY_FULL = ['söndag', 'måndag', 'tisdag', 'onsdag', 'torsdag', 'fredag', 'lördag'];
+const weekdayLetter = (iso: string) => WEEKDAY_SV[new Date(`${iso}T12:00:00Z`).getUTCDay()];
+const weekdayName   = (iso: string) => WEEKDAY_FULL[new Date(`${iso}T12:00:00Z`).getUTCDay()];
+
 const regionData = await Promise.all(
   destinations.map(async (dest) => {
-    const d    = dest.data;
-    const smhi = await fetchSMHIForCoords(d.lat, d.lng);
+    const d = dest.data;
+
+    const [smhi, forecast, hydro] = await Promise.all([
+      fetchSMHIForCoords(d.lat, d.lng),
+      fetchForecastForCoords(d.lat, d.lng, d.title),
+      fetchHydroFlow(d.slug),   // null for sjoar, kust och Damman
+    ]);
+
     const bite = getBiteScore(smhi.airTemp, smhi.windSpeed, d.primarySpecies, d.lat, now);
+
+    // Tiodagarsutsikt: samma modell som nappkalendern, kord mot dygnets prognos
+    const outlook = forecast.error ? [] : getOutlook(d.primarySpecies, d.lat, forecast.days, 10);
+
+    // Basta dygnet, men bara nar det finns en verklig skillnad att peka pa
+    const { bestDay } = getOutlookSummary(outlook);
+
+    // Periodens basta art. Fristaende fran bastadagen: fragan "vad ska jag
+    // fiska efter har" har ett svar aven nar dygnen ar likvardiga.
+    const periodSpecies = forecast.error
+      ? null
+      : getPeriodTopSpecies(d.primarySpecies, d.lat, forecast.days, 10);
+
     return {
       slug:        d.slug,
       name:        d.title,
@@ -45,6 +76,10 @@ const regionData = await Promise.all(
       humidity:    smhi.humidity,
       stationName: smhi.stationName,
       bite,
+      outlook,
+      bestDay,
+      periodSpecies,
+      hydro,
       error:       smhi.error,
     };
   })
@@ -95,7 +130,7 @@ const fmt = (val: number | null, decimals = 1, unit = '') =>
           Förhållanden just nu
         </h1>
         <p class="text-stone text-base mt-3 max-w-xl leading-relaxed">
-          Lufttemperatur, vind och betningsindikator för Sveriges fiskevatten. Närmaste SMHI-station väljs automatiskt per destination. Uppdateras vid varje bygge.
+          Lufttemperatur, vind och betningsindikator för Sveriges fiskevatten, plus en tiodagarsutsikt per vatten. Närmaste SMHI-station väljs automatiskt per destination.
         </p>
       </div>
 
@@ -171,15 +206,67 @@ const fmt = (val: number | null, decimals = 1, unit = '') =>
                   {region.windDir !== null ? windDirLabel(region.windDir) : ''}
                 </p>
               </div>
-              <div>
-                <p class="text-stone text-xs uppercase tracking-wider font-medium mb-0.5">Fuktighet</p>
-                <p class="text-deep text-sm font-semibold">{fmt(region.humidity, 0, '%')}</p>
-              </div>
+              {region.hydro && !region.hydro.error && region.hydro.value !== null ? (
+                <div>
+                  <p class="text-stone text-xs uppercase tracking-wider font-medium mb-0.5">Vattenföring</p>
+                  <p class="text-deep text-sm font-semibold">{formatFlow(region.hydro.value)}</p>
+                  <p class="text-stone/60 text-xs mt-0.5">
+                    {region.hydro.level ? FLOW_LABEL[region.hydro.level].toLowerCase() : region.hydro.station.name}
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <p class="text-stone text-xs uppercase tracking-wider font-medium mb-0.5">Fuktighet</p>
+                  <p class="text-deep text-sm font-semibold">{fmt(region.humidity, 0, '%')}</p>
+                </div>
+              )}
               <div>
                 <p class="text-stone text-xs uppercase tracking-wider font-medium mb-0.5">Säsong</p>
                 <p class="text-deep text-sm font-semibold">
                   {region.bite.score >= 68 ? 'Högsäsong' : region.bite.score >= 42 ? 'Mellansäsong' : 'Lågsäsong'}
                 </p>
+              </div>
+            </div>
+          )}
+
+          {region.outlook.length > 0 && (
+            <div class="px-6 pb-5">
+              <div class="border-t border-mist pt-4">
+                <div class="flex items-baseline justify-between gap-3 mb-1">
+                  <p class="text-stone text-xs uppercase tracking-wider font-medium">10 dygn framåt</p>
+                  {region.bestDay ? (
+                    <p class="text-xs text-stone">
+                      Bäst <span class="text-deep font-semibold">{weekdayName(region.bestDay.date)}</span>
+                    </p>
+                  ) : (
+                    <p class="text-stone/70 text-xs">Jämnt läge</p>
+                  )}
+                </div>
+
+                {region.periodSpecies && (
+                  <div class="flex items-baseline gap-1.5 mb-3">
+                    <span class="text-stone text-[10px] uppercase tracking-wider font-medium">Bästa art i perioden</span>
+                    <span class="text-deep text-xs font-semibold">{region.periodSpecies}</span>
+                  </div>
+                )}
+
+                <div class="flex items-end gap-1">
+                  {region.outlook.map((day) => (
+                    <div
+                      class="flex-1 flex flex-col items-center gap-1"
+                      title={`${day.date}: ${day.label} (${day.score} av 100), ${day.tempMean}°, ${day.windSpeed} m/s${day.topSpecies ? `, bäst: ${day.topSpecies}` : ''}`}
+                    >
+                      <span class="text-stone/70 text-[10px] leading-none">{day.tempMean.toFixed(0)}°</span>
+                      <div class="w-full flex items-end" style="height: 40px">
+                        <div
+                          class={`w-full rounded-sm ${DOT_COLOR[day.color]}`}
+                          style={`height: ${outlookBarHeight(day.raw)}%`}
+                        ></div>
+                      </div>
+                      <span class="text-stone/60 text-[10px] leading-none">{weekdayLetter(day.date)}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -211,7 +298,13 @@ const fmt = (val: number | null, decimals = 1, unit = '') =>
           Betningsindikatorn väger samman lufttemperatur, vind, månfas och förväntad säsongsaktivitet per art. Den är ett riktmärke, inte en garanti. Lokal kunskap väger alltid tyngre.
         </p>
         <p>
-          Senast uppdaterad: {now.toLocaleDateString('sv-SE', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}.
+          Tiodagarsutsikten kör samma modell som nappkalendern mot SMHI:s punktprognos för varje vatten. Varje stapel visar den art som har bäst läge just det dygnet. Temperatur och vind i utsikten är dygnsmedel, medan siffrorna högre upp på kortet är uppmätta ögonblicksvärden från närmaste station. Fredade arter räknas bort. Prognoser blir mindre träffsäkra ju längre fram de sträcker sig, så de sista dygnen ska läsas som en tendens.
+        </p>
+        <p>
+          Vattenföring visas för strömvatten där SMHI har en mätstation i rätt vattendrag. Stationen är handplockad per älv, eftersom närmaste station geografiskt ofta ligger i ett annat vattendrag. Siffran är ett dygnsvärde och kan ligga något dygn efter. I reglerade älvar styrs korttidsflödet av kraftverkens tappning.
+        </p>
+        <p>
+          Senast uppdaterad: {now.toLocaleString('sv-SE', { timeZone: 'Europe/Stockholm', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}.
         </p>
       </div>
     </div>

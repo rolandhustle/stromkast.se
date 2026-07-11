@@ -92,7 +92,7 @@ export const SYMBOL_EMOJI: Record<number, string> = {
 // Hämtning och aggregering
 // ---------------------------------------------------------------------------
 
-async function fetchForecastForRegion(
+async function fetchPoint(
   region: string,
   lat: number,
   lng: number,
@@ -161,11 +161,32 @@ async function fetchForecastForRegion(
 export async function fetchAllForecasts(): Promise<Record<string, RegionForecast>> {
   const results = await Promise.all(
     Object.entries(FORECAST_REGIONS).map(([region, { lat, lng, label }]) =>
-      fetchForecastForRegion(region, lat, lng, label)
+      fetchPoint(region, lat, lng, label)
     )
   );
 
   return Object.fromEntries(results.map(r => [r.region, r]));
+}
+
+// ---------------------------------------------------------------------------
+// Punktprognos for godtyckliga koordinater (t.ex. en destination).
+// Cachas per avrundad koordinat sa att bygget inte hamtar samma punkt tva ganger.
+// ---------------------------------------------------------------------------
+
+const pointCache = new Map<string, Promise<RegionForecast>>();
+
+export function fetchForecastForCoords(
+  lat: number,
+  lng: number,
+  label = ''
+): Promise<RegionForecast> {
+  const key = `${lat.toFixed(3)},${lng.toFixed(3)}`;
+  const hit = pointCache.get(key);
+  if (hit) return hit;
+
+  const p = fetchPoint(key, lat, lng, label);
+  pointCache.set(key, p);
+  return p;
 }
 
 // ---------------------------------------------------------------------------
@@ -180,27 +201,3 @@ export const CLIMATE_NORMALS: Record<string, number[]> = {
   'norra-sverige': [-8.5, -8.0, -3.5, 2.5, 8.8, 13.8, 16.2, 14.5, 9.0, 3.2, -2.5, -6.5],
   'fjallvarlden':  [-10.5,-10.0,-6.0, 0.0, 5.8, 10.5, 13.0, 12.0, 7.0, 1.5, -4.5, -8.5],
 };
-
-// ---------------------------------------------------------------------------
-// Hjälpfunktion: väderpoäng från prognosdata
-// ---------------------------------------------------------------------------
-
-export function getForecastBiteBonus(day: DayForecast): number {
-  let bonus = 0;
-
-  // Temperatur
-  if (day.tempMean >= 8 && day.tempMean <= 18) bonus += 15;
-  else if (day.tempMean >= 4 && day.tempMean < 8) bonus += 5;
-  else if (day.tempMean > 18 && day.tempMean <= 24) bonus += 8;
-  else if (day.tempMean < 0) bonus -= 15;
-
-  // Vind
-  if (day.windSpeed >= 1 && day.windSpeed <= 4) bonus += 10;
-  else if (day.windSpeed > 7 && day.windSpeed <= 10) bonus -= 8;
-  else if (day.windSpeed > 10) bonus -= 18;
-
-  // Nederbörd
-  if (day.precip > 5) bonus -= 5;
-
-  return bonus;
-}

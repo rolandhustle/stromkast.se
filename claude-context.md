@@ -19,6 +19,9 @@ src/components/{quiz}
 src/components/AffiliateCard.astro
 src/components/ConsentBanner.astro
 src/components/DestinationMap.tsx
+src/components/ekolodvaljare
+src/components/ekolodvaljare/EkolodValjare.tsx
+src/components/ekolodvaljare/EkolodValjareIsland.astro
 src/components/FiskeKarta.tsx
 src/components/Footer.astro
 src/components/Header.astro
@@ -36,7 +39,9 @@ src/content.config.ts
 src/content/.DS_Store
 src/content/articles
 src/content/articles/.DS_Store
+src/content/articles/basta-ekolod.mdx
 src/content/articles/basta-fiskespon-2026.mdx
+src/content/articles/basta-gaddbeten.mdx
 src/content/articles/nappkalender-guide.mdx
 src/content/articles/valja-fiskelina.mdx
 src/content/authors
@@ -51,8 +56,10 @@ src/content/destinations/bohuslan-skargard.mdx
 src/content/destinations/bolmen.mdx
 src/content/destinations/byskealven.mdx
 src/content/destinations/dalalven.mdx
+src/content/destinations/damman.mdx
 src/content/destinations/delsjoarna.mdx
 src/content/destinations/eman.mdx
+src/content/destinations/giman.mdx
 src/content/destinations/gota-alv.mdx
 src/content/destinations/gotland.mdx
 src/content/destinations/helge-a.mdx
@@ -71,6 +78,7 @@ src/content/destinations/mockeln.mdx
 src/content/destinations/morrum.mdx
 src/content/destinations/nissan.mdx
 src/content/destinations/oland.mdx
+src/content/destinations/orealven.mdx
 src/content/destinations/oresund.mdx
 src/content/destinations/ostergotlands-skargard.mdx
 src/content/destinations/ovre-fryken.mdx
@@ -93,17 +101,25 @@ src/content/gear-categories/ekolod.json
 src/content/gear-categories/flatlinor.json
 src/content/gear-categories/fluorocarbon.json
 src/content/gear-categories/haspelrullar.json
+src/content/gear-categories/jerkbaits.json
+src/content/gear-categories/jiggar.json
+src/content/gear-categories/kustdrag.json
 src/content/gear-categories/nylon.json
+src/content/gear-categories/spinnare.json
 src/content/gear-categories/spon.json
 src/content/gear-categories/trollingspon.json
+src/content/gear-categories/wobblers.json
 src/content/gear-reviews
 src/content/gear-reviews/bft-lizzard-x-stefan-trumstedt.mdx
 src/content/gear-reviews/bft-ninety-two-mimic-stick.mdx
 src/content/gear-reviews/bft-raptor-g2-jerkbait.mdx
+src/content/gear-reviews/bomber-long-a.mdx
 src/content/gear-reviews/deeper-smart-sonar-chirp-plus-3.mdx
 src/content/gear-reviews/deeper-smart-sonar-chirp-plus-4.mdx
 src/content/gear-reviews/deeper-smart-sonar-pro-plus-2.mdx
 src/content/gear-reviews/deeper-start-global.mdx
+src/content/gear-reviews/ej-lures-flatnose-mini.mdx
+src/content/gear-reviews/ej-lures-flatnose-shad.mdx
 src/content/gear-reviews/garmin-echomap-uhd2-52cv.mdx
 src/content/gear-reviews/garmin-echomap-uhd2-92sv.mdx
 src/content/gear-reviews/garmin-striker-cast-no-gps.mdx
@@ -124,6 +140,9 @@ src/content/gear-reviews/okuma-inspira-2500a.mdx
 src/content/gear-reviews/okuma-itx-cb-2500h.mdx
 src/content/gear-reviews/okuma-magda-finn-trolling-combo.mdx
 src/content/gear-reviews/okuma-magda-finn-trollingspo.mdx
+src/content/gear-reviews/pig-chopper-spinnerbait.mdx
+src/content/gear-reviews/pig-shad-jr.mdx
+src/content/gear-reviews/rapala-shadow-rap.mdx
 src/content/gear-reviews/shimano-26-zodias-haspelspo.mdx
 src/content/gear-reviews/shimano-expride-haspelspo-198m.mdx
 src/content/gear-reviews/shimano-kairiki-8-013mm.mdx
@@ -135,12 +154,15 @@ src/content/gear-reviews/shimano-stradic-fm-c3000-hg.mdx
 src/content/gear-reviews/shimano-vanford-fa-2500.mdx
 src/content/gear-reviews/shimano-vanford-fa-4000.mdx
 src/content/gear-reviews/shimano-yasei-bb-pike-xh.mdx
+src/content/gear-reviews/strike-pro-buster-jerk.mdx
 src/content/gear-reviews/strike-wire-extreme-015mm.mdx
 src/content/gear-reviews/strike-wire-fluorocarbon-022mm-invisible.mdx
 src/content/gear-reviews/strike-wire-shockleader-090mm.mdx
 src/content/gear-reviews/stroft-abr-028mm.mdx
 src/content/gear-reviews/stroft-abr-030mm.mdx
 src/content/gear-reviews/stroft-abr-040mm.mdx
+src/content/gear-reviews/westin-salty.mdx
+src/content/gear-reviews/westin-swim-glidebait.mdx
 src/content/gear-reviews/westin-w10-13-braid-coastal.mdx
 src/content/gear-reviews/westin-w2-powercast-t-spinnspo.mdx
 src/content/gear-reviews/westin-w2-predator-trolling.mdx
@@ -159,6 +181,7 @@ src/content/gear-reviews/westin-w6-powerteez-haspelspo.mdx
 src/content/gear-reviews/westin-w6-st3-hard-062mm.mdx
 src/content/gear-reviews/westin-w6-st5-soft-030mm.mdx
 src/content/gear-reviews/westin-w6-st5-soft-038mm.mdx
+src/content/gear-reviews/wiggler-viking-herring.mdx
 src/content/species
 src/content/species/.DS_Store
 src/content/species/abborre.mdx
@@ -344,6 +367,7 @@ const gearCategories = defineCollection({
   schema: z.object({
     title: z.string(),
     slug: z.string(),
+    parent: z.enum(['beten', 'spon', 'rullar', 'linor']).optional(),
     description: z.string(),
     heroImage: z.string(),
     heroSource: z.enum(['illustration', 'photo']).default('illustration'),
@@ -457,8 +481,7 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
-});
-```
+});```
 
 ## tsconfig.json
 ```
@@ -1295,6 +1318,7 @@ export default function DestinationMap({ lat, lng, title }: Props) {
 
 import { useState, useEffect, useRef } from 'react';
 import { getScore, SPECIES } from '../data/calendar';
+import 'leaflet/dist/leaflet.css';
 
 function useIsMobile(breakpoint = 640): boolean {
   const [isMobile, setIsMobile] = useState(false);
@@ -1605,13 +1629,6 @@ export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props)
     if (!mapRef.current || leafletRef.current) return;
 
     import('leaflet').then(L => {
-      if (!document.getElementById('leaflet-css')) {
-        const link = document.createElement('link');
-        link.id   = 'leaflet-css';
-        link.rel  = 'stylesheet';
-        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-        document.head.appendChild(link);
-      }
 
       const swedenBounds = L.latLngBounds(L.latLng(55.2, 11.0), L.latLng(69.1, 24.2));
 
@@ -2424,6 +2441,379 @@ export default function KalenderWidget({
     </div>
   );
 }
+```
+
+## src/components/ekolodvaljare/EkolodValjare.tsx
+```
+import { useMemo, useState } from 'react';
+import { trackAffiliateClick } from '../../lib/track';
+
+/**
+ * EkolodValjare
+ * En deterministisk ekolodsväljare i samma anda som LinValjare. Tre val (var du
+ * fiskar, vad som är viktigast, budget) ger direkt en rekommendation ur de tolv
+ * ekoloden i gear-reviews-collectionen, med ärliga noter när valet inte går ihop.
+ *
+ * Den centrala distinktionen verktyget löser, och som vanliga butikslistor
+ * förklarar dåligt: Striker-serien har GPS och Quickdraw för egna kartor men
+ * läser inte Navionics-sjökort, medan Echomap-serien är kartplotter med sjökort.
+ * Deeper START exkluderas medvetet ur isfiske eftersom modellen inte stödjer det.
+ */
+
+interface EkolodProduct {
+  slug: string;
+  title: string;
+  brand: string;
+  price: number;
+  priceRange: 'budget' | 'mellanklass' | 'premium';
+  affiliateUrl: string;
+  merchant: string;
+}
+
+interface Props {
+  ekolod: EkolodProduct[];
+}
+
+type Plats = 'land' | 'bat' | 'is';
+type Fokus = 'enkelt' | 'kartor' | 'sjokort' | 'basta';
+type Budget = 'lag' | 'mellan' | 'oavsett';
+
+const PLATSER: { value: Plats; label: string }[] = [
+  { value: 'land', label: 'Land, brygga, kajak eller flytring' },
+  { value: 'bat', label: 'Från båt' },
+  { value: 'is', label: 'Isfiske' },
+];
+
+const FOKUS: { value: Fokus; label: string }[] = [
+  { value: 'enkelt', label: 'Komma igång enkelt och billigt' },
+  { value: 'kartor', label: 'Rita egna kartor och hitta tillbaka' },
+  { value: 'sjokort', label: 'Färdiga sjökort för navigering' },
+  { value: 'basta', label: 'Bästa möjliga bild' },
+];
+
+const BUDGETAR: { value: Budget; label: string }[] = [
+  { value: 'lag', label: 'Upp till ca 2 000 kr' },
+  { value: 'mellan', label: 'Upp till ca 4 500 kr' },
+  { value: 'oavsett', label: 'Spelar ingen roll' },
+];
+
+/** Egenskapstaggar per slug, enbart för visning. Ekolodsdata ligger inte i schemat. */
+const ATTR: Record<string, { typ: 'Kastbart' | 'Fast monterat'; taggar: string[] }> = {
+  'deeper-start-global': { typ: 'Kastbart', taggar: ['Instegsmodell'] },
+  'garmin-striker-cast-no-gps': { typ: 'Kastbart', taggar: ['Isfiske'] },
+  'garmin-striker-cast-worldwide': { typ: 'Kastbart', taggar: ['GPS', 'Isfiske'] },
+  'deeper-smart-sonar-pro-plus-2': { typ: 'Kastbart', taggar: ['GPS', 'Isfiske'] },
+  'deeper-smart-sonar-chirp-plus-3': { typ: 'Kastbart', taggar: ['CHIRP', 'GPS', 'Isfiske'] },
+  'deeper-smart-sonar-chirp-plus-4': { typ: 'Kastbart', taggar: ['CHIRP', 'AI', 'GPS', 'Isfiske'] },
+  'garmin-striker-vivid-4cv': { typ: 'Fast monterat', taggar: ['GPS', '4 tum'] },
+  'garmin-striker-vivid-5cv': { typ: 'Fast monterat', taggar: ['GPS', '5 tum'] },
+  'garmin-striker-vivid-7cv': { typ: 'Fast monterat', taggar: ['GPS', 'Wi-Fi', '7 tum'] },
+  'garmin-striker-vivid-9sv': { typ: 'Fast monterat', taggar: ['SideScan', 'GPS', '9 tum'] },
+  'garmin-echomap-uhd2-52cv': { typ: 'Fast monterat', taggar: ['Sjökort', 'GPS', '5 tum'] },
+  'garmin-echomap-uhd2-92sv': { typ: 'Fast monterat', taggar: ['Sjökort', 'SideScan', '9 tum'] },
+};
+
+interface Rec {
+  /** Slugs i prioritetsordning */
+  slugs: string[];
+  /** Ärlig not när valet behöver en förklaring */
+  note?: string;
+  /** Echomap är topval, visa sjökortsnot */
+  showChart?: boolean;
+}
+
+function recommend(plats: Plats, fokus: Fokus): Rec {
+  if (plats === 'land') {
+    switch (fokus) {
+      case 'enkelt':
+        return { slugs: ['deeper-start-global', 'garmin-striker-cast-no-gps'] };
+      case 'kartor':
+        return {
+          slugs: ['garmin-striker-cast-worldwide', 'deeper-smart-sonar-pro-plus-2', 'deeper-smart-sonar-chirp-plus-3'],
+        };
+      case 'sjokort':
+        return {
+          slugs: ['garmin-striker-cast-worldwide', 'deeper-smart-sonar-pro-plus-2'],
+          note: 'Färdiga sjökort kräver en fast monterad kartplotter och båt. Från land får du i stället egna djupkartor med ett kastbart ekolod med GPS.',
+        };
+      case 'basta':
+        return { slugs: ['deeper-smart-sonar-chirp-plus-4', 'deeper-smart-sonar-chirp-plus-3'] };
+    }
+  }
+
+  if (plats === 'bat') {
+    switch (fokus) {
+      case 'enkelt':
+        return { slugs: ['garmin-striker-vivid-4cv', 'garmin-striker-vivid-5cv'] };
+      case 'kartor':
+        return {
+          slugs: ['garmin-striker-vivid-5cv', 'garmin-striker-vivid-7cv', 'garmin-striker-vivid-4cv'],
+          note: 'Striker Vivid har GPS och Quickdraw för egna kartor men läser inte Navionics-sjökort. Vill du ha färdiga sjökort, byt fokus till navigering.',
+        };
+      case 'sjokort':
+        return { slugs: ['garmin-echomap-uhd2-52cv', 'garmin-echomap-uhd2-92sv'], showChart: true };
+      case 'basta':
+        return { slugs: ['garmin-echomap-uhd2-92sv', 'garmin-striker-vivid-9sv'], showChart: true };
+    }
+  }
+
+  // plats === 'is'. Deeper START exkluderas, den stödjer inte isfiske.
+  switch (fokus) {
+    case 'enkelt':
+      return { slugs: ['garmin-striker-cast-no-gps', 'garmin-striker-cast-worldwide'] };
+    case 'kartor':
+      return {
+        slugs: ['garmin-striker-cast-worldwide', 'deeper-smart-sonar-pro-plus-2', 'deeper-smart-sonar-chirp-plus-3'],
+      };
+    case 'sjokort':
+      return {
+        slugs: ['garmin-striker-cast-worldwide', 'deeper-smart-sonar-pro-plus-2'],
+        note: 'Sjökort är inte aktuellt på isen. Här räknas snabb, tydlig ekolodsbild och GPS för att märka ut hålen.',
+      };
+    case 'basta':
+      return {
+        slugs: ['deeper-smart-sonar-chirp-plus-4', 'deeper-smart-sonar-chirp-plus-3', 'deeper-smart-sonar-pro-plus-2'],
+      };
+  }
+}
+
+function budgetCap(b: Budget): number {
+  if (b === 'lag') return 2000;
+  if (b === 'mellan') return 4500;
+  return Infinity;
+}
+
+const COLOR_ACTIVE = 'bg-pine text-white border-pine';
+const COLOR_IDLE = 'bg-white text-deep border-mist hover:border-pine';
+
+export default function EkolodValjare({ ekolod }: Props) {
+  const [plats, setPlats] = useState<Plats>('bat');
+  const [fokus, setFokus] = useState<Fokus>('enkelt');
+  const [budget, setBudget] = useState<Budget>('oavsett');
+
+  const result = useMemo(() => {
+    const rec = recommend(plats, fokus);
+    const bySlug = new Map(ekolod.map((p) => [p.slug, p]));
+    const ranked = rec.slugs
+      .map((s) => bySlug.get(s))
+      .filter((p): p is EkolodProduct => Boolean(p));
+
+    const cap = budgetCap(budget);
+    const within = ranked.filter((p) => p.price <= cap);
+
+    if (within.length === 0 && ranked.length > 0) {
+      const cheapest = [...ranked].sort((a, b) => a.price - b.price).slice(0, 1);
+      return {
+        picks: cheapest,
+        note: 'Inget alternativ i den här gruppen ligger under vald budget. Det billigaste visas i stället.',
+        showChart: false,
+      };
+    }
+
+    return { picks: within, note: rec.note, showChart: Boolean(rec.showChart) && within.length > 0 };
+  }, [plats, fokus, budget, ekolod]);
+
+  const renderChips = <T extends string>(
+    options: { value: T; label: string }[],
+    selected: T,
+    onSelect: (v: T) => void,
+  ) => (
+    <div className="flex flex-wrap gap-2">
+      {options.map((o) => {
+        const active = selected === o.value;
+        return (
+          <button
+            key={o.value}
+            type="button"
+            aria-pressed={active}
+            onClick={() => onSelect(o.value)}
+            className={`px-4 py-2 rounded-full text-sm font-medium border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 ${
+              active ? COLOR_ACTIVE : COLOR_IDLE
+            }`}
+          >
+            {o.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  return (
+    <div className="max-w-xl mx-auto bg-mist/40 border border-mist rounded-3xl p-6 sm:p-8 not-prose">
+      <div className="mb-6">
+        <h2 className="font-display text-2xl font-bold text-deep mb-2">Ekolodsväljaren</h2>
+        <p className="text-stone text-sm leading-relaxed">
+          Välj var du fiskar, vad som är viktigast och din budget. Du får direkt rätt ekolod ur
+          sortimentet. Behöver du sjökort säger vi det rakt ut, och löser valet inte ihop sig
+          förklarar vi varför.
+        </p>
+      </div>
+
+      <fieldset className="mb-5">
+        <legend className="text-xs font-semibold uppercase tracking-wider text-stone mb-2">Var fiskar du mest?</legend>
+        {renderChips(PLATSER, plats, setPlats)}
+      </fieldset>
+
+      <fieldset className="mb-5">
+        <legend className="text-xs font-semibold uppercase tracking-wider text-stone mb-2">Vad är viktigast?</legend>
+        {renderChips(FOKUS, fokus, setFokus)}
+      </fieldset>
+
+      <fieldset className="mb-7">
+        <legend className="text-xs font-semibold uppercase tracking-wider text-stone mb-2">Budget</legend>
+        {renderChips(BUDGETAR, budget, setBudget)}
+      </fieldset>
+
+      <div>
+        {result.note && (
+          <div className="mb-4 bg-white border border-mist rounded-2xl px-4 py-3">
+            <p className="text-deep text-sm leading-relaxed">{result.note}</p>
+          </div>
+        )}
+
+        {result.picks.length > 0 ? (
+          <div className="space-y-3">
+            {result.picks.map((p, i) => {
+              const attr = ATTR[p.slug];
+              return (
+                <div key={p.slug} className="bg-white rounded-2xl border border-mist p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      {i === 0 && (
+                        <span className="inline-block text-[11px] font-semibold uppercase tracking-wider text-pine mb-1">
+                          Bäst för dig
+                        </span>
+                      )}
+                      <h3 className="font-display text-lg font-bold text-deep leading-tight">{p.title}</h3>
+                      <p className="text-stone text-xs mt-0.5">{p.brand}</p>
+                    </div>
+                    <span className="text-deep font-bold whitespace-nowrap">{p.price.toLocaleString('sv-SE')} kr</span>
+                  </div>
+
+                  {attr && (
+                    <div className="flex flex-wrap gap-1.5 mt-3">
+                      <span className="text-[11px] font-medium text-stone bg-mist/60 rounded-full px-2.5 py-1">
+                        {attr.typ}
+                      </span>
+                      {attr.taggar.map((t) => (
+                        <span key={t} className="text-[11px] font-medium text-stone bg-mist/60 rounded-full px-2.5 py-1">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  <a
+                    href={p.affiliateUrl}
+                    target={p.affiliateUrl ? '_blank' : undefined}
+                    rel={p.affiliateUrl ? 'noopener noreferrer sponsored' : undefined}
+                    onClick={() => trackAffiliateClick(p.merchant, p.slug, i + 1, 'article')}
+                    className="inline-flex items-center gap-1.5 mt-4 text-pine text-sm font-semibold hover:text-deep transition-colors underline underline-offset-2"
+                  >
+                    Se pris hos {p.merchant}
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                      <path
+                        d="M2 10L10 2M10 2H4M10 2v6"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </a>
+                </div>
+              );
+            })}
+
+            {result.showChart && (
+              <div className="bg-white rounded-2xl border border-mist p-5">
+                <p className="text-deep text-sm leading-relaxed">
+                  Echomap stödjer Garmin Navionics-sjökort, som köps separat. Välj sjökort för ditt
+                  område, till exempel Bottenviken om du fiskar norra kusten.
+                </p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="bg-white rounded-2xl border border-mist p-5">
+            <p className="text-deep text-sm leading-relaxed mb-3">
+              Vi har i dag inget ekolod i sortimentet som matchar exakt för det här valet. Prova en
+              annan budget eller ett annat fokus.
+            </p>
+            <a
+              href="/utrustning/"
+              className="inline-flex items-center gap-1.5 text-pine text-sm font-semibold hover:text-deep transition-colors underline underline-offset-2"
+            >
+              Se all utrustning
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <path
+                  d="M3 6h6M6 3l3 3-3 3"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </a>
+          </div>
+        )}
+      </div>
+
+      <p className="text-xs text-stone/60 text-center mt-6">
+        Rekommendationerna bygger på vår redaktionella bedömning. Affiliatelänkar kan förekomma.
+      </p>
+    </div>
+  );
+}
+```
+
+## src/components/ekolodvaljare/EkolodValjareIsland.astro
+```
+---
+/**
+ * EkolodValjareIsland.astro
+ * Serverwrapper som hämtar de tolv ekoloden ur gear-reviews-collectionen och
+ * matar dem till den interaktiva EkolodValjare-islanden. Inkludera bara den här
+ * i ekolodsguiden, så lever väljaren bara där. Samma mönster som
+ * LinValjareIsland.astro.
+ */
+import { getCollection } from 'astro:content';
+import EkolodValjare from './EkolodValjare.tsx';
+
+const EKOLOD_SLUGS = new Set<string>([
+  'deeper-start-global',
+  'garmin-striker-cast-no-gps',
+  'garmin-striker-cast-worldwide',
+  'deeper-smart-sonar-pro-plus-2',
+  'deeper-smart-sonar-chirp-plus-3',
+  'deeper-smart-sonar-chirp-plus-4',
+  'garmin-striker-vivid-4cv',
+  'garmin-striker-vivid-5cv',
+  'garmin-striker-vivid-7cv',
+  'garmin-striker-vivid-9sv',
+  'garmin-echomap-uhd2-52cv',
+  'garmin-echomap-uhd2-92sv',
+]);
+
+const allReviews = await getCollection('gear-reviews');
+
+const ekolod = allReviews
+  .filter((entry) => {
+    const category = (entry.data.category ?? '').toLowerCase();
+    return EKOLOD_SLUGS.has(entry.data.slug) || category === 'ekolod';
+  })
+  .map((entry) => ({
+    slug: entry.data.slug,
+    title: entry.data.title,
+    brand: entry.data.brand,
+    price: entry.data.price,
+    priceRange: entry.data.priceRange,
+    affiliateUrl: entry.data.affiliateUrl,
+    merchant: entry.data.merchant,
+  }));
+---
+
+<EkolodValjare client:load ekolod={ekolod} />
 ```
 
 ## src/components/linvaljare/LinValjare.tsx
@@ -6104,6 +6494,12 @@ const authors = await getCollection('authors');
         <p>Sajten finansieras via affiliate-provisioner. När du köper något via en länk på Strömkast får vi en liten ersättning från återförsäljaren, utan kostnad för dig. Det påverkar aldrig vad vi skriver eller hur vi rangordnar produkter.</p>
       </div>
 
+      <div class="space-y-4 text-stone max-w-[65ch] mb-12">
+        <h2 class="font-display text-2xl font-bold text-deep">Så bedömer vi produkter</h2>
+        <p>Vi testar inte utrustning under kontrollerade former i labb. Våra omdömen bygger på tillverkarnas specifikationer, på hur redskapet fungerar i svenska vatten, och på hur erfarna svenska fiskare beskriver det.</p>
+        <p>När vi sätter betyg väger vi in styrkor och svagheter för det tänkta användningsområdet, inte bara vad produkten har. Vi skriver aldrig att vi provat något vi inte provat, och vi tar med nackdelar lika tydligt som fördelar. Priser och lager kan ändras, så kontrollera alltid aktuell uppgift hos återförsäljaren innan du köper.</p>
+      </div>
+
       <div class="space-y-6">
         {authors.map((author) => (
           <div class="bg-white rounded-2xl p-6 border border-mist flex flex-col sm:flex-row gap-5">
@@ -6125,8 +6521,7 @@ const authors = await getCollection('authors');
 
     </div>
   </div>
-</BaseLayout>
-```
+</BaseLayout>```
 
 ## src/pages/rss.xml.ts
 ```
@@ -6855,6 +7250,22 @@ const itemListSchema = {
     name: cat.data.title,
   })),
 };
+
+// Gruppering. Kategorierna ligger kvar på platta URL:er, parent styr bara
+// hur de samlas under rubriker på den här hubben. Ordningen nedan är visningsordningen.
+const GROUPS = [
+  { id: 'beten', title: 'Beten' },
+  { id: 'spon', title: 'Spön' },
+  { id: 'rullar', title: 'Rullar' },
+  { id: 'linor', title: 'Linor' },
+];
+
+const grouped = GROUPS
+  .map((g) => ({ ...g, items: categories.filter((c) => c.data.parent === g.id) }))
+  .filter((g) => g.items.length > 0);
+
+// Skyddsnät: kategorier utan parent försvinner inte, de hamnar under Övrigt.
+const ungrouped = categories.filter((c) => !c.data.parent);
 ---
 
 <BaseLayout
@@ -6870,32 +7281,62 @@ const itemListSchema = {
       <p class="text-stone text-lg max-w-2xl leading-relaxed">Testade och rankade produkter inom varje kategori. Inga betalda recensioner. Bara ärliga åsikter från fiskare som använder utrustningen.</p>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-      {categories.map((cat) => (
-        <a
-          href={`/utrustning/${cat.data.slug}/`}
-          class="group bg-white rounded-2xl overflow-hidden border border-mist hover:border-pine/20 hover:shadow-md transition-all p-6 flex gap-5 items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
-        >
-          <div class="w-20 h-20 rounded-xl bg-mist overflow-hidden shrink-0">
-            <div
-              class="w-full h-full bg-cover bg-center"
-              style={`background-image: url('${cat.data.heroImage}'); background-color: #E8E4DC;`}
-              role="img"
-              aria-label={cat.data.title}
-            ></div>
-          </div>
-          <div>
-            <h2 class="font-display font-bold text-deep text-xl mb-1.5 group-hover:text-pine transition-colors">{cat.data.title}</h2>
-            <p class="text-stone text-sm leading-relaxed">{cat.data.excerpt ?? cat.data.description}</p>
-          </div>
-          <svg class="ml-auto shrink-0 text-stone group-hover:text-pine transition-colors" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-            <path d="M5 10h10M11 6l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </a>
-      ))}
-    </div>
+    {grouped.map((group) => (
+      <section class="mb-14">
+        <h2 class="font-display text-2xl font-bold text-deep mb-6">{group.title}</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {group.items.map((cat) => (
+            <a
+              href={`/utrustning/${cat.data.slug}/`}
+              class="group bg-white rounded-2xl overflow-hidden border border-mist hover:border-pine/20 hover:shadow-md transition-all p-6 flex gap-5 items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
+            >
+              <div class="w-20 h-20 rounded-xl bg-mist overflow-hidden shrink-0">
+                <div
+                  class="w-full h-full bg-cover bg-center"
+                  style={`background-image: url('${cat.data.heroImage}'); background-color: #E8E4DC;`}
+                  role="img"
+                  aria-label={cat.data.title}
+                ></div>
+              </div>
+              <div>
+                <h3 class="font-display font-bold text-deep text-xl mb-1.5 group-hover:text-pine transition-colors">{cat.data.title}</h3>
+                <p class="text-stone text-sm leading-relaxed">{cat.data.excerpt ?? cat.data.description}</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    ))}
+
+    {ungrouped.length > 0 && (
+      <section class="mb-14">
+        <h2 class="font-display text-2xl font-bold text-deep mb-6">Övrigt</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {ungrouped.map((cat) => (
+            <a
+              href={`/utrustning/${cat.data.slug}/`}
+              class="group bg-white rounded-2xl overflow-hidden border border-mist hover:border-pine/20 hover:shadow-md transition-all p-6 flex gap-5 items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
+            >
+              <div class="w-20 h-20 rounded-xl bg-mist overflow-hidden shrink-0">
+                <div
+                  class="w-full h-full bg-cover bg-center"
+                  style={`background-image: url('${cat.data.heroImage}'); background-color: #E8E4DC;`}
+                  role="img"
+                  aria-label={cat.data.title}
+                ></div>
+              </div>
+              <div>
+                <h3 class="font-display font-bold text-deep text-xl mb-1.5 group-hover:text-pine transition-colors">{cat.data.title}</h3>
+                <p class="text-stone text-sm leading-relaxed">{cat.data.excerpt ?? cat.data.description}</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
   </div>
-</BaseLayout>```
+</BaseLayout>
+```
 
 ## src/pages/utrustning/test/[slug].astro
 ```
@@ -7692,6 +8133,7 @@ export function trackQuizCompleted(result_product_ids: string[]): void {
 {
   "title": "Flätlinor",
   "slug": "flatlinor",
+  "parent": "linor",
   "description": "Handplockade flätlinor för predatorfiske. Budget till premium, 4-trådig till 13-trådig. Vi hjälper dig hitta rätt lina för ditt fiske.",
   "heroImage": "/images/gear/flatlinor.jpg",
   "guideUrl": "/guider/valja-fiskelina/"
@@ -7703,6 +8145,7 @@ export function trackQuizCompleted(result_product_ids: string[]): void {
 {
   "title": "Fluorocarbontafsar",
   "slug": "fluorocarbon",
+  "parent": "linor",
   "description": "Handplockade fluorocarbontafsar för predatorfiske. Mjuka tafsar för finess och styva tafsar för gädda, i diametrar från abborre till storgädda.",
   "heroImage": "/images/gear/fluorocarbon.jpg",
   "guideUrl": "/guider/valja-fiskelina/",
@@ -7715,8 +8158,48 @@ export function trackQuizCompleted(result_product_ids: string[]): void {
 {
   "title": "Haspelrullar",
   "slug": "haspelrullar",
+  "parent": "rullar",
   "description": "Handplockade haspelrullar för abborre, gädda och gös. Vi har valt ut de bästa alternativen i varje prisklass.",
   "heroImage": "/images/gear/haspelrullar.jpg"
+}
+```
+
+## src/content/gear-categories/jerkbaits.json
+```
+{
+  "title": "Jerkbaits",
+  "slug": "jerkbaits",
+  "parent": "beten",
+  "description": "Jerkbaits för gädda. Hårdbeten med ryckig sida-till-sida-gång som lockar hugg på grunt vatten, fiskade med korta ryck eller jämn invevning.",
+  "heroImage": "/images/gear/jerkbaits.jpg",
+  "heroSource": "illustration",
+  "excerpt": "Hårdbeten med ryckig gång för gäddfiske."
+}
+```
+
+## src/content/gear-categories/jiggar.json
+```
+{
+  "title": "Jiggar",
+  "slug": "jiggar",
+  "parent": "beten",
+  "description": "Mjukbeten på jigghuvud eller offsetkrok för abborre, gädda och gös. Paddeltailjiggar, finessjiggar och shaddar som täcker det mesta av rovfisket.",
+  "heroImage": "/images/gear/jiggar.jpg",
+  "heroSource": "illustration",
+  "excerpt": "Mjukbeten för abborre, gädda och gös."
+}
+```
+
+## src/content/gear-categories/kustdrag.json
+```
+{
+  "title": "Kustdrag",
+  "slug": "kustdrag",
+  "parent": "beten",
+  "description": "Drag för kustfiske efter havsöring. Långkastande skeddrag och inline-beten som går att fiska på grunt vatten i hård vind under hela året.",
+  "heroImage": "/images/gear/kustdrag.jpg",
+  "heroSource": "illustration",
+  "excerpt": "Långkastande drag för havsöring på kusten."
 }
 ```
 
@@ -7725,10 +8208,24 @@ export function trackQuizCompleted(result_product_ids: string[]): void {
 {
   "title": "Nylonlinor",
   "slug": "nylon",
+  "parent": "linor",
   "description": "Handplockade nylonlinor för trolling och laxfiske. Stretch som dämpar hugg och nötningstålighet för fiske mot sten och struktur.",
   "heroImage": "/images/gear/nylon.jpg",
   "guideUrl": "/guider/valja-fiskelina/",
   "excerpt": "Nylonlinor för trolling och laxfiske i älv."
+}
+```
+
+## src/content/gear-categories/spinnare.json
+```
+{
+  "title": "Spinnare",
+  "slug": "spinnare",
+  "parent": "beten",
+  "description": "Spinnare och spinnerbaits för rovfiske. Aktiva beten med roterande blad, blänk och vibration som lockar gädda och abborre i vass och grumligt vatten.",
+  "heroImage": "/images/gear/spinnare.jpg",
+  "heroSource": "illustration",
+  "excerpt": "Spinnare och spinnerbaits för gädda och abborre."
 }
 ```
 
@@ -7737,6 +8234,7 @@ export function trackQuizCompleted(result_product_ids: string[]): void {
 {
   "title": "Fiskespön",
   "slug": "spon",
+  "parent": "spon",
   "description": "Handplockade spön för abborre, gädda och gös. Vi har valt ut de bästa alternativen i varje prisklass.",
   "heroImage": "/images/gear/spon.jpg",
   "guideUrl": "/guider/basta-fiskespon-2026/",
@@ -7749,8 +8247,22 @@ export function trackQuizCompleted(result_product_ids: string[]): void {
 {
   "title": "Trollingspön",
   "slug": "trollingspon",
+  "parent": "spon",
   "description": "Trollingspön för lax, gädda, gös och musky. Från budgetvänliga startkit till kraftfulla spön för de tuffaste fiskarna.",
   "heroImage": "/images/gear/trollingspon.jpg"
+}
+```
+
+## src/content/gear-categories/wobblers.json
+```
+{
+  "title": "Wobblers",
+  "slug": "wobblers",
+  "parent": "beten",
+  "description": "Wobblers och crankbaits för rovfiske. Hårdbeten med sked som dyker och simmar med vaggande gång, för gädda, gös, abborre och öring vid kast och trolling.",
+  "heroImage": "/images/gear/wobblers.jpg",
+  "heroSource": "illustration",
+  "excerpt": "Wobblers för gädda, gös, abborre och öring."
 }
 ```
 
@@ -7872,6 +8384,43 @@ BFT Raptor G2 Jerkbait är ett 2-delat spö på 201 cm med måttlig aktion och k
 Komponentvalet speglar prisnivån. Rostfria stålringar fungerar men är tyngre och har sämre friktionsegenskaper än keramiska alternativ vid flätlina. Lättviktsrullfästet och det delade EVA-skumhandtaget med gummiändstycke ger ett funktionellt grepp utan att lägga till onödig vikt. Medföljandefodralet är en praktisk detalj som ofta saknas i den här prisklassen.
 
 Kastvikten upp till 150 g täcker de flesta jerkbaits och gliders för gädda. Det är ett rimligt första jerkbaitspö för den som vill prova tekniken utan att investera i topsegmentet, eller ett reservspö för den som redan har ett dyrare alternativ. Den som fiskar jerkbait regelbundet och vill ha bättre känsla och komponentkvalitet bör titta på BFT Lizzard X eller Westin W6 Jerk och Swimbait.
+```
+
+## src/content/gear-reviews/bomber-long-a.mdx
+```
+---
+title: "Bomber Long A 13g"
+slug: "bomber-long-a"
+description: "Klassisk flytande wobbler på 12 cm för gädda, gös och öring. Slank kropp med naturtrogen vaggande gång. Fiskas på spinn och trollad efter båt."
+heroImage: "/images/gear/bomber-long-a.jpg"
+heroSource: "illustration"
+brand: "Bomber"
+category: "wobblers"
+price: 219
+rating: 4.5
+pros:
+  - "Naturtrogen vaggande gång i alla farter"
+  - "Lättkastad och mångsidig, funkar på spinn och trolling"
+  - "Beprövad klassiker som tagit fisk i decennier"
+cons:
+  - "12 cm är i minsta laget för renodlat storgäddfiske"
+  - "Flytande modell når inte djupare hålor utan hjälp"
+  - "Enskilda färger tar slut i perioder"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/bomber-b15a-long-a-13g-12cm-210/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["gadda", "gos", "oring"]
+techniques: ["wobbler", "trolling"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Bomber Long A är en klassisk flytande wobbler som har fångat rovfisk i decennier. Modellen på 12 cm och 13 gram har en slank kropp och en naturtrogen, vaggande gång som imiterar en simmande betesfisk. Den är lättkastad för sin vikt och går att fiska både på spinn och trollad efter båt.
+
+Skeden i nosen styr djupet. Vid kastfiske arbetar betet på ungefär en meters djup, och trollat går det något djupare. Den fina gången kommer fram redan i lågt tempo, men du utlöser ofta hugg genom att växla fart och lägga in korta vevstopp. Betet är utrustat med starka krokar och tål fisk efter fisk.
+
+Det här är en mångsidig wobbler för dig som fiskar gädda, gös och öring och vill ha ett bete som fungerar i många vatten och situationer. Storleken gör den till en bra allroundwobbler snarare än ett renodlat storgäddbete. Vill du fiska djupare eller efter grövre fisk finns Long A i större och djupgående utföranden.
 ```
 
 ## src/content/gear-reviews/deeper-smart-sonar-chirp-plus-3.mdx
@@ -8055,6 +8604,80 @@ Deeper START ar den enklaste modellen i Deeper-familjen och riktar sig till fisk
 Enkeltrale-konstruktionen med 120 kHz och 40 graders konvinkel ger en bred overblick over vad som hander under ytan. Du ser fiskikoner, bottenkonturer och vegetation med fargkodad bild som ar enkel att tolka. Radickvidden pa 50 meter och djupkapaciteten pa 50 meter racker for de flesta insjositutationer vid landfiske och brygga.
 
 Deeper START saknar GPS och kan darfor inte skapa kartor, och den ar inte anpassad for isfiske. For den som vill ha GPS-kartlaggning eller isfiske passar Garmin Striker Cast eller Deeper PRO+ 2 battre. Men for den som vill ha ett enkelt, latt och prisvaert forsta ekolod for landfiske ar START ett funktionellt val som ger direkt insyn i vattnet under ytan.
+```
+
+## src/content/gear-reviews/ej-lures-flatnose-mini.mdx
+```
+---
+title: "EJ Lures Flatnose Mini 7g"
+slug: "ej-lures-flatnose-mini"
+description: "Kompakt paddeltailjigg på 9 cm för abborre. Stor paddel och bred profil ger mycket rörelse i vattnet. Riggas på jigghuvud eller offsetkrok, tiopack."
+heroImage: "/images/gear/ej-lures-flatnose-mini.jpg"
+heroSource: "illustration"
+brand: "EJ Lures"
+category: "jiggar"
+price: 139
+rating: 4.5
+pros:
+  - "Stor paddel ger mycket rörelse även i låg fart"
+  - "Kan riggas på jigghuvud eller offsetkrok"
+  - "Tiopack ger lågt pris per bete"
+cons:
+  - "Finns bara i en storlek, 9 cm"
+  - "Populära färger tar slut i perioder"
+  - "Mjukt gummi slits av abborrens gällock"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/ej-lures-flatnose-mini-transparent-perch-9cm-7gr-10-pack/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: true
+targetSpecies: ["abborre"]
+techniques: ["jigg"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Flatnose Mini är en kompakt paddeltailjigg för abborre. Trots den blygsamma storleken på 9 cm har den en kraftig paddel och en bred kropp som ger mycket rörelse i vattnet redan vid låg fart. Det gör betet lätt för abborren att hitta även när sikten är dålig eller fisken står passiv.
+
+Mini är gjuten i ett mjukt gummi och kan riggas på flera sätt beroende på situationen. På ett vanligt jigghuvud i storlek 4/0 fiskas den enklast med jämn invevning eller korta lyft längs botten. För mer skräpiga bottnar går den att rigga på en offsetkrok i en Texas- eller Carolinarigg, där kroken ligger skyddad och fastnar mindre. Betet säljs i tiopack, vilket gör priset per styck lågt när du tappar några mot vass och sten.
+
+Det här är ett bete för den som riktar in sig på abborre med spinn eller finessteknik, från grunda vikar till djupare kanter. Storleken passar normal abborre bra och sorterar bort en del av den minsta fisken. Vill du gå upp i storlek för grövre abborre eller gädda finns Flatnose Shad på 19 cm i samma serie, byggd på samma idé men för större fisk.
+```
+
+## src/content/gear-reviews/ej-lures-flatnose-shad.mdx
+```
+---
+title: "EJ Lures Flatnose Shad 50g"
+slug: "ej-lures-flatnose-shad"
+description: "Gäddjigg på 19 cm och 50 gram från EJ Lures. Stor paddel och bred profil ger mycket rörelse. Riggas shallow, med clip weight eller på offsetkrok."
+heroImage: "/images/gear/ej-lures-flatnose-shad.jpg"
+heroSource: "illustration"
+brand: "EJ Lures"
+category: "jiggar"
+price: 139
+rating: 4.5
+pros:
+  - "Stor paddel ger mycket rörelse även i låg fart"
+  - "Kan riggas grunt, djupt eller vasskyddat på offsetkrok"
+  - "Kompakt profil som passar både gädda och gös"
+cons:
+  - "Mjukt gummi slits av gäddans tänder efter några fiskar"
+  - "Säljs i enpack, dyrare per bete än flerpack"
+  - "Populära färger tar slut i perioder"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/ej-lures-flatnose-shad-coregonus-19cm-50gr/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["gadda", "gos"]
+techniques: ["jigg"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Flatnose Shad är en gäddjigg från Edvin Johansson, mer känd som betesbyggaren bakom EJ Lures. Betet är 19 cm och väger 50 gram, men trots den måttliga längden har det en stor paddel och en bred kropp. Det ger mycket rörelse redan vid låg fart och gör silhuetten lätt för gäddan att se, även i grumligt vatten.
+
+Styrkan i betet ligger i hur många sätt det går att rigga på. På en shallow rig fiskar du grunt över vegetation. Vill du ner djupare sätter du på en clip weight eller ett flexhead. I riktigt skräpiga bottnar riggar du det på en offsetkrok i storlek 10/0, så att kroken ligger skyddad och betet går att dra genom gräs utan att haka fast. Gummit är mjukt, vilket ger liv i paddeln men också gör att en gädda kan trasa sönder betet efter några fiskar.
+
+Det här är en jigg för dig som riktar in dig på gädda i vatten med mycket struktur, där du behöver kunna växla mellan grunt och djupt utan att byta bete. Storleken passar normal gädda och en del gös. Vill du fiska mindre och rikta in dig på abborre finns Flatnose Mini på 9 cm, byggd på samma idé men i ett format för finare fisk.
 ```
 
 ## src/content/gear-reviews/garmin-echomap-uhd2-52cv.mdx
@@ -8913,6 +9536,117 @@ Det tvadelade utforandet gor spoet smidigt att transportera och forvarar utan at
 Magda Finn ar det naturliga borjanspoet for trollingfiske. Det levererar funktionell prestanda till ett pris som gor det tillgangligt for den som vill testa tekniken. Den som fiskar trolling regelbudet och vill ha hogre komponentkvalitet och battre kanslighet bor titta pa Westin W2 eller W3 Predator Trolling.
 ```
 
+## src/content/gear-reviews/pig-chopper-spinnerbait.mdx
+```
+---
+title: "The Pig Chopper XL 50g"
+slug: "pig-chopper-spinnerbait"
+description: "Tung tandem-spinnerbait för gädda på 50 gram med dubbla coloradoblad. Kastar långt, går vasskyddat genom gräs och levereras med en Pig Shad Nano."
+heroImage: "/images/gear/pig-chopper-spinnerbait.jpg"
+heroSource: "illustration"
+brand: "The Pig"
+category: "spinnare"
+price: 149
+rating: 4.5
+pros:
+  - "50 gram kastar långt och skär genom vind"
+  - "Går vasskyddat rakt genom gräs och näckrosor"
+  - "Levereras med Pig Shad Nano som ger extra volym"
+cons:
+  - "Tung, kräver ett spö med rejäl kastvikt"
+  - "Stort bete som sorterar bort mindre gädda"
+  - "Enkelkrok kräver god kontakt vid mothugget"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/the-pig-chopper-xl-spinnerbait-50g-dirty-roach/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["gadda"]
+techniques: ["spinn"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+The Pig Chopper XL är en tung spinnerbait för gädda på 50 gram, byggd med den karaktäristiska Pig-profilen. Den har två coloradoblad, ett stort och ett mindre som stöd, som håller betet stabilt och pumpar ut kraftiga vibrationer när du vevar. Gäddan känner av trycket på sidolinjen långt innan den ser betet, vilket gör den effektiv även i grumligt vatten och dålig sikt.
+
+Vikten är den stora poängen. 50 gram gör att betet kastar långt och skär genom vind, samtidigt som trådbågen skyddar kroken så att du kan fiska rakt genom vass, gräs och näckrosor utan att haka fast. Betet levereras med en Pig Shad Nano på kroken som ger extra volym och rörelse, och en fästtråd håller trailern på plats. Fiska den i jämnt tempo och låt bladen arbeta, eller sakta ner den över grunt vatten.
+
+Det här är ett bete för dig som riktar in dig på stor gädda och vill täcka mycket vatten i vegetation och på grunt vatten. Vikten kräver ett spö med tillräcklig kastvikt, så det passar mindre bra på lätt redskap. Vill du fiska nättare i samma stil finns Pig Chopper i ett mindre utförande på 17 gram, som är snällare mot både arm och spö.
+```
+
+## src/content/gear-reviews/pig-shad-jr.mdx
+```
+---
+title: "Pig Shad Jr 50g"
+slug: "pig-shad-jr"
+description: "Stort gummibete för gädda på 20 cm och 50 gram, inspirerat av jerkbetet The Pig. Vaggande gång som imiterar en skadad betesfisk. Säljs i tvåpack."
+heroImage: "/images/gear/pig-shad-jr.jpg"
+heroSource: "illustration"
+brand: "The Pig"
+category: "jiggar"
+price: 99
+rating: 4.5
+pros:
+  - "Stor siluett som drar till sig grov gädda"
+  - "Vaggande, lågfrekvent gång som liknar en skadad fisk"
+  - "Skåra i ryggen gör den enkel att rigga vasskyddat"
+cons:
+  - "För stor för normalfiske efter medelgädda"
+  - "Mjukt gummi slits av gäddans tänder"
+  - "Populära färger tar slut i perioder"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/pig-shad-jr-20cm-50g-arkansas-shiner-2pcs/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["gadda"]
+techniques: ["jigg"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Pig Shad Jr är ett stort gummibete för gädda, byggt på formen från det klassiska jerkbetet The Pig. Betet är 20 cm och väger 50 gram, och det simmar med en vaggande gång där huvudet går fram och tillbaka medan stjärten paddlar i ett lugnt tempo. Rörelsen imiterar en skadad betesfisk som är på väg att ge upp, vilket är precis den sortens byte en stor gädda gärna tar.
+
+Kroppen har en fyllig profil som liknar en välmatad fisk, och en skåra längs ryggen som gör den enkel att rigga vasskyddat. Du kan sätta den på en vanlig jiggskalle eller på en offsetkrok när du fiskar i gräs. Den kommer till sin rätt fiskad långsamt över grunt vatten, där den stora silhuetten och den lågfrekventa gången ger mest utslag. Betet säljs i tvåpack.
+
+Det här är ett bete för dig som riktar in dig på stor gädda, särskilt under hösten när fisken lägger på sig inför vintern och vill ha ett stort byte. Storleken sorterar bort en del mindre gädda. Vill du fiska nätt och behålla samma gång i ett mindre format finns Pig Shad Nano på 15 cm, som fungerar även på gös.
+```
+
+## src/content/gear-reviews/rapala-shadow-rap.mdx
+```
+---
+title: "Rapala Shadow Rap Shad 12g"
+slug: "rapala-shadow-rap"
+description: "Sakta flytande wobbler på 9 cm för abborre och kustöring. Twitchas eller jerkas och vrider sig skarpt åt sidan. Stiger långsamt i spinnstoppen."
+heroImage: "/images/gear/rapala-shadow-rap.jpg"
+heroSource: "illustration"
+brand: "Rapala"
+category: "wobblers"
+price: 159
+rating: 4.5
+pros:
+  - "Skarp, vridande gång som stannar i hugg-zonen"
+  - "Naturtrogen finish med mycket reflektion"
+  - "Fiskas både snabbt och aggressivt eller lugnt"
+cons:
+  - "9 cm är i minsta laget för gädda"
+  - "Kräver aktiv spöföring, inte bara rak invevning"
+  - "Enskilda färger tar slut i perioder"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/rapala-shadow-rap-shad-9cm-live-smelt/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["abborre", "havsoring", "oring"]
+techniques: ["wobbler"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Rapala Shadow Rap Shad är en sakta flytande wobbler med hög, blank kropp och naturtrogen finish. Modellen på 9 cm och 12 gram fiskas med twitch eller korta jerk, och då vrider den sig skarpt åt sidan och stannar kvar i hugg-zonen. I spinnstoppen stiger den långsamt mot ytan som en skadad betesfisk.
+
+Betet går på ungefär en meters djup och passar när du vill fiska av en begränsad yta noggrant. Den snabba, vridande gången gör den effektiv på abborre som följer betet, och den fungerar även som kastwobbler efter havsöring på kusten. Den går att fiska både snabbt och aggressivt eller lugnt och avvaktande.
+
+Det här är en wobbler för dig som riktar in dig på abborre och kustöring och vill ha ett bete med tydlig, retande gång på grunt vatten. För gädda är den i minsta laget. Vill du ha samma typ av gång i ett mindre format för skygg abborre finns Shadow Rap i en sju centimeters variant.
+```
+
 ## src/content/gear-reviews/shimano-26-zodias-haspelspo.mdx
 ```
 ---
@@ -9368,6 +10102,43 @@ Fuji Fazlite-ringarna är ett genomgående val i Shimanos mellanklasserier och h
 Kastvikten 30–90 g täcker de flesta gäddriggar från medelstora wobblers till större mjukbeten. Det är ett spö för den som fiskar gädda målmedvetet och vill ha ett välkänt varumärke med dokumenterad hållbarhet. Jämfört med Westin W2 Powercast-T i samma prisklass är aktionen snarlik, men Shimano-alternativet passar bättre för den som föredrar Fuji-komponenter och ett mer traditionellt spöutseende.
 ```
 
+## src/content/gear-reviews/strike-pro-buster-jerk.mdx
+```
+---
+title: "Strike Pro Buster Jerk 75g"
+slug: "strike-pro-buster-jerk"
+description: "Sjunkande jerkbete på 15 cm och 75 gram för gäddfiske på grunt vatten. Bred sida-till-sida-gång och tålig konstruktion som klarar gäddans tänder."
+heroImage: "/images/gear/strike-pro-buster-jerk.jpg"
+heroSource: "illustration"
+brand: "Strike Pro"
+category: "jerkbaits"
+price: 249
+rating: 4.5
+pros:
+  - "Tål gäddans tänder och hårt bruk"
+  - "Fungerar både jerkad och rakt invevad med spinnstopp"
+  - "Beprövad svensk klassiker för stor gädda"
+cons:
+  - "Kräver kraftigt spö och rejäl tafs"
+  - "Tungt att fiska under längre pass"
+  - "Enskilda färger tar slut i perioder"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/strike-pro-buster-jerk-sinking-15cm-75g-python/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["gadda"]
+techniques: ["jerkbait"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Buster Jerk är ett sjunkande jerkbete byggt för gäddfiske på en till tre meters djup. Det fiskas med korta ryck i spöt, och mellan varje ryck svänger betet i en bred sida-till-sida-rörelse med en blänkande buk som drar till sig fisk. Storleken på 15 cm och vikten på 75 gram gör att det kastar långt och går att arbeta längs vegetationskanter där gäddan står.
+
+Betet är hårt och tål mycket. Den genomgående konstruktionen och de kraftiga krokarna klarar både tänder och upprepade hugg utan att ta skada. Du kan fiska det på flera sätt. Rena ryck ger den klassiska gången, men en jämn invevning med inlagda spinnstopp fungerar ofta lika bra och är enklare att lära sig. Den varianten gör Buster Jerk användbart även för den som är ny på jerkfiske.
+
+Det här är ett bete för dig som fiskar gädda med kraftigt spö och rejäl tafs, i sjöar och vikar med en del struktur. Vikten kräver utrustning som är byggd för ändamålet, så det passar mindre bra som ett första gäddbete på lätt redskap. Vill du ha något lättare i samma stil finns Buster Jerk II på 12 cm och 37 gram, som är snällare mot både arm och spö.
+```
+
 ## src/content/gear-reviews/strike-wire-extreme-015mm.mdx
 ```
 ---
@@ -9585,6 +10356,80 @@ Stroft ABR i 0,40 mm är den grova nylonlinan i serien, avsedd för tungt fiske.
 0,40 mm med 14 kg brottstyrka ger marginal när en lax går ut i strömmen, och nylonets stretch fungerar som en buffert mellan fisk och spö som parerar rusningar utan att slita kroken loss. Den förseglade, nötningståliga ytan motstår skador från sten och grus bättre än tunnare mono. 200-metersspolen ger gott om lina för att fylla en kraftig rulle.
 
 Den passar laxfiske i älv med spinn och trolling, och annat grovt fiske där styrka och nötningstålighet väger tyngre än känsla. Flätlina är förbjuden på många laxsträckor, vilket gör en grov nylonlina till ett naturligt förstaval. För lättare fiske räcker 0,30 eller 0,28 mm i samma serie.
+```
+
+## src/content/gear-reviews/westin-salty.mdx
+```
+---
+title: "Westin Salty 18g"
+slug: "westin-salty"
+description: "Kustdrag för havsöring på 18 gram och 9 cm. Kastar långt i hård vind och har en fisklik gång som fungerar året runt, från kallt till varmt vatten."
+heroImage: "/images/gear/westin-salty.jpg"
+heroSource: "illustration"
+brand: "Westin"
+category: "kustdrag"
+price: 89
+rating: 4.5
+pros:
+  - "Kastar långt även i hård motvind"
+  - "Fungerar över hela året, kallt som varmt vatten"
+  - "Blyfritt och byggt för att tåla saltvatten"
+cons:
+  - "En enda vikt täcker inte alla djup och strömmar"
+  - "Enskilda färger tar slut i perioder"
+  - "Kräver sköljning efter fiske för att inte fastna i rörliga delar"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-salty-18g-green-sardine-9cm/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: true
+targetSpecies: ["havsoring"]
+techniques: ["spinn"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Westin Salty är ett kustdrag för havsöring på 18 gram och 9 cm. Det kastar långt även i hård motvind, vilket är just det du behöver när öringen står en bit ut och vinden ligger på. Betet har en fisklik siluett och en gång som fungerar över hela året, från kallt vintervatten till ljusa sommarnätter.
+
+Salty är blyfritt och gjutet i en kombination av ABS-plast och zink. Krokfästet sitter på en dubbel sprängring, vilket ger kroken rörelse och minskar risken att öringen hävar sig loss. Betet går att fiska på flera tempon. I kallt vatten arbetar du det långsamt med enstaka spöknyck och korta stopp, och i varmare vatten tål det ett snabbare, jämnare drag.
+
+Det här är ett drag för dig som fiskar havsöring från land längs kusten, oavsett årstid. Storleken 18 gram är en bra allroundvikt som täcker de flesta förhållanden. Behöver du ännu bättre krokning i hårt fiske finns samma bete som genomlöpare under namnet Salty Inline, där linan löper genom kroppen och kroken sitter fritt.
+```
+
+## src/content/gear-reviews/westin-swim-glidebait.mdx
+```
+---
+title: "Westin Swim Glidebait 53g"
+slug: "westin-swim-glidebait"
+description: "Glidebete för gädda på 12 cm och 53 gram i suspending. Simmar i breda S-kurvor vid rak invevning och hänger still i vattnet vid varje stopp."
+heroImage: "/images/gear/westin-swim-glidebait.jpg"
+heroSource: "illustration"
+brand: "Westin"
+category: "jerkbaits"
+price: 199
+rating: 4.5
+pros:
+  - "Lättfiskat, går på rak invevning utan spöföring"
+  - "Genomgående wirekonstruktion som tål gäddans ryck"
+  - "Suspending-läget hänger still och utlöser hugg vid stopp"
+cons:
+  - "Enskilda färger tar slut i perioder"
+  - "53 gram kräver ett spö med tillräcklig kastvikt"
+  - "Mindre effektivt i mycket grunt eller igenväxt vatten"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-swim-glidebait-12cm-53g-suspending-firetiger/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["gadda"]
+techniques: ["jerkbait"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Westin Swim är ett glidebete för gädda som simmar i breda S-kurvor så fort du börjar veva. Storleken 12 cm och vikten 53 gram i suspending-utförande gör att betet blir hängande i vattnet vid stopp, vilket ofta utlöser hugg. Det som skiljer Swim från många andra jerkbeten är att det inte kräver någon avancerad spöföring. En jämn invevning räcker för att få fram gången.
+
+Kroppen är gjuten i ABS-plast och har en genomgående wirekonstruktion, vilket betyder att linfäste och kroköglor sitter ihop genom hela betet. Det gör att en gädda inte kan slita loss beslagen ens vid hårda ryck. Krokarna är av kolstål och betet är blyfritt. Du kan fiska det på flera sätt, från rak invevning till pull and wind eller korta jerk med spinnstopp, beroende på hur aktiv fisken är.
+
+Swim passar dig som vill ha ett lättfiskat gäddbete som fungerar direkt, oavsett vana. Det är ett vanligt förstaval bland guider just för att nybörjare kan fånga fisk på det utan träning. Vill du fiska djupare eller i hårdare vind finns samma modell i en sinking-version på 58 gram, som går ner snabbare och kastar något längre.
 ```
 
 ## src/content/gear-reviews/westin-w10-13-braid-coastal.mdx
@@ -10292,6 +11137,43 @@ Westin W6 ST5 Soft i 0,38 mm är en mjuk fluorocarbontafs. ST5 är den mjukaste 
 Lågt linminne är den praktiska skillnaden mot billigare tafsmaterial. Tråden ligger rak direkt från spolen i stället för att hänga kvar i spiraler, och det ger färre trassel och en jämnare presentation. 0,38 mm med drygt 9 kg brottstyrka klarar gös och havsöring med marginal och tål skav mot sten och musselkanter. En kort tafs på 30-metersspolen räcker till många byten innan du behöver ny.
 
 Den passar gösfiske med jigg och dropshot, havsöring i skärgården och större abborre där en lite grövre tafs behövs. Vill du ha en klenare variant för riktigt klart vatten finns samma serie i 0,30 mm på 50-metersspole. Behöver du i stället en styv och mer nötningstålig tafs är ST3 Hard rätt gren av serien.
+```
+
+## src/content/gear-reviews/wiggler-viking-herring.mdx
+```
+---
+title: "Wiggler Viking Herring 13g"
+slug: "wiggler-viking-herring"
+description: "Klassiskt skeddrag för havsöring på 13 gram. Bockad för långa, stabila kast och tillverkad i mässing med trekrok från Mustad. Rostar inte i saltvatten."
+heroImage: "/images/gear/wiggler-viking-herring.jpg"
+heroSource: "illustration"
+brand: "Wiggler"
+category: "kustdrag"
+price: 59
+rating: 4.5
+pros:
+  - "Bockningen ger långa och stabila kast i vind"
+  - "Mässing och rostfritt tål saltvatten säsong efter säsong"
+  - "Fungerar på havsöring, lax och öring i både kust och älv"
+cons:
+  - "Enkel gång utan extra action vid stopp"
+  - "Enskilda färger tar slut i perioder"
+  - "13 gram räcker inte till riktigt långa kast i hård vind"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/wiggler-viking-herring-gul-svart-13g/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: true
+targetSpecies: ["havsoring", "lax", "oring"]
+techniques: ["spinn"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Wiggler Viking Herring är ett skeddrag som har funnits i svenskt kustfiske i över 60 år. Modellen på 13 gram är en klassisk allroundvikt för havsöring. Hela poängen med draget är kastlängden. Tack vare hur skeden är bockad går den rakt genom luften utan att vika sig, och tyngdpunkten är lagd så att den flyger stabilt även i vind.
+
+Draget är tillverkat i mässing med ringar i rostfritt stål och en trekrok från Mustad. Materialvalet är gjort för att stå emot saltvatten utan att rosta, vilket betyder att betet håller säsong efter säsong om du sköljer det efter fisket. Gången är enkel att få fram, du vevar bara in i jämnt tempo och låter skeden arbeta.
+
+Viking Herring passar dig som vill ha ett prisvärt och beprövat kustdrag som också fungerar i älv och sjö. Utöver havsöring är det ett känt val för lax, öring och en rad andra rovfiskar. Vill du fiska lättare på nära håll eller i lugnt väder finns samma modell i 10 gram, och för långa kast i hård vind går du upp till 18 eller 22 gram.
 ```
 
 # Content: species
@@ -19435,6 +20317,258 @@ Nedre Dalälvens nationalparksbildning 1998 (Färnebofjärden) och biosfärområ
 *Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
+## src/content/destinations/damman.mdx
+```
+---
+title: "Dammån"
+slug: "damman"
+description: "Guide till fiske i Dammån i Jämtland: fiskekort, regler, öring och harr. Vild Storsjööring i strömmande vatten och en av landets sista manuella fiskräknare."
+heroImage: "/images/destinations/damman.jpg"
+lat: 63.13
+lng: 13.98
+län: "Jämtland"
+primarySpecies: ["Öring", "Harr"]
+waterType: "river"
+iFiskeUrl: "https://www.ifiske.se/fiskekort-damman.htm"
+excerpt: "Vild Storsjööring och harr i ett jämtländskt strömvatten."
+recommendedGear: []
+kostrad: ["kvicksilver", "dioxin"]
+publishedAt: "2026-07-01"
+updatedAt: "2026-07-01"
+---
+
+Dammån i västra Jämtland är ett av Sveriges få kvarvarande strömvatten med en storvuxen, långvandrande vild insjööring. Öringen växer upp i Storsjön och vandrar upp i ån för att leka, en resa på runt 55 kilometer. Vid kraftverket i Ågårdarna sitter en fisktrappa där varje uppvandrande öring håvas, vägs och mäts för hand. Det är i dag den enda platsen i landet där lekvandrande öring räknas manuellt. Hit åker fiskare för strömfiske efter öring och harr i fjällnära miljö, med kort öppen säsong och stark lokal fiskevård.
+
+## Fiskekort och regler
+
+Dammån har inget fritt handredskapsfiske. Ån är privat fiskevatten och fiskekort krävs oavsett var du fiskar. Vattnet förvaltas av Dammåns fiskevårdsområdesförening, som också driver fisktrappan, sköter tillsyn och genomför biotopvård. Fisket i själva ån är öppet 1 juni till 31 augusti. Övrig tid råder fredning.
+
+### Vad är fritt och vad kräver tillstånd?
+
+Fritt handredskapsfiske enligt fiskelagen gäller inte Dammån. Allt fiske i ån kräver fiskekort från fiskevårdsområdet. Frifisket i Storsjön längre ned i systemet omfattar alltså inte tillflödet Dammån.
+
+### Var köper du fiskekort?
+
+Fiskekort köps enklast på [iFiske.se](https://www.ifiske.se/fiskekort-damman.htm) och levereras digitalt. Kort säljs också lokalt hos Camp Dammån och hos ombud i Hallen och Mattmar. Ombuden kan variera mellan säsonger, så kontrollera aktuella återförsäljare inför resan.
+
+### Priser 2026
+
+| Korttyp | Pris |
+|---|---|
+| Dygnskort | 130 kr |
+| Veckokort | 500 kr |
+| Säsongskort | 1 200 kr |
+
+Barn under 16 år fiskar utan kostnad i sällskap med en vuxen som löst gällande kort och på den vuxnes fångstkvot. Säsongskortet gäller 1 juni till 31 maj. Priserna avser 2026 och kan ändras. Verifiera mot fiskevårdsområdets uppgifter på iFiske inför din resa.
+
+### Minimimått och fångstbegränsning
+
+| Art | Minimimått |
+|---|---|
+| Öring | 45 cm |
+| Harr | 30 cm |
+
+Fisk under minimimåttet ska återutsättas. Fångstbegränsningen är en öring per dygn och fiskekort. Havs- och vattenmyndighetens nationella föreskrift anger 35 cm som lägsta mått för öring i Storsjöns tillflöden, men fiskevårdsområdets egen regel på 45 cm är strängare och gäller för dig som löser kort. Kontrollera de aktuella måtten hos fiskevårdsområdet inför säsongen.
+
+### Fredningstider och fredningsområden
+
+Totalt fiskeförbud råder 1 september till 30 maj. Fredningen skyddar den lekvandrande öringen under den känsligaste perioden.
+
+Fasta fredningsområden med totalt fiskeförbud gäller dessutom:
+
+- Sträckan från hängbron uppströms i Lekarån till Storfallet
+- Hela Bastuån
+- Zonen kring fisktrappan och kraftverket i Ågårdarna, från vindskyddet ovan trappan och ned förbi hängbron till nedanför kraftverksutloppet
+
+### Metoder och redskap
+
+Nätfiske samt lat- och lodmete är förbjudet i hela Dammån. Fiske med mask är förbjudet i ån. Spinn- och flugfiske är de tillåtna metoderna i strömvattnet. Ryckfiske är förbjudet enligt lag i hela landet. Levande betesfisk är förbjudet i Sverige och används aldrig.
+
+Catch and release är en rekommendation i Dammån, inte en generell regel. Fångstbegränsningen på en öring per dygn är däremot bindande. Många besökare släpper tillbaka den storvuxna leköringen frivilligt, vilket gynnar beståndet på sikt.
+
+Notera att fönsteruttag 40 till 55 cm ibland förknippas med Dammån i turistmaterial. Det uttaget gäller Gimån vid Stavreströmmen, inte Dammån. Här gäller minimimått och fångstbegränsning enligt ovan.
+
+> Aktuella regler finns alltid på [HaV:s webbplats](https://www.havochvatten.se) och via [Länsstyrelsens sidor](https://www.lansstyrelsen.se). Fiskevårdsområdets egna regler kan avvika och gäller alltid vid sidan av det nationella regelverket.
+
+---
+
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
+
+---
+
+## Fiskarter
+
+Dammån är i första hand ett öring- och harrvatten. I de nedre delarna mot Ockesjön förekommer också arter som vandrat upp från Storsjön.
+
+### Öring
+
+Öringen är själva anledningen att fiska i Dammån. Det är en vild Storsjööring, en långvandrande stam som växer upp i Storsjön och söker sig upp i ån för att leka. Vandringssträckan från Ockesjön upp till Storfallet är runt 55 kilometer. Medelvikten på leköringen ligger strax under 2 kilo och de största fiskarna når omkring 8 kilo.
+
+Uppvandringen börjar redan i maj och pågår hela sommaren. De första fiskarna går högt upp i systemet, medan senare uppvandrare stannar längre ned. Leken sker i slutet av september och början av oktober, då ån är fredad. Öringen lever på insekter och småfisk i ån och på nors, siklöja och pungräka under åren i Storsjön.
+
+[Läs mer om öring](/arter/oring/)
+
+### Harr
+
+Harren finns i hela ån och fångas bäst i de lugnare partierna och i strömsträckor som Åkroken. Den betar insekter vid ytan under sommaren och trivs i det klara, syrerika strömvattnet. Torrfluga under kläckningar är det klassiska sättet att fiska harr här, men nymf och våtfluga fungerar väl under hela den öppna säsongen. Harren räknas inte i fisktrappan, som enbart följer öringen.
+
+[Läs mer om harr](/arter/harr/)
+
+### Övriga arter
+
+I de nedersta delarna nära Ockesjön förekommer sik, abborre och gädda som vandrat in från Storsjön, samt lake i djupare partier. Stensimpa och elritsa hör till åns naturliga fiskfauna men är inga sportfiskearter. Enstaka regnbåge och kanadaröding har noterats, men de är sällsynta.
+
+---
+
+## Ånens karaktär
+
+### Grundfakta
+
+| | |
+|---|---|
+| Vattentyp | Fjällnära strömvatten i Indalsälvens system |
+| Mynning | Ockesjön, i förbindelse med Storsjön |
+| Vandringssträcka för öring | ca 55 km (Ockesjön till Storfallet) |
+| Kraftverk | 1 (Ågårdarna, fallhöjd 10 m) |
+| Skydd | Natura 2000, riksintresse för naturvård |
+| Kommun | Åre och Bergs kommuner |
+
+### Topografi och sträckor
+
+Övre delen av vattendraget heter Storån och rinner upp i fjällområdet öster om Anarisfjällen. Nedströms Höglekardalen byter den namn till Dammån. Ån rinner genom Bydals- och Oviksfjällens vildmark, passerar Dalsjön och mynnar i Ockesjön, som via Kvitsleströmmarna står i direkt förbindelse med Storsjön.
+
+Uppströms Höglekardalen ligger det 17 meter höga Storfallet, som utgör den övre gränsen för öringens vandring. Nedanför fallet växlar ån mellan forsar, strömmar och lugnare höljor. Höljorna i Dammådalen runt byn Ågårdarna ger det bästa sommarfisket.
+
+### Vattentemperatur och vattenstånd
+
+Ån har fjällkaraktär med kallt, klart vatten och sen snösmältning. Bästa fiskevattnet ligger runt 13 till 14 grader. Vattenståndet svänger kraftigt med väder och smältvatten. Fisket är ofta trögt vid snabbt stigande vatten men blir bra när vattnet sjunker undan efter en högvattenperiod.
+
+### Tillflöden
+
+Bastuån, Storån och Lekarån är de viktigaste lekbäckarna för öringen. Bastuån och Lekarån är helt fredade och betar en central roll för reproduktionen.
+
+---
+
+## Fiskemetoder
+
+Metoderna nedan är anpassade till Dammåns strömvatten. Detaljerade teknikanvisningar finns på respektive tekniksida.
+
+### Flugfiske
+
+Flugfiske är den klassiska metoden i Dammån. Torrfluga fungerar för harr under insektskläckningar från juni och framåt, medan nymf och strömfluga tar fisk när inget syns på ytan. För den uppvandrande öringen används större våt- och strömflugor i de djupare höljorna. Ån är grund och smal, och öringen är skygg och lättskrämd. Håll låg profil och undvik att vada mer än nödvändigt.
+
+[Läs mer om flugfiske](/teknik/flugfiske/)
+
+### Spinnfiske
+
+Spinnfiske med skeddrag, spinnare och mindre vobbler fungerar för både öring och harr i strömvattnet. Lätta beten och en försiktig presentation lönar sig i det klara, grunda vattnet. Fisket är bäst i strömmarna och vid höljornas kanter. Mask är förbjudet, så spinnfisket bygger på konstgjorda beten.
+
+[Läs mer om spinnfiske](/teknik/spinnfiske/)
+
+---
+
+## Hotspots och lokaler
+
+### Höljorna vid Ågårdarna
+
+Området nedanför fisktrappan i Ågårdarna är den mest kända lokalen. Höljorna i Dammådalen håller uppvandrande öring tidigt på säsongen, i juni och juli, innan fisken gått högre upp. Camp Dammån ligger här med parkering och landfiske nära vattnet. Fisktrappan är även ett populärt utflyktsmål.
+
+### Åkroken
+
+En strömsträcka längre upp i systemet som är känd för sitt harrfiske. Torrfluga och nymf i strömkanterna. Nås via stigar från vägen.
+
+### Krokströmmen och Rismyrströmmen
+
+Strömsträckor uppströms med både öring och harr. De kräver lite mer vandring men ger fint strömfiske i ostörd miljö.
+
+### Övre delarna mot Höglekardalen
+
+Sent på säsongen, i augusti, sprider sig fisket uppåt mot fjället och Storfallet, där de största öringarna ofta står. Dalsjön i Bydalen erbjuder torrflugefiske från båt.
+
+### Kvitsleströmmen
+
+Vid Ockesjöns utlopp mot Storsjön ligger Kvitsleströmmen, ett av Jämtlands bästa harr- och öringvatten. Sträckan förvaltas av ett eget fiskevårdsområde och kräver separat fiskekort, men ligger nära till hands för den som redan är i området.
+
+---
+
+## Säsongsöversikt
+
+| Månad | Bästa art | Bästa metod |
+|-------|-----------|-------------|
+| Juni | Harr, öring | Flugfiske, spinn |
+| Juli | Öring, harr | Flugfiske, spinn |
+| Augusti | Öring, harr | Flugfiske, spinn |
+
+Ån är fredad 1 september till 30 maj. Fisket är alltså öppet enbart 1 juni till 31 augusti. Bästa öringfisket infaller ofta tidigt och sent på den öppna säsongen, medan harren tar torrfluga bra under hela sommaren.
+
+---
+
+## Kostråd och miljögifter
+
+Öringen i Dammån tillhör samma bestånd som vandrar mellan ån och Storsjön, och omfattas därför av de kostråd som gäller Storsjösystemet. Länsstyrelsen Jämtland och berörda kommuner beslutade 2023 om kostråd för öring i Storsjön och Indalsälven efter att provtagningar visat förhöjda halter av PCB, dioxiner och kvicksilver. Halterna underskrider gränsvärdena för försäljning, men konsumtionen bör begränsas.
+
+**Öring:**
+
+- Barn och ungdomar under 18 år, gravida, ammande och de som planerar graviditet: högst 2 till 3 gånger per år
+- Övriga vuxna: högst en gång per vecka
+
+**Abborre, gädda och lake** omfattas av Livsmedelsverkets nationella kvicksilverråd. Barn, gravida och ammande bör äta dessa arter högst 2 till 3 gånger per år, övriga högst en gång per vecka.
+
+Inget kostråd namnger just Dammån, utan råden gäller Storsjösystemet som helhet. Aktuell information finns hos [Livsmedelsverket](https://www.livsmedelsverket.se) och Länsstyrelsen Jämtland.
+
+---
+
+## Infrastruktur och praktisk information
+
+### Boende
+
+Camp Dammån ligger vid ån i Ågårdarna med stugor, uppställning för husvagn och tältplatser, samt en put and take-damm för barn. Fler alternativ finns i Höglekardalen och Bydalen med stugbyar och fjällboenden. Östersund med fullt serviceutbud ligger cirka fem till sju mil bort.
+
+### Kommunikationer
+
+Dammån nås med bil via E14 mellan Östersund och Mattmar, därefter väg 321 mot Hallen och vidare mot Bydalen och Höglekardalen. Söderifrån går väg 45 till Svenstavik och sedan väg 321. Närmaste flygplats och tågstation finns i Östersund.
+
+### Fiskeguider
+
+Lokala guider och fiskevårdsområdet kan förmedla guidning i området. Camp Dammån och lokala aktörer i Bydalen och Höglekardalen ger tips om aktuella förhållanden och lokaler.
+
+---
+
+## Historik och bakgrund
+
+### Fiskevård och fisktrappan
+
+Kraftverket i Ågårdarna byggdes mellan 1917 och 1920. Vattendomen ålade kraftverksägaren att bygga och driva en fisktrappa så att den vandrande öringen kunde ta sig förbi. Manuell räkning och statistik startade 1950, och Dammåns fiskevårdsområde tog över driften av trappan 1988. Trappan vittjas två gånger om dagen under uppvandringen. Varje öring håvas, vägs, mäts och könsbestäms innan den släpps vidare uppströms.
+
+Fiskräknaren registrerade 325 öringar 1960 och 1 236 öringar 2018. År 2019 passerade 1 482 öringar, och rekordet sattes 2021 med 1 750 öringar. Trenden är tydligt uppåtgående över decennierna. Fiskevårdsområdet publicerar de aktuella årssiffrorna.
+
+### Restaurering och skydd
+
+Ån rensades under flottningsepoken, då sten togs bort och sidofåror torrlades. Genom Länsstyrelsen Jämtlands arbete med strömvatten har sten återförts, torrlagda barnkammare återöppnats och lekgrus lagts ut på flera sträckor. De övre delarna påverkas av försurning, och källsjöar till Lekarån och Bastuån kalkas för att skydda öringens reproduktion.
+
+Dammån är Natura 2000-område och skyddad mot ytterligare vattenkraftutbyggnad. Sträckan är klassad som riksintresse för naturvård och friluftsliv. Redan 1912 arrenderade Sportfiskeklubben Storöringen i Östersund fiskerätt i ån, vilket gör Dammån till ett av Sveriges tidigaste organiserade sportfiskevatten.
+
+---
+
+## Snabbfakta
+
+| | |
+|---|---|
+| Fritt handredskapsfiske | Nej |
+| Fiskekort krävs för | Allt fiske |
+| Var köps kortet | [iFiske.se](https://www.ifiske.se/fiskekort-damman.htm) och lokala ombud |
+| Öppen säsong | 1 juni till 31 augusti |
+| Minimimått öring | 45 cm |
+| Minimimått harr | 30 cm |
+| Fångstbegränsning | 1 öring per dygn |
+| Fredningstid | 1 september till 30 maj |
+| Närmaste tätort | Östersund |
+
+---
+
+*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
+```
+
 ## src/content/destinations/delsjoarna.mdx
 ```
 ---
@@ -20060,6 +21194,278 @@ Emån är Nordeuropas viktigaste lokal för mal. Malen etablerade sig i ån och 
 | Närmaste stad | Mönsterås |
 | Bokning allmänt | ifiske.se, fiskekort.se |
 | Emåförbundet | eman.se |
+
+---
+
+*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
+```
+
+## src/content/destinations/giman.mdx
+```
+---
+title: "Gimån"
+slug: "giman"
+description: "Gimån i Jämtland är en av Sveriges klassiska storöringsströmmar. Guide till Stavreströmmen, Idsjöströmmen, fiskekort, regler, arter och säsong."
+heroImage: "/images/destinations/giman.jpg"
+heroSource: illustration
+lat: 62.842
+lng: 15.674
+län: "Jämtlands län, Västernorrlands län"
+primarySpecies: ["Öring", "Harr", "Sik", "Abborre", "Gädda", "Id"]
+waterType: "river"
+iFiskeUrl: "https://www.ifiske.se/fiske-ovre-giman.htm"
+excerpt: "Klassisk jämtländsk storöringsström med krävande flugfiske."
+recommendedGear: []
+publishedAt: "2026-07-01"
+updatedAt: "2026-07-01"
+kostrad: ["kvicksilver"]
+---
+
+Gimån är Ljungans största biflöde och en av få kvarvarande storöringsströmmar i landet. Ån rinner ut ur Revsundssjön i östra Jämtland, passerar en kedja av sjöar genom Bräcke kommun och mynnar i Ljungan vid Torpshammar i Medelpad. Hjärtat i fisket är två strömsträckor med olika själ: Stavreströmmen, där stor sjövandrande öring från Revsundssjön går ned för att beta insekter, och Idsjöströmmen vid Gimdalen, en av de äldsta catch and release-sträckorna i Skandinavien. Öring på 4 till 6 kg fångas varje säsong. Hit åker man för svårt flugfiske efter riktigt stor öring och för ett strikt regelverk som håller beståndet uppe.
+
+## Fiskekort och regler
+
+Gimån har inget fritt handredskapsfiske i strömmarna. Ån förvaltas av flera fiskevårdsområden med delvis olika regler, och du köper kort till den sträcka du vill fiska. De två mest kända områdena är Övre Gimåns FVO, som förvaltar Stavreströmmen, och Gimdalens FVO, som förvaltar Idsjöströmmen. Reglerna skiljer sig påtagligt mellan områdena, så läs alltid det aktuella FVO:ets villkor innan du kastar.
+
+### Vad är fritt och vad kräver tillstånd?
+
+Allt strömfiske kräver fiskekort. Barn och ungdom fiskar kostnadsfritt mot löst kort, med åldersgräns 17 år i Övre Gimåns FVO och 14 år i Sörbygdens FVO. Ortsbor får fiska kostnadsfritt från land med spö i Övre Gimåns FVO:s sjöar med undantag för Skaltjärn. I strömmarna krävs kort av alla.
+
+### Var köper du fiskekort?
+
+Kort till Stavreströmmen och Övre Gimåns övriga strömmar säljs enbart via [iFiske](https://www.ifiske.se/fiske-ovre-giman.htm). Fångstrapportering är obligatorisk, även nollrapport.
+
+Gimdalens flugfiskekort säljs av områdets kortförsäljare i Gimdalen. Idsjöströmmen arrenderas separat och bokas via arrendatorn. Sjöfiskekort för Gimdalens FVO säljs hos handlare i Bräcke och Gimdalen. Sörbygdens FVO och nedre Gimåns kort finns också på iFiske.
+
+### Priser 2026
+
+| Område | Korttyp | Pris |
+|---|---|---|
+| Övre Gimån, övriga strömmar | Dygnskort | 200 kr |
+| Övre Gimån, övriga strömmar | Veckokort | 750 kr |
+| Övre Gimån, övriga strömmar | Årskort (ortsbor och fritidshusägare) | 1 000 kr |
+| Övre Gimån, Gamla fåran (röd sträcka) | Dygnskort | 250 kr |
+| Gimdalen | Flugfiskekort, dygn | 300 kr |
+| Gimdalen | Flugfiskekort, 3 dagar | 750 kr |
+
+Stavreströmmens gula och gröna sträcka har ett begränsat antal platser per dygn och bokas via iFiske. Ortsbor har lägre priser i flera områden. Priserna avser 2026 och kan ändras. Kontrollera alltid aktuellt pris vid kortköpet.
+
+### Minimimått och fönsteruttag
+
+Måtten skiljer sig mellan strömmarna. Detta är en av få älvar i landet där du behöver läsa reglerna sträcka för sträcka.
+
+| Sträcka | Öring | Harr |
+|---|---|---|
+| Övre Gimån, Stavreströmmen | Fönster 40–55 cm får behållas | Min. 35 cm |
+| Övre Gimån, Gamla fåran (röd) | Total återutsättning | Total återutsättning |
+| Gimdalen, de flesta strömmar | Total återutsättning | Total återutsättning |
+| Gimdalen, Storselforsen | Min. 50 cm | Min. 40 cm |
+
+I Stavreströmmen får du behålla högst en öring och en harr per kort och dygn, och öring över eller under fönstermåttet ska återutsättas.
+
+### Fredningstider och redskapsregler
+
+Strömfisket i Stavreströmmen pågår i praktiken 1 juni till 31 augusti, och harrfisket i övriga strömmar till 30 september. Öring och harr har lekfredning under hösten. Exakt fredningsperiod styrs av respektive FVO och Länsstyrelsen, så kontrollera datumen för den sträcka du tänker fiska.
+
+Övre Gimåns FVO tillåter endast flugfiske i strömmarna. Kraven är hullinglös krok, en fluga på tafsen, en enkelkrok, tafs på lägst 0,18 mm och flugspö av lägst klass 5. Allt spinnfiske togs bort från Stavreströmmen 2016. Vadarskor och stövlar med filtsula är förbjudna på grund av risken att sprida kräftpest. Vadning på Sjönacken är förbjuden mellan klockan 22 och 06.
+
+Gimdalens FVO tillåter traditionellt flugfiske med hullinglös eller nedtryckt hulling. Fiske med tunga metallhagel för att pressa ned nymfen räknas inte som flugfiske här.
+
+### Catch and release
+
+Här är catch and release en regel, inte bara en rekommendation, på flera sträckor. Gamla fåran i Stavreströmmen och de flesta strömmarna i Gimdalen har total återutsättningsskyldighet. Idsjöströmmen drivs som ren catch and release med ett begränsat antal fiskare per dag. Enda undantaget i Gimdalen är Storselforsen, där en fisk per dag får behållas inom minimimåtten. Fisket i Stavreströmmen stängs om vattentemperaturen når 19 grader två dagar i följd, eftersom dödligheten vid återutsättning stiger kraftigt i varmt vatten.
+
+> Aktuella regler finns alltid på [HaV:s webbplats](https://www.havochvatten.se) och via [Länsstyrelsens sidor](https://www.lansstyrelsen.se). Fiskevårdsområdets egna regler kan avvika och gäller alltid vid sidan av det nationella regelverket.
+
+---
+
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
+
+---
+
+## Fiskarter
+
+### Öring
+
+Öringen är Gimåns huvudart och skälet till att ån har rykte långt utanför Jämtland. I Stavreströmmen möter du både stationär öring och stor sjövandrande öring som går upp från Revsundssjön för att beta insekter under sommaren. Medelvikten på fångad öring i strömmen ligger runt 1,5 kg, och fisk på 1 till 3 kg är vanlig. Öring på 4 till 6 kg fångas varje säsong. En av de största dokumenterade från Stavreströmmen vägde 6,05 kg och mätte 80 cm. Idsjöströmmens rekord är 5,1 kg från 1992. Öringen står i strömnackar och pooler och tar torrfluga under kläckning samt nymf och våtfluga när inget syns på ytan. Bästa tid är juni och sensommaren.
+
+[Läs mer om öring](/arter/oring/)
+
+### Harr
+
+Harren är rikligt förekommande, särskilt i Idsjöströmmen och Grötingsströmmen. Idsjöströmmen räknas bland Europas bästa harrvatten. Storharr över 50 cm fångas, och fisken lever av det rika insektslivet i det syrerika strömvattnet. Harr tas på torrfluga under kläckning och på nymf under resten av säsongen. Minimimåttet är 35 cm i Övre Gimån och 40 cm i Gimdalens Storselforsen. På flera sträckor ska all harr återutsättas.
+
+[Läs mer om harr](/arter/harr/)
+
+### Sik
+
+Sik finns i de genomflutna sjöarna och i lugnare partier av ån. Den fångas med fluga under kläckningar och med mete. Siken är en pålitlig målart för den som vill fiska utan att binda sig vid en dyr strömdag.
+
+[Läs mer om sik](/arter/sik/)
+
+### Gädda och abborre
+
+Gädda och abborre lever i de genomflutna sjöarna och i selen mellan strömmarna, bland annat i Holmsjön och Leringen. De är tillgängliga på sjöfiskekort och passar familjefisket eller vinterns pimpling. Spinnfiske och jiggfiske i vikar och vasskanter fungerar bäst under vår och höst.
+
+[Läs mer om gädda](/arter/gadda/)
+
+Övriga förekommande arter: id i lugnflytande sel, röding och regnbåge i vissa angränsande sjöar, samt lake i djupare sjöpartier.
+
+## Ånens karaktär
+
+### Grundfakta
+
+| | |
+|---|---|
+| Längd | ca 80 km, uppgifter upp till 170 km förekommer beroende på mätsätt |
+| Avrinningsområde | ca 4 340 km² vid Torpshammar |
+| Medelvattenföring | 18 m³/s vid Gimdalen |
+| Fallhöjd | ca 143 m mellan Holmsjön och Ljungan |
+| Mynning | Ljungan vid Torpshammar |
+| Antal kraftverk i huvudfåran | 2 (Torpshammar och Leringsforsen) |
+| Vattentyp | Reglerad skogså med oreglerade övre strömmar |
+
+### Topografi och sträckor
+
+Gimån rinner ut ur Revsundssjön och passerar sjökedjan Bodsjön, Grötingssjön, Idsjön, Holmsjön, Fagervikssjön och Leringen innan den når Ljungan vid Torpshammar. Däremellan ligger de strömsträckor som fisket kretsar kring. Övre delen ned till Holmsjön är i huvudsak oreglerad och skyddad mot vattenkraftsutbyggnad enligt miljöbalken. Nedströms Holmsjön är ån reglerad av kraftverken vid Leringsforsen och Torpshammar. Länsgränsen mellan Jämtland och Västernorrland går vid Holmsjön.
+
+### Vattentemperatur och flöde
+
+Strömmarna har svalt, syrerikt vatten som gynnar öring och harr under sommaren. Vid varma perioder med lågvatten stiger temperaturen, fisket försämras och FVO kan stänga sträckor för att skydda fisken. Stavreströmmen stänger vid 19 grader två dagar i följd. Kontrollera flöde och temperatur inför en fiskedag under högsommaren.
+
+### Tillflöden och skyddade områden
+
+Ovanför Holmsjön ingår Gimån i Natura 2000-området Gimån uppströms Holmsjön, med bland annat flodpärlmussla, utter och stensimpa som skyddade arter. Ån är av riksintresse för naturvård och friluftsliv. Systemet matas uppifrån via Forsaån nedströms Locknesjön, och Näkten hör till samma region av stora sjöar.
+
+## Fiskemetoder
+
+Gimån är i grunden en flugfiskeå. Detaljerade teknikanvisningar finns på respektive tekniksida.
+
+### Flugfiske
+
+Flugfiske är den enda tillåtna metoden i Övre Gimåns och Gimdalens strömmar. I Stavreströmmen fungerar torrfluga under sländkläckningar från juni och framåt, medan nymf och våtfluga ger fisk när inget syns på ytan. Storöringen kräver noggrann presentation och tunna tafsar i det klara vattnet. I Idsjöströmmen är harrfisket på torrfluga klassiskt. Hullinglös krok gäller genomgående.
+
+[Läs mer om flugfiske](/teknik/flugfiske/)
+
+### Spinnfiske
+
+Spinnfiske är förbjudet i Stavreströmmen sedan 2016 och i Gimdalens strömmar. På vissa av Övre Gimåns övriga strömmar och i de genomflutna sjöarna är spinnfiske efter gädda och abborre tillåtet. Kontrollera vad kortet till just din sträcka tillåter innan du tar med spinnutrustning.
+
+[Läs mer om spinnfiske](/teknik/spinnfiske/)
+
+### Trolling
+
+I Holmsjön och Leringen bedrivs trolling efter stor öring, röding och regnbåge. Sjöarna sköts med utsättning av öring inom projekt för storöringsfiske, och fisk på flera kilo förekommer. Trolling hör hemma i sjöarna, inte i strömmarna.
+
+[Läs mer om trolling](/teknik/trolling/)
+
+### Isfiske
+
+Under vintern erbjuder de genomflutna sjöarna pimpelfiske efter abborre, gädda, sik och röding. Iaktta alltid isens bärighet, särskilt nära in- och utlopp där strömmande vatten gör isen opålitlig.
+
+[Läs mer om isfiske](/teknik/isfiske/)
+
+## Hotspots och lokaler
+
+### Stavreströmmen
+
+Ånens mest kända storöringssträcka, cirka 3 km från Revsundssjöns utlopp vid Sjönacken ned till Nedre Bodsjön. Strömmen är indelad i gul, grön och röd sträcka med ett begränsat antal platser per dygn. Namngivna lägen är bland annat Sjönacken, Bropoolen, Kanalen, Dammen och Bodsjöpoolen. Gamla fåran, den röda sträckan, har total återutsättning och fiske endast jämna veckor. Sträckan är lättillgänglig via E14 och järnvägen vid Gimårasten. De största öringarna har tagits på Sjönacken och i Dammen.
+
+### Idsjöströmmen
+
+En 1,5 km lång ström mellan Idsjön och Grundselet nedanför Gimdalen. Skandinaviens första renodlade catch and release-ström, upplåten för sportfiske sedan slutet av 1980-talet. Ett av Europas bästa harrvatten med vindskydd längs sträckan. Antalet fiskare per dag är begränsat och sträckan bokas via arrendatorn.
+
+### Grötingsströmmen och övriga strömmar i Övre Gimån
+
+Bodsjöströmmen, Mellanströmmen, Kraftverksströmmen och Grötingsströmmen hör till Övre Gimåns FVO. Grötingsströmmen är ett utmärkt harrvatten och nås via väg 323. Dessa strömmar har enklare kort än Stavreströmmen och passar den som vill prova ån utan att boka en kvoterad plats.
+
+### Storselforsen
+
+Strömmen i Gimdalens FVO där uttag av fisk är tillåtet, en fisk per dag inom minimimåtten. Biotopvårdad i samarbete med Länsstyrelsen. Ett alternativ för den som vill ta med matfisk från Gimdalsområdet.
+
+### Nedre Gimån
+
+Sträckorna kring Drogsjöforsen, Landflyn och Båthällan i Storåsen-Albackens område håller stor öring, med fångster på 6 till 7 kg. Här bedrivs avelsfiske för att stödja beståndet. Kort via Albackens Jakt och Fiskecamp och via iFiske.
+
+### Holmsjön och Leringen
+
+De reglerade sjöarna nedströms Övre Gimån erbjuder trolling och pimpelfiske efter storöring, sik, röding, regnbåge, abborre och gädda. Flera båtramper finns runt Holmsjön. Sjöfisket sköts med utsättning inom projekt som siktar på öring i storleksklassen upp mot åtta till tio kilo.
+
+## Säsongsöversikt
+
+| Månad | Bästa art | Bästa metod |
+|-------|-----------|-------------|
+| Januari | Abborre, röding (sjöar) | Isfiske |
+| Februari | Abborre, röding (sjöar) | Isfiske |
+| Mars | Abborre, gädda (sjöar) | Isfiske |
+| April | Storöring (sjöar) | Trolling |
+| Maj | Storöring (sjöar) | Trolling |
+| Juni | Öring, harr | Flugfiske |
+| Juli | Öring, harr | Flugfiske |
+| Augusti | Öring, harr | Flugfiske |
+| September | Harr | Flugfiske |
+| Oktober | Öring, harr (sjöar) | Trolling |
+| November | Gädda, abborre (sjöar) | Spinnfiske |
+| December | Abborre (sjöar) | Isfiske |
+
+Strömfisket i Stavreströmmen pågår 1 juni till 31 augusti och harrfisket i övriga strömmar till 30 september. Öring och harr har lekfredning under hösten, och de exakta datumen varierar mellan sträckorna. Fisket kan stängas vid höga vattentemperaturer. Kontrollera aktuella regler för din sträcka inför fisketillfället.
+
+## Kostråd och miljögifter
+
+Länsstyrelsen Jämtlands lokala kostråd för öring och kanadaröding från 2023 gäller Storsjön och delar av Indalsälven. Gimån omfattas inte av dessa lokala råd, eftersom ån ligger utanför det avgränsade området.
+
+Nationella kostråd gäller däremot insjöfisk från hela landet. Livsmedelsverket anger att förhöjda halter av kvicksilver kan finnas i rovfisk som abborre, gädda, gös och lake från insjöar, vilket berör fisket i Gimåns genomflutna sjöar. Barn och ungdomar upp till 18 år, gravida, ammande och den som planerar graviditet bör inte äta dessa arter oftare än 2 till 3 gånger per år. Övriga vuxna kan äta dem upp till en gång per vecka. Rådet om fisk uppdaterades inte i april 2025 då Livsmedelsverket inväntar en utredning från EU:s myndighet Efsa, väntad under 2027. Öring och harr från strömmarna berörs inte av kvicksilverrådet på samma sätt som rovfisken i sjöarna.
+
+Aktuella kostråd finns på [livsmedelsverket.se](https://www.livsmedelsverket.se) och Länsstyrelsen Jämtlands webbplats.
+
+## Infrastruktur och praktisk information
+
+### Fiskeguider och charter
+
+I Gimdalen finns guidning och kurser knutna till Idsjöströmmen via arrendatorn och lokala flugfiskeguider. Guider för Stavreströmmen och Övre Gimån hjälper till med lägen och flugval för storöringsfisket. Boka i god tid, eftersom antalet platser på de kvoterade sträckorna är begränsat.
+
+### Båtramper
+
+| Plats | Notering |
+|-------|----------|
+| Holmsjön, flera lägen | Ramper vid bland annat Österström och Sandnäset |
+| Revsundssjön | Lämplig för trolling |
+| Leringen | Ramp för sjöfisket i nedre systemet |
+
+### Boende
+
+- **Gimårasten** vid E14: fiskecenter och rastplats som fungerar som knutpunkt för Stavreströmmen.
+- **Stugor i Gimdalen**: boende nära Idsjöströmmen och de övre strömmarna.
+- **Albackens Jakt och Fiskecamp**: boende i nedre Gimån.
+- **Camping i regionen**: flera alternativ kring Kälarne och Bräcke.
+
+### Kommunikationer
+
+Bil via E14 som följer övre Gimån, och väg 323 mot Kälarne som korsar flera strömmar. Närmaste tätorter är Bräcke, Gällö och Kälarne. Tåg: Mittbanan mellan Sundsvall och Östersund passerar vid Stavre och Gällö. Flyg: Åre Östersund Airport, cirka en och en halv timme med bil från Gimdalen.
+
+## Historik och bakgrund
+
+Gimån har varit ett känt öringvatten under lång tid och räknas i dag bland Sveriges få kvarvarande storöringsströmmar. Statens vattenfallsstyrelse förvärvade vattenrätten mellan Holmsjön och Ljungan 1937. Torpshammars kraftverk togs i drift 1943 och byggdes ut 1975, och Leringsforsens kraftverk togs i drift 1944. De nedre sjöarna Holmsjön och Leringen reglerades i samband med utbyggnaden.
+
+Strömmarna rensades historiskt för timmerflottning, vilket gjorde flera sträckor sterila. Sedan slutet av 1900-talet har omfattande biotopvård återställt fisket. Idsjöströmmen förvandlades från flottledskanal till ett internationellt känt harrvatten, och Grötingsströmmen och Stavreströmmen har återställts med utlagd sten och död ved. Storselforsen biotopvårdades 2008 i samarbete med Länsstyrelsen.
+
+Regelverket har skärpts stegvis för att skydda storöringen. Stavreströmmen gjordes om till kvoterade sträckor 2005, och allt spinnfiske togs bort 2016. Gimdalens Idsjöström öppnade som Skandinaviens första catch and release-vatten redan i slutet av 1980-talet. I nedre Gimån drivs avelsfiske och utsättning för att stärka den lokala öringstammen.
+
+## Snabbfakta
+
+| | |
+|---|---|
+| Fritt handredskapsfiske | Nej, fiskekort krävs i strömmarna |
+| Fiskekort, Övre Gimån övriga strömmar | 200 kr/dygn via iFiske |
+| Fiskekort, Gimdalen flugfiske | 300 kr/dygn |
+| Öring, Stavreströmmen | Fönster 40–55 cm får behållas |
+| Öring, Gimdalens strömmar | Total återutsättning (undantag Storselforsen) |
+| Minimimått harr | 35 cm (Övre Gimån), 40 cm (Storselforsen) |
+| Strömsäsong | 1 juni–31 augusti (harr till 30 september) |
+| Tillåten metod i strömmarna | Endast flugfiske, hullinglöst |
+| Mynning | Ljungan vid Torpshammar |
+| Närmaste tätort | Bräcke |
+| Koordinater | 62.84°N, 15.67°Ö (Gimdalen) |
 
 ---
 
@@ -25409,6 +26815,207 @@ Torsken, som historiskt var ryggraden i södra Östersjöns fiske, har kollapsat
 | Vattentyp | Brackvatten, Östersjön delområde 25 |
 
 *Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
+```
+
+## src/content/destinations/orealven.mdx
+```
+---
+title: "Öreälven"
+slug: "orealven"
+description: "Guide till sportfiske i Öreälven i Västerbotten. Vild havsöring, lax och harr i en outbyggd skogsälv. Fiskekort, regler, fredning och hotspots."
+heroImage: "/images/destinations/orealven.jpg"
+lat: 63.548
+lng: 19.521
+län: "Västerbottens län"
+primarySpecies: ["Havsöring", "Lax", "Harr", "Gädda", "Abborre"]
+waterType: "river"
+iFiskeUrl: "https://orealven.laxportalen.se/butik/"
+excerpt: "Södra Västerbottens främsta havsöringsälv, outbyggd och vild."
+recommendedGear: []
+kostrad: ["kvicksilver", "dioxin"]
+publishedAt: "2026-07-01"
+updatedAt: "2026-07-01"
+---
+
+Öreälven rinner från Stöttingfjället i Lappland ner till Bottenhavet vid Nordmaling och är en av få större norrländska älvar som aldrig byggdes ut för storskalig vattenkraft. Den räknas som södra Västerbottens främsta havsöringsälv och håller också vild lax, gott om harr och stationär öring på de övre sträckorna. Hela vattensystemet är skyddat som Natura 2000-område och mot vattenkraftutbyggnad, vilket har bevarat de fritt strömmande forsarna och lekbottnarna. Både lax och havsöring bedöms i dag som svaga bestånd, så älven kräver ett varsamt och ansvarsfullt fiske.
+
+## Fiskekort och regler
+
+I havet och längs kusten är handredskapsfiske fritt utan fiskekort enligt den allmänna fiskerätten. I själva älven är vattnet enskilt och fiskekort krävs på hela den fiskbara sträckan. Öreälvens fiskevårdsområde förvaltar den sammanhängande sträckan på cirka 70 kilometer från strax söder om Örträsksjön ner till mynningen, och ett kort gäller hela detta område.
+
+### Var köper du fiskekort?
+
+Kort till Öreälvens FVO säljs digitalt via orealven.laxportalen.se och fiskekort.se. De säljs även hos flera fysiska återförsäljare längs älven, bland annat Sandströms Sport i Nordmaling, butiker i Gräsmyr och Agnäs samt Öreälvens Kanotcenter i Bjurholm. De övre delarna i Örån förvaltas av ÖreLångsele FVO och Örträsk FVO, som har egna kort.
+
+### Priser
+
+Dygnskort kostar omkring 100 kronor, veckokort omkring 400 kronor och säsongskort omkring 1 200 kronor. Priserna varierar mellan säsonger och kortområden, så kontrollera alltid aktuell prislista hos fiskevårdsområdet innan du köper.
+
+### Minimimått och maxmått
+
+Följande nationella mått för Västerbotten gäller som grund. Fiskevårdsområdets egna regler kan vara strängare och gäller alltid vid sidan av det nationella regelverket.
+
+| Art | Minimimått |
+|-----|-----------|
+| Havsöring | 50 cm |
+| Lax | 50 cm |
+| Harr | 35 cm |
+
+### Fredningstider och fiskesäsong
+
+Öreälvens FVO har fiskesäsong från 1 maj till 15 september. Under periodens första del, 1 till 20 maj, råder obligatorisk återutsättning av all fångst. Harr är fredad under leken 15 april till 31 maj i Väster- och Norrbottens vattendrag. Under höstens lekperiod är fisket i älven förbjudet för att skydda lekande lax och öring. Exakta datum för höstfredningen fastställs av Länsstyrelsen och bör kontrolleras inför säsongen.
+
+### Lax vid kusten
+
+Vid kusten och i havet gäller sedan 2025 i praktiken förbud mot riktat laxfiske i Östersjön enligt EU:s regelverk. En fettfeneklippt lax per fiskare och dygn får behållas, medan övrig lax ska återutsättas omedelbart. I själva älven gäller fiskevårdsområdets regler, som alltid bör kontrolleras före fiske.
+
+> Aktuella regler finns alltid på [HaV:s webbplats](https://www.havochvatten.se) och via [Länsstyrelsens sidor](https://www.lansstyrelsen.se). Fiskevårdsområdets egna regler kan avvika och gäller alltid vid sidan av det nationella regelverket.
+
+---
+
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
+
+---
+
+## Fiskarter
+
+### Havsöring
+
+Havsöringen är Öreälvens signaturart och ett vilt, självreproducerande bestånd. Återvändande fisk väger normalt mellan 1 och 10 kilo. Ynglen växer upp i älven i flera år innan de vandrar ut som smolt, och återvänder efter en till fem säsonger i havet för att leka på strömsatta grusbottnar under hösten. Beståndet bedöms som svagt och har enligt lokala uppgifter minskat påtagligt de senaste åren, vilket gör frivillig återutsättning av stor lekfisk välmotiverad. På de övre sträckorna finns även stationär öring, som stödutsätts i Örträsk FVO. Bästa fisket på lekvandrande havsöring är från juli och in på senhösten, med nattfiske i forsarna på nedre delen.
+
+[Läs mer om havsöring](/arter/oring/)
+
+### Lax
+
+Öreälven hyser ett vilt laxbestånd, men det räknas av Havs- och vattenmyndigheten och SLU Aqua till de svagare vildlaxälvarna. De första laxarna går upp i slutet av maj, uppgången toppar i juni och pågår sedan hela sommaren. Återvändande lax väger vanligen mellan 2 och 20 kilo. Genom historiska utsättningar har beståndet delvis blandats med lax av annat ursprung. Med tanke på beståndets status är återhållsamhet och återutsättning av vild lax ett rimligt förhållningssätt.
+
+[Läs mer om lax](/arter/lax/)
+
+### Harr
+
+Harren har ett gott bestånd och räknas till södra Västerbottens bästa harrfiske på flera sträckor. Den fångas bäst uppströms Bjurholm, i partier som Långforsen och strömsträckorna vid Ström och Ytternäset. Harren könsmognar vid ungefär 33 till 35 centimeter. Fisket öppnar efter fredningen den 31 maj och är som mest givande under juni och försommaren.
+
+[Läs mer om harr](/arter/harr/)
+
+### Övriga arter
+
+I de lugnflytande partierna finns grov gädda och lake, och lake fångas även på pimpel vintertid där isfiske är tillåtet. Abborre, sik, mört, id och flodnejonöga förekommer också. Siken vandrar upp och leker i den nedre delen av älven.
+
+## Älvens karaktär
+
+### Grundfakta
+
+| | |
+|---|---|
+| Längd | ca 190 km |
+| Avrinningsområde | ca 3 029 km² |
+| Medelflöde vid mynningen | ca 34 m³/s |
+| Källa | Stöttingfjället, Lappland |
+| Mynning | Örefjärden vid Nordmaling |
+| Största sjö | Örträsket |
+| Sjöandel | ca 2,4 procent |
+
+### Topografi och sträckor
+
+Den övre delen kallas Örån och rinner genom ett sjöfattigt skogs- och myrlandskap ner till Örträsksjön, där odlad bygd tar vid. Nedströms passerar älven Bjurholm och Nordmaling innan den når havet vid Öre by. Den mycket låga sjöandelen ger kraftiga flödesvariationer, med en hög vårflodstopp följd av lägre sommarvattenföring. Ihållande regn kan dock höja flödet även på sommaren. Vattnet är relativt färgat, vilket påverkar betes- och flugval.
+
+### Vandringshinder
+
+Torrbölefallet cirka 25 kilometer från mynningen är ett partiellt vandringshinder, men fiskväg finns och lax och öring tar sig normalt förbi. Ett mindre kraftverk vid Agnäs i huvudfåran har fiskväg. I övrigt är huvudfåran oreglerad och fritt strömmande.
+
+### Isläggning och säsong
+
+Islossning och vårflod styr säsongsstarten. Älven klarnar vanligen några veckor in i maj, och det är då fisket kommer igång på allvar.
+
+## Fiskemetoder
+
+Detaljerade teknikanvisningar finns på respektive tekniksida. Nedan beskrivs vad som är specifikt för Öreälven.
+
+### Flugfiske
+
+Flugfiske är den dominerande metoden under större delen av säsongen. Tidigt på våren, i högt och kallt vatten, fiskas med sjunklina och stora ljusa eller orangeröda tubflugor. När vattnet sjunker och klarnar går man över till flytlina och mindre, mörkare mönster. Det färgade vattnet gör att synliga flugor ofta fungerar bäst. För harr och öring på de övre sträckorna räcker ett vanligt flugsortiment.
+
+[Läs mer om flugfiske](/teknik/flugfiske/)
+
+### Spinnfiske
+
+Spinnfiske fungerar väl efter lax och havsöring, särskilt vid högre vatten. Tunga skeddrag och spinnare i klara färger når ner i strömmen på våren, medan lättare beten passar när vattnet sjunker. Fisket är som bäst nattetid och tidig morgon när fisken vandrar.
+
+[Läs mer om spinnfiske](/teknik/spinnfiske/)
+
+### Mete
+
+I de lugnare partierna kan grov gädda och lake fångas på mete. Metoden är ett alternativ när strömfisket är trögt och passar den som vill fiska mer stillsamt i sel och lugnvatten.
+
+[Läs mer om mete](/teknik/mete/)
+
+## Hotspots och lokaler
+
+### Holmforsen, Hummelholm
+
+En grund och bred fors på nedre delen, känd som en av älvens bättre laxplatser från juni och framåt. Vindskydd finns vid forsen. Platsen fiskas med både fluga och spinn.
+
+### Laxforsen och Broforsen, Torrböle
+
+Forspartiet vid Torrböle har en fiskvandringsväg och fiskar bra från juni. Här finns vindskydd och grillplats, och i närheten ligger kända bronsåldershällristningar. Bra för havsöring och lax.
+
+### Långedsforsen
+
+En cirka två kilometer lång forssträcka som är en av älvens viktigare laxlekplatser. Sträckan erbjuder varierat strömfiske efter lax och havsöring.
+
+### Agnäsforsen och Storforsen, Agnäs
+
+Storforsen är en kraftig fors med vattenfall och djupa pooler, med hängbro och övernattningsstuga i anslutning. Nedströms dammen ligger Agnäsforsen, som fiskar bra hela säsongen och har vindskydd. Området håller havsöring, lax och harr.
+
+### Långforsen, Bjurholm
+
+Mellan Örträsk och Bjurholm ligger Långforsen, en cirka tre kilometer lång sträcka med stryk och pooler. Ett av de bästa partierna för harr, med inslag av öring och havsöring.
+
+### Örån nedströms Storforsen, Örträsk
+
+På de övre restaurerade sträckorna fiskas harr och stödutsatt öring. Närmare Örträsksjön övergår vattnet i lugnare partier med gädda och abborre.
+
+## Säsongsöversikt
+
+| Månad | Bästa art | Bästa metod |
+|-------|-----------|-------------|
+| Maj | Lax (sent i månaden) | Spinn, sjunklina |
+| Juni | Lax, harr | Fluga, spinn |
+| Juli | Lax, havsöring | Fluga, nattfiske |
+| Augusti | Havsöring, lax | Fluga, spinn |
+| September | Havsöring | Fluga |
+
+Under 1 till 20 maj gäller obligatorisk återutsättning av all fångst. Harr är fredad till och med 31 maj. Fiskesäsongen i FVO avslutas 15 september, varefter älven är fredad under lekperioden.
+
+## Kostråd och miljögifter
+
+Öreälven mynnar i Bottenhavet, och Livsmedelsverkets kostråd för fet fisk från Bottniska viken och Östersjön gäller därför vildfångad lax och öring från älven. Denna fisk kan innehålla höga halter dioxin och PCB. Barn, unga, gravida, ammande och den som planerar att skaffa barn bör äta sådan fisk högst två till tre gånger per år. Övriga vuxna kan äta den ungefär en gång i veckan.
+
+För insjöartade rovfiskar som gädda, abborre och lake gäller i stället råd om kvicksilver. Även här bör känsliga målgrupper begränsa konsumtionen till två till tre gånger per år, medan övriga kan äta fisken högst en gång i veckan. Aktuella råd finns på livsmedelsverket.se.
+
+## Infrastruktur och praktisk information
+
+### Guider och uthyrning
+
+Öreälvens Kanotcenter i Bjurholm hyr ut kanadensare och driver en lång kanotled från inlandet ner mot havet, öppen från mitten av maj till mitten av september. Renodlade sportfiskeguider marknadsförs sparsamt i området, så kontakta fiskevårdsområdet och lokala aktörer för aktuell information.
+
+### Landfiske och vadning
+
+Öreälven är i första hand en vadnings- och landfiskeälv. Nerfarter, vindskydd, grillplatser och övernattningsstugor finns längs Öreälvsleden mellan Örträsk och kusten. Parkering finns vid byar och broar längs sträckan.
+
+### Boende
+
+Längs älven finns Bjurholms Camping med stugor och husvagnsplatser, Agnäs stugby med självhushåll samt Angsjöns Camping vid Balsjö. Utöver detta finns enklare övernattningsstugor och vindskydd längs leden.
+
+### Kommunikationer
+
+Nordmaling ligger vid E4 och Botniabanan med tågförbindelser. Bjurholm nås via riksväg 92 från Umeå och väg 353 från Nordmaling. Närmaste flygplats är Umeå.
+
+## Historik och bakgrund
+
+Öreälven flottades från slutet av 1700-talet fram till 1977, och stora delar av älvsystemet modifierades för timmertransport. Sedan dess har många forsar i huvudfåran och i biflödet Vargån restaurerats. En laxfiskeanläggning vid Håknäs togs ur bruk år 2000, och delar av den tillhörande dammen revs 2008. Kalkning pågår sedan 1980-talet i flera bäckar och sjöar i den nedre delen av avrinningsområdet.
+
+Sedan 2021 ingår Öreälven i EU-projektet Ecostreams for LIFE, ett av de största vattenvårdsprojekten i sitt slag i Sverige. Projektet återställer vattendragssträckor och lekbottnar i systemet upp till Storforsen ovanför Örträsk, till nytta för lax, öring, flodpärlmussla och utter. Länsstyrelsen Västerbotten är projektägare, i samarbete med bland andra Sportfiskarna och Havs- och vattenmyndigheten.
 ```
 
 ## src/content/destinations/oresund.mdx
@@ -32525,6 +34132,109 @@ Gösen i västra och centrala Mälaren slutar ofta växa vid 45–50 centimeters
 
 # Content: articles
 
+## src/content/articles/basta-ekolod.mdx
+```
+---
+title: "Bästa ekolodet, så väljer du för land, båt och isfiske"
+slug: "basta-ekolod"
+description: "Köpguide för ekolod. Vad CHIRP, DownScan, SideScan och kartplotter betyder i praktiken, och hur du väljer rätt för land, båt och isfiske."
+excerpt: "Vilket ekolod ska du välja? Så tänker du kring kastbart, fast monterat och sjökort."
+heroImage: "/images/articles/basta-ekolod.jpg"
+heroSource: "illustration"
+publishedAt: "2026-06-27"
+updatedAt: "2026-06-27"
+author: "rikard-giby"
+category: "guide"
+faq:
+  - q: "Vilket ekolod ska jag välja som nybörjare?"
+    a: "Ett kastbart ekolod är enklast att börja med. Det kräver ingen montering och fungerar från land, brygga och båt. Vill du kunna rita egna djupkartor, välj en modell med GPS i stället för den enklaste instegsvarianten."
+  - q: "Vad är skillnaden mellan Garmin Striker och Echomap?"
+    a: "Striker Vivid har GPS och ritar egna kartor men läser inte färdiga sjökort. Echomap är en kartplotter som stödjer Garmin Navionics-sjökort. Vill du bara hitta tillbaka till dina platser räcker Striker. Vill du navigera på sjökort behöver du Echomap."
+  - q: "Vilket ekolod är bäst för isfiske?"
+    a: "Ett kastbart ekolod med isfiskestöd och GPS, till exempel Garmin Striker Cast Worldwide eller Deeper PRO+ 2. Den enklaste instegsmodellen utan GPS passar inte isfiske. Tänk på att batteritiden sjunker i kyla."
+  - q: "Behöver jag CHIRP?"
+    a: "Inte alltid. CHIRP ger skarpare bild och bättre separation på djupare vatten och när fisken står tätt. För grunt land- och isfiske räcker ofta ett ekolod utan CHIRP."
+---
+
+import EkolodValjareIsland from '../../components/ekolodvaljare/EkolodValjareIsland.astro';
+
+Ett ekolod är den utrustning som förändrar fisket mest, och samtidigt den som är svårast att köpa rätt. Tillverkarnas specifikationer staplar förkortningar som CHIRP, DownScan och SideScan utan att förklara vad de gör för dig på vattnet. Den här guiden reder ut vad som faktiskt spelar roll, och delar upp valet efter hur du fiskar: från land, från båt eller på isen. Längre ned finns Ekolodsväljaren, där du får en konkret rekommendation utifrån dina svar.
+
+Rekommendationerna bygger på tillverkarnas specifikationer och den samlade erfarenheten från svenska fiskare. Priserna ändras över tid, så väljaren visar alltid aktuellt pris ur sortimentet.
+
+## Så läser du ett ekolod
+
+Innan vi går in på modeller är det värt att förstå vad specifikationerna betyder. Det gör resten av valet enkelt.
+
+### Frekvens och CHIRP
+
+Ett traditionellt ekolod sänder en eller två fasta frekvenser. CHIRP sveper i stället över ett helt frekvensband i varje puls. Resultatet är tydligare bild och bättre separation, alltså att två fiskar nära varandra eller en fisk precis ovanför botten syns som två ekon i stället för ett enda. Skillnaden märks mest på djupare vatten och när fisken står tätt. För grunt land- och isfiske räcker ofta ett ekolod utan CHIRP.
+
+### Nedåt och åt sidorna
+
+DownScan, som Garmin kallar ClearVü, ger en nästan fotografisk bild rakt under båten. Den är bra för att läsa struktur, stenar, vegetation och stående fisk. SideScan, Garmins SideVü, skannar i stället ut åt sidorna. Med den hittar du kanter, grynnor och betesfisk över ett brett område utan att köra rakt över allt. SideScan finns bara på de större enheterna och är mest värd sitt pris för den som söker av nya vatten från båt.
+
+### GPS, egna kartor och sjökort
+
+Här finns den viktigaste och mest missförstådda skillnaden. GPS i ett ekolod gör två saker. Den märker ut waypoints så att du hittar tillbaka till en plats, och den låter dig rita egna djupkartor medan du fiskar. Garmins funktion för det heter Quickdraw Contours. Det är inte samma sak som färdiga sjökort. Ett sjökort, till exempel Garmin Navionics, är ett köpt kartlager med djup, farleder och grund över ett helt område.
+
+Den skillnaden avgör valet mellan Garmins två båtserier. Striker Vivid har GPS och kan rita egna kartor, men läser inte Navionics-sjökort. Echomap är en kartplotter och stödjer Navionics. Vill du bara hitta tillbaka till dina egna hot spots räcker Striker. Vill du navigera på färdiga sjökort i skärgård eller på stora vatten behöver du Echomap.
+
+### Skärmstorlek
+
+Större skärm gör mest nytta när du vill köra delad bild, alltså traditionellt ekolod, DownScan och eventuellt sjökort samtidigt. På en liten skärm blir delad bild svårläst. För enbart ekolod räcker 4 till 5 tum, medan 7 till 9 tum blir aktuellt när du lägger till SideScan och sjökort.
+
+### Kastbart eller fast monterat
+
+Kastbara ekolod är en liten enhet du kastar ut med spöt eller sänker i ishålet, och bilden visas i mobilen via Wi-Fi. De kräver ingen montering och fungerar från land, brygga, kajak, flytring och is. Fast monterade ekolod har egen skärm och en givare på akterspegeln eller elmotorn, och kräver ström i båten. Fiskar du utan båt är ett kastbart ekolod det enda praktiska valet.
+
+## Hitta rätt ekolod direkt
+
+Väljaren nedan utgår från var du fiskar, vad som är viktigast för dig och din budget. Den tar hänsyn till skillnaden mellan egna kartor och sjökort, och säger ifrån när ett val inte går ihop.
+
+<EkolodValjareIsland />
+
+## Kastbart ekolod för land, kajak och is
+
+Det här är ekoloden för dig som fiskar utan båt, eller som vill ha ett enkelt komplement.
+
+Instegsmodellen är avskalad. Den visar djup, botten och fisk men saknar GPS, så du kan inte rita kartor, och den lämpar sig inte för isfiske. Den passar den som vill prova ekolodsfiske från land eller brygga utan större utlägg.
+
+Steget upp ger dig GPS, så att du kan märka ut platser och bygga egna djupkartor medan du fiskar. Det är den enskilt mest praktiska funktionen för den som fiskar samma vatten ofta. I den klassen finns både Garmins och Deepers kastbara ekolod, och flera av dem fungerar även i ishålet.
+
+Toppmodellerna lägger till CHIRP för skarpare bild och, i den dyraste, fiskidentifiering i realtid. För de flesta är det mer än vad som behövs, men för den som fiskar mycket från land eller kajak och vill ha bästa möjliga bild är det ett genomtänkt val. Instegsmodellerna ligger ungefär mellan 1 300 och 2 000 kr, mellanklassen runt 2 500 till 3 700 kr och toppmodellen kring 4 500 kr. Priserna ändras, så stäm av aktuell nivå i väljaren.
+
+## Fast monterat ekolod för båt
+
+Fiskar du från båt får du mer för pengarna med en fast monterad enhet. Här går den stora skiljelinjen mellan Garmins två serier.
+
+Striker Vivid finns från 4 till 9 tum. Alla har GPS och kan rita egna kartor, men ingen läser Navionics-sjökort. Ju större skärm, desto enklare delad bild och desto mer uteffekt för djupare vatten. Den största modellen lägger till SideScan, vilket gör stor skillnad när du söker av kanter och grynnor. Vill du ha ekolod, GPS och egna kartor utan färdiga sjökort är Striker Vivid rätt serie.
+
+Echomap är kartplotter. Den läser Navionics-sjökort och passar dig som vill kombinera fiske med navigering, i skärgård eller på stora sjöar som Vänern och Vättern. Den minsta är ett naturligt steg upp från Striker för den som vill ha sjökort, och den största är en komplett enhet med stor pekskärm, SideScan och stöd för realtidsekolod som LiveScope. Räkna med att fast monterade ekolod spänner från runt 2 000 kr för den minsta Strikern till drygt 11 000 kr för den största Echomap-enheten.
+
+## Ekolod för isfiske
+
+Isfisket har egna krav. Du behöver en snabb och tydlig bild i ett litet hål, och gärna GPS för att märka ut hål som ger fisk. Ett kastbart ekolod med isfiskestöd är den vanligaste lösningen, eftersom det inte kräver montering och tål kyla. Tänk på batteritiden, som sjunker i kyla, och på att en enkel instegsmodell utan GPS och isstöd inte passar här. För den som vertikalfiskar gös eller pimplar abborre och röding på djupkanter är ekolodet ofta skillnaden mellan att hitta fisken och att leta i blindo. Läs mer om [isfiske](/teknik/isfiske/) och [vertikalfiske](/teknik/vertikalfiske/).
+
+## Vad du faktiskt behöver, efter art och vatten
+
+Fiskar du [gädda](/arter/gadda/) och [abborre](/arter/abborre/) står fisken ofta grunt, i vikar, vasskanter och på grynnor. Här räcker ett enklare ekolod långt, och DownScan hjälper dig läsa struktur. [Gös](/arter/gos/) och [röding](/arter/roding/) står djupare, ofta under språngskiktet på sommaren, och då gör CHIRP och bra djupkapacitet verklig nytta. Vertikalfiskar du gös eller pimplar röding på djupa vatten är ekolodet en förutsättning snarare än ett hjälpmedel.
+
+Geografin spelar in. I norra Sverige och på stora vatten med mycket öppen yta är GPS och gärna sjökort värt mer, både för fisket och för säkerheten. I mindre sjöar i söder räcker ofta egna Quickdraw-kartor.
+
+## Tre frågor innan du köper
+
+Tre svar avgör nästan hela valet.
+
+Fiskar du från båt eller utan båt? Utan båt är ett kastbart ekolod det enda praktiska valet. Från båt får du mer för pengarna med en fast monterad enhet.
+
+Vill du ha egna kartor eller färdiga sjökort? Egna hot spots klarar du med GPS och Quickdraw, alltså Striker eller ett kastbart ekolod med GPS. Färdig navigering kräver en Echomap med Navionics.
+
+Hur mycket vill du lägga? Budget ger djup, fisk och oftast GPS. Mellanklass lägger till CHIRP eller större skärm. Premium ger SideScan, sjökort och stöd för realtidsekolod.
+
+*Strömkast finansieras via affiliate-länkar. Köper du utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar produkterna.*
+```
+
 ## src/content/articles/basta-fiskespon-2026.mdx
 ```
 ---
@@ -32719,6 +34429,90 @@ Premiumklassen för abborre handlar om känsla. Konstruktionerna i det här inte
 ---
 
 *Strömkast finansieras via affiliate-länkar. Köper du utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar spöna.*
+```
+
+## src/content/articles/basta-gaddbeten.mdx
+```
+---
+title: "Bästa gäddbetena"
+slug: "basta-gaddbeten"
+description: "Fem gäddbeten sorterade efter fiskesituation. Jerkbete, glidebete, jigg, spinnerbait och wobbler, och råd om när du väljer vilket."
+excerpt: "Vilket gäddbete passar var? Fem beten för allt från grunda vikar till djupa kanter."
+heroImage: "/images/articles/basta-gaddbeten.jpg"
+publishedAt: "2026-07-09"
+updatedAt: "2026-07-09"
+author: "rikard-giby"
+category: "guide"
+faq:
+  - q: "Vilket är det bästa gäddbetet för nybörjare?"
+    a: "En glidebait som Westin Swim är enklast att börja med. Den simmar i S-kurvor på rak invevning och kräver ingen avancerad spöföring, och den går att fiska med vanlig haspelutrustning."
+  - q: "Behöver man tafs vid gäddfiske?"
+    a: "Ja. Gäddans tänder klipper vanlig lina, så en ståltafs eller grov fluorocarbontafs är obligatorisk. En vanlig standard är 30 till 40 cm ståltafs."
+  - q: "Vilket gäddbete fungerar bäst i vass och grumligt vatten?"
+    a: "En spinnerbait. Den går relativt fritt genom vegetation och skapar vibrationer och blänk som gäddan känner av på sidolinjen även när sikten är dålig."
+  - q: "Vilket bete ska man välja för stor höstgädda?"
+    a: "På hösten står gäddan ofta längs djupkanter. En stor jigg fiskad långsamt längs branten är ett säkert val, liksom större jerk- och glidebeten."
+---
+
+Rätt gäddbete handlar mindre om vilket märke du köper och mer om var gäddan står och hur aktiv den är. Ett bete som är oslagbart i en grund vassvik på sommaren är fel val längs en djupkant på senhösten. Den här guiden går igenom fem beten och sorterar dem efter fiskesituation, så att du vet när du väljer vilket.
+
+## Grundgående beten för vikar och kanter
+
+De två vanligaste situationerna i gäddfisket är att söka av en vik eller att fiska längs en kant på mellan en och tre meters djup. Här arbetar beten med en sida-till-sida-gång som drar till sig fisk på både syn och tryckvågor. Två beten täcker det här, och skillnaden mellan dem är hur mycket teknik de kräver.
+
+### Westin Swim, för dig som vill hålla det enkelt
+
+[Westin Swim](/utrustning/test/westin-swim-glidebait/) är en glidebait som börjar simma i breda S-kurvor så fort du börjar veva. Den kräver ingen avancerad spöföring, en jämn invevning räcker för att få fram gången, och det gör den till ett bra förstaval för den som är ny på den här typen av beten. Modellen på 12 cm väger 53 gram och är av suspending-typ, vilket betyder att den blir hängande i vattnet när du pausar. Just pauserna utlöser ofta hugg, särskilt i kallt vatten där du låter betet stå still en stund mellan rörelserna.
+
+Swim kan fiskas med vanlig haspelutrustning anpassad för gädda, och den kastar långt och skär genom hård vind. Den täcker grunt fiske i vikar och längs kanter ned till ett par meter, från kallt vårvatten till höst. Vill du ha ett bete som fungerar direkt utan träning är det här ditt val.
+
+### Strike Pro Buster Jerk, klassikern med mer karaktär
+
+[Strike Pro Buster Jerk](/utrustning/test/strike-pro-buster-jerk/) är ett av de beten som gjorde jerkfisket populärt i Sverige. Modellen på 15 cm väger 75 gram och är långsamt sjunkande. Den har en tydlig sida-till-sida-gång med en blänkande buk när den jerkas hem, och den fungerar även rakt invevad med inlagda spinnstopp. Den sjunkande egenskapen gör att du kan arbeta ned den mot djupkanter och hålla den strax ovanför vegetationen.
+
+Skillnaden mot Swim är att Buster Jerk ger mer när du för spöt aktivt, vilket kräver lite mer teknik men också ger dig mer kontroll. Traditionellt fiskas jerkbeten med ett kort och styvt spö och multirulle, men vikten på 75 gram fungerar även på en kraftigare haspel. Välj den när du vill lära dig aktivt jerkfiske och ha ett bete som håller för hårda gäddhugg år efter år.
+
+## Jigg för djup och passiv fisk
+
+När gäddan står djupare än ett par meter, eller när den är passiv och egentligen inte tänkt hugga, är en jigg oftast rätt svar. Ett mjukt gummibete går att presentera långsamt precis över botten utan att sticka iväg åt sidorna, och den naturliga gången har trög fisk svårt att motstå.
+
+[EJ Lures Flatnose Shad](/utrustning/test/ej-lures-flatnose-shad/) är en gäddjigg på 19 cm och 50 gram med en stor paddel och bred profil som ger mycket rörelse redan vid låg fart. Styrkan ligger i hur flexibelt den går att rigga. På en lätt skalle fiskar du grunt, med en tyngre skalle eller ett flexhead går du djupare, och på en offsetkrok i storlek 10/0 riggar du den vasskyddat för fiske inne i gräs. Betet fiskas med rak invevning och täta vevstopp, och huggen kommer ofta i fallet när betet sjunker mellan lyften.
+
+Jiggen används mest under sen vår, sommar och höst, och året runt när gäddan står på djupet. På hösten är en jigg fiskad långsamt längs en djupkant ett av de säkraste sätten att nå stor gädda. Tänk på att mjukt gummi slits av gäddans tänder, så ha extra kroppar med dig, och komplettera gärna med en stingerkrok för att kroka fler fiskar.
+
+## Spinnerbait för vass och grumligt vatten
+
+I tät vegetation och grumligt vatten försvinner de flesta beten ur bilden. Där kommer spinnerbaiten in. Den går relativt fritt genom vass, gräs och näckrosor tack vare trådbågen som skyddar kroken, och den skapar kraftiga vibrationer och blänk som gäddan känner av på sidolinjen långt innan den ser betet.
+
+[Pig Chopper XL](/utrustning/test/pig-chopper-spinnerbait/) är en tung spinnerbait på 50 gram med dubbla coloradoblad och en medföljande gummikropp som ger extra volym. Vikten gör att den kastar långt och tar sig fram i vind, vilket passar när du söker av mycket vatten efter aktiv fisk. Den fiskas genom att kastas ut och vevas in i jämnt tempo, ofta utan stopp eftersom bladen bara arbetar under invevning. I kallt vatten fiskar du den långsamt och djupt, i varmare vatten snabbare och grundare.
+
+Spinnerbait är effektivast under den varmare delen av året, ungefär maj till september, och i grumligt vatten där gäddans syn är begränsad. I klart och öppet vatten blir den ofta för mycket, då hinner gäddan uppfatta den som onaturlig. Betet kräver ett kraftigt spö med rejäl kastvikt och grov lina, både för att orka kasta det och för att kunna slita loss det ur vegetationen.
+
+## Wobbler för blandat fiske och trolling
+
+Wobblern är för många sinnebilden av ett gäddbete, och den har en plats i lådan även om den här modellen är i minsta laget för renodlad storgädda. En wobbler har en egen vaggande gång som inte kräver aktiv teknik, vilket gör den lätt att fiska.
+
+[Bomber Long A](/utrustning/test/bomber-long-a/) är en klassisk flytande wobbler på 12 cm och 13 gram med en naturtrogen gång vid rak invevning eller trolling. Den är lättkastad och fungerar på gädda, gös och öring, vilket gör den till ett bra allroundbete snarare än ett riktat storgäddbete. Vid kastfiske arbetar den på ungefär en till två meters djup, och eftersom den flyter kan du klara vegetation genom att pausa invevningen så att betet stiger.
+
+Välj den när du fiskar blandat och vill ha ett bete som är lätt att fiska på befintlig lättare utrustning, eller när du trollar. Eftersom den drar många arter och även mindre fisk passar den bra de dagar du vill ha action snarare än att rikta in dig på de största gäddorna. Sätt alltid tafs, för trekrokarna är inte i den grövsta klassen och gäddan kan hugga även på ett litet bete.
+
+## Så väljer du efter situation
+
+Ett enkelt sätt att tänka är att låta djup, vattentyp och årstid styra valet. Står fisken grundare än två meter väljer du jerk, glidebait eller spinnerbait. Djupare än så går du över till jigg. I klart och öppet vatten fungerar naturliga färger och mer diskreta presentationer, och spinnerbait blir ofta för mycket. I grumligt eller tefärgat vatten gör vibrerande beten som spinnerbait jobbet, gärna i kontrastfärger som chartreuse, gult eller vitt.
+
+Över året förskjuts valet. I kallt vårvatten står gäddan grunt men trögt, så fiska långsamt med långa pauser. På försommaren jagar den grunt och är hungrig, och då fungerar det mesta. Under sommaren fokuserar du på gryning och skymning och på vass och gräs, där spinnerbait och weedless jigg är gjorda för miljön. Hösten anses ofta som bästa säsongen för stor gädda, då fisken följer betesfisk längs branter och äter upp sig inför vintern, och större beten fiskade längs djupkanter gör jobbet. På vintern blir gäddan trög och står djupare, så långsamt jiggfiske nära botten eller sida-till-sida-beten med mycket långa pauser gäller.
+
+## Tafs och hantering
+
+Oavsett vilket bete du väljer behöver du en gäddsäker tafs. Gäddans tänder klipper vanlig lina, så använd en ståltafs på ungefär 30 till 40 cm, eller en grov fluorocarbontafs på minst 0,90 mm för en mer diskret presentation. Tänk på att fluorocarbon inte är lika bitsäkert som metall.
+
+Sköt om fisken du sätter tillbaka. Använd gummerad håv, avkroka helst i vattnet med långtång eller peang, håll fisken kort tid ovan ytan och stötta den horisontellt. Undvik gäddfiske under de varmaste sommarperioderna, eftersom varmt och syrefattigt vatten ökar risken att fisken inte klarar återutsättningen. Gädda har regionala fredningstider och minimimått som varierar mellan vatten och län, så kontrollera alltid gällande regler för ditt vatten innan du fiskar. Mer om det finns på vår sida om [gädda](/arter/gadda/).
+
+## Tre frågor innan du väljer
+
+Om du känner dig osäker, ställ dig tre frågor. På vilket djup står fisken, för det avgör om du ska fiska ytnära beten eller en jigg. Är vattnet klart eller grumligt, för det avgör om du ska välja diskret presentation eller ett vibrerande bete i kontrastfärg. Och hur aktiv är fisken, för trög fisk vill ha ett långsamt fiskat bete med långa pauser medan aktiv fisk tar ett bete du drar snabbare genom vattnet. Svaren pekar oftast ut vilket av de fem betena du ska knyta på.
+
+*Strömkast finansieras via affiliate-länkar. Köper du utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar produkterna.*
 ```
 
 ## src/content/articles/nappkalender-guide.mdx
@@ -33254,4 +35048,21 @@ if (errors.length) {
 
 console.log(warnings.length ? 'Inga strukturfel. Se varningar ovan.' : 'Allt rent. Inga fel eller varningar.');
 process.exit(0);
+```
+
+## .github/workflows/daily-rebuild.yml
+```
+name: Daglig ombyggnad (SMHI)
+
+on:
+  schedule:
+    - cron: '0 5 * * *'   # 05:00 UTC = 06:00 vintertid / 07:00 sommartid
+  workflow_dispatch:        # manuell trigga-knapp
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Anropa Vercel deploy hook
+        run: curl -fsS -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
 ```

@@ -10,6 +10,7 @@
 
 import stationsData from '../data/smhi-stations.json';
 import { getScore, SPECIES } from '../data/calendar';
+import type { DayForecast } from './forecast';
 
 // ---------------------------------------------------------------------------
 // Typer
@@ -195,6 +196,181 @@ export function getBiteScore(
   if (score >= 68) return { label: 'Toppläge',       color: 'green', score, dots: 3 };
   if (score >= 42) return { label: 'Värt att testa', color: 'amber', score, dots: 2 };
   return                  { label: 'Trögt',          color: 'stone', score, dots: 1 };
+}
+
+// ---------------------------------------------------------------------------
+// Tiodagarsutsikt per vatten
+//
+// For varje prognosdygn kors samma modell som i nappkalendern, med dygnets
+// prognos som vaderjustering. Basta oppna art styr, precis som i getBiteScore.
+// Fredade arter raknas bort. Har vattnet ingen kand art anvands snittet.
+// ---------------------------------------------------------------------------
+
+export interface OutlookDay {
+  date:      string;                        // YYYY-MM-DD
+  score:     number;                        // 0-100, kapad. Styr etikett och farg.
+  raw:       number;                        // okapad (sasong + man + vader). Styr stapelhojd.
+  label:     string;
+  color:     'green' | 'amber' | 'stone';
+  topSpecies: string | null;                // arten som styr dagens poang
+  tempMean:  number;
+  windSpeed: number;
+  symbolCode: number;
+}
+
+// Stapelskala. Modellens tak pa 100 doljer verklig variation i hogsasong:
+// sasongstopp 92 + man 5 + vader 20 = 117, som kapas. Staplarna ritas darfor
+// mot den okapade poangen over ett fast intervall, sa att de forblir
+// jamforbara mellan vatten och dygn.
+const OUTLOOK_MIN = 20;
+const OUTLOOK_MAX = 120;
+
+export function outlookBarHeight(raw: number): number {
+  const pct = ((raw - OUTLOOK_MIN) / (OUTLOOK_MAX - OUTLOOK_MIN)) * 100;
+  return Math.round(Math.max(8, Math.min(100, pct)));
+}
+
+/**
+ * Sammanfattar en utsikt.
+ *
+ * En basta dag pekas ut bara nar bada villkoren ar uppfyllda:
+ *
+ *  1. Den ar meningsfullt battre an ett TYPISKT dygn (basta minus median).
+ *     Max minus min duger inte som matt: en vecka med nio likvardiga dygn och
+ *     ett uselt far stor spridning, men den nyttiga informationen ar da vilket
+ *     dygn man ska undvika, inte vilket man ska valja. Att utse ett godtyckligt
+ *     av de nio vore falsk precision.
+ *
+ *  2. Skillnaden andrar faktiskt rekommendationen, alltsa att det typiska
+ *     dygnet ligger i ett lagre lage an det basta. Ar alla tio dygnen redan
+ *     Topplage finns inget val att gora, och da ska vi saga det i stallet.
+ */
+export function getOutlookSummary(
+  outlook: OutlookDay[],
+  minLift = 8
+): { bestDay: OutlookDay | null; flat: boolean } {
+  if (!outlook.length) return { bestDay: null, flat: false };
+
+  const sorted = [...outlook].sort((a, b) => a.raw - b.raw);
+  const median = sorted[Math.floor(sorted.length / 2)];
+  const best   = outlook.reduce((a, b) => (b.raw > a.raw ? b : a));
+
+  const lift        = best.raw - median.raw;
+  const tierDiffers = best.color !== median.color;
+
+  if (lift >= minLift && tierDiffers) return { bestDay: best, flat: false };
+
+  return { bestDay: null, flat: true };
+}
+
+export function getOutlook(
+  species: string[],
+  lat: number,
+  days: DayForecast[],
+  limit = 10
+): OutlookDay[] {
+  const region = { slug: 'lat', name: '', offset: offsetFromLat(lat) };
+
+  const matched = species
+    .map(name => SPECIES.find(sp => sp.slug === fold(name)))
+    .filter((sp): sp is NonNullable<typeof sp> => sp != null);
+
+  return days.slice(0, limit).map((day) => {
+    const date    = new Date(`${day.date}T12:00:00Z`);
+    const weather = { tempMean: day.tempMean, windSpeed: day.windSpeed, precip: day.precip };
+
+    // Okapad poang: modellens tak doljer variation i hogsasong, sa vi behaller
+    // summan for stapelhojden och kapar bara for etiketten.
+    const rawOf = (r: { season: number; moonAdj: number; weatherAdj: number }) =>
+      r.season + r.moonAdj + r.weatherAdj;
+
+    let raw = 0;
+    let topSpecies: string | null = null;
+
+    const open = matched
+      .map(sp => ({ sp, r: getScore({ species: sp, date, region, forecast: weather }) }))
+      .filter(x => !x.r.closed);
+
+    if (open.length) {
+      const best = open.reduce((a, b) => (rawOf(b.r) > rawOf(a.r) ? b : a));
+      raw        = rawOf(best.r);
+      topSpecies = best.sp.name;
+    } else {
+      const all = SPECIES.map(sp => rawOf(getScore({ species: sp, date, region, forecast: weather })));
+      raw = all.reduce((a, b) => a + b, 0) / all.length;
+    }
+
+    raw = Math.round(raw);
+    const score = Math.max(0, Math.min(100, raw));
+
+    const label = score >= 68 ? 'Toppläge' : score >= 42 ? 'Värt att testa' : 'Trögt';
+    const color: 'green' | 'amber' | 'stone' = score >= 68 ? 'green' : score >= 42 ? 'amber' : 'stone';
+
+    return {
+      date: day.date,
+      score,
+      raw,
+      label,
+      color,
+      topSpecies,
+      tempMean:   day.tempMean,
+      windSpeed:  day.windSpeed,
+      symbolCode: day.symbolCode,
+    };
+  });
+}
+
+/**
+ * Periodens basta art.
+ *
+ * Svarar pa "vad ska jag fiska efter har den narmaste tiden", vilket har ett
+ * svar oavsett om nagot enskilt dygn sticker ut. Raknar snittet over hela
+ * fonstret per art, i stallet for att ta den art som vinner flest enskilda
+ * dygn, eftersom tva arter som ligger jamnt annars skulle avgoras av brus.
+ * Fredade arter raknas bort helt.
+ */
+export function getPeriodTopSpecies(
+  species: string[],
+  lat: number,
+  days: DayForecast[],
+  limit = 10
+): string | null {
+  if (!days.length) return null;
+
+  const region = { slug: 'lat', name: '', offset: offsetFromLat(lat) };
+  const window = days.slice(0, limit);
+
+  const matched = species
+    .map(name => SPECIES.find(sp => sp.slug === fold(name)))
+    .filter((sp): sp is NonNullable<typeof sp> => sp != null);
+
+  if (!matched.length) return null;
+
+  let bestName: string | null = null;
+  let bestMean = -Infinity;
+
+  for (const sp of matched) {
+    const vals: number[] = [];
+
+    for (const day of window) {
+      const date    = new Date(`${day.date}T12:00:00Z`);
+      const weather = { tempMean: day.tempMean, windSpeed: day.windSpeed, precip: day.precip };
+      const r       = getScore({ species: sp, date, region, forecast: weather });
+      if (r.closed) continue;
+      vals.push(r.season + r.moonAdj + r.weatherAdj);
+    }
+
+    // Arten ar fredad hela perioden
+    if (!vals.length) continue;
+
+    const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+    if (mean > bestMean) {
+      bestMean = mean;
+      bestName = sp.name;
+    }
+  }
+
+  return bestName;
 }
 
 // ---------------------------------------------------------------------------
