@@ -7,6 +7,7 @@ const destinations = defineCollection({
     title: z.string(),
     slug: z.string(),
     description: z.string(),
+    intro: z.string().optional(),   // Fristående ingress, renderas överst. Flyttad från brödtexten.
     heroImage: z.string(),
     heroSource: z.enum(['illustration', 'photo']).default('illustration'),
     heroCredit: z.string().optional(),        // fotografens namn, krävs när heroSource === 'photo'

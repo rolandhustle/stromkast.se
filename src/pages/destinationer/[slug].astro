@@ -211,6 +211,17 @@ const faqSchema = {
 
   <div class="max-w-[1280px] mx-auto px-4 sm:px-6 py-12">
 
+    <!--
+      Ingress. Ligger overst med flit: sidan ska saga vad platsen AR innan den
+      sager dagens vindstyrka. Texten ar flyttad hit fran brodtexten, inte
+      duplicerad, sa att sidan inte sager samma sak tva ganger.
+    -->
+    {d.intro && (
+      <p class="text-deep/80 text-lg leading-relaxed max-w-[68ch] mb-10">
+        {d.intro}
+      </p>
+    )}
+
     <!-- Live conditions bar -->
     <div class="bg-mist rounded-2xl p-5 flex items-center gap-4 mb-12 border border-mist">
       {bite ? (
@@ -381,7 +392,12 @@ const faqSchema = {
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
       <!-- Main content -->
       <div class="lg:col-span-2">
-        <h2 class="font-display text-2xl font-bold text-deep mb-6">Om {d.title}</h2>
+        {/*
+          Ingen rubrik "Om {titel}" har. Ingressen hogst upp pa sidan har
+          overtagit den rollen, och brodtexten borjar nu direkt med sin egen
+          forsta underrubrik. En tom rubrik med en underrubrik direkt under sig
+          ser trasig ut.
+        */}
         <div class="prose prose-sm max-w-[72ch] text-deep/80 leading-relaxed">
           <Content />
         </div>
