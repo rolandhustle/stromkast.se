@@ -212,111 +212,88 @@ const faqSchema = {
   <div class="max-w-[1280px] mx-auto px-4 sm:px-6 py-12">
 
     <!--
-      Ingress. Ligger overst med flit: sidan ska saga vad platsen AR innan den
+      Ingress + forhallandekort sida vid sida.
+
+      Ingressen ligger overst med flit: sidan ska saga vad platsen AR innan den
       sager dagens vindstyrka. Texten ar flyttad hit fran brodtexten, inte
       duplicerad, sa att sidan inte sager samma sak tva ganger.
-    -->
-    {d.intro && (
-      <p class="text-deep/80 text-lg leading-relaxed max-w-[68ch] mb-10">
-        {d.intro}
-      </p>
-    )}
 
-    <!-- Live conditions bar -->
-    <div class="bg-mist rounded-2xl p-5 flex items-center gap-4 mb-12 border border-mist">
-      {bite ? (
-        <>
-          <span class={`w-2.5 h-2.5 rounded-full shrink-0 ${DOT_COLOR[bite.color]}`} aria-hidden="true"></span>
-          <div>
-            <p class="text-deep text-sm font-semibold">Förhållanden just nu</p>
-            <p class="text-stone text-xs mt-0.5">
-              {smhi && smhi.airTemp !== null ? `Lufttemp: ${smhi.airTemp.toFixed(1)}°C · ` : ''}
-              {smhi && smhi.windSpeed !== null ? `Vind: ${smhi.windSpeed.toFixed(1)} m/s ${windDirLabel(smhi.windDir)} · ` : ''}
-              <a href="/forhallanden/" class="text-sky underline hover:text-pine">Se fullständig rapport</a>
-            </p>
-          </div>
-          <div class="ml-auto text-right hidden sm:block shrink-0">
-            <span class={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border ${DOT_BG[bite.color]}`}>
+      Forhallandekortet star bredvid i stallet for under, sa att luften till
+      hoger om ingressen fylls. Det ar byggt som ett vertikalt kort och inte
+      som den gamla breda baren, eftersom en lag bar hade lamnat rutan tom.
+    -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+
+      {d.intro && (
+        <p class="lg:col-span-2 text-deep/80 text-lg leading-relaxed">
+          {d.intro}
+        </p>
+      )}
+
+      <div class="bg-mist border border-mist rounded-2xl p-5 flex flex-col h-full">
+        <div class="flex items-start justify-between gap-3 mb-4">
+          <p class="text-deep text-sm font-semibold">Förhållanden just nu</p>
+          {bite && (
+            <span class={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border shrink-0 ${DOT_BG[bite.color]}`}>
               <span class={`w-2 h-2 rounded-full ${DOT_COLOR[bite.color]}`}></span>
               {bite.label}
             </span>
-            {smhi && <p class="text-stone/50 text-xs mt-1">SMHI: {smhi.stationName}</p>}
-            <p class="text-stone/50 text-xs">Uppdaterad {updatedAt}</p>
-          </div>
-        </>
-      ) : (
-        <>
-          <span class="w-2.5 h-2.5 rounded-full bg-stone/30 shrink-0" aria-hidden="true"></span>
-          <div>
-            <p class="text-deep text-sm font-semibold">Förhållanden just nu</p>
-            <p class="text-stone text-xs mt-0.5">
-              Väderdata saknas för detta vatten. <a href="/forhallanden/" class="text-sky underline hover:text-pine">Se fullständig rapport</a>
-            </p>
-          </div>
-        </>
-      )}
-    </div>
-
-    <!-- Vattenföring -->
-    {hydro && !hydro.error && hydro.value !== null && (
-      <div class="bg-white border border-mist rounded-2xl px-6 py-5 sm:px-8 mb-6">
-        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-
-          <div>
-            <p class="text-stone text-xs uppercase tracking-wider font-medium mb-1">Vattenföring</p>
-
-            <div class="flex items-baseline flex-wrap gap-x-3 gap-y-1">
-              <p class="font-display font-bold text-deep text-3xl leading-none">{formatFlow(hydro.value)}</p>
-
-              {hydro.level && (
-                <span class={`inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full border ${
-                  hydro.level === 'mycket-lagt' || hydro.level === 'mycket-hogt'
-                    ? 'bg-amber-50 border-amber-200 text-amber-700'
-                    : hydro.level === 'lagt' || hydro.level === 'hogt'
-                    ? 'bg-stone/10 border-stone/20 text-stone'
-                    : 'bg-green-50 border-green-100 text-green-700'
-                }`}>
-                  {FLOW_LABEL[hydro.level]} för årstiden
-                </span>
-              )}
-            </div>
-
-            {hydro.normal !== null && (
-              <p class="text-stone text-xs mt-2">
-                Normalt den här månaden: <span class="text-deep font-medium">{formatFlow(hydro.normal)}</span>
-              </p>
-            )}
-          </div>
-
-          <div class="sm:text-right shrink-0">
-            <span class={`inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full border ${hydro.station.regulated ? 'bg-stone/10 border-stone/20 text-stone' : 'bg-green-50 border-green-100 text-green-700'}`}>
-              {hydro.station.regulated ? 'Reglerad älv' : 'Oreglerad älv'}
-            </span>
-            <p class="text-stone text-xs leading-relaxed mt-2">
-              Mäts vid <span class="text-deep font-medium">{hydro.station.name}</span>
-              {hydro.station.distanceKm > 5 && <span>, {hydro.station.distanceKm} km bort</span>}
-            </p>
-            <p class="text-stone/60 text-xs mt-0.5">
-              Avrinningsområde {hydro.station.catchmentKm2.toLocaleString('sv-SE')} km²
-            </p>
-            {hydro.date && (
-              <p class="text-stone/60 text-xs mt-0.5">
-                Mätt {hydro.date}
-                {hydro.ageDays !== null && hydro.ageDays > 1 && <span> ({hydro.ageDays} dygn sedan)</span>}
-              </p>
-            )}
-          </div>
+          )}
         </div>
 
-        <p class="text-stone/70 text-xs leading-relaxed mt-4 pt-4 border-t border-mist">
-          {hydro.station.note ? <span>{hydro.station.note} </span> : null}
-          {hydro.station.regulated
-            ? 'Vattendraget är reglerat, så korttidsflödet styrs av kraftverkens tappning och kan ändras snabbt. Läs siffran som säsong och trend, inte som ett exakt värde för fiskeplatsen.'
-            : 'Vattendraget är oreglerat, så flödet speglar naturlig avrinning från snösmältning, regn och torka.'}
-          {' '}Jämförelsen bygger på stationens egen historik i SMHI:s arkiv. Data från SMHI.
-        </p>
+        {smhi && !smhi.error ? (
+          <>
+            <div class="flex items-start gap-4">
+              <div class="min-w-0">
+                <p class="text-stone text-[11px] uppercase tracking-wider font-medium mb-1">Lufttemp.</p>
+                <p class="font-display font-bold text-deep text-2xl leading-none">
+                  {smhi.airTemp !== null ? `${smhi.airTemp.toFixed(1)}°` : '–'}
+                </p>
+              </div>
+
+              <div class="min-w-0">
+                <p class="text-stone text-[11px] uppercase tracking-wider font-medium mb-1">Vind</p>
+                <p class="font-display font-bold text-deep text-2xl leading-none whitespace-nowrap">
+                  {smhi.windSpeed !== null ? `${smhi.windSpeed.toFixed(1)}` : '–'}
+                  {smhi.windSpeed !== null && <span class="text-sm font-normal text-stone"> m/s</span>}
+                </p>
+                {smhi.windDir !== null && (
+                  <p class="text-stone text-[11px] mt-1">{windDirLabel(smhi.windDir)}</p>
+                )}
+              </div>
+
+              <div class="min-w-0 ml-auto text-right">
+                <p class="text-stone text-[11px] uppercase tracking-wider font-medium mb-1">Fuktighet</p>
+                <p class="text-deep text-base font-semibold leading-none">
+                  {smhi.humidity !== null ? `${smhi.humidity.toFixed(0)}%` : '–'}
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-auto pt-4">
+              <a href="/forhallanden/" class="inline-flex items-center gap-1.5 text-pine font-semibold text-sm hover:text-deep transition-colors">
+                Se fullständig rapport
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                  <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+              <p class="text-stone/50 text-xs mt-2">SMHI: {smhi.stationName}</p>
+              <p class="text-stone/50 text-xs">Uppdaterad {updatedAt}</p>
+            </div>
+          </>
+        ) : (
+          <div class="mt-auto">
+            <p class="text-stone text-sm">Väderdata saknas för det här vattnet.</p>
+            <a href="/forhallanden/" class="inline-flex items-center gap-1.5 text-pine font-semibold text-sm hover:text-deep transition-colors mt-3">
+              Se fullständig rapport
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </div>
+        )}
       </div>
-    )}
+    </div>
 
     <!-- Tiodagarsutsikt -->
     {outlook.length > 0 && (
@@ -423,6 +400,72 @@ const faqSchema = {
 
       <!-- Sidebar -->
       <aside>
+        <!--
+          Vattenforing. Ligger i sidokolumnen och inte i huvudspalten, eftersom
+          den ar fyra siffror och inte behover full bredd. Den hor dessutom
+          tematiskt ihop med fiskekort och karta, alltsa praktisk information om
+          vattnet, och den star nu bredvid brodtexten om fisket dar siffran
+          faktiskt betyder nagot.
+
+          Finns bara pa 13 av 48 destinationer. Sjoar och kust far ingen ruta.
+        -->
+        {hydro && !hydro.error && hydro.value !== null && (
+          <div class="bg-white border border-mist rounded-2xl p-6 mb-6">
+            <div class="flex items-start justify-between gap-3 mb-3">
+              <p class="text-stone text-xs uppercase tracking-wider font-medium">Vattenföring</p>
+              <span class={`inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-full border shrink-0 ${hydro.station.regulated ? 'bg-stone/10 border-stone/20 text-stone' : 'bg-green-50 border-green-100 text-green-700'}`}>
+                {hydro.station.regulated ? 'Reglerad' : 'Oreglerad'}
+              </span>
+            </div>
+
+            <p class="font-display font-bold text-deep text-3xl leading-none mb-3">
+              {formatFlow(hydro.value)}
+            </p>
+
+            {hydro.level && (
+              <span class={`inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full border ${
+                hydro.level === 'mycket-lagt' || hydro.level === 'mycket-hogt'
+                  ? 'bg-amber-50 border-amber-200 text-amber-700'
+                  : hydro.level === 'lagt' || hydro.level === 'hogt'
+                  ? 'bg-stone/10 border-stone/20 text-stone'
+                  : 'bg-green-50 border-green-100 text-green-700'
+              }`}>
+                {FLOW_LABEL[hydro.level]} för årstiden
+              </span>
+            )}
+
+            {hydro.normal !== null && (
+              <p class="text-stone text-xs mt-3">
+                Normalt den här månaden: <span class="text-deep font-medium">{formatFlow(hydro.normal)}</span>
+              </p>
+            )}
+
+            <div class="mt-4 pt-4 border-t border-mist">
+              <p class="text-stone text-xs leading-relaxed">
+                Mäts vid <span class="text-deep font-medium">{hydro.station.name}</span>
+                {hydro.station.distanceKm > 5 && <span>, {hydro.station.distanceKm} km bort</span>}
+              </p>
+              <p class="text-stone/60 text-xs mt-0.5">
+                Avrinningsområde {hydro.station.catchmentKm2.toLocaleString('sv-SE')} km²
+              </p>
+              {hydro.date && (
+                <p class="text-stone/60 text-xs mt-0.5">
+                  Mätt {hydro.date}
+                  {hydro.ageDays !== null && hydro.ageDays > 1 && <span> ({hydro.ageDays} dygn sedan)</span>}
+                </p>
+              )}
+
+              <p class="text-stone/70 text-xs leading-relaxed mt-3">
+                {hydro.station.note ? <span>{hydro.station.note} </span> : null}
+                {hydro.station.regulated
+                  ? 'Korttidsflödet styrs av kraftverkens tappning och kan ändras snabbt. Läs siffran som säsong och trend.'
+                  : 'Flödet speglar naturlig avrinning från snösmältning, regn och torka.'}
+                {' '}Jämförelsen bygger på stationens egen historik i SMHI:s arkiv.
+              </p>
+            </div>
+          </div>
+        )}
+
         <!-- Buy fishing license CTA -->
         <div class="bg-pine text-white rounded-2xl p-6 mb-6">
           <h3 class="font-display font-bold text-xl mb-2">Köp fiskekort</h3>
