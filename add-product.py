@@ -12,16 +12,64 @@ med korrekt frontmatter och affiliate-länk.
 import os
 import re
 import sys
+import json
 import urllib.request
+from urllib.parse import urlsplit, parse_qsl, urlencode, urlunsplit
 
-AFFILIATE_BASE = "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1"
+MERCHANTS = {
+    "1": {
+        "name": "FiskeOnline",
+        "base": "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1",
+        "domain": "fiskeonline.com",
+    },
+    "2": {
+        "name": "Frilufts och Vildmark",
+        "base": "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1",
+        "domain": "fritidvildmark.se",
+    },
+    "3": {
+        "name": "Outl1",
+        "base": "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1",
+        "domain": "outl1.se",
+    },
+}
+
 GEAR_REVIEWS_DIR = "src/content/gear-reviews"
+GEAR_CATEGORIES_DIR = "src/content/gear-categories"
 IMAGES_DIR = "public/images/gear"
 
 SPECIES_OPTIONS = ["abborre", "gadda", "gos", "oring", "lax", "harr", "havsoring"]
 TECHNIQUE_OPTIONS = ["jigg", "dropshot", "spinn", "wobbler", "jerkbait", "flugfiske", "mete", "trolling", "isfiske"]
 PRICE_RANGES = {"1": "budget", "2": "mellanklass", "3": "premium"}
-PRICE_RANGE_LABELS = {"budget": "under 800 kr", "mellanklass": "800–1 800 kr", "premium": "1 800–3 500 kr"}
+
+TRACKING_PARAMS = ("gclid", "gbraid", "wbraid", "gad_source", "fbclid", "msclkid")
+
+
+def load_categories():
+    """Läser giltiga kategori-sluggar direkt från gear-categories-mappen."""
+    slugs = []
+    for name in sorted(os.listdir(GEAR_CATEGORIES_DIR)):
+        if not name.endswith(".json"):
+            continue
+        path = os.path.join(GEAR_CATEGORIES_DIR, name)
+        try:
+            with open(path, encoding="utf-8") as f:
+                data = json.load(f)
+            slugs.append(data.get("slug", name[:-5]))
+        except (json.JSONDecodeError, OSError):
+            slugs.append(name[:-5])
+    return slugs
+
+
+def clean_product_url(url):
+    """Tar bort utm- och annonsspårning från produkt-URL:en."""
+    parts = urlsplit(url)
+    kept = [
+        (k, v) for k, v in parse_qsl(parts.query, keep_blank_values=True)
+        if not k.startswith("utm_") and k not in TRACKING_PARAMS
+    ]
+    query = urlencode(kept)
+    return urlunsplit((parts.scheme, parts.netloc, parts.path, query, ""))
 
 
 def slugify(text):
@@ -64,10 +112,26 @@ def ask_list(prompt, options):
         print("Ogiltigt val, försök igen.")
 
 
+def ask_single(prompt, options):
+    """Välj exakt ett alternativ ur en lista."""
+    print(f"\n{prompt}")
+    for i, opt in enumerate(options, 1):
+        print(f"  {i}. {opt}")
+    while True:
+        raw = input("> ").strip()
+        try:
+            idx = int(raw) - 1
+            if 0 <= idx < len(options):
+                return options[idx]
+        except ValueError:
+            pass
+        print("Ogiltigt val, försök igen.")
+
+
 def ask_choice(prompt, options):
     print(f"\n{prompt}")
     for key, val in options.items():
-        print(f"  {key}. {val} ({PRICE_RANGE_LABELS[val]})")
+        print(f"  {key}. {val}")
     while True:
         raw = input("> ").strip()
         if raw in options:
@@ -137,17 +201,49 @@ def main():
     print("  Strömkast — Lägg till ny produkt")
     print("="*50 + "\n")
 
-    url = ask("Klistra in produktens URL på FiskeOnline").strip()
+    print("Butik:")
+    for key, m in MERCHANTS.items():
+        print(f"  {key}. {m['name']}")
+    while True:
+        raw = input("> ").strip()
+        if raw in MERCHANTS:
+            merchant = MERCHANTS[raw]
+            break
+        print("Ogiltigt val, försök igen.")
+
+    url = ask(f"\nKlistra in produktens URL på {merchant['name']}").strip()
     if not url.startswith("http"):
         print("Ogiltig URL.")
         sys.exit(1)
 
-    affiliate_url = f"{AFFILIATE_BASE}&url={url}"
+    if merchant["domain"] not in url:
+        print(f"VARNING: URL:en innehåller inte {merchant['domain']}.")
+        proceed = ask("Fortsätta ändå? (j/n)", "n")
+        if proceed.lower() not in ("j", "ja"):
+            sys.exit(0)
+
+    cleaned = clean_product_url(url)
+    if cleaned != url:
+        print(f"Spårningsparametrar borttagna:\n  {cleaned}")
+        url = cleaned
+
+    if "&" in urlsplit(url).query:
+        print("VARNING: Produkt-URL:en har fler än en parameter.")
+        print("Adtraction-länken URL-kodas inte, allt efter andra & tappas.")
+        print("Korta ned till högst en parameter eller använd ren URL.")
+        proceed = ask("Fortsätta ändå? (j/n)", "n")
+        if proceed.lower() not in ("j", "ja"):
+            sys.exit(0)
+
+    affiliate_url = f"{merchant['base']}&url={url}"
+
+    categories = load_categories()
+    category = ask_single("Kategori:", categories)
 
     print("\nFörsöker hämta produktinfo...")
     fetched_price = try_fetch_price(url)
 
-    title = ask("Produktnamn (exakt som på FiskeOnline)")
+    title = ask(f"Produktnamn (exakt som på {merchant['name']})")
     brand = ask("Varumärke (t.ex. Westin, Shimano, Kinetic)")
 
     price_input = ask("Pris i SEK", str(fetched_price) if fetched_price else None)
@@ -159,12 +255,15 @@ def main():
     print("\nKort beskrivning (1–2 meningar, visas i produktkort och quiz):")
     description = input("> ").strip()
 
-    target_species = ask_list("Vilka arter passar spöet för?", SPECIES_OPTIONS)
-    techniques = ask_list("Vilka tekniker passar spöet för?", TECHNIQUE_OPTIONS)
+    target_species = ask_list("Vilka arter passar produkten för?", SPECIES_OPTIONS)
+    techniques = ask_list("Vilka tekniker passar produkten för?", TECHNIQUE_OPTIONS)
     price_range = ask_choice("Prisklass?", PRICE_RANGES)
 
-    quiz_raw = ask("Ska spöet visas i Spöväljaren? (j/n)", "j")
-    quiz_enabled = quiz_raw.lower() in ("j", "ja", "y", "yes")
+    if category == "spon":
+        quiz_raw = ask("Ska spöet visas i Spöväljaren? (j/n)", "j")
+        quiz_enabled = quiz_raw.lower() in ("j", "ja", "y", "yes")
+    else:
+        quiz_enabled = False
 
     featured_raw = ask("Markera som 'Bästa val'? (j/n)", "n")
     featured = featured_raw.lower() in ("j", "ja", "y", "yes")
@@ -202,13 +301,13 @@ def main():
         "description": description,
         "heroImage": image_path,
         "brand": brand,
-        "category": "spon",
+        "category": category,
         "price": price,
         "rating": rating,
         "pros": pros if pros else ["Lägg till fördelar"],
         "cons": cons if cons else ["Lägg till nackdelar"],
         "affiliateUrl": affiliate_url,
-        "merchant": "FiskeOnline",
+        "merchant": merchant["name"],
         "featured": featured,
         "budgetPick": budget_pick,
         "targetSpecies": target_species,
@@ -236,7 +335,7 @@ def main():
     print(f"\nÅterstår:")
     print(f"  1. Spara produktbild som: {IMAGES_DIR}/{image_filename}")
     print(f"  2. Lägg till redaktionellt innehåll i {output_path}")
-    print(f"  3. git add . && git commit -m 'feat: lägg till {slug}'")
+    print(f"  3. git add {output_path} {IMAGES_DIR}/{image_filename}")
     print(f"\nAffiliate-länk:")
     print(f"  {affiliate_url}\n")
 
