@@ -206,6 +206,27 @@ function checkDashes(file, text) {
   });
 }
 
+// Varningsregel: kampanjpriser med slutdatum ("gäller till 29 juli 2026").
+// Passerat datum betyder fel pris pa sajten. Varning, inte fel, sa att
+// schemalagda byggen inte stoppas av att ett datum passerar.
+// Forvarning ges KAMPANJ_DAGAR dagar innan (standard 3).
+const MONTH_INDEX = Object.fromEntries(MONTHS.split('|').map((m, i) => [m, i]));
+
+function checkCampaignDates(file, text) {
+  const re = new RegExp(`g[aä]ller till(?: den)?\\s+(\\d{1,2})\\s+(${MONTHS})\\s+(\\d{4})`, 'gi');
+  const horizon = Number(process.env.KAMPANJ_DAGAR) || 3;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    const d = new Date(Number(m[3]), MONTH_INDEX[m[2].toLowerCase()], Number(m[1]), 23, 59, 59);
+    const daysLeft = Math.ceil((d - new Date()) / 86400000);
+    if (daysLeft < 0) {
+      warnings.push(`${file}: kampanjdatum "${m[1]} ${m[2]} ${m[3]}" har passerat - uppdatera pris och text`);
+    } else if (daysLeft <= horizon) {
+      warnings.push(`${file}: kampanjdatum "${m[1]} ${m[2]} ${m[3]}" gar ut om ${daysLeft} dagar`);
+    }
+  }
+}
+
 for (const f of files) {
   const coll = f.split('/')[2];
   const raw = readFileSync(f, 'utf-8');
@@ -213,6 +234,7 @@ for (const f of files) {
   checkRefs(f, coll, fm);
   checkLinks(f, raw);
   if (!f.endsWith('.json')) checkDashes(f, raw);
+  if (!f.endsWith('.json')) checkCampaignDates(f, raw);
 }
 
 // --- Rapport ---
