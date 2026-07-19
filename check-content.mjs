@@ -78,6 +78,7 @@ const techSlugs = new Set();
 const speciesIds = new Set();          // lowercased: filnamn, slug och titel
 const speciesTitleByFold = new Map();  // fold(slug|titel) -> kanoniskt visningsnamn
 const gearCategorySlugs = new Set();   // filnamn + JSON-slug for gear-categories
+const gearReviewSlugs = new Set();     // filnamn + slug for gear-reviews (ProduktRuta)
 
 function baseId(path) {
   return path.split('/').pop().replace(/\.(mdx?|json)$/, '');
@@ -96,6 +97,7 @@ for (const f of files) {
   const id = baseId(f);
   if (coll === 'destinations') { destSlugs.add(id); if (slug) destSlugs.add(slug); }
   if (coll === 'techniques') { techSlugs.add(id); if (slug) techSlugs.add(slug); }
+  if (coll === 'gear-reviews') { gearReviewSlugs.add(id); if (slug) gearReviewSlugs.add(slug); }
   if (coll === 'gear-categories') {
     // JSON-fil: getField traffar inte "slug": "...", sa las slug via JSON ocksa.
     gearCategorySlugs.add(id);
@@ -227,6 +229,19 @@ function checkCampaignDates(file, text) {
   }
 }
 
+
+// Felregel: <ProduktRuta slug="..."> maste peka pa en befintlig gear-review,
+// annars kastar komponenten vid bygge. Fanga det redan i npm run check.
+function checkProduktRuta(file, text) {
+  const re = /<ProduktRuta\s+slug="([^"]+)"/g;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    if (!gearReviewSlugs.has(m[1])) {
+      errors.push(`${file}: ProduktRuta slug "${m[1]}" matchar ingen gear-review`);
+    }
+  }
+}
+
 for (const f of files) {
   const coll = f.split('/')[2];
   const raw = readFileSync(f, 'utf-8');
@@ -235,6 +250,7 @@ for (const f of files) {
   checkLinks(f, raw);
   if (!f.endsWith('.json')) checkDashes(f, raw);
   if (!f.endsWith('.json')) checkCampaignDates(f, raw);
+  if (!f.endsWith('.json')) checkProduktRuta(f, raw);
 }
 
 // --- Rapport ---

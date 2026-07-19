@@ -4,5 +4,6 @@
   "description": "Elmotorer för fiske och trolling. Vi går igenom dragkraft i lbs, rigglängd och batterival för ekor, gummibåtar och mindre fiskebåtar.",
   "heroImage": "/images/gear/elmotorer.jpg",
   "heroSource": "illustration",
-  "excerpt": "Eldrivna motorer för trolling och tyst fiske."
+  "excerpt": "Eldrivna motorer för trolling och tyst fiske.",
+  "guideUrl": "/guider/valja-fiskebat/"
 }

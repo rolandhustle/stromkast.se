@@ -32,13 +32,13 @@ const priceFormatted = new Intl.NumberFormat('sv-SE', { style: 'currency', curre
     </div>
   )}
 
-  <div class="aspect-[4/3] bg-mist overflow-hidden">
+  <div class="aspect-[4/3] bg-white overflow-hidden">
     <img
       src={image}
       alt={title}
       loading="lazy"
       decoding="async"
-      class="w-full h-full object-cover"
+      class="w-full h-full object-contain"
       onerror="this.src='/images/placeholder-gear.jpg'"
     />
   </div>

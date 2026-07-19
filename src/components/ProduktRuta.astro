@@ -1,0 +1,41 @@
+---
+// ProduktRuta: bäddar in ett AffiliateCard i MDX-artiklar via produktens slug.
+// Hämtar all data ur gear-reviews så att pris och betyg aldrig dupliceras i artiklar.
+// Kortet begränsas till rutnätsbredd, artikelspaltens fulla bredd gör korten för stora.
+// Användning i MDX:
+//   import ProduktRuta from '../../components/ProduktRuta.astro';
+//   <ProduktRuta slug="lyfco-nrs-62x" />
+import { getCollection } from 'astro:content';
+import AffiliateCard from './AffiliateCard.astro';
+
+interface Props {
+  slug: string;
+}
+
+const { slug } = Astro.props;
+
+const reviews = await getCollection('gear-reviews');
+const review = reviews.find((r) => r.data.slug === slug || r.id === slug);
+
+if (!review) {
+  throw new Error(`ProduktRuta: gear-review med slug "${slug}" hittades inte`);
+}
+
+const r = review.data;
+---
+
+<div class="not-prose my-8 max-w-sm mx-auto">
+  <AffiliateCard
+    title={r.title}
+    brand={r.brand}
+    price={r.price}
+    rating={r.rating}
+    description={r.description}
+    image={r.heroImage}
+    affiliateUrl={r.affiliateUrl}
+    merchant={r.merchant}
+    slug={r.slug}
+    featured={r.featured}
+    budgetPick={r.budgetPick}
+  />
+</div>

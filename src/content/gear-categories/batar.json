@@ -4,5 +4,6 @@
   "description": "Båtar för fiske i svenska vatten. Ekor, roddbåtar och gummibåtar bedömda efter stabilitet, vikt och lastkapacitet, från budget till premium.",
   "heroImage": "/images/gear/batar.jpg",
   "heroSource": "illustration",
-  "excerpt": "Ekor, roddbåtar och gummibåtar för fiske."
+  "excerpt": "Ekor, roddbåtar och gummibåtar för fiske.",
+  "guideUrl": "/guider/valja-fiskebat/"
 }

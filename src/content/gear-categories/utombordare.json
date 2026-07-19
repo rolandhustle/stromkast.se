@@ -4,5 +4,6 @@
   "description": "Bensindrivna utombordare från 6 till 25 hk för ekor och mindre fiskebåtar. Vi guidar rätt i rigglängd, vikt och motorstorlek per båt.",
   "heroImage": "/images/gear/utombordare.jpg",
   "heroSource": "illustration",
-  "excerpt": "Utombordare 6 till 25 hk för mindre fiskebåtar."
+  "excerpt": "Utombordare 6 till 25 hk för mindre fiskebåtar.",
+  "guideUrl": "/guider/valja-fiskebat/"
 }
