@@ -22,6 +22,13 @@ const c = category.data;
 const featured = reviews.find((r) => r.data.featured);
 const budgetPick = reviews.filter((r) => !r.data.featured).sort((a, b) => a.data.price - b.data.price)[0];
 
+const merchants = [...new Set(reviews.map((r) => r.data.merchant))].sort();
+const merchantText = merchants.length
+  ? (merchants.length > 1
+      ? merchants.slice(0, -1).join(', ') + ' och ' + merchants[merchants.length - 1]
+      : merchants[0])
+  : 'våra partnerbutiker';
+
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
@@ -66,7 +73,7 @@ const breadcrumbSchema = {
         <path d="M8 7v4M8 5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
       <p class="text-stone text-xs leading-relaxed">
-        <strong class="text-deep">Affiliateinfo:</strong> Sidan innehåller affiliatelänkar. Om du köper via våra länkar tjänar vi en liten provision, utan kostnad för dig. Det påverkar aldrig vår bedömning av produkterna.
+        <strong class="text-deep">Affiliateinfo:</strong> Sidan innehåller reklam genom annonslänkar för {merchantText}. Om du köper via våra länkar tjänar vi en liten provision, utan kostnad för dig. Det påverkar aldrig vår bedömning av produkterna.
       </p>
     </div>
 
