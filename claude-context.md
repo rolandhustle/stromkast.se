@@ -31,6 +31,7 @@ src/components/linvaljare/.DS_Store
 src/components/linvaljare/LinValjare.tsx
 src/components/linvaljare/LinValjareIsland.astro
 src/components/NewsletterForm.astro
+src/components/ProduktRuta.astro
 src/components/quiz
 src/components/quiz/SpoQuiz.tsx
 src/components/SEO.astro
@@ -43,7 +44,9 @@ src/content/articles/basta-ekolod.mdx
 src/content/articles/basta-fiskespon-2026.mdx
 src/content/articles/basta-gaddbeten.mdx
 src/content/articles/nappkalender-guide.mdx
+src/content/articles/valja-fiskebat.mdx
 src/content/articles/valja-fiskelina.mdx
+src/content/articles/vattenforing-och-fiske.mdx
 src/content/authors
 src/content/authors/rikard-giby.json
 src/content/destinations
@@ -97,7 +100,10 @@ src/content/destinations/vanern.mdx
 src/content/destinations/vattern.mdx
 src/content/destinations/vindelalven.mdx
 src/content/gear-categories
+src/content/gear-categories/batar.json
+src/content/gear-categories/battrailers.json
 src/content/gear-categories/ekolod.json
+src/content/gear-categories/elmotorer.json
 src/content/gear-categories/flatlinor.json
 src/content/gear-categories/fluorocarbon.json
 src/content/gear-categories/haspelrullar.json
@@ -108,8 +114,10 @@ src/content/gear-categories/nylon.json
 src/content/gear-categories/spinnare.json
 src/content/gear-categories/spon.json
 src/content/gear-categories/trollingspon.json
+src/content/gear-categories/utombordare.json
 src/content/gear-categories/wobblers.json
 src/content/gear-reviews
+src/content/gear-reviews/.DS_Store
 src/content/gear-reviews/bft-lizzard-x-stefan-trumstedt.mdx
 src/content/gear-reviews/bft-ninety-two-mimic-stick.mdx
 src/content/gear-reviews/bft-raptor-g2-jerkbait.mdx
@@ -134,12 +142,32 @@ src/content/gear-reviews/kinetic-8-braid-014mm.mdx
 src/content/gear-reviews/kinetic-brutalis-5000-fd.mdx
 src/content/gear-reviews/kinetic-marshall-4000-fd.mdx
 src/content/gear-reviews/kinetic-xarann-predator-trigger-ct.mdx
+src/content/gear-reviews/lyfco-aluminiumbat-300.mdx
+src/content/gear-reviews/lyfco-aluminiumbat-380-kategori-c.mdx
+src/content/gear-reviews/lyfco-aluminiumbat-380-kategori-d.mdx
+src/content/gear-reviews/lyfco-aluminiumbat-420-kategori-c.mdx
+src/content/gear-reviews/lyfco-aluminiumbat-420-kategori-d.mdx
+src/content/gear-reviews/lyfco-katamaran-300.mdx
+src/content/gear-reviews/lyfco-katamaran-420.mdx
+src/content/gear-reviews/lyfco-nrs-55x.mdx
+src/content/gear-reviews/lyfco-nrs-62x.mdx
+src/content/gear-reviews/lyfco-nrs-86x-kort.mdx
+src/content/gear-reviews/lyfco-nrs-86x-lang.mdx
 src/content/gear-reviews/mikado-inazuma-pro-zander.mdx
 src/content/gear-reviews/okuma-ceymar-hd-2500a.mdx
 src/content/gear-reviews/okuma-inspira-2500a.mdx
 src/content/gear-reviews/okuma-itx-cb-2500h.mdx
 src/content/gear-reviews/okuma-magda-finn-trolling-combo.mdx
 src/content/gear-reviews/okuma-magda-finn-trollingspo.mdx
+src/content/gear-reviews/outl1-batvagn-380.mdx
+src/content/gear-reviews/outl1-batvagn-540.mdx
+src/content/gear-reviews/outl1-batvagn-600.mdx
+src/content/gear-reviews/outl1-utombordare-15hk-kort.mdx
+src/content/gear-reviews/outl1-utombordare-15hk-lang.mdx
+src/content/gear-reviews/outl1-utombordare-25hk-kort.mdx
+src/content/gear-reviews/outl1-utombordare-25hk-lang.mdx
+src/content/gear-reviews/outl1-utombordare-6hk.mdx
+src/content/gear-reviews/outl1-utombordare-9-8-hk.mdx
 src/content/gear-reviews/pig-chopper-spinnerbait.mdx
 src/content/gear-reviews/pig-shad-jr.mdx
 src/content/gear-reviews/rapala-shadow-rap.mdx
@@ -746,13 +774,13 @@ const priceFormatted = new Intl.NumberFormat('sv-SE', { style: 'currency', curre
     </div>
   )}
 
-  <div class="aspect-[4/3] bg-mist overflow-hidden">
+  <div class="aspect-[4/3] bg-white overflow-hidden">
     <img
       src={image}
       alt={title}
       loading="lazy"
       decoding="async"
-      class="w-full h-full object-cover"
+      class="w-full h-full object-contain"
       onerror="this.src='/images/placeholder-gear.jpg'"
     />
   </div>
@@ -1195,6 +1223,51 @@ const {
     });
   });
 </script>
+```
+
+## src/components/ProduktRuta.astro
+```
+---
+// ProduktRuta: bäddar in ett AffiliateCard i MDX-artiklar via produktens slug.
+// Hämtar all data ur gear-reviews så att pris och betyg aldrig dupliceras i artiklar.
+// Kortet begränsas till rutnätsbredd, artikelspaltens fulla bredd gör korten för stora.
+// Användning i MDX:
+//   import ProduktRuta from '../../components/ProduktRuta.astro';
+//   <ProduktRuta slug="lyfco-nrs-62x" />
+import { getCollection } from 'astro:content';
+import AffiliateCard from './AffiliateCard.astro';
+
+interface Props {
+  slug: string;
+}
+
+const { slug } = Astro.props;
+
+const reviews = await getCollection('gear-reviews');
+const review = reviews.find((r) => r.data.slug === slug || r.id === slug);
+
+if (!review) {
+  throw new Error(`ProduktRuta: gear-review med slug "${slug}" hittades inte`);
+}
+
+const r = review.data;
+---
+
+<div class="not-prose my-8 max-w-sm mx-auto">
+  <AffiliateCard
+    title={r.title}
+    brand={r.brand}
+    price={r.price}
+    rating={r.rating}
+    description={r.description}
+    image={r.heroImage}
+    affiliateUrl={r.affiliateUrl}
+    merchant={r.merchant}
+    slug={r.slug}
+    featured={r.featured}
+    budgetPick={r.budgetPick}
+  />
+</div>
 ```
 
 ## src/components/SEO.astro
@@ -7426,6 +7499,13 @@ const c = category.data;
 const featured = reviews.find((r) => r.data.featured);
 const budgetPick = reviews.filter((r) => !r.data.featured).sort((a, b) => a.data.price - b.data.price)[0];
 
+const merchants = [...new Set(reviews.map((r) => r.data.merchant))].sort();
+const merchantText = merchants.length
+  ? (merchants.length > 1
+      ? merchants.slice(0, -1).join(', ') + ' och ' + merchants[merchants.length - 1]
+      : merchants[0])
+  : 'våra partnerbutiker';
+
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
@@ -7470,7 +7550,7 @@ const breadcrumbSchema = {
         <path d="M8 7v4M8 5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
       <p class="text-stone text-xs leading-relaxed">
-        <strong class="text-deep">Affiliateinfo:</strong> Sidan innehåller affiliatelänkar. Om du köper via våra länkar tjänar vi en liten provision, utan kostnad för dig. Det påverkar aldrig vår bedömning av produkterna.
+        <strong class="text-deep">Affiliateinfo:</strong> Sidan innehåller reklam genom annonslänkar för {merchantText}. Om du köper via våra länkar tjänar vi en liten provision, utan kostnad för dig. Det påverkar aldrig vår bedömning av produkterna.
       </p>
     </div>
 
@@ -7826,7 +7906,7 @@ const stars = Math.round(r.rating);
             <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.2"/>
             <path d="M7 6.5v4M7 4.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
           </svg>
-          <p><strong class="text-deep">Affiliateinfo:</strong> Sidan innehåller affiliatelänkar. Vår redaktionella bedömning påverkas aldrig av kommersiella relationer.</p>
+          <p><strong class="text-deep">Affiliateinfo:</strong> Sidan innehåller reklam genom annonslänkar för {r.merchant}. Vår redaktionella bedömning påverkas aldrig av kommersiella relationer.</p>
         </div>
 
         <!-- Pros & cons -->
@@ -8797,6 +8877,32 @@ export function trackQuizCompleted(result_product_ids: string[]): void {
 
 # Content: gear-categories
 
+## src/content/gear-categories/batar.json
+```
+{
+  "title": "Båtar",
+  "slug": "batar",
+  "description": "Båtar för fiske i svenska vatten. Ekor, roddbåtar och gummibåtar bedömda efter stabilitet, vikt och lastkapacitet, från budget till premium.",
+  "heroImage": "/images/gear/batar.jpg",
+  "heroSource": "illustration",
+  "excerpt": "Ekor, roddbåtar och gummibåtar för fiske.",
+  "guideUrl": "/guider/valja-fiskebat/"
+}
+```
+
+## src/content/gear-categories/battrailers.json
+```
+{
+  "title": "Båttrailers och båtvagnar",
+  "slug": "battrailers",
+  "description": "Båtvagnar för sjösättning, upptagning och vinterförvaring. Vi reder ut skillnaden mot registrerbara båttrailers och vad som gäller på väg.",
+  "heroImage": "/images/gear/battrailers.jpg",
+  "heroSource": "illustration",
+  "excerpt": "Båtvagnar för sjösättning och korta transporter.",
+  "guideUrl": "/guider/valja-fiskebat/"
+}
+```
+
 ## src/content/gear-categories/ekolod.json
 ```
 {
@@ -8804,6 +8910,19 @@ export function trackQuizCompleted(result_product_ids: string[]): void {
   "slug": "ekolod",
   "description": "Handplockade ekolod för sportfiskare. Kastbara modeller för land, kajak och isfiske samt fastmonterade fishfinders och kartplotters för båt.",
   "heroImage": "/images/gear/ekolod.jpg"
+}
+```
+
+## src/content/gear-categories/elmotorer.json
+```
+{
+  "title": "Elmotorer",
+  "slug": "elmotorer",
+  "description": "Elmotorer för fiske och trolling. Vi går igenom dragkraft i lbs, rigglängd och batterival för ekor, gummibåtar och mindre fiskebåtar.",
+  "heroImage": "/images/gear/elmotorer.jpg",
+  "heroSource": "illustration",
+  "excerpt": "Eldrivna motorer för trolling och tyst fiske.",
+  "guideUrl": "/guider/valja-fiskebat/"
 }
 ```
 
@@ -8929,6 +9048,19 @@ export function trackQuizCompleted(result_product_ids: string[]): void {
   "parent": "spon",
   "description": "Trollingspön för lax, gädda, gös och musky. Från budgetvänliga startkit till kraftfulla spön för de tuffaste fiskarna.",
   "heroImage": "/images/gear/trollingspon.jpg"
+}
+```
+
+## src/content/gear-categories/utombordare.json
+```
+{
+  "title": "Utombordare",
+  "slug": "utombordare",
+  "description": "Bensindrivna utombordare från 6 till 25 hk för ekor och mindre fiskebåtar. Vi guidar rätt i rigglängd, vikt och motorstorlek per båt.",
+  "heroImage": "/images/gear/utombordare.jpg",
+  "heroSource": "illustration",
+  "excerpt": "Utombordare 6 till 25 hk för mindre fiskebåtar.",
+  "guideUrl": "/guider/valja-fiskebat/"
 }
 ```
 
@@ -9122,7 +9254,7 @@ pros:
 cons:
   - "Hogt pris for ett kastbart ekolod"
   - "Ingen AI-fiskidentifiering (finns i CHIRP+ 4)"
-affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://fritidvildmark.se/products/deeper-smart-sonar-chirp-3"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
 merchant: "Frilufts och Vildmark"
 featured: true
 budgetPick: false
@@ -9169,7 +9301,7 @@ pros:
 cons:
   - "Hogst pris bland kastbara ekolod"
   - "AI-funktionen krar stabilt Wi-Fi-signal"
-affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://fritidvildmark.se/products/deeper-smart-sonar-chirp-4"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
 merchant: "Frilufts och Vildmark"
 featured: false
 budgetPick: false
@@ -9215,7 +9347,7 @@ pros:
 cons:
   - "Inte CHIRP - lagre upplostning an CHIRP+ 3"
   - "9 timmars batteritid"
-affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://fritidvildmark.se/products/deeper-smart-sonar-pro-2"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
 merchant: "Frilufts och Vildmark"
 featured: false
 budgetPick: false
@@ -9262,7 +9394,7 @@ cons:
   - "Enkel strale - lagre detaljrikedom an CHIRP"
   - "Passar ej isfiske"
   - "Endast 50 meters rackvidd"
-affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://fritidvildmark.se/products/deeper-start-global"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
 merchant: "Frilufts och Vildmark"
 featured: false
 budgetPick: true
@@ -9380,7 +9512,7 @@ cons:
   - "Knappstyrning - ingen pekskarm"
   - "5 tums skarm - liten for splitview"
   - "Navionics-sjokort koper separat"
-affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://fritidvildmark.se/products/garmin-echomap-uhd2-52cv-ink-gt20"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
 merchant: "Frilufts och Vildmark"
 featured: false
 budgetPick: false
@@ -9427,7 +9559,7 @@ cons:
   - "Mycket hogt pris"
   - "Livescope-givare koster extra"
   - "Kraver 12V stromforsorrjning i bat"
-affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://fritidvildmark.se/products/garmin-echomap-uhd2-92sv-ink-gt56"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
 merchant: "Frilufts och Vildmark"
 featured: false
 budgetPick: false
@@ -9475,7 +9607,7 @@ cons:
   - "Ingen GPS - kan inte skapa kartor"
   - "260 och 455 kHz - inte CHIRP"
   - "60 meters rackvidd"
-affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://fritidvildmark.se/products/garmin-striker-cast-no-gps"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
 merchant: "Frilufts och Vildmark"
 featured: false
 budgetPick: false
@@ -9518,7 +9650,7 @@ pros:
 cons:
   - "260 och 455 kHz - inte CHIRP"
   - "60 meters rackvidd"
-affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://fritidvildmark.se/products/garmin-striker-cast-worldwide"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
 merchant: "Frilufts och Vildmark"
 featured: false
 budgetPick: false
@@ -9562,7 +9694,7 @@ cons:
   - "4 tums skarm kan vara liten vid starka solljus"
   - "Laser inga Navionics-sjokort"
   - "Knappstyrning - ingen pekskarm"
-affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://fritidvildmark.se/products/garmin-striker-vivid-4cv-ink-gt20"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
 merchant: "Frilufts och Vildmark"
 featured: false
 budgetPick: true
@@ -9607,7 +9739,7 @@ pros:
 cons:
   - "Laser inga Navionics-sjokort"
   - "Knappstyrning - ingen pekskarm"
-affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://fritidvildmark.se/products/garmin-striker-vivid-5cv-ink-gt20"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
 merchant: "Frilufts och Vildmark"
 featured: false
 budgetPick: false
@@ -9652,7 +9784,7 @@ pros:
 cons:
   - "Laser inga Navionics-sjokort"
   - "Knappstyrning - ingen pekskarm"
-affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://fritidvildmark.se/products/garmin-striker-vivid-7cv-ink-gt20"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
 merchant: "Frilufts och Vildmark"
 featured: false
 budgetPick: false
@@ -9698,7 +9830,7 @@ cons:
   - "Laser inga Navionics-sjokort"
   - "Knappstyrning - ingen pekskarm"
   - "Stor enhet - kraver mer monsteringsutrymme"
-affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://fritidvildmark.se/products/garmin-striker-vivid-9sv-ink-gt52"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
 merchant: "Frilufts och Vildmark"
 featured: false
 budgetPick: false
@@ -9971,6 +10103,406 @@ CarbonTech-klingan är konstruerad för att ge kraft i nedre delen av spöet, vi
 Kastvikten 40–120 g gör det till ett utpräglat gäddspö för tyngre beten. Det passar inte för lätta abborrjiggar eller finessefiske. För den som söker ett första gäddspö till ett rimligt pris och fiskar med wobblers och större mjukbeten är det ett funktionellt val. Den som vill ha ett mer mångsidigt spö som hanterar både lättare och tyngre beten bör titta på något med bredare kastviktsrange.
 ```
 
+## src/content/gear-reviews/lyfco-aluminiumbat-300.mdx
+```
+---
+title: "Lyfco aluminiumbåt 3 m"
+slug: "lyfco-aluminiumbat-300"
+description: "Liten aluminiumbåt på 3 meter för två personer. Helsvetsat skrov i 1,5 mm aluminium, väger 45 kg och tar utombordare upp till 6 hk."
+heroImage: "/images/gear/lyfco-aluminiumbat-300.jpg"
+brand: "Lyfco"
+category: "batar"
+price: 14995
+rating: 3.9
+pros:
+  - "Väger bara 45 kg och kan bäras av två personer"
+  - "Helsvetsat skrov med förstärkt köl"
+  - "Plaståror ingår"
+  - "Hemtransport ingår i priset"
+cons:
+  - "Maxlast 200 kg begränsar till en person med full utrustning"
+  - "Max 6 hk räcker inte för längre transportsträckor"
+  - "Litet fribord för öppna vatten"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/aluminiumbat-3m-old"
+merchant: "Outl1"
+featured: false
+budgetPick: false
+targetSpecies: ["abborre", "gadda", "gos"]
+techniques: ["jigg", "spinn", "mete"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Lyfcos minsta aluminiumbåt är en 3 meter lång eka för en till två personer, med helsvetsat skrov i 1,5 mm aluminium och förstärkningar i kölen. Vikten på 45 kg är den avgörande fördelen. Båten kan bäras av två personer, dras upp på en strand utan ramp och transporteras på en enkel släpkärra. För den som vill ha en båt liggande vid stugan eller flytta mellan mindre sjöar är formatet svårt att matcha med en större eka.
+
+Tre fasta sittbänkar ger flexibel placering vid rodd och fiske, och tvådelade plaståror med tullar ingår. Stävöglan gör den enkel att förtöja och vinscha, och mitt- och aktersitsen har säkerhetshandtag. Akterspegeln tar en utombordare på upp till 6 hk, vilket räcker för att ta sig runt i en insjö men inte för längre sträckor. Maxlasten på 200 kg motsvarar en vuxen med full utrustning eller två som packar lätt, så räkna på vikten innan ni är två i båten.
+
+Båten är CE-certifierad i kategori C, formellt vind upp till 12 m/s och signifikant våghöjd på 2 meter, men storleken gör att den hör hemma i skyddade vatten. Aluminium kräver i praktiken inget underhåll, ingen bottenmålning och ingen ytbehandling. Den som ofta är två i båten med mycket utrustning får bättre marginal i [3,8-metersmodellen i kategori C](/utrustning/test/lyfco-aluminiumbat-380-kategori-c/). Priset 14 995 kr är ett kampanjpris som gäller till 2 augusti 2026. Ordinarie pris är 17 995 kr.
+```
+
+## src/content/gear-reviews/lyfco-aluminiumbat-380-kategori-c.mdx
+```
+---
+title: "Lyfco aluminiumbåt 3,8 m kategori C"
+slug: "lyfco-aluminiumbat-380-kategori-c"
+description: "Aluminiumbåt på 3,8 meter för fyra personer. Helsvetsat skrov i 1,5 mm, väger 75 kg och tar utombordare upp till 15 hk. CE-kategori C."
+heroImage: "/images/gear/lyfco-aluminiumbat-380-kategori-c.jpg"
+brand: "Lyfco"
+category: "batar"
+price: 21995
+rating: 4.1
+pros:
+  - "Bra balans mellan storlek och hanterbar vikt på 75 kg"
+  - "CE-kategori C tillåter kustnära fiske"
+  - "Helsvetsat skrov med förstärkt köl"
+  - "Plaståror ingår och hemtransport ingår i priset"
+cons:
+  - "Maxlast 350 kg gör fyra personer med utrustning orealistiskt"
+  - "1,5 mm skrov är tunnare än systermodellen med 2 mm"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/aluminiumbat-380cm-old"
+merchant: "Outl1"
+featured: false
+budgetPick: false
+targetSpecies: ["abborre", "gadda", "gos", "oring"]
+techniques: ["jigg", "spinn", "trolling", "mete"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+En 3,8 meter lång aluminiumbåt med helsvetsat skrov i 1,5 mm godstjocklek och förstärkningar i kölen. Vikten på 75 kg är låg för längden, vilket gör att två personer fortfarande kan hantera den på land och att den går att dra på en lättare båtkärra. Samtidigt ger längden och bredden på 1,58 meter plats att fiska två personer samtidigt utan att gå i vägen för varandra.
+
+Tre fasta sittbänkar, stävögla i fören och säkerhetshandtag vid mitt- och aktersits. Tvådelade plaståror med tullar ingår. Akterspegeln är dimensionerad för utombordare mellan 9,8 och 15 hk, vilket räcker för att flytta mellan fiskeplatser på större sjöar i rimlig fart. Maxlasten är 350 kg. Fyra vuxna med utrustning går inte ihop med den siffran, så som fiskebåt är två till tre personer det realistiska.
+
+CE-kategori C innebär certifiering för kustnära vatten, stora bukter och sjöar med vind upp till 12 m/s och signifikant våghöjd på 2 meter. Leveransen kommer som tungt fraktgods där föraren inte hjälper till med urlastning, så ha bärhjälp ordnad eller välj kranbilsleverans i kassan. Den som prioriterar lastkapacitet framför kustcertifiering bör jämföra med [2 mm-versionen i kategori D](/utrustning/test/lyfco-aluminiumbat-380-kategori-d/). Priset 21 995 kr är ett kampanjpris som gäller till 2 augusti 2026. Ordinarie pris är 27 995 kr.
+```
+
+## src/content/gear-reviews/lyfco-aluminiumbat-380-kategori-d.mdx
+```
+---
+title: "Lyfco aluminiumbåt 3,8 m kategori D"
+slug: "lyfco-aluminiumbat-380-kategori-d"
+description: "Aluminiumbåt på 3,8 meter med 2 mm skrov och 550 kg maxlast. Väger 80 kg och tar utombordare upp till 15 hk. CE-kategori D."
+heroImage: "/images/gear/lyfco-aluminiumbat-380-kategori-d.jpg"
+brand: "Lyfco"
+category: "batar"
+price: 29995
+rating: 4.0
+pros:
+  - "2 mm skrovtjocklek ger styvare och tåligare konstruktion"
+  - "Maxlast 550 kg räcker för tre personer med utrustning"
+  - "Helsvetsat skrov med förstärkt köl"
+  - "Plaståror ingår och hemtransport ingår i priset"
+cons:
+  - "CE-kategori D begränsar till skyddade vatten"
+  - "Dyrare än 1,5 mm-versionen i samma längd"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/stor-aluminiumbat-380cm-4-personer"
+merchant: "Outl1"
+featured: false
+budgetPick: false
+targetSpecies: ["abborre", "gadda", "gos"]
+techniques: ["jigg", "spinn", "trolling", "mete"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Samma längd som seriens kategori C-modell men med skrov i 2 mm aluminium i stället för 1,5 mm. Det ger en styvare och mer stryktålig konstruktion och höjer maxlasten till 550 kg, mot 350 kg för den tunnare systermodellen. Vikten stannar ändå på 80 kg, så hanteringen på land skiljer sig inte nämnvärt. Skrovet är helsvetsat med förstärkningar i kölen.
+
+Utrustningen följer seriens mönster med tre fasta sittbänkar, stävögla i fören och säkerhetshandtag vid mitt- och aktersits. Tvådelade plaståror med tullar ingår. Akterspegeln tar utombordare mellan 9,8 och 15 hk. Med den högre maxlasten fungerar båten för tre personer med full fiskeutrustning, vilket den tunnare modellen inte gör med samma marginal.
+
+Certifieringen är däremot kategori D, alltså skyddade vatten med vind upp till 8 m/s och signifikant våghöjd på 0,5 meter. Tjockare skrov betyder inte högre sjövärdighetsklass, och den skillnaden är värd att förstå före köp. För insjöfiske spelar den sällan någon roll, men den som fiskar kustnära eller på riktigt stora sjöar bör i stället titta på [1,5 mm-versionen i kategori C](/utrustning/test/lyfco-aluminiumbat-380-kategori-c/) eller [4,2-metersmodellen i kategori C](/utrustning/test/lyfco-aluminiumbat-420-kategori-c/). Priset 29 995 kr är ett kampanjpris som gäller till 2 augusti 2026. Ordinarie pris är 33 995 kr.
+```
+
+## src/content/gear-reviews/lyfco-aluminiumbat-420-kategori-c.mdx
+```
+---
+title: "Lyfco aluminiumbåt 4,2 m kategori C"
+slug: "lyfco-aluminiumbat-420-kategori-c"
+description: "Aluminiumbåt på 4,2 meter för fem personer. Helsvetsat skrov i 2 mm, maxlast 600 kg och utombordare upp till 30 hk. CE-kategori C."
+heroImage: "/images/gear/lyfco-aluminiumbat-420-kategori-c.jpg"
+brand: "Lyfco"
+category: "batar"
+price: 24995
+rating: 4.3
+pros:
+  - "Kustcertifierad i kategori C med rejält djup på 64 cm"
+  - "Tar utombordare upp till 30 hk"
+  - "2 mm helsvetsat skrov med förstärkt köl"
+  - "Säkerhetshandtag vid alla sittplatser"
+cons:
+  - "116 kg kräver båtkärra och två personer vid hantering"
+  - "Tung leverans där urlastning inte ingår"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/aluminiumbat-420cm"
+merchant: "Outl1"
+featured: true
+budgetPick: false
+targetSpecies: ["abborre", "gadda", "gos", "lax", "oring"]
+techniques: ["trolling", "jigg", "spinn"]
+priceRange: "premium"
+quizEnabled: false
+---
+
+Den mest kapabla fiskebåten i Lyfcos aluminiumserie för den som rör sig på stora sjöar eller kustnära vatten. Skrovet är helsvetsat i 2 mm aluminium med förstärkningar i kölen, 4,2 meter långt och 1,65 meter brett med ett djup på 64 cm som ger ordentligt fribord. CE-certifieringen i kategori C gäller vind upp till 12 m/s och signifikant våghöjd på 2 meter, vilket gör den användbar i vatten där de mindre modellerna i serien får stanna hemma.
+
+Akterspegeln tar utombordare upp till 30 hk. Det öppnar för trolling i marschfart och snabba förflyttningar mellan fiskeplatser, något som gör verklig skillnad på vatten som Vänern, Vättern och Storsjön. Tre fasta sittbänkar med säkerhetshandtag vid samtliga platser, stävögla i fören och tvådelade plaståror som ingår. Maxlasten på 600 kg räcker för tre fiskande med full utrustning.
+
+Vikten på 116 kg innebär att båten kräver kärra eller trailer och två personer vid hantering på land. Leveransen kommer som tungt fraktgods där föraren inte lastar ur, så ordna bärhjälp eller välj kranbilsleverans i kassan. Den som mest fiskar skyddade insjöar och vill ha mer lastkapacitet för pengarna kan jämföra med [kategori D-versionen i samma längd](/utrustning/test/lyfco-aluminiumbat-420-kategori-d/). Priset 24 995 kr är ett kampanjpris som gäller till 2 augusti 2026. Ordinarie pris är 34 995 kr.
+```
+
+## src/content/gear-reviews/lyfco-aluminiumbat-420-kategori-d.mdx
+```
+---
+title: "Lyfco aluminiumbåt 4,2 m kategori D"
+slug: "lyfco-aluminiumbat-420-kategori-d"
+description: "Aluminiumbåt på 4,2 meter med 2 mm skrov och 1 000 kg maxlast. Väger 105 kg och tar utombordare upp till 30 hk. CE-kategori D."
+heroImage: "/images/gear/lyfco-aluminiumbat-420-kategori-d.jpg"
+brand: "Lyfco"
+category: "batar"
+price: 34995
+rating: 4.1
+pros:
+  - "Hög maxlast på 1 000 kg enligt tillverkaren"
+  - "2 mm helsvetsat skrov med 65 cm djup"
+  - "Tar utombordare upp till 30 hk"
+  - "Säkerhetshandtag vid alla sittplatser"
+cons:
+  - "CE-kategori D begränsar till skyddade vatten"
+  - "Dyrast i serien trots lägre sjövärdighetsklass än kategori C-modellen"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/aluminiumbat-420cm-5-pers"
+merchant: "Outl1"
+featured: false
+budgetPick: false
+targetSpecies: ["abborre", "gadda", "gos", "lax", "oring"]
+techniques: ["trolling", "jigg", "spinn"]
+priceRange: "premium"
+quizEnabled: false
+---
+
+Seriens lastdragare. En 4,2 meter lång aluminiumbåt med helsvetsat 2 mm skrov, 65 cm djup och en maxlast som tillverkaren anger till 1 000 kg. Det är avsevärt mer än de 600 kg som gäller för kategori C-modellen i samma längd, och gör den intressant för den som fraktar mycket utrustning, lägger nät eller använder båten som arbetsbåt vid stugan lika mycket som fiskebåt.
+
+Vikten stannar på 105 kg, alltså något lägre än systermodellen trots samma skrovtjocklek. Utrustningen är seriens standard med tre fasta sittbänkar, säkerhetshandtag vid samtliga sittplatser, stävögla i fören och tvådelade plaståror som ingår. Akterspegeln tar utombordare upp till 30 hk, vilket ger bra fart även med last ombord.
+
+Certifieringen är kategori D, skyddade vatten med vind upp till 8 m/s och signifikant våghöjd på 0,5 meter. Precis som för 3,8-metersmodellerna gäller att lastkapacitet och sjövärdighetsklass är två olika saker. På insjöar i normalt sommarväder är det sällan en begränsning, men för kustfiske och stora öppna sjöar är [kategori C-versionen](/utrustning/test/lyfco-aluminiumbat-420-kategori-c/) rätt val trots lägre maxlast. Leveransen kommer som tungt fraktgods utan urlastning, så ordna bärhjälp eller kranbil. Priset 34 995 kr är ett kampanjpris som gäller till 2 augusti 2026. Ordinarie pris är 39 995 kr.
+```
+
+## src/content/gear-reviews/lyfco-katamaran-300.mdx
+```
+---
+title: "Lyfco Katamaran 300 gummibåt"
+slug: "lyfco-katamaran-300"
+description: "Uppblåsbar katamaran på 3 meter i 0,9 mm PVC. Väger 35 kg, tar fyra personer och motor upp till 9,9 hk. Pump, åror och väska ingår."
+heroImage: "/images/gear/lyfco-katamaran-300.jpg"
+brand: "Lyfco"
+category: "batar"
+price: 7995
+rating: 4.0
+pros:
+  - "Väger 35 kg och packas ner i bärväska som ryms i bilen"
+  - "Katamaranskrov ger stabilare ståyta än en vanlig gummibåt"
+  - "Pump, åror, uppblåsbar durk och väska ingår"
+  - "4+1 luftkammare ger flytkraft även vid punktering"
+cons:
+  - "0,9 mm PVC kräver varsamhet mot krokar och vassa stenar"
+  - "Ingen CE-kategori angiven av tillverkaren"
+  - "Kräver montering och pumpning vid varje användning"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/katamaran-300-cm-for-4-personer-lyfco"
+merchant: "Outl1"
+featured: false
+budgetPick: true
+targetSpecies: ["abborre", "gadda", "gos"]
+techniques: ["jigg", "spinn", "mete"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+En uppblåsbar katamaran på 3 meter för den som saknar båtplats, trailer eller förvaring. Hela båten packas ner i en bärväska, väger 35 kg och åker med i bagageutrymmet. De dubbla pontonerna med 45 cm diameter ger en bredare och stabilare plattform än en vanlig gummibåt i samma längd, vilket märks framför allt när man ställer sig upp för att kasta.
+
+Materialet är PVC med 0,9 mm godstjocklek och konstruktionen har fyra luftkammare plus en separat kammare i durken, så en punktering sänker inte båten. Uppblåsbar durk, aluminiumtoft, tvådelade åror, fotpump och bärväska ingår, vilket gör paketet komplett från start. Akterspegeln tar en utombordare upp till 9,9 hk. Tillverkaren anger kapacitet för fyra personer och 474 kg, men som fiskebåt är två personer med utrustning det bekväma taket.
+
+Detta är den billigaste vägen till en fungerande fiskeplattform i sortimentet och passar den som fiskar semestersjöar, provar nya vatten eller vill ha en båt som följer med husbilen. PVC-materialet kräver dock mer omtanke än aluminium. Trekrokar, filékniv och vassa strandstenar är verkliga risker. Den som vill ha en båt som tål slarv är bättre betjänt av [aluminiumbåten i 3-metersformat](/utrustning/test/lyfco-aluminiumbat-300/).
+```
+
+## src/content/gear-reviews/lyfco-katamaran-420.mdx
+```
+---
+title: "Lyfco Katamaran 420 gummibåt"
+slug: "lyfco-katamaran-420"
+description: "Uppblåsbar katamaran på 4,2 meter i 0,9 mm PVC. Maxlast 800 kg, motor upp till 30 hk, plywood-transom och air mat-däck. Väger 65 kg."
+heroImage: "/images/gear/lyfco-katamaran-420.jpg"
+brand: "Lyfco"
+category: "batar"
+price: 9795
+rating: 3.9
+pros:
+  - "Maxlast 800 kg och plats för motor upp till 30 hk"
+  - "Plywood-transom för stabil motormontering"
+  - "4+1 luftkammare och air mat-däck med halkskydd"
+  - "Väger 65 kg trots 4,2 meters längd"
+cons:
+  - "0,9 mm PVC kräver varsamhet mot krokar och vassa stenar"
+  - "Ingen CE-kategori angiven av tillverkaren"
+  - "Oklart vilka tillbehör som ingår, kontrollera före köp"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/katamaran-gummibat-420-cm-for-8-personer-lyfco"
+merchant: "Outl1"
+featured: false
+budgetPick: false
+targetSpecies: ["abborre", "gadda", "gos"]
+techniques: ["jigg", "spinn", "trolling", "mete"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Den större av de två uppblåsbara katamaranerna, 4,2 meter lång och 1,85 meter bred med pontoner på 50 cm i diameter. Twin hull-konstruktionen ger samma stabila gång som lillasyskonet men med betydligt mer däcksyta och lastförmåga. Vikten på 65 kg är låg för storleken, och båten går fortfarande att transportera i en större bil eller på takräcke i nedpackat skick.
+
+Transomen är i plywood, vilket ger en stadigare infästning för motorn än helt uppblåsbara akterspeglar. Tillverkaren godkänner motorer upp till 30 hk med rekommendationen 15 till 25 hk, klart mer än de 9,9 hk som gäller för 300-modellen. Däcket är av air mat-typ med halkskydd, konstruktionen har fyra luftkammare plus en separat, och båten har tio bärhandtag och femton D-ringar för surrning av utrustning.
+
+Maxlasten anges till 800 kg och åtta personer, men som fiskebåt är två till tre personer med utrustning det rimliga. Till skillnad från 300-modellen framgår det inte vilka tillbehör som ingår, så kontrollera hos butiken om pump och åror följer med före köp. Den som vill ha ett komplett paket direkt ur kartongen bör jämföra med [Katamaran 300](/utrustning/test/lyfco-katamaran-300/), och den som hellre vill ha en fast båt i samma storlek med [4,2-metersmodellen i aluminium](/utrustning/test/lyfco-aluminiumbat-420-kategori-c/).
+```
+
+## src/content/gear-reviews/lyfco-nrs-55x.mdx
+```
+---
+title: "Lyfco NRS-55X elmotor 55 lbs"
+slug: "lyfco-nrs-55x"
+description: "Elmotor med 55 lbs dragkraft och kort rigg på 71 cm. Fem växlar framåt, tre bakåt, sjögrässkyddad propeller och nästan ljudlös gång."
+heroImage: "/images/gear/lyfco-nrs-55x.jpg"
+brand: "Lyfco"
+category: "elmotorer"
+price: 1799
+rating: 3.7
+pros:
+  - "Nästan ljudlös gång som inte skrämmer fisken"
+  - "Motorhölje i aluminium och rigg i komposit-glasfiber"
+  - "Sjögrässkyddad propeller för vasskanter och grunda vikar"
+  - "Styret vridbart 180 grader och handtaget vinklingsbart i höjdled"
+cons:
+  - "Lägst dragkraft i serien, känslig för hård vind och ström"
+  - "Batteri ingår inte och tillkommer i både kostnad och vikt"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/billig-eldriven-utombordsmotor"
+merchant: "Outl1"
+featured: false
+budgetPick: true
+targetSpecies: ["abborre", "gadda", "gos"]
+techniques: ["trolling"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Instegsmodellen i Lyfcos elmotorserie, med 55 lbs dragkraft, motsvarande 25 kg, och kort rigg på 71 cm. Motorhöljet är i aluminium och riggröret i komposit-glasfiber, en materialnivå som inte är given i prisklassen. Propellern är sjögrässkyddad, reglaget har fem hastigheter framåt och tre bakåt, och batterinivån visas med tio lysdioder på panelen. Styret kan vridas 180 grader och handtaget vinklas i höjdled.
+
+Det en elmotor tillför fisket är tystnaden. Trolling och smyg längs vasskanter går att göra utan motorljud som skrämmer fisken, och på vatten där förbränningsmotorer inte är tillåtna är eldrift enda alternativet, kontrollera alltid reglerna för ditt vatten. Motorn drivs på ett 12-voltsbatteri som inte ingår, ett fritidsbatteri på 100 Ah ger runt tre timmars körtid och väger omkring 20 kg som ska räknas in i båtens lastvikt.
+
+Med seriens lägsta dragkraft passar 55X lätta båtar i lugna vatten: gummibåtarna, 3-metersekan och flytringar med motorfäste. Blåser det upp eller ska en tyngre båt flyttas är [62X](/utrustning/test/lyfco-nrs-62x/) för 100 kr mer det stabilare valet. Priset 1 799 kr är ett kampanjpris som gäller till 29 juli 2026. Ordinarie pris är 2 299 kr.
+```
+
+## src/content/gear-reviews/lyfco-nrs-62x.mdx
+```
+---
+title: "Lyfco NRS-62X elmotor 62 lbs"
+slug: "lyfco-nrs-62x"
+description: "Elmotor med 62 lbs dragkraft och kort rigg på 71 cm. Drivs på ett 12-voltsbatteri, cirka tre timmars körtid på 110 Ah. Nästan ljudlös."
+heroImage: "/images/gear/lyfco-nrs-62x.jpg"
+brand: "Lyfco"
+category: "elmotorer"
+price: 1899
+rating: 3.9
+pros:
+  - "Bra dragkraft utan att kräva mer än ett 12-voltsbatteri"
+  - "Cirka tre timmars körtid på ett 110 Ah-batteri"
+  - "Motorhölje i aluminium och rigg i komposit-glasfiber"
+  - "Sjögrässkyddad propeller och nästan ljudlös gång"
+cons:
+  - "Batteri ingår inte och tillkommer i både kostnad och vikt"
+  - "Kort rigg passar inte båtar med hög akterspegel"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/billig-eldriven-batmotor"
+merchant: "Outl1"
+featured: true
+budgetPick: false
+targetSpecies: ["abborre", "gadda", "gos"]
+techniques: ["trolling"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Seriens mest köpta modell och den bästa balansen mellan dragkraft och batterienkelhet. 62 lbs, motsvarande 28 kg dragkraft, med kort rigg på 71 cm, och det viktiga: motorn drivs på ett enda 12-voltsbatteri. Ett fritidsbatteri på 110 Ah ger runt tre timmars körtid, och batterinivån visas med tio lysdioder på panelen. Batteriet ingår inte och ska räknas in i budgeten.
+
+Byggkvaliteten följer serien med motorhölje i aluminium och riggrör i komposit-glasfiber, sjögrässkyddad propeller, fem hastigheter framåt och tre bakåt samt vinklingsbart handtag med teleskopfunktion. Motorn är godkänd för både söt- och saltvatten, vilket gör den användbar även för kustöring den dag rodden känns lång.
+
+För trollingfiske efter gädda och gös i lugn fart, eller tyst förflyttning längs vasskanter, räcker 62 lbs till gummibåtarna, ekan och 3,8-metersbåtarna i lugnt väder. Steget upp till [86X](/utrustning/test/lyfco-nrs-86x-kort/) ger mer kraft men kräver 24-voltsdrift med två batterier, en dold kostnad som gör 62X till det rimligaste valet för de flesta. Behöver du bara flytta en lätt båt i stilla vatten räcker [55X](/utrustning/test/lyfco-nrs-55x/).
+```
+
+## src/content/gear-reviews/lyfco-nrs-86x-kort.mdx
+```
+---
+title: "Lyfco NRS-86X elmotor kort rigg"
+slug: "lyfco-nrs-86x-kort"
+description: "Elmotor med 86 lbs dragkraft och kort rigg på 71 cm. Kräver 24-voltsdrift med två seriekopplade 12-voltsbatterier. Nästan ljudlös gång."
+heroImage: "/images/gear/lyfco-nrs-86x-kort.jpg"
+brand: "Lyfco"
+category: "elmotorer"
+price: 1995
+rating: 3.8
+pros:
+  - "Störst dragkraft i serien, 86 lbs"
+  - "Cirka fyra timmars körtid på två 80 Ah-batterier"
+  - "Motorhölje i aluminium och rigg i komposit-glasfiber"
+  - "Sjögrässkyddad propeller och nästan ljudlös gång"
+cons:
+  - "Kräver två 12-voltsbatterier, dubbel batterikostnad och batterivikt"
+  - "Batterier ingår inte"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/elektrisk-batmotor-kort-rigg"
+merchant: "Outl1"
+featured: false
+budgetPick: false
+targetSpecies: ["abborre", "gadda", "gos"]
+techniques: ["trolling"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Seriens starkaste elmotor med 86 lbs dragkraft, motsvarande 37 kg, här med kort rigg på 71 cm. Kraften kommer med ett krav som inte syns i priset: motorn drivs på 24 volt, alltså två seriekopplade 12-voltsbatterier. Två fritidsbatterier på 80 Ah ger runt fyra timmars körtid men lägger också uppåt 40 kg batterivikt och en dubbel batterikostnad ovanpå motorpriset. Räkna på helheten innan du väljer den här över [62X](/utrustning/test/lyfco-nrs-62x/), som klarar sig på ett batteri.
+
+I övrigt delar den seriens konstruktion: motorhölje i aluminium, riggrör i komposit-glasfiber, sjögrässkyddad propeller, fem hastigheter framåt och tre bakåt, batteriindikator med tio lysdioder och vinklingsbart teleskophandtag. Godkänd för söt- och saltvatten.
+
+Dragkraften motiverar sig när båten är tyngre eller vinden friskare, som på 3,8-metersbåtarna med utrustning eller [Katamaran 420](/utrustning/test/lyfco-katamaran-420/) med sällskap ombord. Kort rigg passar låga akterspeglar och gummibåtar, där en kortare rigg också minskar risken att propellern tar i botten. För höga akterspeglar finns [långriggsversionen](/utrustning/test/lyfco-nrs-86x-lang/).
+```
+
+## src/content/gear-reviews/lyfco-nrs-86x-lang.mdx
+```
+---
+title: "Lyfco NRS-86X elmotor lång rigg"
+slug: "lyfco-nrs-86x-lang"
+description: "Elmotor med 86 lbs dragkraft och lång rigg på 91 cm. Kräver 24-voltsdrift med två seriekopplade 12-voltsbatterier. Nästan ljudlös gång."
+heroImage: "/images/gear/lyfco-nrs-86x-lang.jpg"
+brand: "Lyfco"
+category: "elmotorer"
+price: 2095
+rating: 3.8
+pros:
+  - "Störst dragkraft i serien, 86 lbs"
+  - "Lång rigg på 91 cm för högre fribord och akterspegel"
+  - "Cirka fyra timmars körtid på två 80 Ah-batterier"
+  - "Motorhölje i aluminium och rigg i komposit-glasfiber"
+cons:
+  - "Kräver två 12-voltsbatterier, dubbel batterikostnad och batterivikt"
+  - "Batterier ingår inte"
+  - "Onödigt lång rigg för gummibåtar och låga ekor"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/billig-el-utombordare"
+merchant: "Outl1"
+featured: false
+budgetPick: false
+targetSpecies: ["abborre", "gadda", "gos"]
+techniques: ["trolling"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Samma motor som 86X med kort rigg, 86 lbs dragkraft på 24-voltsdrift, men med rigg på 91 cm för båtar med högre fribord eller akterspegel. För elmotorer är rigglängden mindre kritisk än för bensinmotorer eftersom effekten är låg, men grundregeln står sig: propellern ska arbeta på rätt djup, och en lång rigg på en låg gummibåt ökar bara risken att den tar i botten på grunt vatten.
+
+Kraftkravet är detsamma som för kortriggen: två seriekopplade 12-voltsbatterier, där två 80 Ah-batterier ger runt fyra timmars körtid. Batterierna ingår inte och innebär uppåt 40 kg extra vikt och en kostnad i samma klass som motorn själv. Konstruktionen följer serien med aluminiumhölje, riggrör i komposit-glasfiber, sjögrässkyddad propeller, fem växlar framåt och tre bakåt samt vinklingsbart teleskophandtag. Godkänd för söt- och saltvatten.
+
+Rätt köpare har en båt med högt fribord som ska trollas tyst med last ombord. För gummibåtarna och de låga aluminiumbåtarna i sortimentet är [kortriggsversionen](/utrustning/test/lyfco-nrs-86x-kort/) det naturliga valet, och den som vill slippa dubbla batterier helt landar i [62X](/utrustning/test/lyfco-nrs-62x/). Priset 2 095 kr är ett kampanjpris som gäller till 29 juli 2026. Ordinarie pris är 2 595 kr.
+```
+
 ## src/content/gear-reviews/mikado-inazuma-pro-zander.mdx
 ```
 ---
@@ -10213,6 +10745,335 @@ Okuma Magda Finn Trollingspo ar ett 2-delat spoo pa 244 cm med en styrka pa 15-3
 Det tvadelade utforandet gor spoet smidigt att transportera och forvarar utan att kompromissa med klingans styrka. Konstruktionen ar optimerad for att hantera beten och riggar i tyngre klass, vilket gor det lampligt for sportfiskare som vill prova trolling utan att investera i ett dyrt spoo.
 
 Magda Finn ar det naturliga borjanspoet for trollingfiske. Det levererar funktionell prestanda till ett pris som gor det tillgangligt for den som vill testa tekniken. Den som fiskar trolling regelbudet och vill ha hogre komponentkvalitet och battre kanslighet bor titta pa Westin W2 eller W3 Predator Trolling.
+```
+
+## src/content/gear-reviews/outl1-batvagn-380.mdx
+```
+---
+title: "Outl1 båtvagn 380 kg"
+slug: "outl1-batvagn-380"
+description: "Båtvagn med justerbar längd 323 till 400 cm och maxlast 380 kg. Vinsch med wire ingår. Oregistrerad och obromsad, för sjösättning och förvaring."
+heroImage: "/images/gear/outl1-batvagn-380.jpg"
+brand: "Outl1"
+category: "battrailers"
+price: 7488
+rating: 3.8
+pros:
+  - "Vinsch med wire och 50 mm kulkoppling ingår"
+  - "Justerbar längd 323 till 400 cm passar ekor och gummibåtar"
+  - "Galvaniserat stål och luftfyllda hjul"
+  - "Lägst pris av de tre vagnarna i sortimentet"
+cons:
+  - "Kan inte registreras för allmän väg, max 30 km/h"
+  - "Endast två kölrullar mot tre på de större modellerna"
+  - "Levereras omonterad"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/battrailer"
+merchant: "Outl1"
+featured: false
+budgetPick: true
+targetSpecies: []
+techniques: []
+priceRange: "budget"
+quizEnabled: false
+---
+
+Minsta båtvagnen i Outl1:s sortiment, med justerbar längd mellan 323 och 400 cm och en maxlast på 380 kg. Först det viktigaste: butiken kallar den båttrailer, men det här är en oregistrerad och obromsad vagn med maxhastighet 30 km/h som inte kan registreras för allmän väg. Den är byggd för sjösättning, upptagning, vinterförvaring och korta flyttar på egen mark, inte för att dra båten till sjön bakom bilen. Vill du transportera båt på landsväg behöver du en registrerad och besiktad trailer.
+
+Inom sitt användningsområde är vagnen väl utrustad. Vinsch med wire gör upptagningen till ett enmansjobb, kulkopplingen på 50 mm passar dragkulan på en fyrhjuling eller åkgräsklippare, och ramen i galvaniserat stål med luftfyllda hjul rullar lätt på gräs och grus. Två kölrullar och två sidorullar styr båten rätt vid vinschning, en mindre rulluppsättning än de större modellerna men tillräcklig för lätta båtar.
+
+Längdomfånget matchar [3-metersekan](/utrustning/test/lyfco-aluminiumbat-300/) och de uppblåsbara katamaranerna, och med båtvikter på 35 till 45 kg används bara en bråkdel av lastförmågan. Den som har en 3,8-metersbåt ligger på gränsen av längdjusteringen och bör i stället titta på [540-kilosmodellen](/utrustning/test/outl1-batvagn-540/) med längre ram och tre kölrullar.
+```
+
+## src/content/gear-reviews/outl1-batvagn-540.mdx
+```
+---
+title: "Outl1 båtvagn 540 kg"
+slug: "outl1-batvagn-540"
+description: "Båtvagn med justerbar längd 348 till 469 cm och maxlast 540 kg. Vinsch och tre kölrullar ingår. Oregistrerad och obromsad, inte för landsväg."
+heroImage: "/images/gear/outl1-batvagn-540.jpg"
+brand: "Outl1"
+category: "battrailers"
+price: 8488
+rating: 3.9
+pros:
+  - "Längst justeromfång i sortimentet, 348 till 469 cm"
+  - "Tre kölrullar med justerbar främre rulle skonar skrovet"
+  - "Vinsch med wire och 50 mm kulkoppling ingår"
+  - "Galvaniserat stål och luftfyllda hjul"
+cons:
+  - "Kan inte registreras för allmän väg, max 30 km/h"
+  - "Saknar lysen och stödhjul som 600-kilosmodellen har"
+  - "Levereras omonterad"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/batvagn"
+merchant: "Outl1"
+featured: false
+budgetPick: false
+targetSpecies: []
+techniques: []
+priceRange: "budget"
+quizEnabled: false
+---
+
+Mellanmodellen bland Outl1:s båtvagnar och den med störst justeromfång, 348 till 469 cm, vilket gör den till enda vagnen i sortimentet som på pappret rymmer 4,2-metersbåtarna. Maxlasten är 540 kg. Precis som syskonmodellerna är det här en oregistrerad och obromsad vagn med maxhastighet 30 km/h som inte kan registreras för allmän väg. Användningsområdet är sjösättning, upptagning, vinterförvaring och flytt på egen mark, inte landsvägstransport.
+
+Utrustningen är ett snäpp över instegsmodellen. Tre kölrullar i stället för två, där den främre kan justeras och låsas i rätt läge så att skrovet får stöd där det behövs vid vinschning. Två sidorullar styr båten i sidled, vinsch med wire ingår och kulkopplingen på 50 mm passar fyrhjuling eller annat gårdsfordon. Ramen är i galvaniserat stål med luftfyllda hjul.
+
+Med den justerbara längden täcker vagnen allt från [3,8-metersbåtarna](/utrustning/test/lyfco-aluminiumbat-380-kategori-c/) upp till [4,2-metersmodellerna](/utrustning/test/lyfco-aluminiumbat-420-kategori-c/), och även med den tyngsta båten på 116 kg plus motor används en bråkdel av maxlasten. Den som vinschar ensam i skymningen och vill ha belysning på vagnen får det bara på [600-kilosmodellen](/utrustning/test/outl1-batvagn-600/), som dock har kortare ram.
+```
+
+## src/content/gear-reviews/outl1-batvagn-600.mdx
+```
+---
+title: "Outl1 båtvagn 600 kg"
+slug: "outl1-batvagn-600"
+description: "Båtvagn med maxlast 600 kg, lysen, blinkers och stödhjul. Justerbar längd 365 till 433 cm. Oregistrerad och obromsad, inte för landsväg."
+heroImage: "/images/gear/outl1-batvagn-600.jpg"
+brand: "Outl1"
+category: "battrailers"
+price: 9995
+rating: 4.0
+pros:
+  - "Lysen och blinkers med 7-polig kontakt"
+  - "Stödhjul och vinsch med wire ingår"
+  - "Tre kölrullar med justerbar främre rulle"
+  - "Hemleverans ingår i priset"
+cons:
+  - "Kan inte registreras för allmän väg, max 30 km/h"
+  - "Kortare justeromfång än 540-kilosmodellen"
+  - "Lamporna tål inte att sänkas i vatten och måste skruvas bort vid dränkning"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/batkarra"
+merchant: "Outl1"
+featured: true
+budgetPick: false
+targetSpecies: []
+techniques: []
+priceRange: "budget"
+quizEnabled: false
+---
+
+Den mest utrustade av Outl1:s tre båtvagnar, med maxlast 600 kg och justerbar längd mellan 365 och 433 cm. Även här gäller grundförutsättningen för hela sortimentet: vagnen är oregistrerad, obromsad, begränsad till 30 km/h och kan inte registreras för allmän väg. Den är avsedd för sjösättning, upptagning, vinterförvaring och flytt på egen mark. För landsvägstransport krävs en registrerad och besiktad trailer, vilket är en annan produktklass i både konstruktion och pris.
+
+Det som skiljer den från syskonmodellerna är utrustningsnivån. Lysen och blinkers ansluts med 7-polig standardkontakt, vilket gör vagnen synlig vid arbete i mörker, men lamporna tål inte att sänkas i vatten utan ska skruvas bort innan vagnen dränks vid upptagning. Stödhjul ingår och används när vagnen står olastad. I övrigt samma grund som 540-kilosmodellen med tre kölrullar varav justerbar främre, två sidorullar, vinsch med wire, 50 mm kulkoppling och ram i galvaniserat stål. Hemleverans ingår i priset.
+
+Längdomfånget täcker [3,8-metersbåtarna](/utrustning/test/lyfco-aluminiumbat-380-kategori-d/) med god marginal medan 4,2-metersbåtarna passar bättre på [540-kilosmodellen](/utrustning/test/outl1-batvagn-540/) med längre ram. Den som klarar sig utan belysning och stödhjul sparar 1 500 kr på den modellen, i övrigt är det utrustningen som motiverar prisskillnaden.
+```
+
+## src/content/gear-reviews/outl1-utombordare-15hk-kort.mdx
+```
+---
+title: "Outl1 utombordare 15 hk kort rigg"
+slug: "outl1-utombordare-15hk-kort"
+description: "Tvåcylindrig fyrtaktare på 15 hk med kort rigg. 362 cm³, extern tank på 24 liter och 53 kg. Kort rigg matchar akterspegel på 38 cm."
+heroImage: "/images/gear/outl1-utombordare-15hk-kort.jpg"
+brand: "Outl1"
+category: "utombordare"
+price: 17999
+rating: 4.0
+pros:
+  - "Kort rigg matchar 38 cm akterspegel på mindre aluminiumbåtar"
+  - "362 cm³ ger kraftreserv även med last"
+  - "Extern tank på 24 liter"
+  - "Maxeffekt för båtar i 3,8-metersklassen"
+cons:
+  - "53 kg kräver två personer eller lyfthjälp vid montering"
+  - "Dyrare än långriggsversionen så länge dess kampanj pågår"
+  - "Service och reservdelar hanteras via butiken, inte via ett märkesverkstadsnät"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/batmotor-15-h-2-cylindrig-4-takt-kraftfull-effektiv-24-l-bransletank"
+merchant: "Outl1"
+featured: true
+budgetPick: false
+targetSpecies: []
+techniques: []
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+En tvåcylindrig fyrtaktare på 15 hk med kort rigg, 362 cm³ slagvolym, extern bränsletank på 24 liter och 11-tums propeller. Manuell start, tillerstyrning och manuell trim. Den stora slagvolymen i förhållande till effekten ger arbetsvillig gång på låga varv, vilket märks mest när båten är lastad.
+
+Rigglängden är det viktiga valet mellan de två 15-hästarna i sortimentet, för motorblocket är identiskt. Kort rigg är byggd för låga akterspeglar, och aluminiumbåtarna i sortimentet har 38 cm akterspegel vilket motsvarar just kort rigg. Den som köper till en [3,8-metersbåt](/utrustning/test/lyfco-aluminiumbat-380-kategori-c/), där 15 hk är tillverkarens maxrekommendation, ska alltså ha den här varianten. Fel rigglängd ger antingen propellern för djupt med sämre verkningsgrad eller för grunt med kavitation.
+
+Vikten på 53 kg är värd att planera för. Det är mer än 3-metersekan väger totalt, och montering på akterspegeln är ett tvåpersonersjobb. Notera att [långriggsversionen](/utrustning/test/outl1-utombordare-15hk-lang/) just nu är billigare tack vare kampanj, men ett lägre pris gör inte fel rigglängd till rätt köp. Har din båt hög akterspegel är den däremot rätt val.
+```
+
+## src/content/gear-reviews/outl1-utombordare-15hk-lang.mdx
+```
+---
+title: "Outl1 utombordare 15 hk lång rigg"
+slug: "outl1-utombordare-15hk-lang"
+description: "Tvåcylindrig fyrtaktare på 15 hk med lång rigg för hög akterspegel. 362 cm³ och extern tank på 24 liter. Samma motorblock som kortriggen."
+heroImage: "/images/gear/outl1-utombordare-15hk-lang.jpg"
+brand: "Outl1"
+category: "utombordare"
+price: 16995
+rating: 4.0
+pros:
+  - "Lång rigg ger rätt propellerdjup vid hög akterspegel"
+  - "362 cm³ ger kraftreserv även med last"
+  - "Extern tank på 24 liter"
+  - "Kampanjpriset gör den billigast av de två 15-hästarna"
+cons:
+  - "Fel val för båtar med låg akterspegel, som sortimentets aluminiumbåtar"
+  - "Ingen viktuppgift angiven av butiken"
+  - "Service och reservdelar hanteras via butiken, inte via ett märkesverkstadsnät"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/batmotor-15-hk-2-cylindrig-4-takt-branslesnal-kraftfull-24-l-tank-lang-rigg"
+merchant: "Outl1"
+featured: false
+budgetPick: false
+targetSpecies: []
+techniques: []
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Samma tvåcylindriga fyrtaktare på 15 hk som kortriggsversionen, med 362 cm³ slagvolym, extern bränsletank på 24 liter, 11-tums propeller och manuell start med tillerstyrning. Skillnaden sitter i riggen: den här varianten är byggd för båtar med hög akterspegel, där en kort rigg skulle lägga propellern för grunt med kavitation och effektförlust som följd.
+
+Rätt hemvist är styrpulpetbåtar och andra skrov med hög akterspegel i ungefär 3,8- till 5-metersklassen. Sortimentets egna aluminiumbåtar hör inte dit, deras akterspegel på 38 cm motsvarar kort rigg, så den som köper motor till en av dem ska välja [kortriggsversionen](/utrustning/test/outl1-utombordare-15hk-kort/) trots att den kostar mer just nu. Rigglängd går före pris, en motor som sitter fel förlorar mer i verkningsgrad än prisskillnaden motiverar.
+
+Butiken anger ingen vikt för den här varianten. Kortriggsversionen med samma block väger 53 kg och långriggen lär inte väga mindre, så räkna med ett tvåpersonersjobb vid montering. Priset 16 995 kr är ett kampanjpris som gäller till 29 juli 2026. Ordinarie pris är 19 995 kr.
+```
+
+## src/content/gear-reviews/outl1-utombordare-25hk-kort.mdx
+```
+---
+title: "Outl1 utombordare 25 hk kort rigg"
+slug: "outl1-utombordare-25hk-kort"
+description: "Tvåcylindrig fyrtaktare på 25 hk med kort rigg. 498 cm³, extern tank på 24 liter och 63 kg. För båtar som tål 25 hk eller mer."
+heroImage: "/images/gear/outl1-utombordare-25hk-kort.jpg"
+brand: "Outl1"
+category: "utombordare"
+price: 26988
+rating: 3.9
+pros:
+  - "498 cm³ ger stark acceleration och marschfart med last"
+  - "Kort rigg matchar 38 cm akterspegel på 4,2-metersbåtarna"
+  - "Extern tank på 24 liter"
+cons:
+  - "63 kg kräver två personer eller lyfthjälp vid montering"
+  - "Överdimensionerad för båtar med lägre maxgräns än 25 hk"
+  - "Service och reservdelar hanteras via butiken, inte via ett märkesverkstadsnät"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/batmotor-25-hk-2-cylindrig-4-takt-24-l-bransletank"
+merchant: "Outl1"
+featured: false
+budgetPick: false
+targetSpecies: []
+techniques: []
+priceRange: "premium"
+quizEnabled: false
+---
+
+Sortimentets starkaste utombordare, en tvåcylindrig fyrtaktare på 25 hk med 498 cm³ slagvolym, kort rigg, extern bränsletank på 24 liter och 11-tums propeller. Manuell start, tillerstyrning och manuell trim. Den stora slagvolymen ger dragkraft på låga varv, vilket är det som märks när båten är lastad eller ska upp i planing med flera personer ombord.
+
+Effekten kräver en båt som är byggd för den. Av båtarna i sortimentet är det [4,2-metersmodellerna](/utrustning/test/lyfco-aluminiumbat-420-kategori-c/) med maxgräns 30 hk och [Katamaran 420](/utrustning/test/lyfco-katamaran-420/) med rekommendationen 15 till 25 hk som passar. På mindre båtar är motorn inte bara överdimensionerad utan otillåten, en akterspegel märkt för 15 hk ska inte bära 25. Kort rigg matchar aluminiumbåtarnas akterspegel på 38 cm.
+
+Vikten på 63 kg gör monteringen till ett jobb för två personer eller motorlyft, och den ska räknas in i båtens lastvikt. Den som har en båt med hög akterspegel väljer i stället [långriggsversionen](/utrustning/test/outl1-utombordare-25hk-lang/), som just nu dessutom är billigare på kampanj.
+```
+
+## src/content/gear-reviews/outl1-utombordare-25hk-lang.mdx
+```
+---
+title: "Outl1 utombordare 25 hk lång rigg"
+slug: "outl1-utombordare-25hk-lang"
+description: "Tvåcylindrig fyrtaktare på 25 hk med lång rigg för hög akterspegel. 498 cm³ och extern tank på 24 liter. Samma block som kortriggen."
+heroImage: "/images/gear/outl1-utombordare-25hk-lang.jpg"
+brand: "Outl1"
+category: "utombordare"
+price: 24995
+rating: 3.9
+pros:
+  - "Lång rigg ger rätt propellerdjup vid hög akterspegel"
+  - "498 cm³ ger stark acceleration och marschfart med last"
+  - "Kampanjpriset gör den billigast av de två 25-hästarna"
+cons:
+  - "Fel val för båtar med låg akterspegel, som sortimentets aluminiumbåtar"
+  - "Ingen viktuppgift angiven av butiken"
+  - "Service och reservdelar hanteras via butiken, inte via ett märkesverkstadsnät"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/batmotor-25-hk-2-cylindrig-4-takt-kraftfull-branslesnal-24-l-bransletank-lang-rigg"
+merchant: "Outl1"
+featured: false
+budgetPick: false
+targetSpecies: []
+techniques: []
+priceRange: "premium"
+quizEnabled: false
+---
+
+Långriggsversionen av sortimentets 25-hästare, med samma tvåcylindriga fyrtaktsblock på 498 cm³, extern bränsletank på 24 liter, 11-tums propeller och manuell start med tillerstyrning. Lång rigg placerar propellern på rätt djup bakom en hög akterspegel, vilket är hela skillnaden mot kortriggsversionen. Motorprestandan är identisk.
+
+Målgruppen är styrpulpetbåtar, arbetsbåtar och kraftigare skrov med hög akterspegel som är godkända för 25 hk eller mer. Sortimentets egna aluminiumbåtar har låg akterspegel på 38 cm och ska ha [kortriggsversionen](/utrustning/test/outl1-utombordare-25hk-kort/), oavsett att den här varianten är billigare under kampanjen. Rigglängden är inget man kompromissar med för att spara 2 000 kr, en propeller som sitter för djupt kostar verkningsgrad och bränsle varje timme motorn går.
+
+Butiken anger ingen vikt för långriggen. Kortriggen med samma block väger 63 kg, så planera för två personer eller motorlyft vid montering och räkna in vikten i båtens maxlast. Priset 24 995 kr är ett kampanjpris som gäller till 29 juli 2026. Ordinarie pris är 29 995 kr.
+```
+
+## src/content/gear-reviews/outl1-utombordare-6hk.mdx
+```
+---
+title: "Outl1 utombordare 6 hk"
+slug: "outl1-utombordare-6hk"
+description: "Encylindrig fyrtaktare på 6 hk med kort rigg. Väger 27 kg, har intern tank på 1,1 liter och matchar maxgränsen för mindre ekor."
+heroImage: "/images/gear/outl1-utombordare-6hk.jpg"
+brand: "Outl1"
+category: "utombordare"
+price: 6999
+rating: 3.8
+pros:
+  - "27 kg gör den hanterbar för en person"
+  - "Kort rigg matchar låga akterspeglar"
+  - "Fyrtakt med tyst gång och låg förbrukning"
+  - "Hemleverans ingår i priset"
+cons:
+  - "Intern tank på 1,1 liter kräver påfyllning på längre pass"
+  - "Service och reservdelar hanteras via butiken, inte via ett märkesverkstadsnät"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/batmotor-6-h-1-cylindrig-4-takts-manuell-start-tillerhandtag-lattviktsdesign"
+merchant: "Outl1"
+featured: false
+budgetPick: true
+targetSpecies: []
+techniques: []
+priceRange: "budget"
+quizEnabled: false
+---
+
+En encylindrig fyrtaktare på 6 hk med kort rigg, manuell start och tillerstyrning. Slagvolymen är 139 cm³ och motorn arbetar mellan 4500 och 5500 varv med en 8-tums propeller. Vikten på 27 kg är det starkaste argumentet: motorn kan lyftas av och på akterspegeln av en person, och tillsammans med en lätt eka blir hela ekipaget hanterbart utan ramp eller hjälp.
+
+Bränsletanken är intern och rymmer 1,1 liter. Det räcker för förflyttningar och kortare pass men innebär påfyllningsstopp på heldagsturer, så en reservdunk hör till utrustningen. Trim och styrning är manuella, konstruktionen är enkel och det finns få saker som kan krångla. Kort rigg är standardlängden för låga akterspeglar, vilket är vad mindre ekor och jollar har.
+
+Effekten matchar exakt maxgränsen för [3-metersekan i sortimentet](/utrustning/test/lyfco-aluminiumbat-300/), och den fungerar också på gummibåtarna som tål mer. För 3,8-metersbåtarna, där rekommendationen börjar vid 9,8 hk, är [9,8-hästaren](/utrustning/test/outl1-utombordare-9-8-hk/) rätt steg uppåt. Som instegsmotor till minsta båten är detta den logiska parningen, väg mot vikt och effekt mot båtens gräns.
+```
+
+## src/content/gear-reviews/outl1-utombordare-9-8-hk.mdx
+```
+---
+title: "Outl1 utombordare 9,8 hk"
+slug: "outl1-utombordare-9-8-hk"
+description: "Tvåcylindrig fyrtaktare på 9,8 hk med kort rigg och extern tank på 24 liter. Väger 40 kg och passar båtar i 3,8-metersklassen."
+heroImage: "/images/gear/outl1-utombordare-9-8-hk.jpg"
+brand: "Outl1"
+category: "utombordare"
+price: 12988
+rating: 3.9
+pros:
+  - "Tvåcylindrig fyrtakt med jämn gång"
+  - "Extern tank på 24 liter räcker för heldagar"
+  - "40 kg är lågt för effektklassen"
+  - "Under 9,9-hästargränsen som gäller för flera mindre båtar"
+cons:
+  - "Kampanjpris med slutdatum, ordinarie pris märkbart högre"
+  - "Service och reservdelar hanteras via butiken, inte via ett märkesverkstadsnät"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/batmotor-9-8-h-2-cylindrig-4-takt-24-l-bransletank-tillerhandtag"
+merchant: "Outl1"
+featured: false
+budgetPick: false
+targetSpecies: []
+techniques: []
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+En tvåcylindrig fyrtaktare på 9,8 hk med kort rigg, 212 cm³ slagvolym och extern bränsletank på 24 liter. Tvåcylindrig konstruktion ger jämnare och tystare gång än encylindriga motorer i samma klass, och den externa tanken gör heldagsturer möjliga utan tankstopp. Manuell start, tillerstyrning och manuell trim, med en 11-tums propeller som standard.
+
+Vikten på 40 kg är låg för effekten och fortfarande inom vad en person kan montera själv med viss försiktighet. Effektsiffran är inte slumpvald: 9,8 hk ligger precis under den 9,9-hästargräns som flera mindre båtar har som maxrekommendation, vilket gör motorn till största tillåtna val för bland annat [Katamaran 300](/utrustning/test/lyfco-katamaran-300/). Den som vill maximera en sådan båt utan att bryta mot gränsen hamnar alltså exakt här.
+
+För aluminiumbåtarna i 3,8-metersklassen, där tillverkaren rekommenderar 9,8 till 15 hk, är detta instegsalternativet och [15-hästaren med kort rigg](/utrustning/test/outl1-utombordare-15hk-kort/) toppvalet. Skillnaden är fart med last, inte funktion. Priset 12 988 kr är ett kampanjpris som gäller till 29 juli 2026. Ordinarie pris är 14 488 kr.
 ```
 
 ## src/content/gear-reviews/pig-chopper-spinnerbait.mdx
@@ -26966,6 +27827,8 @@ title: "Nissan"
 slug: "nissan"
 description: "Nissan är en av Sydsveriges längsta åar med kompensationsodlat laxfiske i Halmstad och gädd- och gösvatten i sjöarna uppströms."
 heroImage: "/images/destinations/nissan.jpg"
+heroSource: photo
+heroCredit: "Rikard Giby"
 lat: 56.6745
 lng: 12.8580
 län: "Jönköping, Halland"
@@ -35360,6 +36223,155 @@ Kombinera kalenderdata med [förhållandesidan](/forhallanden/) för att se aktu
 
 För artspecifika kalenderöversikter med veckovis betningsindikator och säsongsbeskrivningar, gå direkt till [nappkalendern](/nappkalender/) och välj din art och region.```
 
+## src/content/articles/valja-fiskebat.mdx
+```
+---
+title: "Välja fiskebåt: aluminiumbåt, gummibåt eller eka"
+slug: "valja-fiskebat"
+description: "Så väljer du rätt fiskebåt för svenska vatten. Båttyp, storlek, motor, båtvagn och reglerna som faktiskt gäller, utan säljsnack."
+excerpt: "Aluminiumbåt, gummibåt eller eka? Så väljer du rätt båt för ditt fiske."
+heroImage: "/images/articles/valja-fiskebat.jpg"
+publishedAt: "2026-07-19"
+updatedAt: "2026-07-19"
+author: "rikard-giby"
+category: "guide"
+faq:
+  - q: "Behöver man körkort för att köra fiskebåt?"
+    a: "Nej. Fritidsbåtar under 12 meters längd och 4 meters bredd kräver varken körkort eller förarintyg i Sverige. Förarintyg är frivilligt men ger ofta rabatt på båtförsäkringen. Vattenskoter är undantaget och kräver förarbevis."
+  - q: "Vad betyder CE-kategori C och D på en båt?"
+    a: "CE-kategorin anger vilka förhållanden båten är konstruerad för. Kategori C gäller kustfarvatten och stora sjöar med vindar upp till cirka 14 m/s och signifikant våghöjd 2 meter. Kategori D gäller skyddade vatten med vindar upp till cirka 8 m/s och signifikant våghöjd 0,3 meter. Det är en konstruktionsklass, inte ett tillstånd."
+  - q: "Får man dra en obromsad båtvagn på allmän väg?"
+    a: "Ja, en oregistrerad och ofjädrad båtvagn räknas som efterfordon och får dras på allmän väg i högst 30 km/h med LGF-skylt baktill. Den får inte köras på motorväg eller motortrafikled och får bara lasta en båt. Källa: Transportstyrelsen."
+  - q: "Hur stor motor kan jag sätta på båten?"
+    a: "Aldrig större än vad tillverkarens CE-skylt anger som maxeffekt. Att överskrida maxeffekten är en säkerhetsrisk och kan sätta ned eller stryka försäkringsersättningen vid skada."
+  - q: "När på året är det billigast att köpa båt?"
+    a: "På hösten. Enligt Blocket-statistik som Praktiskt Båtägande sammanställt ligger höstpriserna på begagnade båtar i genomsnitt 15 till 35 procent under vår- och försommarpriserna, tydligast för motorbåtar i lägre prisklasser."
+---
+
+import ProduktRuta from '../../components/ProduktRuta.astro';
+
+En egen båt öppnar vatten som aldrig nås från land: djupkanterna, undervattensgrunden och vikarna på andra sidan sjön. Men båtköpet är också det dyraste utrustningsbeslutet de flesta fiskare fattar, och det styrs av fler regler än många tror. Den här guiden går igenom valet steg för steg, från vattentyp och båttyp till motor, transport och juridik, med reglerna verifierade mot Transportstyrelsen och sjölagen per 2026.
+
+## Börja med vattnet, inte båten
+
+Det vanligaste misstaget är att välja båt först och fundera på användningen sedan. Gör tvärtom. Fiskar du mest i en mindre insjö nära hemmet ställer det helt andra krav än om du ska trolla efter lax på Vänern eller fiska havsöring längs kusten.
+
+Nyckeln till att matcha båt mot vatten är CE-kategorin, som varje ny fritidsbåt mellan 2,5 och 24 meter måste ha. Kategorin anger vilka förhållanden båten är konstruerad för:
+
+- **Kategori C, kustfarvatten:** byggd för kust, stora bukter och stora sjöar, med vindstyrkor upp till och med 6 Beaufort, cirka 14 m/s, och en signifikant våghöjd på upp till 2 meter.
+- **Kategori D, skyddade farvatten:** byggd för mindre sjöar, åar och skyddade vikar, med vindstyrkor upp till och med 4 Beaufort, cirka 8 m/s, och en signifikant våghöjd på 0,3 meter med enstaka vågor upp till 0,5 meter.
+
+Två saker är värda att förstå. Signifikant våghöjd är medelhöjden på den högsta tredjedelen av vågorna, enskilda vågor kan alltså vara högre. Och CE-kategorin är en konstruktionsklass, inte ett tillstånd. Ingen hindrar dig formellt från att köra en D-båt på Vänern en blåsig oktoberdag, men båten är inte byggd för det, och det är du som står i den när det visar sig.
+
+För fiske i mindre och medelstora insjöar räcker kategori D gott. För stora sjöar som Vänern, Vättern och Storsjön, och för allt kustfiske, är kategori C rätt krav att ställa. Notera att tjockare skrov inte betyder högre kategori. I vårt [båtsortiment](/utrustning/batar/) finns exempel på systermodeller där 2 mm-skrovet är klassat D och 1,5 mm-skrovet C. Kategorin sitter i hela konstruktionen, inte i plåttjockleken.
+
+## Båttyperna för fiske
+
+Ordet eka beskriver formen, en liten öppen båt med låga fribord, inte materialet. Dagens ekor är nästan alltid aluminium eller plast. För fiskebruk står valet i praktiken mellan tre typer.
+
+### Aluminiumbåt
+
+Aluminium har blivit förstahandsvalet för svenska fiskebåtar av goda skäl. Materialet är lätt, ungefär en fjärdedel lättare än motsvarande plastskrov, vilket märks vid sjösättning, på båtvagnen och i bränsleförbrukningen. Det tål grundstötningar och stötar utan att spricka, en buckla är ett skönhetsfel medan en spricka i glasfiber är en reparation. Underhållet är i praktiken noll: ingen bottenmålning, ingen gelcoat att vaxa, ingen ytbehandling. Andrahandsvärdet är stabilt.
+
+Nackdelarna är två. Aluminium är ljudligt, vågskvalp och tappade betesaskar hörs mer än i en plastbåt, vilket spelar roll vid försiktigt fiske på grunt vatten. Och i saltvatten kräver aluminium offeranoder som byts regelbundet, annars äter den galvaniska korrosionen skrovet underifrån.
+
+### Gummibåt och uppblåsbar katamaran
+
+Den uppblåsbara båtens argument är förvaringen. Den packas i en väska, åker i bagageluckan och kräver varken båtplats, trailer eller tomtyta. För den som bor i lägenhet, fiskar semestervatten eller vill ha en båt i husbilen är det ofta enda realistiska vägen till eget flyt. Moderna uppblåsbara katamaraner med dubbla pontoner ger dessutom en förvånansvärt stabil ståyta för kastfiske.
+
+Baksidan är materialet. PVC tål inte trekrokar, filékniv eller vassa strandstenar på det sätt aluminium gör, och andrahandsvärdet är lågt. Räkna också med tio till femton minuters montering per fiskepass och att luftkammare ska ses över varje säsong.
+
+### Plastbåt
+
+Glasfiber ger den tystaste och ofta mest komfortabla gången, och begagnatmarknaden är full av billiga plastekor. Priset är underhållet: gelcoat som krackelerar, eventuell bottenmålning och större känslighet för grundstötningar. En äldre plastbåt kan också dölja fukt i skrov och akterspegel, mer om det i begagnatavsnittet. Som ny är en enkel plasteka sällan billigare än motsvarande aluminiumbåt, vilket gjort plasten till främst ett begagnatval i de här storleksklasserna.
+
+## Storlek, vikt och den verkliga lastförmågan
+
+Tre meter, 3,8 meter eller 4,2 meter låter som små steg men är helt olika båtar. En 3-metersbåt på 45 kg hanteras av en person, ligger på en enkel kärra och räcker för en fiskare med utrustning i lugna vatten. En 3,8-metersbåt är svenskt standardformat för två som fiskar tillsammans. En 4,2-metersbåt på över 100 kg kräver trailer eller vagn och två personer på land, men bär tre fiskande med full utrustning och tål motor nog för trolling på stora vatten.
+
+Räkna alltid på maxlasten själv, och räkna ärligt. Två vuxna är 160 till 200 kg. En 15-hästars utombordare väger drygt 50 kg och en 25-hästare över 60. Ett fritidsbatteri till elmotorn är 20 kg, till en 24-voltsmotor 40. Lägg till bränsle, ankare, batterilåda, väskor och en kylbox så är 350 kg maxlast plötsligt trång för två personer. Tillverkarnas personantal är räknat utan packning, för fiskebruk är en tumregel att dra av en person från siffran.
+
+## Motorn: bensin, el eller båda
+
+Motorvalet börjar med en skylt, inte en katalog. På varje CE-märkt båt finns tillverkarens angivna maxeffekt, och den är taket. Att sätta en större motor än skylten anger är en säkerhetsrisk och kan sätta ned eller stryka försäkringsersättningen vid skada, eftersom båten då inte använts enligt sina förutsättningar.
+
+### Bensinmotor
+
+Under maxgränsen handlar valet om vad motorn ska göra. För att bara ta sig runt sjön räcker det minsta: en 6-hästare på 27 kg flyttar en liten eka i den fart skrovet ändå klarar. För att flytta mellan fiskeplatser på större vatten i vettig fart är 9,8 till 15 hk rätt spann för en 3,8-metersbåt, och 25 hk för en 4,2-metersbåt som ska upp i planing med last.
+
+Rigglängden är lika viktig som effekten. Mät akterspegelns höjd från ovankant till skrovbotten: cirka 38 cm betyder kort rigg och cirka 51 cm lång rigg. Fel rigglängd lägger propellern för grunt, med kavitation som följd, eller för djupt, med onödigt motstånd. Vårt [utombordarsortiment](/utrustning/utombordare/) finns i båda rigglängderna av just det skälet, samma motorblock men olika akterspeglar.
+
+<ProduktRuta slug="outl1-utombordare-15hk-kort" />
+
+### Elmotor
+
+Elmotorn är fiskeverktyget snarare än transportmotorn. Nästan ljudlös gång gör att du kan trolla och smyga längs vasskanter utan att skrämma fisken, och på vatten där förbränningsmotorer är förbjudna är eldrift enda alternativet. Kontrollera alltid det enskilda vattnets regler, många fiskevårdsområden har motorbegränsningar.
+
+Dimensionera efter dragkraft: tumregeln är minst 2 lbs dragkraft per 45 kg fullastad båt. Modeller kring 55 till 62 lbs drivs på ett enda 12-voltsbatteri, medan motorer på över 80 lbs oftast kräver 24 volt, alltså två seriekopplade batterier med dubbel kostnad och dubbel vikt som följd. Ett fritidsbatteri på 100 till 110 Ah ger ungefär tre timmars körning på en 55-lbsmotor. Räkna in batteriet i både budgeten och båtens maxlast. Jämför modellerna i vårt [elmotorsortiment](/utrustning/elmotorer/) och läs mer om metoden på vår sida om [trolling](/teknik/trolling/).
+
+Många fiskare landar i kombinationen: bensinmotorn för transporten ut, elmotorn för själva fisket.
+
+<ProduktRuta slug="lyfco-nrs-62x" />
+
+## Hem från butiken och ner i sjön
+
+Transporten är den fråga flest hoppar över och flest ångrar. Det finns två helt olika produkter som båda kallas båttrailer i handeln, och skillnaden är juridisk.
+
+En **registrerad båttrailer** har registreringsskylt, fjädring och oftast bromsar, besiktigas som andra släp och får dras i 80 km/h. Det är rätt produkt för den som regelbundet drar båten längre sträckor på landsväg. Med vanligt B-körkort får du alltid dra ett släp med totalvikt upp till 750 kg, och tyngre släp så länge bilens och släpets sammanlagda totalvikt inte överstiger 3 500 kg. B96 höjer gränsen till 4 250 kg och BE tillåter släp upp till 3 500 kg. För en liten fiskebåt med vagn är B-behörigheten sällan problemet, men kontrollera alltid bilens tillåtna släpvikt i registreringsbeviset.
+
+En **oregistrerad båtvagn**, som de i vårt [sortiment av båtvagnar](/utrustning/battrailers/), saknar fjädring och räknas då som efterfordon enligt Transportstyrelsen. Den får faktiskt dras på allmän väg, men i högst 30 km/h, med godkänd LGF-skylt baktill, aldrig på motorväg eller motortrafikled, och med enbart båten som last. Den behöver varken registreras eller besiktigas. Rätt använd är den ett billigt och fullt lagligt redskap för sjösättning, upptagning, vinterförvaring och kortare flyttar, men den ersätter inte en registrerad trailer för den som pendlar mellan fiskevatten.
+
+## Reglerna som faktiskt gäller
+
+Här är den goda nyheten: en liten fiskebåt är bland det minst reglerade du kan äga i Sverige. Uppgifterna nedan är verifierade mot Transportstyrelsen, sjölagen och Konsumenternas per juli 2026.
+
+**Körkort krävs inte.** Fritidsbåtar under 12 meters längd och 4 meters bredd får framföras helt utan behörighet, oavsett motorstyrka. Förarintyg är frivilligt, men utbildningen är vettig och ger ofta rabatt på försäkringen. Ryktena om att obligatoriskt förarbevis är på väg stämmer inte, regeringen avskrev frågan i budgeten för 2026. Enda undantaget är vattenskoter, som kräver förarbevis sedan 2022.
+
+**Registrering krävs inte.** Båtar under 15 meter är inte registreringspliktiga. Frivillig registrering är möjlig från 5 meter.
+
+**Sjöfyllerigränsen kan gälla din båt.** Gränsen 0,2 promille gäller båtar som är minst 10 meter långa eller som med motor kan göra minst 15 knop. En 4-metersbåt med 25-hästare gör över 15 knop och omfattas alltså fullt ut. Grovt sjöfylleri går vid 1,0 promille. Även under gränsvärdena, och i långsammare båtar, kan den dömas som inte kan framföra båten betryggande.
+
+**Flytväst är inte lagkrav, men statistiken talar sitt språk.** I genomsnitt omkommer runt 26 personer per år i fritidsbåtsolyckor i Sverige, och typolyckan är en ensam fiskare i liten båt nära land utan flytväst. Köp västen samtidigt som båten.
+
+**Försäkra rätt.** Många hemförsäkringar täcker småbåtar upp till ungefär 6 meter med motor upp till omkring 15 hk, men gränserna varierar mellan bolag, så kontrollera villkoren. En separat båtförsäkring för en liten motorbåt kostar från drygt tusenlappen per år. För utombordaren gäller aktsamhetskrav: motorn ska vara låst med godkänt motorlås, annars sätts ersättningen vid stöld normalt ned med 25 till 50 procent.
+
+En kommande förändring att känna till: EU:s nya körkortsdirektiv höjer på sikt viktgränserna för B-körkort, men merparten av reglerna börjar gälla först i november 2029. Fram till dess gäller siffrorna ovan.
+
+## Nytt eller begagnat
+
+Begagnatmarknaden för småbåtar är stor och säsongen styr priserna hårt. Utbudet och efterfrågan toppar kring maj, medan höstpriserna enligt Blocket-statistik som Praktiskt Båtägande sammanställt ligger i genomsnitt 15 till 35 procent lägre än vår- och försommarpriserna. Den som kan köpa i oktober och betala en vinterförvaring gör ofta säsongens bästa affär.
+
+Vid begagnatköp av liten fiskebåt, kontrollera i tur och ordning: fukt och mjukhet i akterspegeln, särskilt på plastbåtar med plywoodkärna, sprickor i gelcoat och skrov, svetsar och korrosion på aluminium, motorns kompression och servicehistorik, samt att en medföljande trailer är registrerad och besiktigad om den ska ut på väg i normal fart. Väg också in elektronikens ålder, ett gammalt ekolod och en trött elmotor kan äta upp hela prisskillnaden mot nyare alternativ.
+
+Nypriserna på enkla aluminiumbåtar och uppblåsbara båtar har samtidigt pressats av direktimport, vilket gjort ny båt med garanti till ett rimligt alternativ även för förstagångsköparen. Jämför alltid totalpriset komplett: båt, motor, batteri, vagn och väst.
+
+## Tre kontrollfrågor innan du köper
+
+1. **Var ska du fiska, och matchar CE-kategorin det vattnet?** Skyddade insjöar klarar kategori D. Stora sjöar och kust kräver kategori C.
+2. **Hur får du båten till vattnet och upp igen?** Har du svaret på förvaring, sjösättning och transport, inklusive vad ditt körkort och din bil får dra, innan köpet?
+3. **Vad väger allt tillsammans?** Räkna personer, motor, batteri och utrustning mot maxlasten. Går det inte ihop är båten för liten, oavsett vad personantalet på skylten säger.
+
+Kan du svara på alla tre har du redan gjort det viktigaste arbetet.
+
+## Båtarna i vårt sortiment jämförda
+
+Som avslutning, så här ser båtarna vi bevakar ut ställda mot varandra på exakt de punkter guiden gått igenom. Priserna är cirkapriser och kan avvika vid kampanjer, aktuellt pris framgår på respektive produktsida.
+
+| Båt | Längd | CE | Maxlast | Vikt | Cirkapris |
+|---|---|---|---|---|---|
+| [Lyfco aluminiumbåt 3 m](/utrustning/test/lyfco-aluminiumbat-300/) | 3,0 m | C | 200 kg | 45 kg | 15 000 kr |
+| [Lyfco aluminiumbåt 3,8 m kategori C](/utrustning/test/lyfco-aluminiumbat-380-kategori-c/) | 3,8 m | C | 350 kg | 75 kg | 22 000 kr |
+| [Lyfco aluminiumbåt 3,8 m kategori D](/utrustning/test/lyfco-aluminiumbat-380-kategori-d/) | 3,8 m | D | 550 kg | 80 kg | 30 000 kr |
+| [Lyfco aluminiumbåt 4,2 m kategori C](/utrustning/test/lyfco-aluminiumbat-420-kategori-c/) | 4,2 m | C | 600 kg | 116 kg | 25 000 kr |
+| [Lyfco aluminiumbåt 4,2 m kategori D](/utrustning/test/lyfco-aluminiumbat-420-kategori-d/) | 4,2 m | D | 1 000 kg | 105 kg | 35 000 kr |
+| [Lyfco Katamaran 300 gummibåt](/utrustning/test/lyfco-katamaran-300/) | 3,0 m | anges ej | 474 kg | 35 kg | 8 000 kr |
+| [Lyfco Katamaran 420 gummibåt](/utrustning/test/lyfco-katamaran-420/) | 4,2 m | anges ej | 800 kg | 65 kg | 9 800 kr |
+
+Tabellen illustrerar guidens två viktigaste lärdomar i praktiken. Kategori D-båtarna har högst maxlast men lägst sjövärdighetsklass, tjockare skrov ger inte högre kategori. Och gummibåtarnas höga maxlast i förhållande till priset kommer med förbehållen från båttypsavsnittet: materialkänslighet och montering per pass. Fler detaljer, aktuella priser och våra bedömningar finns i [båtsortimentet](/utrustning/batar/), med tillhörande [utombordare](/utrustning/utombordare/), [elmotorer](/utrustning/elmotorer/) och [båtvagnar](/utrustning/battrailers/).
+
+*Strömkast finansieras via affiliate-länkar. Köper du utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar produkterna.*
+```
+
 ## src/content/articles/valja-fiskelina.mdx
 ```
 ---
@@ -35459,6 +36471,139 @@ Behöver du se linan eller gömma den? High-vis om du läser hugget på linan, l
 Är fläta rätt huvudlina, eller är det ett trolling- eller laxfiske där nylon passar bättre? Stretchen avgör. För allt vanligt kastfiske är fläta plus fluorocarbontafs grunden. Behöver du hjälp att välja spö till linan finns [spöväljaren](/spovaljaren/).
 
 *Strömkast finansieras via affiliate-länkar. Köper du utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar produkterna.*
+```
+
+## src/content/articles/vattenforing-och-fiske.mdx
+```
+---
+title: "Vattenföring och fiske: belagt, beprövad praxis och folklore"
+slug: "vattenforing-och-fiske"
+description: "Vad betyder vattenföringen för fisket? Vi skiljer belagt från beprövad praxis och folklore, och förklarar skillnaden mellan reglerade och oreglerade älvar."
+excerpt: "Vad flödet betyder för fisket. Belagt, beprövad praxis och folklore, åtskilt."
+heroImage: "/images/articles/vattenforing-och-fiske.jpg"
+heroSource: photo
+heroCredit: "Jon Flobrant"
+heroCreditUrl: "https://unsplash.com/@jonflobrant"
+publishedAt: "2026-07-12"
+updatedAt: "2026-07-12"
+author: "rikard-giby"
+category: "guide"
+faq:
+  - q: "Påverkar vattenföringen fisket?"
+    a: "Ja, men inte på det entydiga sätt som tumreglerna ibland påstår. Det finns solid nordisk forskning på att flöde och temperatur styr laxfiskars uppvandring i älvar. Däremot saknas publicerad svensk forskning som kopplar en flödessiffra direkt till fångst per art och dag. Mycket av det fiskare tror sig veta om flöde och napp är erfarenhet, inte prövade modeller."
+  - q: "Ska man fiska på stigande eller sjunkande vatten?"
+    a: "Den vanligaste tumregeln säger att stigande vatten drar upp fisk och att fisket är bäst på sjunkande vatten efter en flodtopp. Den första delen har stöd i uppvandringsforskningen, eftersom flödestoppar dokumenterat utlöser vandring. Att fångstbarheten specifikt är högst på sjunkande vatten är däremot erfarenhetsbaserat och inte prövat i svenska vatten."
+  - q: "Vad betyder MQ, MHQ och MLQ?"
+    a: "Det är SMHI:s karakteristiska vattenföringar. MQ är medelvattenföringen, alltså medelvärdet över en period. MHQ är medelhögvattenföringen, medelvärdet av varje års högsta dygnsflöde. MLQ är medellågvattenföringen. Ligger dagens flöde nära MQ är det normalt, nära MHQ är det högt för årstiden och nära MLQ är det lågt."
+  - q: "Kan man lita på SMHI:s flödessiffra i en reglerad älv?"
+    a: "Bara delvis. I en oreglerad älv speglar dygnsmedelvärdet säsong och väder och fungerar bra för trendbedömning. I en korttidsreglerad älv kan det faktiska flödet variera flera gånger per dygn efter elmarknadens efterfrågan, och då säger dygnssiffran lite om läget just nu. Där är kraftbolagens realtidsdata mer användbara."
+  - q: "Varför väger inte Strömkasts nappkalender in vattenföringen?"
+    a: "Därför att det saknas publicerad, artspecifik forskning på hur flöde påverkar bett i svenska vatten. Att bygga en flödesfaktor på gissningar vore samma sorts falska precision som vi undviker på andra håll. Vi visar i stället flödet som egen data på destinationssidorna och låter dig göra tolkningen."
+---
+
+Få saker diskuteras så flitigt bland strömfiskare som vattenföringen, och få saker är så illa underbyggda. Den här guiden delar upp vad vi vet om flödet i tre lager. Vad forskningen faktiskt belägger, vilka tumregler som är beprövad praxis utan att vara prövade, och vad som är ren folklore. Poängen är inte att avfärda erfarenheten, utan att låta dig se vilken sorts kunskap varje påstående vilar på.
+
+## Flöde och vattenstånd är inte samma sak
+
+Först en grundskillnad som ofta blandas ihop. Vattenföring mäter hur mycket vatten som passerar en punkt per sekund, angivet i kubikmeter per sekund. Vattenstånd mäter nivån, angivet i centimeter. De hänger ihop, men de är olika storheter.
+
+Nästan alla flödessiffror du ser är dessutom uträknade, inte uppmätta. Att mäta flöde direkt är dyrt och arbetskrävande, så SMHI mäter i praktiken vattennivån kontinuerligt och räknar sedan om den till flöde via en avbördningskurva. Det är en stationsspecifik kurva mellan nivå och flöde. SMHI:s grundnät omfattar runt 300 mätplatser, varav ungefär 200 egna och resten från andra aktörer som kraftbolag.
+
+Det finns en osäkerhet inbyggd i metoden. Vid mycket höga eller mycket låga flöden är kurvan extrapolerad, alltså skattad snarare än uppmätt, och osäkerheten är särskilt hög vid lågvatten. Vissa vatten, som Klarälven, saknar tydliga trösklar och är därför svåra att mäta med avbördningskurva. Där använder SMHI i stället stationer som mäter vattenhastigheten direkt.
+
+Fiskaren vid vattnet läser ofta i stället en pegel, alltså en nivåskala. Det är samma grundstorhet som SMHI utgår från, men den är avläst på plats och i realtid. Nackdelen är att pegelns siffra är lokal och inte översatt till kubikmeter per sekund, så den går inte att jämföra mellan vatten.
+
+## Reglerad eller oreglerad, den viktigaste frågan
+
+Innan en enda flödessiffra betyder något måste du veta en sak om vattnet. Är det reglerat eller inte. Det är den enskilt viktigaste tolkningsnyckeln, och den avgör om SMHI:s dygnsvärde är användbart eller nästan värdelöst för din planering.
+
+I en oreglerad älv följer flödet naturen. Kraftig vårflod när snön smälter, relativt hög sommarvattenföring, låg vintervattenföring. En siffra speglar då säsong och väder, och ett dygnsmedelvärde är meningsfullt för att bedöma trenden. Sveriges fyra skyddade nationalälver utsågs 1993 och är i huvudsak oreglerade. Det gäller [Vindelälven](/destinationer/vindelalven/), [Torneälven](/destinationer/tornealven/), [Kalixälven](/destinationer/kalixalven/) och [Piteälven](/destinationer/pitealven/). Även [Byskeälven](/destinationer/byskealven/), [Öreälven](/destinationer/orealven/) och [Gimån](/destinationer/giman/) hör till de mer naturligt rinnande vattnen.
+
+I en reglerad älv bestämmer kraftbolaget. Vatten sparas från vår, sommar och höst för att användas på vintern, vilket jämnar ut vårfloden och höjer vinterflödet. Värre för fiskaren är korttidsregleringen, ofta kallad hydropeaking, där flödet anpassas till elmarknadens efterfrågan över timmar och dygn. I en norsk korttidsreglerad älv dokumenterades över 300 snabba flödesförändringar på ett år. I ett sådant vatten kan det verkliga flödet ändras flera gånger per dygn, och SMHI:s dygnsmedelvärde säger då mycket lite om läget just nu. Reglerade vatten med sportfiskevärde är bland annat [Klarälven](/destinationer/klaralven/), [Dalälven](/destinationer/dalalven/), [Göta älv](/destinationer/gota-alv/) och [Lagan](/destinationer/lagan/). För just de fyra visar vi ingen vattenföring på Strömkast, och skälet till det säger något väsentligt om var flödessiffror över huvud taget finns att få. Vi återkommer till det sist i guiden.
+
+Skillnaden går att sammanfatta enkelt. I Vindelälven betyder flödet snösmältning och regn. I Klarälven betyder det vad kraftbolaget bestämde i morse. SMHI påpekar själva att korttidsreglering inte beskrivs i deras modell S-HYPE, och att dygnsavvikelserna blir särskilt stora i reglerade vattendrag. För de vattnen är kraftbolagens realtidsdata mer användbara. Vattenregleringsföretagen uppdaterar sin tjänst var femtonde minut.
+
+## Vad forskningen faktiskt visar
+
+Det här är det belagda lagret. Påståenden som vilar på publicerad, granskad forskning.
+
+Det starkaste sambandet gäller uppvandring, inte fångst. Flöde och temperatur styr när lax och havsöring går upp i älvarna. Den klassiska referensen är Alabaster (1970), som etablerade att flöde påverkar både uppvandring och fångst. Senare nordisk forskning har kvantifierat detta. En norsk studie på River Gaula (Jensen med flera, 1999) fann att lax fångades över ett brett flödesspann men att fångsten var högst mellan 50 och 150 kubikmeter per sekund och vid vattentemperaturer på 13 till 16 grader. En stor multiälvstudie (Otero med flera, PLOS ONE 2011) fann att högre vattenföring under uppvandringen hängde samman med högre rodfångster av grilse. Det gäller alltså årsvariation, inte planeringen av en enskild dag.
+
+Ett svenskt belägg finns i Ume- och Vindelälven, där SLU-forskning med radiomärkt vildlax visade att laxen reagerar starkt på flödesändringar. En kontraintuitiv observation från kraftverket Stornorrfors är att somrar med god vattentillgång kan ge sämre uppvandring, eftersom fisken lockas mot turbinutloppets höga flöde i stället för mot fiskvägen. Flödet påverkar alltså inte bara om fisken finns i systemet, utan aktivt vart den simmar.
+
+För öring i strömmande vatten finns solid forskning på positionsval. Öring är en så kallad drift feeder som håller en ståndplats och fångar föda som driver förbi. Studier på energiekonomi (Hughes och Dill 1990, Hayes och Jowett 1994) visar att fisken väljer lägen som maximerar nettoenergiintaget, ofta i gränszonen mellan snabbt och långsamt vatten. Det förklarar varför fisk står i sömmar och strömkanter. Men observera vad det här belägger. Det handlar om var fisken står och hur den hushållar med energi, inte om hur en flödessiffra förändrar sannolikheten att den hugger ett bete.
+
+Ett liknande förbehåll gäller grumligt vatten. Laboratoriestudier visar att ökad grumlighet minskar laxfiskars reaktionsavstånd till byte. Det ger ett rimligt stöd för tanken att grumligt vatten kräver synligare beten, men forskningen handlar om fiskens naturliga födosök, inte om fångst på konstgjort bete.
+
+Och här är den avgörande luckan, som är värd att säga rakt ut. Efter riktad sökning i svenska källor finns ingen publicerad, granskad studie som statistiskt kopplar vattenföring direkt till sportfiskefångst per art och dag i en namngiven svensk älv. De starkaste beläggen är norska och gäller uppvandring och årsvariation, inte dagsplanering. Vem som helst som påstår sig ha ett exakt flödesfönster för napp i ett svenskt vatten bygger på erfarenhet, inte på prövad forskning.
+
+## Beprövad praxis, tumreglerna fiskare litar på
+
+Det här är mellanlagret. Tumregler som cirkulerar bland guider och fiskevårdsområden, och som ofta fungerar, men som sällan är statistiskt prövade. De är värda att känna till och värda att pröva. De är inte naturlagar.
+
+**Fiska på sjunkande vatten efter en flodtopp.** En mycket vanlig regel. Svenskt Fiske skriver att fisken vid sjunkande vatten drar sig mot djupare partier och hålor, och att den vid stigande vatten oftare intar mer exponerade ståndplatser. Stödet finns i uppvandringsforskningen. Efter en flodtopp finns mer fisk i systemet. Att fångstbarheten specifikt är högst på sjunkande vatten är däremot erfarenhet, inte prövat.
+
+**Stigande vatten får laxen att gå upp.** Den här har starkast vetenskaplig grund av tumreglerna. Flödestoppar utlöser dokumenterat uppvandring. Att det automatiskt ger bättre fiske en given dag är dock inte prövat.
+
+**Bäst vid medelvattenföring, sämre vid extremer.** Gaula-studien ger visst stöd, med högst fångst vid mellanflöden. Vid extrema högflöden är fisket dessutom ofta praktiskt omöjligt på grund av grumlighet och vadningsrisk.
+
+**Vid högvatten står fisken i kanter och lugnvatten.** Det stämmer med energiteorin. Vid höga hastigheter blir det för dyrt att hålla position i huvudströmmen, så fisken söker skyddat vatten.
+
+**Grumligt vatten kräver synligare beten.** Har visst stöd i turbiditetsforskningen. Mörrums Kronolaxfiske rekommenderar ljusa och större beten vid högt kallt vårvatten, och mindre och mörkare flugor vid varmare och klarare sommarvatten. Det är väletablerad guidepraxis snarare än prövad regel.
+
+Flera vatten anger också konkreta flödesintervall. Mörrumsån anges variera från runt 100 kubikmeter per sekund ned till 7 över säsongen. Ljusnan vid Ljusdals fiskevårdsområde anges ha bra fiskevatten mellan 100 och 140 kubikmeter per sekund vid deras sträcka. Sådana intervall är värdefulla lokala guideråd, men de gäller en specifik sträcka och går inte att flytta mellan älvar. Ett tröskelvärde i kubikmeter per sekund är storleksberoende, så en siffra som betyder högvatten i Ljusnan kan betyda lågvatten i en större älv.
+
+## Folklore och obelagt
+
+Det här är det yttersta lagret. Påståenden som upprepas utan belägg, och som vi flaggar just därför.
+
+**Fjälling-modellen för Mörrumsån.** Det cirkulerar en påstådd modell för Mörrumsån som ska väga samman flöde, månfas och dagslängd. Formuleringen gick inte att verifiera i någon primärkälla. Den enda fyndplatsen var en skrapsajt som klistrat ihop textfragment från en okänd presentation, och fragmentet innehåller dessutom en intern motsägelse. Upphovspersonen är sannolikt Arne Fjälling vid SLU Aqua, som arbetat med akustisk telemetri i bland annat Mörrumsån, men fragmentet anger inga koefficienter, ingen riktning och ingen signifikans. Den här modellen ska inte citeras som forskning så länge originalkällan inte är spårad hos SLU Aqua.
+
+**Exakta flödesfönster som universella regler.** Se punkten om lokala intervall ovan. Ett intervall som fungerar på en sträcka är inte en naturlag och går inte att överföra mellan vatten.
+
+**Ett visst flöde ger ett visst antal fiskar.** Påståenden om att ett bestämt flöde levererar ett bestämt antal fiskar per dag saknar publicerat statistiskt stöd i svenska vatten. Behandla dem som obelagda.
+
+**Månfasen.** Inte en flödesfråga, men den dyker ofta upp i samma sammanhang. Den mest citerade studien (Vinson och Angradi, PLOS ONE 2014, drygt 340 000 fångster) visade ungefär 5 procent fler fångster runt ny- och fullmåne. Effekten är mätbar men liten jämfört med säsong och temperatur. Det är därför den väger lätt i vår [nappkalender](/nappkalender/).
+
+## Säkerhet, det här avsnittet är viktigast
+
+Om du bara läser ett avsnitt, läs det här. Höga flöden och snabbt vatten dödar fiskare varje år. Svenska Livräddningssällskapet räknar i genomsnitt runt 106 omkomna i drunkning per år under 2000-talet.
+
+Fjällsäkerhetsrådets vadningsråd är konkreta och värda att följa. Vada inte om vattnet rör sig snabbt och når över knähöjd. Vada snett mot strömmen, aldrig barfota. En vadarstav ger stöd. Vada en och en. Ett vadarbälte minskar mängden vatten som rinner in i vadarna om du faller. Vadare utan flytväst kan bli en dödsfälla, och kallt vatten ger en köldchock som dramatiskt ökar drunkningsrisken.
+
+Den enskilt viktigaste punkten gäller reglerade vatten. Nedströms ett kraftverk kan flödet stiga plötsligt och snabbt, utan någon förvarning kopplad till vädret. Det styrs av kraftverket, inte av regn. Kraftbolagen varnar för att man kan dras med och drunkna, och uppmanar till att vara mycket observant på förändringar i vattenflöde eller ljudbild och att lämna platsen omedelbart vid larm. Torrfåror nedströms kraftverk kan plötsligt vattenfyllas. Att stå och vada i en korttidsreglerad älv utan att veta detta är livsfarligt.
+
+Slutsatsen är enkel. Kontrollera alltid om vattnet är reglerat innan du vadar, och håll dig nära land i sådana vatten.
+
+## Så läser du en flödessiffra
+
+SMHI beskriver flödet med några karakteristiska mått. MQ är medelvattenföringen, alltså medelvärdet över en period. MHQ är medelhögvattenföringen, medelvärdet av varje års högsta dygnsflöde. MLQ är medellågvattenföringen, medelvärdet av varje års lägsta dygnsflöde. Utöver dessa finns ytterligare mått som högsta högvattenföring och återkomsttider för till exempel ett hundraårsflöde.
+
+Den praktiska tolkningen: ligger dagens flöde nära MQ är det normalt, nära eller över MHQ är det högt för årstiden, och nära MLQ är det lågt. En sak att hålla i minnet är att MQ vanligen ligger klart högre än medianflödet, eftersom några få höga dagar drar upp medelvärdet. Ett vatten kan alltså ligga under sitt MQ större delen av året och ändå vara helt normalt.
+
+Det är därför vi på destinationssidorna jämför dagens flöde mot en månadsnormal byggd på medianen snarare än medelvärdet, och sätter etiketten lågt, normalt eller högt för årstiden. På så sätt blir en naken siffra begriplig. Ett värde på 0,2 kubikmeter per sekund säger ingenting i sig, men i sitt sammanhang, mycket lågt jämfört med vad stationen brukar visa i juli, säger det allt.
+
+Två förbehåll att känna till. Mätstationen kan ligga långt från din fiskeplats, och flödet ändras nedströms genom biflöden och reglering. En station uppströms ett stort biflöde kan visa ett helt annat flöde än där du står. Och observationsdatan är dygnsvärden, inte realtid, vilket räcker för trend i en oreglerad älv men missar variationen inom dygnet i en reglerad.
+
+## Varför flödet inte väger in i nappkalendern
+
+Ett medvetet val förtjänar en öppen motivering. Vi väger inte in vattenföringen i [nappkalenderns](/nappkalender/) betningspoäng, och det är inte av lättja.
+
+Skälet är att det saknas publicerad, artspecifik forskning på hur flöde påverkar bett i svenska vatten. De starkaste svenska sambanden gäller uppvandring och passage förbi hinder, inte fångst per ansträngning. Att bygga en flödesfaktor ovanpå den luckan skulle betyda att vi hittar på en modell som ser exakt ut men saknar grund, och det är precis den sortens falska precision vi arbetat bort på andra ställen i kalendern. Hellre en ärlig tystnad än en påhittad siffra.
+
+I stället visar vi flödet som egen data på destinationssidorna, satt i sitt historiska sammanhang, och låter dig göra tolkningen utifrån den här guiden. Det finns ett tydligt kriterium som skulle ändra beslutet. En publicerad, granskad svensk studie som visar ett statistiskt signifikant, artspecifikt samband mellan flöde och fångst per ansträngning, med angivna koefficienter. Den dagen den finns väger vi in flödet. Inte innan.
+
+## Var vi visar vattenföring, och varför just där
+
+För tretton destinationer visar vi dagens vattenföring i sidokolumnen på destinationssidan. Siffran sätts alltid mot stationens månadsnormal, med etikett för om den är lågt, normalt eller högt för årstiden, och med en markering för om vattnet är reglerat eller oreglerat. Det senare är, som den här guiden visat, det första du behöver veta för att tolka siffran rätt.
+
+Sju av dem är oreglerade: [Torneälven](/destinationer/tornealven/), [Kalixälven](/destinationer/kalixalven/), [Piteälven](/destinationer/pitealven/), [Vindelälven](/destinationer/vindelalven/), [Byskeälven](/destinationer/byskealven/), [Öreälven](/destinationer/orealven/) och [Gimån](/destinationer/giman/). Här speglar dygnsvärdet snösmältning, regn och säsong, och det fungerar väl för att bedöma trenden.
+
+Sex är reglerade: [Umeälven](/destinationer/umealven/), [Tidan](/destinationer/tidan/), [Emån](/destinationer/eman/), [Mörrumsån](/destinationer/morrum/), [Helge å](/destinationer/helge-a/) och [Lödde å/Kävlingeån](/destinationer/kavlingean/). Där är siffran en utgångspunkt, inte ett facit. Regleringsgraden skiljer sig mellan dem, och etiketten säger bara att vattnet är reglerat, inte hur snabbt det svänger. Umeälven med Stornorrfors är ett tydligt fall där turbinflödet styr. Läs den reglerade siffran med den reservationen, och gå till kraftbolagens realtidsdata när det gäller en enskild dag.
+
+Att övervikten ligger på oreglerade vatten är ingen slump, och det är värt att säga varför. Tio svenska älvar med gott fiske saknar flödesdata hos oss, bland dem Klarälven, Dalälven, Göta älv, Lagan, Ångermanälven och Indalsälven. Anledningen är inte att de är ointressanta utan att mätningen där i praktiken sköts av kraftbolagen, och deras stationer arkiverar i stället för att rapportera aktuella värden. Konsekvensen blir att vi kan visa flöde framför allt i de vatten där flödet betyder något begripligt, alltså där det säger något om vädret och årstiden snarare än om ett turbinschema. Begränsningen och nyttan pekar åt samma håll. Att övervikten inte är total, Umeälven och Mörrumsån är trots allt reglerade, visar att detta är en tendens som följer av datakällan, inte en regel vi satt själva.
+
+Läs alltid flödet tillsammans med [förhållandesidan](/forhallanden/), där du ser aktuell temperatur och vind vid vattnet. Ingen av siffrorna svarar på om fisken hugger. De svarar på vilket vatten du kommer till.
 ```
 
 # Content: authors
@@ -35629,6 +36774,7 @@ const techSlugs = new Set();
 const speciesIds = new Set();          // lowercased: filnamn, slug och titel
 const speciesTitleByFold = new Map();  // fold(slug|titel) -> kanoniskt visningsnamn
 const gearCategorySlugs = new Set();   // filnamn + JSON-slug for gear-categories
+const gearReviewSlugs = new Set();     // filnamn + slug for gear-reviews (ProduktRuta)
 
 function baseId(path) {
   return path.split('/').pop().replace(/\.(mdx?|json)$/, '');
@@ -35647,6 +36793,7 @@ for (const f of files) {
   const id = baseId(f);
   if (coll === 'destinations') { destSlugs.add(id); if (slug) destSlugs.add(slug); }
   if (coll === 'techniques') { techSlugs.add(id); if (slug) techSlugs.add(slug); }
+  if (coll === 'gear-reviews') { gearReviewSlugs.add(id); if (slug) gearReviewSlugs.add(slug); }
   if (coll === 'gear-categories') {
     // JSON-fil: getField traffar inte "slug": "...", sa las slug via JSON ocksa.
     gearCategorySlugs.add(id);
@@ -35757,6 +36904,40 @@ function checkDashes(file, text) {
   });
 }
 
+// Varningsregel: kampanjpriser med slutdatum ("gäller till 29 juli 2026").
+// Passerat datum betyder fel pris pa sajten. Varning, inte fel, sa att
+// schemalagda byggen inte stoppas av att ett datum passerar.
+// Forvarning ges KAMPANJ_DAGAR dagar innan (standard 3).
+const MONTH_INDEX = Object.fromEntries(MONTHS.split('|').map((m, i) => [m, i]));
+
+function checkCampaignDates(file, text) {
+  const re = new RegExp(`g[aä]ller till(?: den)?\\s+(\\d{1,2})\\s+(${MONTHS})\\s+(\\d{4})`, 'gi');
+  const horizon = Number(process.env.KAMPANJ_DAGAR) || 3;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    const d = new Date(Number(m[3]), MONTH_INDEX[m[2].toLowerCase()], Number(m[1]), 23, 59, 59);
+    const daysLeft = Math.ceil((d - new Date()) / 86400000);
+    if (daysLeft < 0) {
+      warnings.push(`${file}: kampanjdatum "${m[1]} ${m[2]} ${m[3]}" har passerat - uppdatera pris och text`);
+    } else if (daysLeft <= horizon) {
+      warnings.push(`${file}: kampanjdatum "${m[1]} ${m[2]} ${m[3]}" gar ut om ${daysLeft} dagar`);
+    }
+  }
+}
+
+
+// Felregel: <ProduktRuta slug="..."> maste peka pa en befintlig gear-review,
+// annars kastar komponenten vid bygge. Fanga det redan i npm run check.
+function checkProduktRuta(file, text) {
+  const re = /<ProduktRuta\s+slug="([^"]+)"/g;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    if (!gearReviewSlugs.has(m[1])) {
+      errors.push(`${file}: ProduktRuta slug "${m[1]}" matchar ingen gear-review`);
+    }
+  }
+}
+
 for (const f of files) {
   const coll = f.split('/')[2];
   const raw = readFileSync(f, 'utf-8');
@@ -35764,6 +36945,8 @@ for (const f of files) {
   checkRefs(f, coll, fm);
   checkLinks(f, raw);
   if (!f.endsWith('.json')) checkDashes(f, raw);
+  if (!f.endsWith('.json')) checkCampaignDates(f, raw);
+  if (!f.endsWith('.json')) checkProduktRuta(f, raw);
 }
 
 // --- Rapport ---
