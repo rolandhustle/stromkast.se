@@ -389,7 +389,7 @@ const faqSchema = {
           heading="Rekommenderad utrustning"
           categoryHref="/utrustning/"
         />
-        
+
         <!-- FAQ -->
         <div class="mt-16">
           <h2 class="font-display text-2xl font-bold text-deep mb-6">Vanliga frågor</h2>
@@ -498,6 +498,17 @@ const faqSchema = {
         <div class="rounded-2xl overflow-hidden aspect-square mb-6">
           <DestinationMap lat={d.lat} lng={d.lng} title={d.title} client:only="react" />
         </div>
+
+        <!-- Produktkort, syns bara pa desktop. Styr produkten via recommendedGear i frontmatter, annars harleds den. -->
+        <GearModul
+          species={d.primarySpecies}
+          waterType={d.waterType}
+          manualSlugs={d.recommendedGear}
+          variant="sidebar"
+          heading="Bra att ha på vattnet"
+          sidebarRotateCategory="ekolod"
+          rotateKey={d.slug}
+        />
       </aside>
     </div>
   </div>

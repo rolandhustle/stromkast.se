@@ -27,6 +27,8 @@ interface Props {
   heading?: string;
   categoryHref?: string;
   variant?: 'full' | 'sidebar';
+  sidebarRotateCategory?: string;
+  rotateKey?: string;
 }
 
 const {
@@ -38,6 +40,8 @@ const {
   heading = 'Utrustning',
   categoryHref = '/utrustning/',
   variant = 'full',
+  sidebarRotateCategory,
+  rotateKey = '',
 } = Astro.props;
 
 // gear-review techniques-taxonomi -> tekniksidans slug.
@@ -138,13 +142,34 @@ for (const r of [...derived].sort(sortByRelevance)) {
 }
 
 const hasProducts = picked.length > 0;
+// Sidebar pa destinationer: rotera ett ekolod ur budget/mellanklass, stabilt
+// per destination. Samma slug ger alltid samma ekolod, olika slugs sprids over
+// poolen. manualSlugs vinner: har redaktoren satt ett forstaval anvands det.
+function hashStr(str: string): number {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+const sidebarPick = (() => {
+  if (manual.length > 0) return picked[0];
+  if (!sidebarRotateCategory) return picked[0];
+  const pool = reviews
+    .filter((r) =>
+      fold(r.data.category ?? '') === fold(sidebarRotateCategory) &&
+      ['budget', 'mellanklass'].includes(fold(r.data.priceRange ?? ''))
+    )
+    .sort((a, b) => a.id.localeCompare(b.id));
+  if (pool.length === 0) return picked[0];
+  return pool[hashStr(rotateKey) % pool.length];
+})();
 ---
 
 {variant === 'sidebar' ? (
   hasProducts ? (
     <div class="hidden lg:block bg-white border border-mist rounded-2xl p-6">
       <p class="text-stone text-xs uppercase tracking-wider font-medium mb-3">{heading}</p>
-      {picked.slice(0, 1).map((r) => (
+      {[sidebarPick].map((r) => (
         <div>
           <div class="w-full aspect-square rounded-xl bg-mist overflow-hidden mb-4">
             <img src={r.data.heroImage} alt={r.data.title} loading="lazy" class="w-full h-full object-contain p-3" onerror="this.style.display='none'" />
