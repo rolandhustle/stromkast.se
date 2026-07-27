@@ -4,6 +4,7 @@ import AffiliateCard from '../../components/AffiliateCard.astro';
 import { getCollection, render } from 'astro:content';
 import { Image, type ImageMetadata } from 'astro:assets';
 import { SPECIES, getScore, MONTHS_SV } from '../../data/calendar';
+import GearModul from '../../components/GearModul.astro';
 
 import abboreSrc from '../../assets/images/species-abborre.png';
 import gosSrc    from '../../assets/images/species-gos.png';
@@ -240,6 +241,15 @@ const difficultyColor: Record<string, string> = {
           </div>
         )}
 
+        <!-- Utrustning: manuellt kuraterad via gearRecs, annars harledd ur targetSpecies -->
+        <GearModul
+          species={[s.slug]}
+          manualSlugs={s.gearRecs}
+          limit={6}
+          heading="Rekommenderad utrustning"
+          categoryHref="/utrustning/"
+        />
+
         <!-- FAQ -->
         {s.faq && s.faq.length > 0 && (
           <div class="mt-16">
@@ -379,29 +389,5 @@ const difficultyColor: Record<string, string> = {
         </div>
       </aside>
     </div>
-
-    <!-- Recommended gear -->
-    {gearRecs.length > 0 && (
-      <div class="mt-16">
-        <h2 class="font-display text-2xl font-bold text-deep mb-2">Rekommenderad utrustning</h2>
-        <p class="text-stone text-sm mb-8">Testad utrustning för {s.title.toLowerCase()}fiske.</p>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {gearRecs.map((review) => (
-            <AffiliateCard
-              title={review.data.title}
-              brand={review.data.brand}
-              price={review.data.price}
-              rating={review.data.rating}
-              description={review.data.description}
-              image={review.data.heroImage}
-              affiliateUrl={review.data.affiliateUrl}
-              merchant={review.data.merchant}
-              slug={review.data.slug}
-              featured={review.data.featured}
-            />
-          ))}
-        </div>
-      </div>
-    )}
   </div>
 </BaseLayout>

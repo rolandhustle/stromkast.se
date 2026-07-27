@@ -3,6 +3,7 @@
  * check-content.mjs - innehallsvalidering for Stromkast
  *
  * Kors med:  node check-content.mjs   (eller: npm run check)
+ * Tackningsrapport:  node check-content.mjs --coverage  (npm run check:coverage)
  *
  * Strukturfel (brutna slug-referenser, interna lankar utan avslutande slash,
  * gear-review med felaktig category) ger avslutskod 1 sa att ett bygge kan
@@ -19,6 +20,11 @@ import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 const ROOT = 'src/content';
+
+// Nar GearModul.astro ar live pa art- och tekniksidor genererar targetSpecies och
+// techniques riktiga lankar, och brutna varden ska da stoppa bygget. Fram till
+// dess racker varningar. Flippa till true samtidigt som modulen deployas.
+const GEAR_LINKS_LIVE = false;
 
 function walk(dir) {
   if (!existsSync(dir)) return [];
@@ -80,6 +86,12 @@ const speciesTitleByFold = new Map();  // fold(slug|titel) -> kanoniskt visnings
 const gearCategorySlugs = new Set();   // filnamn + JSON-slug for gear-categories
 const gearReviewSlugs = new Set();     // filnamn + slug for gear-reviews (ProduktRuta)
 
+const speciesIdByFold = new Map();     // fold(id|slug|titel) -> kanoniskt filnamn
+const techIdByKey = new Map();         // id|slug -> kanoniskt filnamn
+const speciesFiles = [];               // { id, title }
+const techFiles = [];                  // { id, title }
+const gearRefs = [];                   // { file, title, species[], techniques[] }
+
 function baseId(path) {
   return path.split('/').pop().replace(/\.(mdx?|json)$/, '');
 }
@@ -115,6 +127,23 @@ for (const f of files) {
       if (slug) speciesTitleByFold.set(fold(slug), title);
       speciesTitleByFold.set(fold(title), title);
     }
+    speciesFiles.push({ id, title: title ?? id });
+    speciesIdByFold.set(fold(id), id);
+    if (slug) speciesIdByFold.set(fold(slug), id);
+    if (title) speciesIdByFold.set(fold(title), id);
+  }
+  if (coll === 'techniques') {
+    techFiles.push({ id, title: title ?? id });
+    techIdByKey.set(id, id);
+    if (slug) techIdByKey.set(slug, id);
+  }
+  if (coll === 'gear-reviews') {
+    gearRefs.push({
+      file: f,
+      title: title ?? id,
+      species: getArray(fm, 'targetSpecies') ?? [],
+      techniques: getArray(fm, 'techniques') ?? [],
+    });
   }
 }
 
@@ -156,6 +185,41 @@ function checkRefs(file, coll, fm) {
         `${file}: category "${cat}" matchar ingen gear-kategori. ` +
         `Anvand kategorins slug med sma bokstaver (t.ex. flatlinor, fluorocarbon, nylon), inte displaynamnet.`
       );
+    }
+  }
+  // Kopplingsfalt i gear-reviews. Fel har ar tysta: ett filter som inte matchar
+  // ger noll traffar, inte ett byggfel, sa produkten forsvinner utan varning.
+  if (coll === 'gear-reviews') {
+    const level = GEAR_LINKS_LIVE ? errors : warnings;
+
+    const specs = getArray(fm, 'targetSpecies');
+    if (specs === null || specs.length === 0) {
+      warnings.push(`${file}: targetSpecies saknas eller ar tom. Produkten syns inte pa nagon artsida.`);
+    } else {
+      for (const v of specs) {
+        if (!speciesIds.has(v.toLowerCase())) {
+          const guess = speciesIdByFold.get(fold(v));
+          level.push(
+            `${file}: targetSpecies "${v}" matchar ingen artsida` +
+            (guess ? ` (skriv "${guess}")` : '')
+          );
+        }
+      }
+    }
+
+    const techs = getArray(fm, 'techniques');
+    if (techs === null || techs.length === 0) {
+      warnings.push(`${file}: techniques saknas eller ar tom. Produkten syns inte pa nagon tekniksida.`);
+    } else {
+      for (const v of techs) {
+        if (!techIdByKey.has(v)) {
+          const guess = [...techIdByKey.keys()].find((k) => k.startsWith(v) || v.startsWith(k));
+          level.push(
+            `${file}: techniques "${v}" matchar ingen tekniksida` +
+            (guess ? ` (menade du "${guess}"?)` : '')
+          );
+        }
+      }
     }
   }
   // Varningsregel: primarySpecies ar visningstext.
@@ -253,8 +317,43 @@ for (const f of files) {
   if (!f.endsWith('.json')) checkProduktRuta(f, raw);
 }
 
+// --- Tackning: hur manga produkter varje art- och tekniksida kan visa ---
+const perSpecies = new Map(speciesFiles.map((s) => [s.id, 0]));
+const perTech = new Map(techFiles.map((t) => [t.id, 0]));
+
+for (const g of gearRefs) {
+  const seenS = new Set();
+  for (const v of g.species) {
+    const id = speciesIdByFold.get(fold(v));
+    if (id && !seenS.has(id)) { perSpecies.set(id, perSpecies.get(id) + 1); seenS.add(id); }
+  }
+  const seenT = new Set();
+  for (const v of g.techniques) {
+    const id = techIdByKey.get(v);
+    if (id && !seenT.has(id)) { perTech.set(id, perTech.get(id) + 1); seenT.add(id); }
+  }
+}
+
+// Varna bara pa noll. Full fordelning far du med --coverage.
+for (const [id, n] of perSpecies) {
+  if (n === 0) warnings.push(`artsida "${id}": noll matchande produkter, utrustningsmodulen blir tom`);
+}
+for (const [id, n] of perTech) {
+  if (n === 0) warnings.push(`tekniksida "${id}": noll matchande produkter, utrustningsmodulen blir tom`);
+}
+
 // --- Rapport ---
 console.log(`\nKontrollerade ${files.length} innehallsfiler.\n`);
+
+if (process.argv.includes('--coverage')) {
+  const rad = ([id, n]) => `  ${id.padEnd(26)} ${String(n).padStart(3)}`;
+  const fallande = (a, b) => b[1] - a[1] || a[0].localeCompare(b[0]);
+  console.log('TACKNING, produkter per artsida:');
+  [...perSpecies.entries()].sort(fallande).forEach((e) => console.log(rad(e)));
+  console.log('\nTACKNING, produkter per tekniksida:');
+  [...perTech.entries()].sort(fallande).forEach((e) => console.log(rad(e)));
+  console.log('');
+}
 
 if (warnings.length) {
   console.log(`VARNINGAR (${warnings.length}):`);

@@ -1,0 +1,153 @@
+---
+// GearModul.astro
+// Genererar en utrustningsmodul ur gear-reviews genom att filtrera pa arter,
+// tekniker och vattentyp. Samma komponent pa art-, teknik- och destinationssidor.
+//
+// Urvalsordning:
+//   1. manualSlugs renderas forst, i angiven ordning (redaktionell kuratering)
+//   2. resten fylls pa med harledda traffar tills `limit` ar nadd
+//   Sa behaller du kontrollen dar du satt gearRecs, och far automatik dar den ar tom.
+//
+// Filtrering:
+//   species[]    matchar targetSpecies (foldat, sa gadda == gädda)
+//   techniques[] matchar techniques via TEKNIK_ALIAS (jigg -> jiggfiske)
+//   waterType    'coastal' doljer rena insjobeten
+//
+// Prisspridning: den harledda delen valjer en ur varje prisklass forst
+// (budget/mellanklass/premium), sa modulen inte fylls med bara premium.
+import { getCollection } from 'astro:content';
+import AffiliateCard from './AffiliateCard.astro';
+
+interface Props {
+  species?: string[];
+  techniques?: string[];
+  waterType?: string;
+  manualSlugs?: string[];
+  limit?: number;
+  heading?: string;
+  categoryHref?: string;
+}
+
+const {
+  species = [],
+  techniques = [],
+  waterType,
+  manualSlugs = [],
+  limit = 4,
+  heading = 'Utrustning',
+  categoryHref = '/utrustning/',
+} = Astro.props;
+
+// gear-review techniques-taxonomi -> tekniksidans slug.
+// jerkbait och wobbler ar betestyper, inte tekniksidor. Utelamnas medvetet.
+const TEKNIK_ALIAS: Record<string, string> = {
+  jigg: 'jiggfiske',
+  spinn: 'spinnfiske',
+  dropshot: 'dropshot',
+  trolling: 'trolling',
+  vertikal: 'vertikalfiske',
+  vertikalfiske: 'vertikalfiske',
+  mete: 'mete',
+  isfiske: 'isfiske',
+  flugfiske: 'flugfiske',
+  havsfiske: 'havsfiske',
+};
+
+const fold = (str: string) =>
+  str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+const wantSpecies = new Set(species.map(fold));
+const wantTech = new Set(techniques.map((t) => TEKNIK_ALIAS[fold(t)] ?? fold(t)));
+
+const reviews = await getCollection('gear-reviews');
+
+// --- 1. Manuellt kuraterade, i angiven ordning ---
+const manual = manualSlugs
+  .map((slug) => reviews.find((r) => r.data.slug === slug || r.id === slug))
+  .filter((r): r is (typeof reviews)[number] => Boolean(r));
+
+// --- 2. Harledda traffar ---
+const derived = reviews.filter((r) => {
+  const d = r.data;
+
+  const rSpecies = (d.targetSpecies ?? []).map(fold);
+  const rTech = (d.techniques ?? []).map((t: string) => TEKNIK_ALIAS[fold(t)] ?? fold(t));
+
+  const speciesHit = wantSpecies.size === 0 || rSpecies.some((x) => wantSpecies.has(x));
+  const techHit = wantTech.size === 0 || rTech.some((x) => wantTech.has(x));
+
+  if (wantSpecies.size && wantTech.size) {
+    if (!speciesHit && !techHit) return false;
+  } else if (!speciesHit || !techHit) {
+    return false;
+  }
+
+  if (waterType === 'coastal' && fold(d.category ?? '') === 'jerkbaits') return false;
+
+  return true;
+});
+
+// --- Sammanfogning med prisspridning pa den harledda delen ---
+const RANK = ['budget', 'mellanklass', 'premium'];
+const byRating = (a: (typeof reviews)[number], b: (typeof reviews)[number]) =>
+  (b.data.rating ?? 0) - (a.data.rating ?? 0);
+
+const picked: (typeof reviews)[number][] = [];
+const seen = new Set<string>();
+
+for (const r of manual) {
+  if (picked.length >= limit) break;
+  if (!seen.has(r.id)) { picked.push(r); seen.add(r.id); }
+}
+
+for (const klass of RANK) {
+  if (picked.length >= limit) break;
+  const best = derived
+    .filter((r) => fold(r.data.priceRange ?? '') === klass && !seen.has(r.id))
+    .sort(byRating)[0];
+  if (best) { picked.push(best); seen.add(best.id); }
+}
+
+for (const r of [...derived].sort(byRating)) {
+  if (picked.length >= limit) break;
+  if (!seen.has(r.id)) { picked.push(r); seen.add(r.id); }
+}
+
+const hasProducts = picked.length > 0;
+---
+
+{hasProducts ? (
+  <section class="not-prose" aria-labelledby="gearmodul-rubrik">
+    <h2 id="gearmodul-rubrik" class="font-display text-2xl font-bold text-deep mb-2">{heading}</h2>
+    <p class="text-stone text-sm mb-8">Utrustning som passar det här fisket.</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {picked.map((r) => (
+        <AffiliateCard
+          title={r.data.title}
+          brand={r.data.brand}
+          price={r.data.price}
+          rating={r.data.rating}
+          description={r.data.description}
+          image={r.data.heroImage}
+          affiliateUrl={r.data.affiliateUrl}
+          merchant={r.data.merchant}
+          slug={r.data.slug}
+          featured={r.data.featured}
+          budgetPick={r.data.budgetPick}
+        />
+      ))}
+    </div>
+    <p class="text-sm text-stone mt-6">
+      Se fler alternativ under <a href={categoryHref} class="text-sky hover:text-pine underline underline-offset-2">utrustning</a>.
+    </p>
+  </section>
+) : (
+  <section class="not-prose">
+    <a href={categoryHref} class="inline-flex items-center gap-1.5 text-pine font-semibold text-sm hover:text-deep transition-colors">
+      Se all vår testade utrustning
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </section>
+)}

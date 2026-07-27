@@ -35741,7 +35741,7 @@ excerpt: "Vilket ekolod ska du välja? Så tänker du kring kastbart, fast monte
 heroImage: "/images/articles/basta-ekolod.jpg"
 heroSource: "illustration"
 publishedAt: "2026-06-27"
-updatedAt: "2026-06-27"
+updatedAt: "2026-07-19"
 author: "rikard-giby"
 category: "guide"
 faq:
@@ -35756,6 +35756,7 @@ faq:
 ---
 
 import EkolodValjareIsland from '../../components/ekolodvaljare/EkolodValjareIsland.astro';
+import ProduktRuta from '../../components/ProduktRuta.astro';
 
 Ett ekolod är den utrustning som förändrar fisket mest, och samtidigt den som är svårast att köpa rätt. Tillverkarnas specifikationer staplar förkortningar som CHIRP, DownScan och SideScan utan att förklara vad de gör för dig på vattnet. Den här guiden reder ut vad som faktiskt spelar roll, och delar upp valet efter hur du fiskar: från land, från båt eller på isen. Längre ned finns Ekolodsväljaren, där du får en konkret rekommendation utifrån dina svar.
 
@@ -35803,6 +35804,8 @@ Steget upp ger dig GPS, så att du kan märka ut platser och bygga egna djupkart
 
 Toppmodellerna lägger till CHIRP för skarpare bild och, i den dyraste, fiskidentifiering i realtid. För de flesta är det mer än vad som behövs, men för den som fiskar mycket från land eller kajak och vill ha bästa möjliga bild är det ett genomtänkt val. Instegsmodellerna ligger ungefär mellan 1 300 och 2 000 kr, mellanklassen runt 2 500 till 3 700 kr och toppmodellen kring 4 500 kr. Priserna ändras, så stäm av aktuell nivå i väljaren.
 
+<ProduktRuta slug="garmin-striker-cast-worldwide" />
+
 ## Fast monterat ekolod för båt
 
 Fiskar du från båt får du mer för pengarna med en fast monterad enhet. Här går den stora skiljelinjen mellan Garmins två serier.
@@ -35811,9 +35814,13 @@ Striker Vivid finns från 4 till 9 tum. Alla har GPS och kan rita egna kartor, m
 
 Echomap är kartplotter. Den läser Navionics-sjökort och passar dig som vill kombinera fiske med navigering, i skärgård eller på stora sjöar som Vänern och Vättern. Den minsta är ett naturligt steg upp från Striker för den som vill ha sjökort, och den största är en komplett enhet med stor pekskärm, SideScan och stöd för realtidsekolod som LiveScope. Räkna med att fast monterade ekolod spänner från runt 2 000 kr för den minsta Strikern till drygt 11 000 kr för den största Echomap-enheten.
 
+<ProduktRuta slug="garmin-striker-vivid-5cv" />
+
 ## Ekolod för isfiske
 
 Isfisket har egna krav. Du behöver en snabb och tydlig bild i ett litet hål, och gärna GPS för att märka ut hål som ger fisk. Ett kastbart ekolod med isfiskestöd är den vanligaste lösningen, eftersom det inte kräver montering och tål kyla. Tänk på batteritiden, som sjunker i kyla, och på att en enkel instegsmodell utan GPS och isstöd inte passar här. För den som vertikalfiskar gös eller pimplar abborre och röding på djupkanter är ekolodet ofta skillnaden mellan att hitta fisken och att leta i blindo. Läs mer om [isfiske](/teknik/isfiske/) och [vertikalfiske](/teknik/vertikalfiske/).
+
+<ProduktRuta slug="deeper-smart-sonar-pro-plus-2" />
 
 ## Vad du faktiskt behöver, efter art och vatten
 
@@ -35842,7 +35849,7 @@ slug: "basta-fiskespon-2026"
 description: "Komplett köpguide för fiskespön 2026. Vad du ska titta efter för gädda, gös och abborre, med rekommendationer i budget, mellanklass och premium."
 heroImage: "/images/articles/basta-fiskespon-2026.jpg"
 publishedAt: "2026-05-21"
-updatedAt: "2026-06-07"
+updatedAt: "2026-07-19"
 author: "rikard-giby"
 category: "guide"
 excerpt: "Hur väljer du rätt fiskespö? Rekommendationer för gädda, gös och abborre i tre prisklasser."
@@ -35856,6 +35863,8 @@ faq:
   - q: "Vad betyder spöets kastvikt?"
     a: "Kastvikten anger vilket betesintervall spöet är optimerat för. Fiska du med beten utanför intervallet tappar du känsla och kastavstånd, och riskerar att skada spöet vid hårt kast."
 ---
+
+import ProduktRuta from '../../components/ProduktRuta.astro';
 
 Att köpa ett nytt fiskespö är sällan svårt. Att köpa rätt spö är en annan sak. Marknaden är full av alternativ och tillverkarnas specifikationslistor förklarar sällan vad siffrorna faktiskt innebär för dig på vattnet. Den här guiden reder ut det. Vi går igenom vad som verkligen spelar roll för gädda, gös och abborre, vilka egenskaper du ska prioritera i olika prisklasser och vilka spön som håller vad de lovar.
 
@@ -35907,7 +35916,7 @@ Mellanklass för gädda är ett brett fält. Här finns alternativ med Torayca-b
 
 **Shimano Yasei BB Pike XH** är alternativet om du föredrar Shimanos konstruktionsfilosofi. Diaflash-blanken är slankare och lättare än konkurrenterna i klassen, Fuji Fazlite-ringarna håller för allt och spövikten på 162 gram gör att armen håller längre. Kastvikten 30–90 g täcker standardgäddafisket utan att tänja på limiter.
 
-[Se Shimano Yasei BB Pike XH](/utrustning/test/shimano-yasei-bb-pike-xh/)
+<ProduktRuta slug="shimano-yasei-bb-pike-xh" />
 
 **Westin W3 Hybridcast-T 3rd** är mellanklasskandidaten om du fiskar efter både gädda och gös med castingmetoder. Det är ett 221 cm spö med Torayca-blank, Carbon SKC-LS triggerfäste och Seaguide WOXOLSG-ringar. Kastvikten 30–90 g passar de flesta mjukbeten och hårdare beten upp till stora crankbaits. Det avtagbara bakhandtaget är en smart detalj som förkortar spöet vid kast och ger bättre kontroll i trångare situationer.
 
@@ -35955,7 +35964,7 @@ Mellanklass för gädda är ett brett fält. Här finns alternativ med Torayca-b
 
 **Westin W3 Powerteez 3rd** är en beprövad mellanklasskonstruktion för gös. Extra-fast Torayca-blank, Carbon SKS-LS rullfäste och EUKTLTSG-ringar optimerade för flätlina. Kombinationen ger det fiskaren faktiskt behöver: direkt kontakt med betet, tydlig huggregistrering och styrka nog att lyfta en gös ur fem meters djup utan att behöva oroa sig för att spöet ger vika. Finns i 9 fot för den som fiskar från båt och vill ha extra räckvidd i kastet.
 
-[Se Westin W3 Powerteez 3rd](/utrustning/test/westin-w3-powerteez-3rd/)
+<ProduktRuta slug="westin-w3-powerteez-3rd" />
 
 ### Premium: 2 000–3 500 kr
 
@@ -35991,7 +36000,7 @@ Mellanklass är det mest givande prisintervallet för abborrfiske. Här börjar 
 
 **Westin W3 Finesse TC 2nd** är rekommendationen för den som jiggfiskar och drop-shottar ungefär lika mycket. 213 cm, ML 5–15 g eller M 7–21 g beroende på preferens, Torayca-blank med 1K vävt kolfiber och Seaguide LS-ringar. Det är ett allroundspö som inte är bäst i någon enskild situation men aldrig i vägen.
 
-[Se Westin W3 Finesse TC 2nd](/utrustning/test/westin-w3-finesse-tc-2nd/)
+<ProduktRuta slug="westin-w3-finesse-tc-2nd" />
 
 **Westin W3 Finesse Jig 3rd** är alternativet om jiggfisket dominerar. 251 cm gör det lämpligt för kast från båt och vertikalfiske på djupare vatten. Kastvikt 7–28 g täcker tyngre jiggar för höstabborre och djupgående gös. EUKTLTSG-ringarna är optimerade för flätlina och ger fri lineglidning utan friktion.
 
@@ -36039,7 +36048,7 @@ description: "Fem gäddbeten sorterade efter fiskesituation. Jerkbete, glidebete
 excerpt: "Vilket gäddbete passar var? Fem beten för allt från grunda vikar till djupa kanter."
 heroImage: "/images/articles/basta-gaddbeten.jpg"
 publishedAt: "2026-07-09"
-updatedAt: "2026-07-09"
+updatedAt: "2026-07-19"
 author: "rikard-giby"
 category: "guide"
 faq:
@@ -36053,6 +36062,8 @@ faq:
     a: "På hösten står gäddan ofta längs djupkanter. En stor jigg fiskad långsamt längs branten är ett säkert val, liksom större jerk- och glidebeten."
 ---
 
+import ProduktRuta from '../../components/ProduktRuta.astro';
+
 Rätt gäddbete handlar mindre om vilket märke du köper och mer om var gäddan står och hur aktiv den är. Ett bete som är oslagbart i en grund vassvik på sommaren är fel val längs en djupkant på senhösten. Den här guiden går igenom fem beten och sorterar dem efter fiskesituation, så att du vet när du väljer vilket.
 
 ## Grundgående beten för vikar och kanter
@@ -36065,11 +36076,15 @@ De två vanligaste situationerna i gäddfisket är att söka av en vik eller att
 
 Swim kan fiskas med vanlig haspelutrustning anpassad för gädda, och den kastar långt och skär genom hård vind. Den täcker grunt fiske i vikar och längs kanter ned till ett par meter, från kallt vårvatten till höst. Vill du ha ett bete som fungerar direkt utan träning är det här ditt val.
 
+<ProduktRuta slug="westin-swim-glidebait" />
+
 ### Strike Pro Buster Jerk, klassikern med mer karaktär
 
 [Strike Pro Buster Jerk](/utrustning/test/strike-pro-buster-jerk/) är ett av de beten som gjorde jerkfisket populärt i Sverige. Modellen på 15 cm väger 75 gram och är långsamt sjunkande. Den har en tydlig sida-till-sida-gång med en blänkande buk när den jerkas hem, och den fungerar även rakt invevad med inlagda spinnstopp. Den sjunkande egenskapen gör att du kan arbeta ned den mot djupkanter och hålla den strax ovanför vegetationen.
 
 Skillnaden mot Swim är att Buster Jerk ger mer när du för spöt aktivt, vilket kräver lite mer teknik men också ger dig mer kontroll. Traditionellt fiskas jerkbeten med ett kort och styvt spö och multirulle, men vikten på 75 gram fungerar även på en kraftigare haspel. Välj den när du vill lära dig aktivt jerkfiske och ha ett bete som håller för hårda gäddhugg år efter år.
+
+<ProduktRuta slug="strike-pro-buster-jerk" />
 
 ## Jigg för djup och passiv fisk
 
@@ -36079,6 +36094,8 @@ När gäddan står djupare än ett par meter, eller när den är passiv och egen
 
 Jiggen används mest under sen vår, sommar och höst, och året runt när gäddan står på djupet. På hösten är en jigg fiskad långsamt längs en djupkant ett av de säkraste sätten att nå stor gädda. Tänk på att mjukt gummi slits av gäddans tänder, så ha extra kroppar med dig, och komplettera gärna med en stingerkrok för att kroka fler fiskar.
 
+<ProduktRuta slug="ej-lures-flatnose-shad" />
+
 ## Spinnerbait för vass och grumligt vatten
 
 I tät vegetation och grumligt vatten försvinner de flesta beten ur bilden. Där kommer spinnerbaiten in. Den går relativt fritt genom vass, gräs och näckrosor tack vare trådbågen som skyddar kroken, och den skapar kraftiga vibrationer och blänk som gäddan känner av på sidolinjen långt innan den ser betet.
@@ -36087,6 +36104,8 @@ I tät vegetation och grumligt vatten försvinner de flesta beten ur bilden. Dä
 
 Spinnerbait är effektivast under den varmare delen av året, ungefär maj till september, och i grumligt vatten där gäddans syn är begränsad. I klart och öppet vatten blir den ofta för mycket, då hinner gäddan uppfatta den som onaturlig. Betet kräver ett kraftigt spö med rejäl kastvikt och grov lina, både för att orka kasta det och för att kunna slita loss det ur vegetationen.
 
+<ProduktRuta slug="pig-chopper-spinnerbait" />
+
 ## Wobbler för blandat fiske och trolling
 
 Wobblern är för många sinnebilden av ett gäddbete, och den har en plats i lådan även om den här modellen är i minsta laget för renodlad storgädda. En wobbler har en egen vaggande gång som inte kräver aktiv teknik, vilket gör den lätt att fiska.
@@ -36094,6 +36113,8 @@ Wobblern är för många sinnebilden av ett gäddbete, och den har en plats i l�
 [Bomber Long A](/utrustning/test/bomber-long-a/) är en klassisk flytande wobbler på 12 cm och 13 gram med en naturtrogen gång vid rak invevning eller trolling. Den är lättkastad och fungerar på gädda, gös och öring, vilket gör den till ett bra allroundbete snarare än ett riktat storgäddbete. Vid kastfiske arbetar den på ungefär en till två meters djup, och eftersom den flyter kan du klara vegetation genom att pausa invevningen så att betet stiger.
 
 Välj den när du fiskar blandat och vill ha ett bete som är lätt att fiska på befintlig lättare utrustning, eller när du trollar. Eftersom den drar många arter och även mindre fisk passar den bra de dagar du vill ha action snarare än att rikta in dig på de största gäddorna. Sätt alltid tafs, för trekrokarna är inte i den grövsta klassen och gäddan kan hugga även på ett litet bete.
+
+<ProduktRuta slug="bomber-long-a" />
 
 ## Så väljer du efter situation
 
@@ -36382,7 +36403,7 @@ excerpt: "Fläta, fluorocarbon eller nylon? Så väljer du rätt lina efter art 
 heroImage: "/images/articles/valja-fiskelina.jpg"
 heroSource: "illustration"
 publishedAt: "2026-06-24"
-updatedAt: "2026-06-24"
+updatedAt: "2026-07-19"
 author: "rikard-giby"
 category: "guide"
 faq:
@@ -36397,6 +36418,7 @@ faq:
 ---
 
 import LinValjareIsland from '../../components/linvaljare/LinValjareIsland.astro';
+import ProduktRuta from '../../components/ProduktRuta.astro';
 
 Valet av lina avgör mer än de flesta tror. Rätt lina i rätt dimension ger längre kast, fler hugg och färre tappade fiskar, medan fel lina kostar dig fisk utan att du förstår varför. Den här guiden går igenom hur du väljer efter art och teknik, från flätlinan på rullen till tafsen ytterst och de fall där nylon slår fläta.
 
@@ -36444,11 +36466,15 @@ Tafsen är den bit lina du knyter mellan flätan och betet. För abborre, gös o
 
 Gädda är ett eget kapitel. Tänderna kapar både flätlina och tunn fluorocarbon på ett enda hugg, och då sitter betet kvar i fiskens mun. Använd därför alltid stål, titan eller grov fluorocarbon på minst 0,60 till 0,80 mm vid gäddfiske, och kontrollera de yttersta centimetrarna efter varje fisk. Det här är ett säkerhetsråd för fiskens skull lika mycket som för din. Läs mer på sidorna om [gädda](/arter/gadda/) och [jiggfiske](/teknik/jiggfiske/).
 
+<ProduktRuta slug="westin-w6-st3-hard-062mm" />
+
 ## Nylon för trolling och lax
 
 Vid trolling sitter krokarna ofta hårt och fisken hugger i fart. Då är nylonets stretch en fördel, eftersom töjningen dämpar rycket och håller fisken säkrare krokad än en stum flätlina. En nylonlina kring 0,28 till 0,40 mm är ett naturligt val för trolling, antingen som huvudlina eller som topshot framför flätan.
 
 Laxfiske i strömmande älv är det andra fallet. Här vill du ha en grov och nötningstålig nylonlina från 0,40 mm och uppåt, eftersom stretchen parerar laxens rusningar och materialet tål skav mot sten. Tänk också på att flätlina är förbjuden på många laxsträckor, vilket gör nylon till ett förstaval snarare än ett alternativ. Mer finns på sidorna om [trolling](/teknik/trolling/) och [lax](/arter/lax/).
+
+<ProduktRuta slug="stroft-abr-030mm" />
 
 ## Knutar och spolning
 
