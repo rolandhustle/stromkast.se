@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import GearModul from '../../components/GearModul.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -170,6 +171,14 @@ const faqSchema = t.faq && t.faq.length > 0 ? {
             </div>
           </div>
         )}
+
+        <!-- Utrustning: harledd ur tekniken via techniques-faltet, aliasoversatt i modulen -->
+        <GearModul
+          techniques={[t.slug]}
+          limit={6}
+          heading={`Utrustning för ${t.title.toLowerCase()}`}
+          categoryHref="/utrustning/"
+        />
 
         <!-- FAQ -->
         {t.faq && t.faq.length > 0 && (

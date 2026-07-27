@@ -53,8 +53,20 @@ const TEKNIK_ALIAS: Record<string, string> = {
   havsfiske: 'havsfiske',
 };
 
+// Kategorivikt for tekniksidor. Nar tekniken ar det aktiva filtret ska
+// karnutrustning (spon, beten) rankas fore tillbehor (rullar, linor, ekolod).
+// Lagre tal = hogre upp. Okand kategori hamnar i mitten.
+const KATEGORI_VIKT: Record<string, number> = {
+  spon: 0, jerkbaits: 0, wobblers: 0, jiggar: 0, spinnare: 0, kustdrag: 0,
+  trollingspon: 1,
+  haspelrullar: 2,
+  flatlinor: 3, fluorocarbon: 3, nylon: 3,
+  ekolod: 4, batar: 4, elmotorer: 4, utombordare: 4, battrailers: 4,
+};
 const fold = (str: string) =>
   str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+const viktAv = (cat: string) => KATEGORI_VIKT[fold(cat)] ?? 2;
 
 const wantSpecies = new Set(species.map(fold));
 const wantTech = new Set(techniques.map((t) => TEKNIK_ALIAS[fold(t)] ?? fold(t)));
@@ -92,6 +104,16 @@ const RANK = ['budget', 'mellanklass', 'premium'];
 const byRating = (a: (typeof reviews)[number], b: (typeof reviews)[number]) =>
   (b.data.rating ?? 0) - (a.data.rating ?? 0);
 
+  // Pa tekniksidor: kategorivikt forst, betyg som tiebreak. Annars bara betyg.  
+const isTechFilter = wantTech.size > 0 && wantSpecies.size === 0;
+const sortByRelevance = (a: (typeof reviews)[number], b: (typeof reviews)[number]) => {
+  if (isTechFilter) {
+    const w = viktAv(a.data.category ?? '') - viktAv(b.data.category ?? '');
+    if (w !== 0) return w;
+  }
+  return byRating(a, b);
+};
+
 const picked: (typeof reviews)[number][] = [];
 const seen = new Set<string>();
 
@@ -104,11 +126,11 @@ for (const klass of RANK) {
   if (picked.length >= limit) break;
   const best = derived
     .filter((r) => fold(r.data.priceRange ?? '') === klass && !seen.has(r.id))
-    .sort(byRating)[0];
+    .sort(sortByRelevance)[0];
   if (best) { picked.push(best); seen.add(best.id); }
 }
 
-for (const r of [...derived].sort(byRating)) {
+for (const r of [...derived].sort(sortByRelevance)) {
   if (picked.length >= limit) break;
   if (!seen.has(r.id)) { picked.push(r); seen.add(r.id); }
 }
