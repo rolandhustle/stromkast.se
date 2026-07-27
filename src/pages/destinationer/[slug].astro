@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import AffiliateCard from '../../components/AffiliateCard.astro';
 import DestinationMap from '../../components/DestinationMap.tsx';
+import GearModul from '../../components/GearModul.astro';
 import { getCollection, render } from 'astro:content';
 import {
   fetchSMHIForCoords,
@@ -379,6 +380,16 @@ const faqSchema = {
           <Content />
         </div>
 
+        <!-- Utrustning: manuellt via recommendedGear, annars harledd ur primarySpecies + waterType -->
+        <GearModul
+          species={d.primarySpecies}
+          waterType={d.waterType}
+          manualSlugs={d.recommendedGear}
+          limit={6}
+          heading="Rekommenderad utrustning"
+          categoryHref="/utrustning/"
+        />
+        
         <!-- FAQ -->
         <div class="mt-16">
           <h2 class="font-display text-2xl font-bold text-deep mb-6">Vanliga frågor</h2>
@@ -489,29 +500,5 @@ const faqSchema = {
         </div>
       </aside>
     </div>
-
-    <!-- Recommended gear -->
-    {recommendedReviews.length > 0 && (
-      <div class="mt-16">
-        <h2 class="font-display text-2xl font-bold text-deep mb-2">Rekommenderad utrustning</h2>
-        <p class="text-stone text-sm mb-8">Testad och rekommenderad utrustning för fiske i {d.title}.</p>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {recommendedReviews.map((review) => (
-            <AffiliateCard
-              title={review.data.title}
-              brand={review.data.brand}
-              price={review.data.price}
-              rating={review.data.rating}
-              description={review.data.description}
-              image={review.data.heroImage}
-              affiliateUrl={review.data.affiliateUrl}
-              merchant={review.data.merchant}
-              slug={review.data.slug}
-              featured={review.data.featured}
-            />
-          ))}
-        </div>
-      </div>
-    )}
   </div>
 </BaseLayout>

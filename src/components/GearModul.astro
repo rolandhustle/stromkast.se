@@ -117,7 +117,7 @@ const hasProducts = picked.length > 0;
 ---
 
 {hasProducts ? (
-  <section class="not-prose" aria-labelledby="gearmodul-rubrik">
+  <section class="not-prose pt-10 border-t border-mist" aria-labelledby="gearmodul-rubrik">
     <h2 id="gearmodul-rubrik" class="font-display text-2xl font-bold text-deep mb-2">{heading}</h2>
     <p class="text-stone text-sm mb-8">Utrustning som passar det här fisket.</p>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -142,7 +142,7 @@ const hasProducts = picked.length > 0;
     </p>
   </section>
 ) : (
-  <section class="not-prose">
+  <section class="not-prose pt-10 border-t border-mist">
     <a href={categoryHref} class="inline-flex items-center gap-1.5 text-pine font-semibold text-sm hover:text-deep transition-colors">
       Se all vår testade utrustning
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
