@@ -26,6 +26,25 @@ const ROOT = 'src/content';
 // dess racker varningar. Flippa till true samtidigt som modulen deployas.
 const GEAR_LINKS_LIVE = false;
 
+// Speglar TEKNIK_ALIAS i src/components/GearModul.astro. HALL TABELLERNA I SYNK.
+// jerkbait och wobbler ar betestyper utan tekniksida och ar giltiga varden.
+const TEKNIK_ALIAS = {
+  jigg: 'jiggfiske',
+  spinn: 'spinnfiske',
+  dropshot: 'dropshot',
+  trolling: 'trolling',
+  vertikal: 'vertikalfiske',
+  vertikalfiske: 'vertikalfiske',
+  mete: 'mete',
+  isfiske: 'isfiske',
+  flugfiske: 'flugfiske',
+  havsfiske: 'havsfiske',
+};
+const BETESTYPER = new Set(['jerkbait', 'wobbler']);
+// Kategorier dar tomma targetSpecies/techniques ar ett medvetet beslut:
+// vagnar och bensinmotorer ar inte art- eller teknikspecifika.
+const KATEGORIER_UTAN_KOPPLING = new Set(['battrailers', 'utombordare']);
+
 function walk(dir) {
   if (!existsSync(dir)) return [];
   let out = [];
@@ -192,9 +211,10 @@ function checkRefs(file, coll, fm) {
   if (coll === 'gear-reviews') {
     const level = GEAR_LINKS_LIVE ? errors : warnings;
 
+    const kopplingsfri = KATEGORIER_UTAN_KOPPLING.has(getField(fm, 'category'));
     const specs = getArray(fm, 'targetSpecies');
     if (specs === null || specs.length === 0) {
-      warnings.push(`${file}: targetSpecies saknas eller ar tom. Produkten syns inte pa nagon artsida.`);
+      if (!kopplingsfri) warnings.push(`${file}: targetSpecies saknas eller ar tom. Produkten syns inte pa nagon artsida.`);
     } else {
       for (const v of specs) {
         if (!speciesIds.has(v.toLowerCase())) {
@@ -209,10 +229,12 @@ function checkRefs(file, coll, fm) {
 
     const techs = getArray(fm, 'techniques');
     if (techs === null || techs.length === 0) {
-      warnings.push(`${file}: techniques saknas eller ar tom. Produkten syns inte pa nagon tekniksida.`);
+      if (!kopplingsfri) warnings.push(`${file}: techniques saknas eller ar tom. Produkten syns inte pa nagon tekniksida.`);
     } else {
       for (const v of techs) {
-        if (!techIdByKey.has(v)) {
+        if (BETESTYPER.has(v)) continue;
+        const upplost = TEKNIK_ALIAS[v] ?? v;
+        if (!techIdByKey.has(upplost)) {
           const guess = [...techIdByKey.keys()].find((k) => k.startsWith(v) || v.startsWith(k));
           level.push(
             `${file}: techniques "${v}" matchar ingen tekniksida` +
@@ -329,7 +351,7 @@ for (const g of gearRefs) {
   }
   const seenT = new Set();
   for (const v of g.techniques) {
-    const id = techIdByKey.get(v);
+    const id = techIdByKey.get(TEKNIK_ALIAS[v] ?? v);
     if (id && !seenT.has(id)) { perTech.set(id, perTech.get(id) + 1); seenT.add(id); }
   }
 }
