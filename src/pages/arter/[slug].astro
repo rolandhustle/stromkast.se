@@ -387,6 +387,14 @@ const difficultyColor: Record<string, string> = {
             </svg>
           </a>
         </div>
+
+        <!-- Produktkort, syns bara pa desktop, doljs pa mobil for att inte dubblera modulen nedan -->
+        <GearModul
+          species={[s.slug]}
+          manualSlugs={s.gearRecs}
+          variant="sidebar"
+          heading="Vårt val"
+        />
       </aside>
     </div>
   </div>

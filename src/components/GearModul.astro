@@ -26,6 +26,7 @@ interface Props {
   limit?: number;
   heading?: string;
   categoryHref?: string;
+  variant?: 'full' | 'sidebar';
 }
 
 const {
@@ -36,6 +37,7 @@ const {
   limit = 4,
   heading = 'Utrustning',
   categoryHref = '/utrustning/',
+  variant = 'full',
 } = Astro.props;
 
 // gear-review techniques-taxonomi -> tekniksidans slug.
@@ -138,7 +140,50 @@ for (const r of [...derived].sort(sortByRelevance)) {
 const hasProducts = picked.length > 0;
 ---
 
-{hasProducts ? (
+{variant === 'sidebar' ? (
+  hasProducts ? (
+    <div class="hidden lg:block bg-white border border-mist rounded-2xl p-6">
+      <p class="text-stone text-xs uppercase tracking-wider font-medium mb-3">{heading}</p>
+      {picked.slice(0, 1).map((r) => (
+        <div>
+          <div class="w-full aspect-square rounded-xl bg-mist overflow-hidden mb-4">
+            <img src={r.data.heroImage} alt={r.data.title} loading="lazy" class="w-full h-full object-contain p-3" onerror="this.style.display='none'" />
+          </div>
+          <p class="text-xs text-stone font-medium">{r.data.brand}</p>
+          <p class="font-display font-bold text-deep text-base leading-snug mb-2">{r.data.title}</p>
+          <div class="flex items-center gap-1.5 mb-3">
+            <div class="flex items-center gap-0.5" role="img" aria-label={`Betyg ${r.data.rating} av 5`}>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <svg width="12" height="12" viewBox="0 0 14 14" fill={i < Math.round(r.data.rating) ? '#B45D3C' : '#E8E4DC'} aria-hidden="true">
+                  <path d="M7 1l1.5 3.5L12 5l-2.5 2.5.5 3.5L7 9.5 4 11l.5-3.5L2 5l3.5-.5L7 1z"/>
+                </svg>
+              ))}
+            </div>
+            <span class="text-xs text-stone">{r.data.rating}</span>
+          </div>
+          <p class="text-2xl font-bold text-deep leading-none mb-1">
+            {new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK', maximumFractionDigits: 0 }).format(r.data.price)}
+          </p>
+          <p class="text-stone text-xs mb-4">{r.data.merchant}</p>
+          <a
+            href={r.data.affiliateUrl || '#'}
+            target="_blank"
+            rel="noopener noreferrer sponsored"
+            class="flex items-center justify-center gap-2 w-full bg-pine text-white font-bold text-sm px-4 py-3 rounded-full hover:bg-deep transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
+            data-affiliate-merchant={r.data.merchant}
+            data-affiliate-product={r.data.slug}
+          >
+            Se pris hos {r.data.merchant}
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path d="M2 12L12 2M12 2H6M12 2v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+          <p class="text-xs text-stone/60 text-center mt-3">*Affiliatelänk. Vi tjänar en provision utan kostnad för dig.</p>
+        </div>
+      ))}
+    </div>
+  ) : null
+) : hasProducts ? (
   <section class="not-prose pt-10 border-t border-mist" aria-labelledby="gearmodul-rubrik">
     <h2 id="gearmodul-rubrik" class="font-display text-2xl font-bold text-deep mb-2">{heading}</h2>
     <p class="text-stone text-sm mb-8">Utrustning som passar det här fisket.</p>
