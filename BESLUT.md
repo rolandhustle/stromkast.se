@@ -150,6 +150,48 @@ Falsk precision är svårare att upptäcka än ett tomt fält, eftersom den ser 
 
 ---
 
+## Internlänkning och produktmodul
+
+### Produktlänkning härleds ur data, kurateras inte manuellt
+
+**Beslut.** `GearModul.astro` renderar produktkort på art-, teknik- och destinationssidor genom att filtrera `gear-reviews` på `targetSpecies`, `techniques` och `waterType`. Den manuella listan (`gearRecs` på arter, `recommendedGear` på destinationer) är kvar men fungerar som override, inte som förstahandsval. Är den tom härleds produkterna.
+
+**Skäl.** Den manuella vägen släpade alltid efter. Nya produkter syntes bara på sidor någon kom ihåg att uppdatera. Schemat hade samtidigt ett omvänt index som ingen sida läste: varje produkt var redan taggad med sina arter och tekniker. Att låta mallen filtrera på de fälten gav internlänkar från alla art-, teknik- och destinationssidor i dag i stället för allteftersom listor fylldes i. Nettot var hundratals interna länkar mot produktsidorna, från sidor som redan var indexerade, utan handpåläggning.
+
+**Vad som skulle ändra det.** Att produktsortimentet blev så litet eller så manuellt kuraterat att en redaktör vill styra varje placering. Då blir override-vägen förstahandsval igen. Vid nuvarande skala (50+ produkter) vinner härledning.
+
+---
+
+### `techniques` är en betestaxonomi, översatt via aliastabell, inte normaliserad
+
+**Beslut.** Produkternas `techniques`-fält behåller kortformer (`jigg`, `spinn`, `jerkbait`, `wobbler`). En aliastabell i `GearModul.astro` översätter dem till tekniksidornas slugs (`jigg` → `jiggfiske`). Fältet normaliseras alltså inte till sidslugs i datan.
+
+**Skäl.** `jerkbait` och `wobbler` är bettyper, inte tekniksidor. Hade fältet normaliserats till sidslugs tvingades de in som `jiggfiske` eller `spinnfiske`, vilket är fel klassificering och förstör fältets värde som betestaxonomi för framtida betesfilter. Aliastabellen håller översättningen på ett ställe i stället för att sprida den över 50 filer, och en produkt kan behålla ärliga bettaggar utan att det stör teknikmatchningen.
+
+**Vad som skulle ändra det.** Att `techniques` aldrig ska användas till annat än teknikmatchning. Då vore normalisering enklare. Så länge fältet också beskriver betestyp måste taxonomin och sidslugarna hållas isär.
+
+---
+
+### Kärnutrustning viktas före tillbehör på tekniksidor
+
+**Beslut.** När tekniken är det aktiva filtret rankas spön och beten (`KATEGORI_VIKT` 0) före rullar och linor (2–3) och tillbehör som ekolod (4). Betyg avgör inom samma vikt. På art- och destinationssidor är viktningen av.
+
+**Skäl.** Ekolod är taggade brett (`jigg`, `spinn`), eftersom man kan använda ekolod när man jiggar. Utan viktning dominerade ekolod och kustlina över jiggspön och jiggar på jiggfiskesidan, trots att en besökare där vill se kärnutrustning. Sortimentet fanns, rankningen begravde det. Viktningen lyfter det en teknikbesökare faktiskt söker och gör sidan trovärdig även innan sortimentet växer.
+
+**Vad som skulle ändra det.** Att sortimentet blev så teknikspecifikt taggat att breda tillbehör inte längre matchar fel tekniker. Då behövs ingen viktning. Vid brett taggade tillbehör krävs den.
+
+---
+
+### Sidebar-kortet roterar ekolod deterministiskt per destination
+
+**Beslut.** Det kompakta produktkortet i destinationernas sidokolumn (`variant="sidebar"`) visar ett ekolod ur budget/mellanklasspoolen, valt med en hash av destinationens slug. Samma vatten visar alltid samma ekolod, olika vatten sprids över poolen. Kortet är dolt på mobil (`hidden lg:block`) och `recommendedGear` överstyr rotationen.
+
+**Skäl.** Ekolod har bäst ordervärde och passar destinationskontexten, någon som lär känna ett nytt vatten. Men ett ekolod är inte vattenspecifikt, så all variation är i grunden godtycklig. Att visa samma modell på alla 41 destinationer såg automatiserat ut. Deterministisk rotation på slugen ger stabil variation utan manuellt arbete och utan att påstå en relevans som inte finns: kortet säger "bra att ha på vattnet", vilket är sant för alla ekolod. Premiummodellerna utesluts ur poolen så ett dyrt ekolod inte dyker upp slumpvis. Mobildöljningen finns för att kortet annars dubblerar full-modulen som ligger i flödet.
+
+**Vad som skulle ändra det.** Att ekolod blev genuint vattenspecifika (djupintervall, sötvatten mot kust) och kunde matchas mot `waterType` i stället för roteras. Då blir matchning bättre än rotation. Så länge skillnaden mellan modeller är för liten för att motivera en äkta matchning är stabil rotation det ärliga valet.
+
+---
+
 ## Vid kloning till ny marknad
 
 Följande är **portabelt** och gäller oavsett land:
@@ -159,6 +201,10 @@ Följande är **portabelt** och gäller oavsett land:
 - Flöde vägs inte in i betningsmodellen förrän det finns källbelagd forskning för den marknadens arter.
 - Historiska normaler krävs för att en flödessiffra ska betyda något. Räkna dem ur arkivet en gång och checka in dem.
 - Reglerat mot oreglerat är den viktigaste tolkningsnyckeln för flöde. I ett korttidsreglerat vatten är ett dygnsmedelvärde nästintill oanvändbart för dagsplanering.
+- Internlänkning mot produktsidor härleds ur produkternas egna taggfält, inte ur manuella listor per sida. Mönstret (filtrera på art, teknik, vattentyp; override möjlig men inte förstahandsval) är portabelt. `GearModul.astro` flyttar med i stort sett oförändrad.
+- Produktfält som också beskriver bettyp (`techniques`) hålls isär från sidslugarna via en aliastabell, inte genom normalisering. Principen är portabel även om tabellens innehåll är lokalt.
+- Kärnutrustning viktas före tillbehör på tekniksidor. Principen är portabel. Vilka kategorier som är kärna respektive tillbehör beror på sortimentet och är lokalt.
+- Sidebar-kortet roterar en högmarginalkategori deterministiskt per destination. Rotationslogiken är portabel. Att kategorin är just ekolod är ett val för den svenska marknadens sortiment och ordervärde.
 
 Följande är **lokalt** och måste byggas om:
 
@@ -167,3 +213,6 @@ Följande är **lokalt** och måste byggas om:
 - Väderkällan och stationsmatchningen
 - Kostråd och miljögiftsråd
 - Fiskekortssystemet och affiliatepartners
+- Aliastabellen `TEKNIK_ALIAS` i `GearModul.astro`: marknadens tekniknamn och deras sidslugar
+- Kategorivikterna `KATEGORI_VIKT`: vilka produktkategorier som räknas som kärnutrustning
+- Sidebar-rotationens kategori: vilken högmarginalkategori som lyfts i destinationernas sidokolumn

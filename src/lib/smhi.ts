@@ -9,7 +9,7 @@
  */
 
 import stationsData from '../data/smhi-stations.json';
-import { getScore, SPECIES } from '../data/calendar';
+import { getScore, getScoreLabel, SPECIES } from '../data/calendar';
 import type { DayForecast } from './forecast';
 
 // ---------------------------------------------------------------------------
@@ -193,9 +193,10 @@ export function getBiteScore(
 
   const score = Math.max(0, Math.min(100, Math.round(raw)));
 
-  if (score >= 68) return { label: 'Toppläge',       color: 'green', score, dots: 3 };
-  if (score >= 42) return { label: 'Värt att testa', color: 'amber', score, dots: 2 };
-  return                  { label: 'Trögt',          color: 'stone', score, dots: 1 };
+  // Trösklarna ägs av getScoreLabel i calendar.ts och räknas inte om här.
+  const { label, color } = getScoreLabel(score);
+  const dots = color === 'green' ? 3 : color === 'amber' ? 2 : 1;
+  return { label, color: color as 'green' | 'amber' | 'stone', score, dots };
 }
 
 // ---------------------------------------------------------------------------
@@ -303,8 +304,8 @@ export function getOutlook(
     raw = Math.round(raw);
     const score = Math.max(0, Math.min(100, raw));
 
-    const label = score >= 68 ? 'Toppläge' : score >= 42 ? 'Värt att testa' : 'Trögt';
-    const color: 'green' | 'amber' | 'stone' = score >= 68 ? 'green' : score >= 42 ? 'amber' : 'stone';
+    // Trösklarna ägs av getScoreLabel i calendar.ts och räknas inte om här.
+    const { label, color } = getScoreLabel(score) as { label: string; color: 'green' | 'amber' | 'stone' };
 
     return {
       date: day.date,

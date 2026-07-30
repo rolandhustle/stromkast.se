@@ -2,12 +2,15 @@
  * src/components/KalenderWidget.tsx
  *
  * Interaktiv nappkalender med dagsvyer, artfilter och regionfilter.
- * Två lager per dag: säsongsfärg (bakgrund) + månfaschip (daglig variation).
+ * Varje dag visar sin totalpoäng (säsong + måne + väder) på tre sätt:
+ * bakgrundsfärg, stapel och siffra. Alla tre härleds ur samma poäng genom
+ * getScoreLabel i calendar.ts, så trösklarna finns på ett enda ställe.
+ * Månfasen syns dessutom som nyansdjup inom färgnivån.
  * Prognosdagar markeras med SMHI-badge.
  */
 
 import { useState, useMemo, useEffect } from 'react';
-import { getScore, moonColorIntensity, REGIONS as REGION_DATA } from '../data/calendar';
+import { getScore, getScoreLabel, moonColorIntensity, REGIONS as REGION_DATA } from '../data/calendar';
 
 function useIsMobile(breakpoint = 768): boolean {
   const [isMobile, setIsMobile] = useState(true);
@@ -93,7 +96,12 @@ function windDirLabel(deg: number): string {
 }
 
 // ---------------------------------------------------------------------------
-// Säsongsfärg (bakgrund per dag) -- baseras enbart på säsong
+// Dagsfärg -- härleds ur totalpoängen via getScoreLabel i calendar.ts
+//
+// Trösklarna 68 och 42 räknas aldrig om här. Widgeten frågar calendar.ts vilken
+// nivå en poäng hör till och slår upp paletten på färgnamnet. Samma poäng styr
+// bakgrund, stapel, siffra och etikett, så de kan inte glida isär.
+// Månfasen syns som nyansdjup inom nivån, inte som egen nivå.
 // ---------------------------------------------------------------------------
 
 // moonColorIntensity 0..1 → nyanssteg 0=låg, 1=medel, 2=hög (utspridd runt ny/full)
@@ -106,41 +114,41 @@ function moonIntensity(intensity: number): 0 | 1 | 2 {
 // Fredad (stängt fiske): egen lugn slate-ton, inte grå "Trögt"
 const FREDAD_STYLE = { bg: '#f1f5f9', border: '#cbd5e1', textColor: '#475569' };
 
-function getSeasonStyle(seasonScore: number, date: string | null = null): {
+// Tre nyanser per nivå -- ljusare = sämre månfas, mörkare = bättre månfas
+const PALETTES = {
+  green: [
+    { bg: '#f0fdf4', border: '#d1fae5', textColor: '#166534' }, // låg månfas
+    { bg: '#dcfce7', border: '#bbf7d0', textColor: '#166534' }, // neutral
+    { bg: '#bbf7d0', border: '#6ee7b7', textColor: '#065f46' }, // gynnsam
+  ],
+  amber: [
+    { bg: '#fffbeb', border: '#fef3c7', textColor: '#92400e' },
+    { bg: '#fef3c7', border: '#fde68a', textColor: '#92400e' },
+    { bg: '#fde68a', border: '#fbbf24', textColor: '#78350f' },
+  ],
+  stone: [
+    { bg: '#f9fafb', border: '#f3f4f6', textColor: '#6b7280' },
+    { bg: '#f3f4f6', border: '#e5e7eb', textColor: '#6b7280' },
+    { bg: '#e5e7eb', border: '#d1d5db', textColor: '#4b5563' },
+  ],
+  slate: [FREDAD_STYLE, FREDAD_STYLE, FREDAD_STYLE],
+};
+
+// Stapelfärg per nivå, samma färgnamn som getScoreLabel returnerar
+const BAR_COLOR = {
+  green: '#16a34a',
+  amber: '#d97706',
+  stone: '#9ca3af',
+  slate: '#94a3b8',
+};
+
+function getScoreStyle(score: number, closed = false, date: string | null = null): {
   bg: string; border: string; textColor: string;
 } {
-  // Säsongston från dagens faktiska säsongspoäng (samma trösklar som överallt),
-  // så tonen kan byta mitt i månaden när kurvan korsar 68 eller 42.
-  const level: 'peak' | 'ok' | 'low' =
-    seasonScore >= 68 ? 'peak' : seasonScore >= 42 ? 'ok' : 'low';
-
+  const { color } = getScoreLabel(score, closed);
+  if (color === 'slate') return FREDAD_STYLE;
   const mi = date ? moonIntensity(moonColorIntensity(new Date(date + 'T12:00:00Z'))) : 1;
-
-  // Tre nyanser per säsongsnivå -- ljusare = sämre månfas, mörkare = bättre månfas
-  const PALETTES = {
-    peak: [
-      { bg: '#f0fdf4', border: '#d1fae5', textColor: '#166534' }, // låg månfas
-      { bg: '#dcfce7', border: '#bbf7d0', textColor: '#166534' }, // neutral
-      { bg: '#bbf7d0', border: '#6ee7b7', textColor: '#065f46' }, // gynnsam
-    ],
-    ok: [
-      { bg: '#fffbeb', border: '#fef3c7', textColor: '#92400e' },
-      { bg: '#fef3c7', border: '#fde68a', textColor: '#92400e' },
-      { bg: '#fde68a', border: '#fbbf24', textColor: '#78350f' },
-    ],
-    low: [
-      { bg: '#f9fafb', border: '#f3f4f6', textColor: '#6b7280' },
-      { bg: '#f3f4f6', border: '#e5e7eb', textColor: '#6b7280' },
-      { bg: '#e5e7eb', border: '#d1d5db', textColor: '#4b5563' },
-    ],
-    off: [
-      { bg: '#f9fafb', border: '#f3f4f6', textColor: '#9ca3af' },
-      { bg: '#f3f4f6', border: '#e5e7eb', textColor: '#9ca3af' },
-      { bg: '#e5e7eb', border: '#d1d5db', textColor: '#6b7280' },
-    ],
-  };
-
-  return PALETTES[level][mi];
+  return PALETTES[color][mi];
 }
 
 
@@ -223,6 +231,7 @@ function MonthGrid({
   speciesSlug: string | null; species: SpeciesInfo[];
   onDayClick: (date: string) => void; selectedDate: string | null; today: string;
 }) {
+  const isMobile = useIsMobile();
   const firstDay = new Date(`${year}-${String(month).padStart(2,'0')}-01`);
   let startDow = firstDay.getDay() - 1;
   if (startDow < 0) startDow = 6;
@@ -251,12 +260,13 @@ function MonthGrid({
         {cells.map((date, i) => {
           if (!date) return <div key={i}></div>;
 
-          const { isPrognosis, season: seasonScore, closed } = getDayScore(date, region, forecasts, speciesSlug, species);
+          const { isPrognosis, score, closed } = getDayScore(date, region, forecasts, speciesSlug, species);
           const moon       = moonDays.find(m => m.date === date);
           const d          = new Date(date + 'T12:00:00Z');
           const month      = d.getUTCMonth() + 1;
           const dayNum     = d.getUTCDate();
-          const season     = closed ? FREDAD_STYLE : getSeasonStyle(seasonScore, date);
+          const season     = getScoreStyle(score, closed, date);
+          const barColor   = BAR_COLOR[getScoreLabel(score, closed).color];
           const isToday    = date === today;
           const isSelected = date === selectedDate;
 
@@ -267,7 +277,8 @@ function MonthGrid({
               style={{
                 position: 'relative',
                 borderRadius: '10px',
-                padding: '6px 4px 5px',
+                padding: '6px 4px 0',
+                overflow: 'hidden',
                 border: isSelected
                   ? '2px solid #1F3A2E'
                   : isToday
@@ -300,18 +311,25 @@ function MonthGrid({
               {/* Datum (mitten, fokus) */}
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1px' }}>
                 <span style={{ fontSize: '15px', fontWeight: 700, color: season.textColor, lineHeight: 1 }}>{dayNum}</span>
-                {closed && (
+                {closed ? (
                   <span style={{ fontSize: '8px', fontWeight: 700, color: '#475569', lineHeight: 1, letterSpacing: '0.03em', textTransform: 'uppercase' }}>Fredad</span>
+                ) : !isMobile && (
+                  <span style={{ fontSize: '10px', fontWeight: 600, color: season.textColor, opacity: 0.7, lineHeight: 1 }}>{score}</span>
                 )}
               </div>
 
-              {/* Bottenrad: månsymbol och idag-markering */}
+              {/* Bottenrad: månsymbol. Idag markeras av ramen, inte av en prick,
+                  eftersom en mörk prick är omöjlig att skilja från 🌑 nymåne. */}
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: '4px', minHeight: '14px' }}>
                 {moon && (moon.phase === 'Fullmåne' || moon.phase === 'Nymåne') && (
                   <span style={{ fontSize: '12px', lineHeight: 1 }}>{moon.emoji}</span>
                 )}
-                {isToday && (
-                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#1F3A2E', display: 'inline-block', marginBottom: '3px' }}></span>
+              </div>
+
+              {/* Poängstapel: samma poäng som färgen och siffran */}
+              <div style={{ height: '4px', marginTop: '4px', background: 'rgba(0,0,0,0.06)', width: '100%' }}>
+                {!closed && (
+                  <div style={{ height: '100%', width: `${score}%`, background: barColor }}></div>
                 )}
               </div>
             </button>
@@ -343,18 +361,18 @@ function DayPanel({
   const norm       = climateNormals[region]?.[month - 1];
   const { score, season: seasonScore, moonAdj, weatherAdj, isPrognosis, closed } = getDayScore(date, region, forecasts, speciesSlug, species);
   const moonScore = moon?.score ?? 5;
-  const season     = closed ? FREDAD_STYLE : getSeasonStyle(seasonScore, date);
 
+  // Chipet färgas av samma poäng som står i det, via samma trösklar som rutan
+  const season     = getScoreStyle(score, closed, date);
+  const scoreLabel = getScoreLabel(score, closed).label;
+
+  // Säsongsnivån är en egen upplysning om arten och använder därför sina egna
+  // ord, men trösklarna kommer fortfarande från getScoreLabel.
+  const SEASON_WORD = { green: 'Högsäsong', amber: 'Bra säsong', stone: 'Lågsäsong', slate: 'Fredad' };
   const speciesData = speciesSlug ? species.find(s => s.slug === speciesSlug) : null;
   const artSeason   = speciesData
-    ? closed ? 'Fredad'
-    : seasonScore >= 68 ? 'Högsäsong'
-    : seasonScore >= 42 ? 'Bra säsong'
-    : 'Lågsäsong'
+    ? SEASON_WORD[getScoreLabel(seasonScore, closed).color]
     : null;
-
-  const scoreColor = score >= 68 ? '#16a34a' : score >= 42 ? '#d97706' : '#9ca3af';
-  const scoreLabel = score >= 68 ? 'Toppläge' : score >= 42 ? 'Värt att testa' : 'Trögt';
 
   const moonDots = moonScore >= 8 ? 3 : moonScore >= 6 ? 2 : 1;
   const moonColor = moonScore >= 8 ? '#6366f1' : moonScore >= 6 ? '#8b5cf6' : '#c4b5fd';
@@ -568,11 +586,12 @@ export default function KalenderWidget({
 
         {/* Förklaring */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: isMobile ? '8px 14px' : '16px', marginTop: '12px', paddingTop: '10px', borderTop: '1px solid #f3f4f6', alignItems: 'center' }}>
-          <span style={{ fontSize: '11px', color: '#374151', fontWeight: 600 }}>Bakgrundsfärg = säsong:</span>
+          <span style={{ fontSize: '11px', color: '#374151', fontWeight: 600 }}>Färg och stapel = dagens poäng:</span>
           {[
-            { color: '#f0fdf4', border: '#bbf7d0', label: 'Högsäsong' },
-            { color: '#fffbeb', border: '#fde68a', label: 'Bra säsong' },
-            { color: '#f9fafb', border: '#e5e7eb', label: 'Lågsäsong'  },
+            { color: '#dcfce7', border: '#bbf7d0', label: 'Toppläge'       },
+            { color: '#fef3c7', border: '#fde68a', label: 'Värt att testa' },
+            { color: '#f3f4f6', border: '#e5e7eb', label: 'Trögt'          },
+            { color: '#f1f5f9', border: '#cbd5e1', label: 'Fredad'         },
           ].map(({ color, border, label }) => (
             <span key={label} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#6b7280' }}>
               <span style={{ width: '14px', height: '14px', borderRadius: '4px', background: color, border: `1.5px solid ${border}`, display: 'inline-block', flexShrink: 0 }}></span>
@@ -640,7 +659,7 @@ export default function KalenderWidget({
               </div>
               <div style={{ padding: '0.5rem' }}>
                 {monthScores.map(({ month, score, closed }) => {
-                  const seasonSt = closed ? FREDAD_STYLE : getSeasonStyle(score, null);
+                  const seasonSt = getScoreStyle(score, closed, null);
                   const isSel    = month === selectedMonth;
                   const isNow    = month === currentMonth;
                   return (
@@ -671,7 +690,7 @@ export default function KalenderWidget({
 
           <div style={{ background: '#f9fafb', borderRadius: '12px', padding: '0.875rem 1rem', marginTop: isMobile ? '0' : 'auto' }}>
             <p style={{ fontSize: '11px', color: '#6b7280', lineHeight: 1.6, margin: 0 }}>
-              <strong style={{ color: '#374151' }}>Färgton</strong> = säsong × månfas. Mörkare färg = mer gynnsam månfas den dagen. 🌕🌑 visas vid fullmåne och nymåne. <strong style={{ color: '#2563eb' }}>SMHI</strong> = aktuell prognos.
+              <strong style={{ color: '#374151' }}>Färg, stapel och siffra</strong> visar samma poäng: säsong plus månfas, och väder de närmaste tio dygnen. Mörkare nyans = mer gynnsam månfas. 🌕🌑 visas vid fullmåne och nymåne. <strong style={{ color: '#2563eb' }}>SMHI</strong> = dagar där prognosen vägs in.
             </p>
           </div>
         </div>

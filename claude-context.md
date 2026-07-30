@@ -24,6 +24,7 @@ src/components/ekolodvaljare/EkolodValjare.tsx
 src/components/ekolodvaljare/EkolodValjareIsland.astro
 src/components/FiskeKarta.tsx
 src/components/Footer.astro
+src/components/GearModul.astro
 src/components/Header.astro
 src/components/KalenderWidget.tsx
 src/components/linvaljare
@@ -40,13 +41,16 @@ src/content.config.ts
 src/content/.DS_Store
 src/content/articles
 src/content/articles/.DS_Store
+src/content/articles/aluminiumbat-eller-plastbat.mdx
 src/content/articles/basta-ekolod.mdx
 src/content/articles/basta-fiskespon-2026.mdx
 src/content/articles/basta-gaddbeten.mdx
+src/content/articles/battrailer-b-korkort.mdx
 src/content/articles/nappkalender-guide.mdx
 src/content/articles/valja-fiskebat.mdx
 src/content/articles/valja-fiskelina.mdx
 src/content/articles/vattenforing-och-fiske.mdx
+src/content/articles/vilken-utombordare.mdx
 src/content/authors
 src/content/authors/rikard-giby.json
 src/content/destinations
@@ -998,6 +1002,255 @@ const orgSchema = {
   <script type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
 </footer>
 ```
+
+## src/components/GearModul.astro
+```
+---
+// GearModul.astro
+// Genererar en utrustningsmodul ur gear-reviews genom att filtrera pa arter,
+// tekniker och vattentyp. Samma komponent pa art-, teknik- och destinationssidor.
+//
+// Urvalsordning:
+//   1. manualSlugs renderas forst, i angiven ordning (redaktionell kuratering)
+//   2. resten fylls pa med harledda traffar tills `limit` ar nadd
+//   Sa behaller du kontrollen dar du satt gearRecs, och far automatik dar den ar tom.
+//
+// Filtrering:
+//   species[]    matchar targetSpecies (foldat, sa gadda == gädda)
+//   techniques[] matchar techniques via TEKNIK_ALIAS (jigg -> jiggfiske)
+//   waterType    'coastal' doljer rena insjobeten
+//
+// Prisspridning: den harledda delen valjer en ur varje prisklass forst
+// (budget/mellanklass/premium), sa modulen inte fylls med bara premium.
+import { getCollection } from 'astro:content';
+import AffiliateCard from './AffiliateCard.astro';
+
+interface Props {
+  species?: string[];
+  techniques?: string[];
+  waterType?: string;
+  manualSlugs?: string[];
+  limit?: number;
+  heading?: string;
+  categoryHref?: string;
+  variant?: 'full' | 'sidebar';
+  sidebarRotateCategory?: string;
+  rotateKey?: string;
+}
+
+const {
+  species = [],
+  techniques = [],
+  waterType,
+  manualSlugs = [],
+  limit = 4,
+  heading = 'Utrustning',
+  categoryHref = '/utrustning/',
+  variant = 'full',
+  sidebarRotateCategory,
+  rotateKey = '',
+} = Astro.props;
+
+// gear-review techniques-taxonomi -> tekniksidans slug.
+// HALL I SYNK med speglingen TEKNIK_ALIAS i check-content.mjs.
+// jerkbait och wobbler ar betestyper, inte tekniksidor. Utelamnas medvetet.
+const TEKNIK_ALIAS: Record<string, string> = {
+  jigg: 'jiggfiske',
+  spinn: 'spinnfiske',
+  dropshot: 'dropshot',
+  trolling: 'trolling',
+  vertikal: 'vertikalfiske',
+  vertikalfiske: 'vertikalfiske',
+  mete: 'mete',
+  isfiske: 'isfiske',
+  flugfiske: 'flugfiske',
+  havsfiske: 'havsfiske',
+};
+
+// Kategorivikt for tekniksidor. Nar tekniken ar det aktiva filtret ska
+// karnutrustning (spon, beten) rankas fore tillbehor (rullar, linor, ekolod).
+// Lagre tal = hogre upp. Okand kategori hamnar i mitten.
+const KATEGORI_VIKT: Record<string, number> = {
+  spon: 0, jerkbaits: 0, wobblers: 0, jiggar: 0, spinnare: 0, kustdrag: 0,
+  trollingspon: 1,
+  haspelrullar: 2,
+  flatlinor: 3, fluorocarbon: 3, nylon: 3,
+  ekolod: 4, batar: 4, elmotorer: 4, utombordare: 4, battrailers: 4,
+};
+const fold = (str: string) =>
+  str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+const viktAv = (cat: string) => KATEGORI_VIKT[fold(cat)] ?? 2;
+
+const wantSpecies = new Set(species.map(fold));
+const wantTech = new Set(techniques.map((t) => TEKNIK_ALIAS[fold(t)] ?? fold(t)));
+
+const reviews = await getCollection('gear-reviews');
+
+// --- 1. Manuellt kuraterade, i angiven ordning ---
+const manual = manualSlugs
+  .map((slug) => reviews.find((r) => r.data.slug === slug || r.id === slug))
+  .filter((r): r is (typeof reviews)[number] => Boolean(r));
+
+// --- 2. Harledda traffar ---
+const derived = reviews.filter((r) => {
+  const d = r.data;
+
+  const rSpecies = (d.targetSpecies ?? []).map(fold);
+  const rTech = (d.techniques ?? []).map((t: string) => TEKNIK_ALIAS[fold(t)] ?? fold(t));
+
+  const speciesHit = wantSpecies.size === 0 || rSpecies.some((x) => wantSpecies.has(x));
+  const techHit = wantTech.size === 0 || rTech.some((x) => wantTech.has(x));
+
+  if (wantSpecies.size && wantTech.size) {
+    if (!speciesHit && !techHit) return false;
+  } else if (!speciesHit || !techHit) {
+    return false;
+  }
+
+  if (waterType === 'coastal' && fold(d.category ?? '') === 'jerkbaits') return false;
+
+  return true;
+});
+
+// --- Sammanfogning med prisspridning pa den harledda delen ---
+const RANK = ['budget', 'mellanklass', 'premium'];
+const byRating = (a: (typeof reviews)[number], b: (typeof reviews)[number]) =>
+  (b.data.rating ?? 0) - (a.data.rating ?? 0);
+
+  // Pa tekniksidor: kategorivikt forst, betyg som tiebreak. Annars bara betyg.  
+const isTechFilter = wantTech.size > 0 && wantSpecies.size === 0;
+const sortByRelevance = (a: (typeof reviews)[number], b: (typeof reviews)[number]) => {
+  if (isTechFilter) {
+    const w = viktAv(a.data.category ?? '') - viktAv(b.data.category ?? '');
+    if (w !== 0) return w;
+  }
+  return byRating(a, b);
+};
+
+const picked: (typeof reviews)[number][] = [];
+const seen = new Set<string>();
+
+for (const r of manual) {
+  if (picked.length >= limit) break;
+  if (!seen.has(r.id)) { picked.push(r); seen.add(r.id); }
+}
+
+for (const klass of RANK) {
+  if (picked.length >= limit) break;
+  const best = derived
+    .filter((r) => fold(r.data.priceRange ?? '') === klass && !seen.has(r.id))
+    .sort(sortByRelevance)[0];
+  if (best) { picked.push(best); seen.add(best.id); }
+}
+
+for (const r of [...derived].sort(sortByRelevance)) {
+  if (picked.length >= limit) break;
+  if (!seen.has(r.id)) { picked.push(r); seen.add(r.id); }
+}
+
+const hasProducts = picked.length > 0;
+// Sidebar pa destinationer: rotera ett ekolod ur budget/mellanklass, stabilt
+// per destination. Samma slug ger alltid samma ekolod, olika slugs sprids over
+// poolen. manualSlugs vinner: har redaktoren satt ett forstaval anvands det.
+function hashStr(str: string): number {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+const sidebarPick = (() => {
+  if (manual.length > 0) return picked[0];
+  if (!sidebarRotateCategory) return picked[0];
+  const pool = reviews
+    .filter((r) =>
+      fold(r.data.category ?? '') === fold(sidebarRotateCategory) &&
+      ['budget', 'mellanklass'].includes(fold(r.data.priceRange ?? ''))
+    )
+    .sort((a, b) => a.id.localeCompare(b.id));
+  if (pool.length === 0) return picked[0];
+  return pool[hashStr(rotateKey) % pool.length];
+})();
+---
+
+{variant === 'sidebar' ? (
+  hasProducts ? (
+    <div class="hidden lg:block bg-white border border-mist rounded-2xl p-6">
+      <p class="text-stone text-xs uppercase tracking-wider font-medium mb-3">{heading}</p>
+      {[sidebarPick].map((r) => (
+        <div>
+          <div class="w-full aspect-square rounded-xl bg-mist overflow-hidden mb-4">
+            <img src={r.data.heroImage} alt={r.data.title} loading="lazy" class="w-full h-full object-contain p-3" onerror="this.style.display='none'" />
+          </div>
+          <p class="text-xs text-stone font-medium">{r.data.brand}</p>
+          <p class="font-display font-bold text-deep text-base leading-snug mb-2">{r.data.title}</p>
+          <div class="flex items-center gap-1.5 mb-3">
+            <div class="flex items-center gap-0.5" role="img" aria-label={`Betyg ${r.data.rating} av 5`}>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <svg width="12" height="12" viewBox="0 0 14 14" fill={i < Math.round(r.data.rating) ? '#B45D3C' : '#E8E4DC'} aria-hidden="true">
+                  <path d="M7 1l1.5 3.5L12 5l-2.5 2.5.5 3.5L7 9.5 4 11l.5-3.5L2 5l3.5-.5L7 1z"/>
+                </svg>
+              ))}
+            </div>
+            <span class="text-xs text-stone">{r.data.rating}</span>
+          </div>
+          <p class="text-2xl font-bold text-deep leading-none mb-1">
+            {new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK', maximumFractionDigits: 0 }).format(r.data.price)}
+          </p>
+          <p class="text-stone text-xs mb-4">{r.data.merchant}</p>
+          <a
+            href={r.data.affiliateUrl || '#'}
+            target="_blank"
+            rel="noopener noreferrer sponsored"
+            class="flex items-center justify-center gap-2 w-full bg-pine text-white font-bold text-sm px-4 py-3 rounded-full hover:bg-deep transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
+            data-affiliate-merchant={r.data.merchant}
+            data-affiliate-product={r.data.slug}
+          >
+            Se pris hos {r.data.merchant}
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path d="M2 12L12 2M12 2H6M12 2v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+          <p class="text-xs text-stone/60 text-center mt-3">*Affiliatelänk. Vi tjänar en provision utan kostnad för dig.</p>
+        </div>
+      ))}
+    </div>
+  ) : null
+) : hasProducts ? (
+  <section class="not-prose pt-10 border-t border-mist" aria-labelledby="gearmodul-rubrik">
+    <h2 id="gearmodul-rubrik" class="font-display text-2xl font-bold text-deep mb-2">{heading}</h2>
+    <p class="text-stone text-sm mb-8">Utrustning som passar det här fisket.</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {picked.map((r) => (
+        <AffiliateCard
+          title={r.data.title}
+          brand={r.data.brand}
+          price={r.data.price}
+          rating={r.data.rating}
+          description={r.data.description}
+          image={r.data.heroImage}
+          affiliateUrl={r.data.affiliateUrl}
+          merchant={r.data.merchant}
+          slug={r.data.slug}
+          featured={r.data.featured}
+          budgetPick={r.data.budgetPick}
+        />
+      ))}
+    </div>
+    <p class="text-sm text-stone mt-6">
+      Se fler alternativ under <a href={categoryHref} class="text-sky hover:text-pine underline underline-offset-2">utrustning</a>.
+    </p>
+  </section>
+) : (
+  <section class="not-prose pt-10 border-t border-mist">
+    <a href={categoryHref} class="inline-flex items-center gap-1.5 text-pine font-semibold text-sm hover:text-deep transition-colors">
+      Se all vår testade utrustning
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </section>
+)}```
 
 ## src/components/Header.astro
 ```
@@ -3875,6 +4128,7 @@ import AffiliateCard from '../../components/AffiliateCard.astro';
 import { getCollection, render } from 'astro:content';
 import { Image, type ImageMetadata } from 'astro:assets';
 import { SPECIES, getScore, MONTHS_SV } from '../../data/calendar';
+import GearModul from '../../components/GearModul.astro';
 
 import abboreSrc from '../../assets/images/species-abborre.png';
 import gosSrc    from '../../assets/images/species-gos.png';
@@ -4111,6 +4365,15 @@ const difficultyColor: Record<string, string> = {
           </div>
         )}
 
+        <!-- Utrustning: manuellt kuraterad via gearRecs, annars harledd ur targetSpecies -->
+        <GearModul
+          species={[s.slug]}
+          manualSlugs={s.gearRecs}
+          limit={6}
+          heading="Rekommenderad utrustning"
+          categoryHref="/utrustning/"
+        />
+
         <!-- FAQ -->
         {s.faq && s.faq.length > 0 && (
           <div class="mt-16">
@@ -4248,32 +4511,16 @@ const difficultyColor: Record<string, string> = {
             </svg>
           </a>
         </div>
+
+        <!-- Produktkort, syns bara pa desktop, doljs pa mobil for att inte dubblera modulen nedan -->
+        <GearModul
+          species={[s.slug]}
+          manualSlugs={s.gearRecs}
+          variant="sidebar"
+          heading="Vårt val"
+        />
       </aside>
     </div>
-
-    <!-- Recommended gear -->
-    {gearRecs.length > 0 && (
-      <div class="mt-16">
-        <h2 class="font-display text-2xl font-bold text-deep mb-2">Rekommenderad utrustning</h2>
-        <p class="text-stone text-sm mb-8">Testad utrustning för {s.title.toLowerCase()}fiske.</p>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {gearRecs.map((review) => (
-            <AffiliateCard
-              title={review.data.title}
-              brand={review.data.brand}
-              price={review.data.price}
-              rating={review.data.rating}
-              description={review.data.description}
-              image={review.data.heroImage}
-              affiliateUrl={review.data.affiliateUrl}
-              merchant={review.data.merchant}
-              slug={review.data.slug}
-              featured={review.data.featured}
-            />
-          ))}
-        </div>
-      </div>
-    )}
   </div>
 </BaseLayout>
 ```
@@ -4435,6 +4682,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import AffiliateCard from '../../components/AffiliateCard.astro';
 import DestinationMap from '../../components/DestinationMap.tsx';
+import GearModul from '../../components/GearModul.astro';
 import { getCollection, render } from 'astro:content';
 import {
   fetchSMHIForCoords,
@@ -4812,6 +5060,16 @@ const faqSchema = {
           <Content />
         </div>
 
+        <!-- Utrustning: manuellt via recommendedGear, annars harledd ur primarySpecies + waterType -->
+        <GearModul
+          species={d.primarySpecies}
+          waterType={d.waterType}
+          manualSlugs={d.recommendedGear}
+          limit={6}
+          heading="Rekommenderad utrustning"
+          categoryHref="/utrustning/"
+        />
+
         <!-- FAQ -->
         <div class="mt-16">
           <h2 class="font-display text-2xl font-bold text-deep mb-6">Vanliga frågor</h2>
@@ -4920,32 +5178,19 @@ const faqSchema = {
         <div class="rounded-2xl overflow-hidden aspect-square mb-6">
           <DestinationMap lat={d.lat} lng={d.lng} title={d.title} client:only="react" />
         </div>
+
+        <!-- Produktkort, syns bara pa desktop. Styr produkten via recommendedGear i frontmatter, annars harleds den. -->
+        <GearModul
+          species={d.primarySpecies}
+          waterType={d.waterType}
+          manualSlugs={d.recommendedGear}
+          variant="sidebar"
+          heading="Bra att ha på vattnet"
+          sidebarRotateCategory="ekolod"
+          rotateKey={d.slug}
+        />
       </aside>
     </div>
-
-    <!-- Recommended gear -->
-    {recommendedReviews.length > 0 && (
-      <div class="mt-16">
-        <h2 class="font-display text-2xl font-bold text-deep mb-2">Rekommenderad utrustning</h2>
-        <p class="text-stone text-sm mb-8">Testad och rekommenderad utrustning för fiske i {d.title}.</p>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {recommendedReviews.map((review) => (
-            <AffiliateCard
-              title={review.data.title}
-              brand={review.data.brand}
-              price={review.data.price}
-              rating={review.data.rating}
-              description={review.data.description}
-              image={review.data.heroImage}
-              affiliateUrl={review.data.affiliateUrl}
-              merchant={review.data.merchant}
-              slug={review.data.slug}
-              featured={review.data.featured}
-            />
-          ))}
-        </div>
-      </div>
-    )}
   </div>
 </BaseLayout>
 ```
@@ -7144,6 +7389,7 @@ const howToSchema = {
 ```
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import GearModul from '../../components/GearModul.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -7314,6 +7560,14 @@ const faqSchema = t.faq && t.faq.length > 0 ? {
             </div>
           </div>
         )}
+
+        <!-- Utrustning: harledd ur tekniken via techniques-faltet, aliasoversatt i modulen -->
+        <GearModul
+          techniques={[t.slug]}
+          limit={6}
+          heading={`Utrustning för ${t.title.toLowerCase()}`}
+          categoryHref="/utrustning/"
+        />
 
         <!-- FAQ -->
         {t.faq && t.faq.length > 0 && (
@@ -10867,7 +11121,7 @@ description: "Tvåcylindrig fyrtaktare på 15 hk med kort rigg. 362 cm³, extern
 heroImage: "/images/gear/outl1-utombordare-15hk-kort.jpg"
 brand: "Outl1"
 category: "utombordare"
-price: 17999
+price: 14395
 rating: 4.0
 pros:
   - "Kort rigg matchar 38 cm akterspegel på mindre aluminiumbåtar"
@@ -10876,7 +11130,6 @@ pros:
   - "Maxeffekt för båtar i 3,8-metersklassen"
 cons:
   - "53 kg kräver två personer eller lyfthjälp vid montering"
-  - "Dyrare än långriggsversionen så länge dess kampanj pågår"
   - "Service och reservdelar hanteras via butiken, inte via ett märkesverkstadsnät"
 affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/batmotor-15-h-2-cylindrig-4-takt-kraftfull-effektiv-24-l-bransletank"
 merchant: "Outl1"
@@ -10892,7 +11145,7 @@ En tvåcylindrig fyrtaktare på 15 hk med kort rigg, 362 cm³ slagvolym, extern 
 
 Rigglängden är det viktiga valet mellan de två 15-hästarna i sortimentet, för motorblocket är identiskt. Kort rigg är byggd för låga akterspeglar, och aluminiumbåtarna i sortimentet har 38 cm akterspegel vilket motsvarar just kort rigg. Den som köper till en [3,8-metersbåt](/utrustning/test/lyfco-aluminiumbat-380-kategori-c/), där 15 hk är tillverkarens maxrekommendation, ska alltså ha den här varianten. Fel rigglängd ger antingen propellern för djupt med sämre verkningsgrad eller för grunt med kavitation.
 
-Vikten på 53 kg är värd att planera för. Det är mer än 3-metersekan väger totalt, och montering på akterspegeln är ett tvåpersonersjobb. Notera att [långriggsversionen](/utrustning/test/outl1-utombordare-15hk-lang/) just nu är billigare tack vare kampanj, men ett lägre pris gör inte fel rigglängd till rätt köp. Har din båt hög akterspegel är den däremot rätt val.
+Vikten på 53 kg är värd att planera för. Det är mer än 3-metersekan väger totalt, och montering på akterspegeln är ett tvåpersonersjobb. Priserna på de två varianterna rör sig med butikens kampanjer, men ett lägre pris gör inte fel rigglängd till rätt köp. Har din båt hög akterspegel är [långriggsversionen](/utrustning/test/outl1-utombordare-15hk-lang/) i stället rätt val.
 ```
 
 ## src/content/gear-reviews/outl1-utombordare-15hk-lang.mdx
@@ -10910,7 +11163,6 @@ pros:
   - "Lång rigg ger rätt propellerdjup vid hög akterspegel"
   - "362 cm³ ger kraftreserv även med last"
   - "Extern tank på 24 liter"
-  - "Kampanjpriset gör den billigast av de två 15-hästarna"
 cons:
   - "Fel val för båtar med låg akterspegel, som sortimentets aluminiumbåtar"
   - "Ingen viktuppgift angiven av butiken"
@@ -10927,7 +11179,7 @@ quizEnabled: false
 
 Samma tvåcylindriga fyrtaktare på 15 hk som kortriggsversionen, med 362 cm³ slagvolym, extern bränsletank på 24 liter, 11-tums propeller och manuell start med tillerstyrning. Skillnaden sitter i riggen: den här varianten är byggd för båtar med hög akterspegel, där en kort rigg skulle lägga propellern för grunt med kavitation och effektförlust som följd.
 
-Rätt hemvist är styrpulpetbåtar och andra skrov med hög akterspegel i ungefär 3,8- till 5-metersklassen. Sortimentets egna aluminiumbåtar hör inte dit, deras akterspegel på 38 cm motsvarar kort rigg, så den som köper motor till en av dem ska välja [kortriggsversionen](/utrustning/test/outl1-utombordare-15hk-kort/) trots att den kostar mer just nu. Rigglängd går före pris, en motor som sitter fel förlorar mer i verkningsgrad än prisskillnaden motiverar.
+Rätt hemvist är styrpulpetbåtar och andra skrov med hög akterspegel i ungefär 3,8- till 5-metersklassen. Sortimentets egna aluminiumbåtar hör inte dit, deras akterspegel på 38 cm motsvarar kort rigg, så den som köper motor till en av dem ska välja [kortriggsversionen](/utrustning/test/outl1-utombordare-15hk-kort/). Rigglängd går före pris, en motor som sitter fel förlorar mer i verkningsgrad än prisskillnaden motiverar.
 
 Butiken anger ingen vikt för den här varianten. Kortriggsversionen med samma block väger 53 kg och långriggen lär inte väga mindre, så räkna med ett tvåpersonersjobb vid montering. Priset 16 995 kr är ett kampanjpris som gäller till 29 juli 2026. Ordinarie pris är 19 995 kr.
 ```
@@ -10941,7 +11193,7 @@ description: "Tvåcylindrig fyrtaktare på 25 hk med kort rigg. 498 cm³, extern
 heroImage: "/images/gear/outl1-utombordare-25hk-kort.jpg"
 brand: "Outl1"
 category: "utombordare"
-price: 26988
+price: 20249
 rating: 3.9
 pros:
   - "498 cm³ ger stark acceleration och marschfart med last"
@@ -10965,7 +11217,7 @@ Sortimentets starkaste utombordare, en tvåcylindrig fyrtaktare på 25 hk med 49
 
 Effekten kräver en båt som är byggd för den. Av båtarna i sortimentet är det [4,2-metersmodellerna](/utrustning/test/lyfco-aluminiumbat-420-kategori-c/) med maxgräns 30 hk och [Katamaran 420](/utrustning/test/lyfco-katamaran-420/) med rekommendationen 15 till 25 hk som passar. På mindre båtar är motorn inte bara överdimensionerad utan otillåten, en akterspegel märkt för 15 hk ska inte bära 25. Kort rigg matchar aluminiumbåtarnas akterspegel på 38 cm.
 
-Vikten på 63 kg gör monteringen till ett jobb för två personer eller motorlyft, och den ska räknas in i båtens lastvikt. Den som har en båt med hög akterspegel väljer i stället [långriggsversionen](/utrustning/test/outl1-utombordare-25hk-lang/), som just nu dessutom är billigare på kampanj.
+Vikten på 63 kg gör monteringen till ett jobb för två personer eller motorlyft, och den ska räknas in i båtens lastvikt. Den som har en båt med hög akterspegel väljer i stället [långriggsversionen](/utrustning/test/outl1-utombordare-25hk-lang/).
 ```
 
 ## src/content/gear-reviews/outl1-utombordare-25hk-lang.mdx
@@ -10982,7 +11234,7 @@ rating: 3.9
 pros:
   - "Lång rigg ger rätt propellerdjup vid hög akterspegel"
   - "498 cm³ ger stark acceleration och marschfart med last"
-  - "Kampanjpriset gör den billigast av de två 25-hästarna"
+  - "Extern tank på 24 liter ingår"
 cons:
   - "Fel val för båtar med låg akterspegel, som sortimentets aluminiumbåtar"
   - "Ingen viktuppgift angiven av butiken"
@@ -35731,6 +35983,93 @@ Gösen i västra och centrala Mälaren slutar ofta växa vid 45–50 centimeters
 
 # Content: articles
 
+## src/content/articles/aluminiumbat-eller-plastbat.mdx
+```
+---
+title: "Aluminiumbåt eller plastbåt för fiske"
+slug: "aluminiumbat-eller-plastbat"
+description: "Aluminium eller glasfiber i fiskebåten? Vi jämför vikt, tålighet, underhåll, ljud och ekonomi över tid, och visar när varje material vinner."
+excerpt: "Aluminium eller glasfiber? Så skiljer sig materialen för fiskaren."
+heroImage: "/images/articles/aluminiumbat-eller-plastbat.jpg"
+publishedAt: "2026-07-26"
+updatedAt: "2026-07-26"
+author: "rikard-giby"
+category: "guide"
+faq:
+  - q: "Är aluminiumbåt bättre än plastbåt för fiske?"
+    a: "Det beror på fisket. Aluminium vinner på vikt, tålighet och underhåll, vilket passar den som drar båten på vagn och fiskar steniga vatten. Plast vinner på tyst gång och komfort, vilket märks vid försiktigt fiske och längre färder. Svensk båtpress som jämfört materialen landar i att svaret inte är givet."
+  - q: "Hur mycket lättare är en aluminiumbåt än en plastbåt?"
+    a: "Ungefär en fjärdedel lättare än ett motsvarande glasfiberskrov, enligt tillverkare som bygger i båda materialen. I praktiken betyder det enklare sjösättning, mindre krav på vagn och dragbil samt lägre bränsleförbrukning."
+  - q: "Klarar en aluminiumbåt saltvatten?"
+    a: "Ja, men den kräver offeranoder som skyddar skrovet mot galvanisk korrosion. Anoderna förbrukas och ska kontrolleras och bytas regelbundet. I sötvatten är korrosion sällan ett problem."
+  - q: "Varför bucklar aluminiumbåtar?"
+    a: "Aluminium ger efter vid slag i stället för att spricka. En buckla efter en grundstötning är oftast ett skönhetsfel som inte påverkar funktionen, medan motsvarande smäll i glasfiber kan ge sprickor som kräver reparation."
+---
+
+import ProduktRuta from '../../components/ProduktRuta.astro';
+
+Frågan om aluminium eller plast är fiskebåtsköparens klassiska vägval, och den har inget givet svar. Svensk båtpress som ställt materialen mot varandra i jämförande tester av samma skrovmodell har landat i just den slutsatsen: valet avgörs av hur båten ska användas, inte av att ett material är objektivt bättre. Den här guiden går igenom skillnaderna punkt för punkt ur fiskarens perspektiv, som ett fördjupande komplement till vår bredare [köpguide för fiskebåt](/guider/valja-fiskebat/).
+
+## Vikten styr mer än du tror
+
+Ett aluminiumskrov väger ungefär en fjärdedel mindre än motsvarande glasfiberskrov, enligt tillverkare som bygger jämförbara modeller i båda materialen. För en båt som ligger vid en brygga hela säsongen spelar det mindre roll. För fiskaren som sjösätter och tar upp båten själv är det den enskilt viktigaste skillnaden.
+
+Lägre vikt betyder att båten går att dra upp på en strand utan ramp, att en enklare [båtvagn](/utrustning/battrailers/) räcker, att dragbilen klarar ekipaget med marginal och att en mindre motor ger samma fart. En aluminiumeka på 3,8 meter väger 75 till 80 kg och hanteras av två personer. Motsvarande plastbåt närmar sig 100 kg eller mer, och skillnaden känns exakt i det ögonblick båten ska upp ur vattnet en blåsig oktoberkväll.
+
+## Tålighet och underhåll
+
+Materialens karaktär syns tydligast när något går fel. Aluminium ger efter vid slag och bucklar i stället för att spricka. En grundstötning på en sten lämnar ett märke, men skrovet håller tätt och båten fiskar vidare. Glasfiber är styvare och kan ta en smäll utan synligt spår, men när gränsen passeras spricker gelcoat och laminat, och då väntar en reparation som ska göras rätt för att inte släppa in fukt.
+
+Underhållet följer samma mönster. Ett aluminiumskrov behöver i praktiken ingenting: ingen bottenmålning i sötvatten, ingen vaxning, ingen ytbehandling mot solljus. Ett glasfiberskrov vill ha sin vårrustning med tvätt, vax och översyn av gelcoaten, och äldre plastbåtar med plywoodkärna i akterspegeln ska alltid kontrolleras för fukt, mjuk akterspegel är den klassiska dolda skadan på begagnatmarknaden.
+
+Undantaget där aluminium kräver skötsel är saltvatten. Galvanisk korrosion angriper aluminium i salt miljö, så kustfiskaren behöver offeranoder som kontrolleras och byts när de förbrukats. Det är en liten insats, men den får inte glömmas bort.
+
+## Ljudet, fiskarens egen faktor
+
+Här vinner plasten, och det är värt att säga rakt ut. Ett aluminiumskrov är ljudligt: vågskvalp mot bordläggningen, ett tappat betesask, steg i durken, allt hörs mer och fortplantas i vattnet. Glasfiber dämpar. För trolling i fart spelar det mindre roll, men för den som smyger på skygg fisk i grunda vikar är skrovljudet en verklig faktor, och en anledning till att många tävlingsfiskare klär durken i sina aluminiumbåtar med mattor.
+
+Gången i sjö skiljer sig också. Det lättare aluminiumskrovet rider högre och kan slå hårdare i krabb sjö, medan ett tyngre glasfiberskrov ofta går mjukare och tystare genom samma vågor. På skyddade insjövatten är skillnaden marginell, på öppna fjärdar märks den.
+
+## Ekonomin över tid
+
+Nyprisbilden har förändrats de senaste åren. Direktimporterade aluminiumbåtar har pressat instegspriserna till nivåer där en ny eka med garanti kostar mindre än många begagnade plastbåtar i gott skick. Samtidigt är begagnatmarknaden för glasfiber stor och billig, en äldre plasteka kan köpas för en bråkdel av nypriset, med förbehållet att besiktningen av skrov och akterspegel blir desto viktigare.
+
+Andrahandsvärdet talar för aluminium. Etablerade märken som Buster och Linder beskrivs av Blockets egna båtexperter som begagnatmarknadens säkraste kort, och även enklare aluminiumbåtar behåller värdet väl eftersom skicket är lätt att bedöma: det som syns är det som finns, medan en plastbåts verkliga skick kan gömma sig i laminatet.
+
+<ProduktRuta slug="lyfco-aluminiumbat-380-kategori-c" />
+
+## Jämförelsen i korthet
+
+| Egenskap | Aluminium | Plast (glasfiber) |
+|---|---|---|
+| Vikt | Cirka en fjärdedel lättare | Tyngre, kräver mer av vagn och bil |
+| Grundstötning | Bucklar, fiskar vidare | Risk för sprickor som kräver reparation |
+| Underhåll | I praktiken inget i sötvatten | Vårrustning, gelcoat, eventuell bottenmålning |
+| Saltvatten | Kräver offeranoder | Okänsligare för korrosion |
+| Ljud | Ljudligt skrov, dämpas med mattor | Tyst gång, bäst för smygfiske |
+| Gång i sjö | Rider högre, kan slå i krabb sjö | Mjukare och tystare genom vågor |
+| Andrahandsvärde | Stabilt, skicket syns utanpå | Lägre, dolda skador svårare att bedöma |
+| Begagnatutbud | Mindre och dyrare | Stort och billigt |
+
+## Begagnatköpet skiljer sig per material
+
+Materialvalet avgör också vad du ska leta efter på visningen. En begagnad aluminiumbåt är tacksam att bedöma: gå igenom svetsarna, leta korrosion kring nitar och infästningar, särskilt om båten gått i saltvatten, och kontrollera att bucklor inte sitter i köllinjen där de kan ha spänt konstruktionen. Det som syns är i regel allt som finns.
+
+En begagnad plastbåt kräver mer detektivarbete. Tryck på akterspegeln och lyssna efter det döva ljud som avslöjar fuktskadad plywood, granska gelcoaten efter krackelering och stjärnsprickor runt beslag, och titta under durken om det går. En plastbåt som stått uppallad fel kan dessutom ha deformerats. Inget av detta betyder att begagnad plast är ett dåligt köp, tvärtom görs där många fynd, men det betyder att köparen bär en större besiktningsbörda. Osäker på skrovets skick är en oberoende besiktning väl investerade pengar på båtar över tjugotusenkronorsstrecket.
+
+## När plast är rätt val
+
+En ärlig jämförelse kräver att plastens vinster får stå på egna ben. Välj glasfiber när tyst gång väger tyngst, när båten ska ligga i sjön hela säsongen i sötvatten, när komfort i vågor prioriteras över låg vikt, eller när budgeten pekar mot begagnatmarknaden där utbudet av plastbåtar är störst och priserna lägst. En välhållen begagnad plasteka är mycket båt för pengarna, förutsatt att akterspegeln är torr och skrovet helt. Vi säljer inga plastbåtar och tjänar inget på det rådet, vilket är precis därför det går att lita på.
+
+## Så väljer du
+
+Dra båten ofta på vagn, fiska steniga och grunda vatten, eller vill du slippa underhåll: aluminium. Smyg på skygg fisk, långa färder i öppen sjö, eller jakt på begagnatfynd: plast förtjänar en ärlig titt. Osäker: utgå från transporten, den som saknar fast båtplats får mest glädje av aluminiumets vikt, vilket är skälet till att vårt eget [båtsortiment](/utrustning/batar/) består av aluminiumbåtar och uppblåsbara båtar. Hela beslutskedjan, från vattentyp till motor och regler, finns i [köpguiden för fiskebåt](/guider/valja-fiskebat/).
+
+<ProduktRuta slug="lyfco-aluminiumbat-300" />
+
+*Strömkast finansieras via affiliate-länkar. Köper du utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar produkterna.*
+```
+
 ## src/content/articles/basta-ekolod.mdx
 ```
 ---
@@ -36135,6 +36474,97 @@ Om du känner dig osäker, ställ dig tre frågor. På vilket djup står fisken,
 *Strömkast finansieras via affiliate-länkar. Köper du utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar produkterna.*
 ```
 
+## src/content/articles/battrailer-b-korkort.mdx
+```
+---
+title: "Båttrailer och B-körkort: vikt, fart och regler"
+slug: "battrailer-b-korkort"
+description: "Vad får du dra med B-körkort, hur fort får trailern gå och vad gäller för oregistrerade båtvagnar på väg? Reglerna förklarade per 2026."
+excerpt: "Viktgränser, hastigheter och efterfordonsregler för båt på väg."
+heroImage: "/images/articles/battrailer-b-korkort.jpg"
+publishedAt: "2026-07-29"
+updatedAt: "2026-07-29"
+author: "rikard-giby"
+category: "guide"
+faq:
+  - q: "Hur tung båttrailer får jag dra med B-körkort?"
+    a: "Ett släp med totalvikt upp till 750 kg får alltid dras med B-körkort. Tyngre släp är tillåtna så länge bilens och släpets sammanlagda totalvikt inte överstiger 3 500 kg. B96 höjer gränsen till 4 250 kg och BE tillåter släp upp till 3 500 kg. Bilens registreringsbevis anger dessutom en egen dragviktsgräns som alltid gäller."
+  - q: "Får man dra en oregistrerad båtvagn på allmän väg?"
+    a: "Ja. En ofjädrad båtvagn räknas som efterfordon och får dras på allmän väg i högst 30 km/h med godkänd LGF-skylt baktill. Den får inte köras på motorväg eller motortrafikled, får bara lasta en båt och behöver varken registreras eller besiktigas. Källa: Transportstyrelsen."
+  - q: "Hur fort får man köra med båttrailer?"
+    a: "En bromsad, registrerad trailer får köras i högst 80 km/h. En obromsad registrerad trailer får också gå i 80 km/h om dess totalvikt, eller tjänstevikt när den är olastad, är högst hälften av bilens tjänstevikt och max 750 kg, annars gäller 40 km/h. En oregistrerad båtvagn får aldrig köras fortare än 30 km/h."
+  - q: "Måste båttrailern besiktigas?"
+    a: "Registrerade släpvagnar omfattas av besiktningsplikt som andra släp. En oregistrerad ofjädrad båtvagn räknas som efterfordon och besiktigas inte, men är i gengäld begränsad till 30 km/h och får inte registreras i efterhand för normal vägfart."
+---
+
+import ProduktRuta from '../../components/ProduktRuta.astro';
+
+Frågan om båt på väg rymmer två helt olika produkter och tre olika hastighetsgränser, och handeln gör det inte lättare genom att kalla båda produkterna båttrailer. Den här guiden reder ut vad ditt körkort får dra, hur fort ekipaget får gå och exakt vad som gäller för de oregistrerade båtvagnarna, som en fördjupning av transportavsnittet i vår [köpguide för fiskebåt](/guider/valja-fiskebat/). Samtliga regler är kontrollerade mot Transportstyrelsen i juli 2026.
+
+## Två produkter, ett namn
+
+En **registrerad båttrailer** har registreringsskylt, fjädring och i regel bromsar. Den besiktigas som andra släp, får dras i normal landsvägsfart och är rätt produkt för den som regelbundet drar båten mellan hemmet och olika fiskevatten.
+
+En **oregistrerad båtvagn** saknar fjädring mellan hjul och chassi och räknas då som efterfordon i lagens mening. Den får varken registreras eller besiktigas, och den är begränsad till 30 km/h. Det gör den inte olaglig på väg, tvärtom är den ett fullt lagligt och billigt redskap inom sitt användningsområde, men den ersätter aldrig en registrerad trailer. Vilken produkt du behöver avgörs alltså av fisket, inte av priset, och det är den första frågan att svara på.
+
+## Vad B-körkortet får dra
+
+Körkortsreglerna är enklare än ryktet säger, men de har tre nivåer:
+
+| Behörighet | Detta får du dra |
+|---|---|
+| B | Släp med totalvikt upp till 750 kg, alltid. Tyngre släp om bilens och släpets sammanlagda totalvikt är högst 3 500 kg. |
+| B96 | Sammanlagd totalvikt upp till 4 250 kg. Kräver godkänt körprov. |
+| BE | Släp med totalvikt upp till 3 500 kg. BE utfärdat före 19 januari 2013 har kod 79.06 och saknar viktgräns för släpet. |
+
+Räkna på totalvikter, inte vad som ligger på vagnen för stunden. En båttrailer på 750 kg totalvikt med en liten fiskebåt går alltid på vanligt B, och för klustret av småbåtar den här sajten bevakar, ekor och aluminiumbåtar på 45 till 116 kg, är körkortet i praktiken aldrig hindret. Det som däremot alltid gäller är bilens egen dragviktsgräns i registreringsbeviset, den kan vara lägre än vad körkortet tillåter och vinner alltid.
+
+## Hastigheter och besiktning
+
+En bromsad, registrerad trailer får köras i högst 80 km/h och är det bekymmersfria valet. En obromsad registrerad trailer får också gå i 80, men bara om dess totalvikt, eller tjänstevikt när den körs olastad, är högst hälften av bilens tjänstevikt och som mest 750 kg. Uppfylls inte villkoret gäller 40 km/h. Bromsar brukar bli aktuella på allvar när båten väger runt 600 kg eller mer, vilket ligger långt över småbåtsklassen men mitt i prick för större styrpulpetbåtar.
+
+Registrerade släp omfattas av besiktningsplikt. Kostnaden och administrationen är en del av kalkylen för den som väljer trailervägen, liksom att trailern ska förvaras någonstans året om.
+
+## Efterfordonets regler i detalj
+
+För den oregistrerade båtvagnen är reglerna få men absoluta, och de kommer direkt från Transportstyrelsens sida om båttransportvagnar:
+
+- Högsta hastighet 30 km/h, oavsett väg.
+- Godkänd LGF-skylt ska sitta baktill.
+- Motorväg och motortrafikled är förbjudna.
+- Endast en båt får lastas, annan last kräver att vagnen registreras som släp.
+- Utan bromsar får vagnens och båtens sammanlagda bruttovikt inte överstiga dragbilens bruttovikt.
+- I mörker krävs två röda lyktor och två röda reflexer bakåt samt orange reflexer åt sidorna, och lasten får inte skjuta ut mer än 20 cm åt sidan.
+
+Inom de ramarna är vagnen oslagbart enkel: ingen registrering, ingen besiktning, ingen årlig kostnad. Sjösättning och upptagning vid rampen, vinterförvaring på tomten och flytten de sista kilometrarna till sjön är exakt vad den är byggd för.
+
+<ProduktRuta slug="outl1-batvagn-600" />
+
+## Surrning och försäkring
+
+Oavsett vagn eller trailer är båten last, och lasten ska vara säkrad. Vinschwiren räknas inte som surrning, den håller båten mot stäven men hindrar inte rörelse bakåt eller i sidled. Använd spännband över skrovet mot vagnens ram, ett förtöjt akterparti och en kontroll av att banden inte ligger över skarpa kanter eller mot skrovgenomföringar. Titta till banden efter någon kilometer, en nysurrad båt sätter sig alltid något, och kom ihåg att kölrullarna bär vikten medan sidorullarna bara styr, båten ska vila på kölen under transport.
+
+Försäkringsfrågan är lätt att missa: bilens trafikförsäkring täcker skador som ekipaget orsakar andra, men vagnen och båten själva täcks av båtförsäkringen, och flera bolag inkluderar en oregistrerad båtvagn upp till ett visst belopp, ofta runt 20 000 kr, med möjlighet till tillägg. Kontrollera villkoren innan första turen i stället för efter första diket.
+
+## Vilken lösning passar ditt fiske
+
+Bor du nära ditt huvudvatten och sjösätter på samma ramp hela säsongen är en [båtvagn](/utrustning/battrailers/) sannolikt allt du behöver, särskilt med en lätt aluminiumbåt eller gummibåt ur [småbåtsklassen](/utrustning/batar/). Pendlar du mellan fiskevatten, drar båten på semestern eller köper en tyngre båt är en registrerad trailer rätt väg, och då köps den hos en trailerhandlare med registreringspapper i ordning, det är en annan produktklass än vagnarna vi bevakar. Många båtägare landar för övrigt i båda: trailern för landsvägen och en enkel vagn som står vid stugan.
+
+## Kommande regler att hålla ögonen på
+
+EU:s nya körkortsdirektiv höjer på sikt viktgränserna för B-behörigheten, bland annat till 4 250 kg för fordon på alternativa bränslen, med merparten av reglerna i kraft från november 2029. Inget av detta gäller i dag, och fram till dess är tabellen ovan facit. Vi uppdaterar den här guiden när reglerna ändras, datumstämpeln i inledningen visar när innehållet senast kontrollerades.
+
+## Tre kontrollfrågor innan du köper
+
+1. **Hur långt ska båten faktiskt färdas på väg?** Sista kilometern till rampen klarar en vagn i 30 km/h, pendling kräver registrerad trailer.
+2. **Vad säger bilens registreringsbevis?** Dragviktsgränsen där gäller före allt annat.
+3. **Har du LGF-skylt och belysning ordnad?** För vagnen är det hela den formella utrustningslistan, och den ska vara på plats från första turen.
+
+Osäker på vilken båt som ska upp på vagnen i första läget, börja i [köpguiden för fiskebåt](/guider/valja-fiskebat/).
+
+*Strömkast finansieras via affiliate-länkar. Köper du utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar produkterna.*
+```
+
 ## src/content/articles/nappkalender-guide.mdx
 ```
 ---
@@ -36253,7 +36683,7 @@ description: "Så väljer du rätt fiskebåt för svenska vatten. Båttyp, storl
 excerpt: "Aluminiumbåt, gummibåt eller eka? Så väljer du rätt båt för ditt fiske."
 heroImage: "/images/articles/valja-fiskebat.jpg"
 publishedAt: "2026-07-19"
-updatedAt: "2026-07-19"
+updatedAt: "2026-07-26"
 author: "rikard-giby"
 category: "guide"
 faq:
@@ -36304,7 +36734,7 @@ Baksidan är materialet. PVC tål inte trekrokar, filékniv eller vassa strandst
 
 ### Plastbåt
 
-Glasfiber ger den tystaste och ofta mest komfortabla gången, och begagnatmarknaden är full av billiga plastekor. Priset är underhållet: gelcoat som krackelerar, eventuell bottenmålning och större känslighet för grundstötningar. En äldre plastbåt kan också dölja fukt i skrov och akterspegel, mer om det i begagnatavsnittet. Som ny är en enkel plasteka sällan billigare än motsvarande aluminiumbåt, vilket gjort plasten till främst ett begagnatval i de här storleksklasserna.
+Glasfiber ger den tystaste och ofta mest komfortabla gången, och begagnatmarknaden är full av billiga plastekor. Priset är underhållet: gelcoat som krackelerar, eventuell bottenmålning och större känslighet för grundstötningar. En äldre plastbåt kan också dölja fukt i skrov och akterspegel, mer om det i begagnatavsnittet. Som ny är en enkel plasteka sällan billigare än motsvarande aluminiumbåt, vilket gjort plasten till främst ett begagnatval i de här storleksklasserna. Hela materialfrågan får en egen genomgång i guiden om [aluminiumbåt eller plastbåt](/guider/aluminiumbat-eller-plastbat/).
 
 ## Storlek, vikt och den verkliga lastförmågan
 
@@ -36320,7 +36750,7 @@ Motorvalet börjar med en skylt, inte en katalog. På varje CE-märkt båt finns
 
 Under maxgränsen handlar valet om vad motorn ska göra. För att bara ta sig runt sjön räcker det minsta: en 6-hästare på 27 kg flyttar en liten eka i den fart skrovet ändå klarar. För att flytta mellan fiskeplatser på större vatten i vettig fart är 9,8 till 15 hk rätt spann för en 3,8-metersbåt, och 25 hk för en 4,2-metersbåt som ska upp i planing med last.
 
-Rigglängden är lika viktig som effekten. Mät akterspegelns höjd från ovankant till skrovbotten: cirka 38 cm betyder kort rigg och cirka 51 cm lång rigg. Fel rigglängd lägger propellern för grunt, med kavitation som följd, eller för djupt, med onödigt motstånd. Vårt [utombordarsortiment](/utrustning/utombordare/) finns i båda rigglängderna av just det skälet, samma motorblock men olika akterspeglar.
+Rigglängden är lika viktig som effekten. Mät akterspegelns höjd från ovankant till skrovbotten: cirka 38 cm betyder kort rigg och cirka 51 cm lång rigg. Fel rigglängd lägger propellern för grunt, med kavitation som följd, eller för djupt, med onödigt motstånd. Vårt [utombordarsortiment](/utrustning/utombordare/) finns i båda rigglängderna av just det skälet, samma motorblock men olika akterspeglar. Hela motorvalet, med vikttabell över sortimentet, finns i guiden om att [välja utombordare](/guider/vilken-utombordare/).
 
 <ProduktRuta slug="outl1-utombordare-15hk-kort" />
 
@@ -36340,7 +36770,7 @@ Transporten är den fråga flest hoppar över och flest ångrar. Det finns två 
 
 En **registrerad båttrailer** har registreringsskylt, fjädring och oftast bromsar, besiktigas som andra släp och får dras i 80 km/h. Det är rätt produkt för den som regelbundet drar båten längre sträckor på landsväg. Med vanligt B-körkort får du alltid dra ett släp med totalvikt upp till 750 kg, och tyngre släp så länge bilens och släpets sammanlagda totalvikt inte överstiger 3 500 kg. B96 höjer gränsen till 4 250 kg och BE tillåter släp upp till 3 500 kg. För en liten fiskebåt med vagn är B-behörigheten sällan problemet, men kontrollera alltid bilens tillåtna släpvikt i registreringsbeviset.
 
-En **oregistrerad båtvagn**, som de i vårt [sortiment av båtvagnar](/utrustning/battrailers/), saknar fjädring och räknas då som efterfordon enligt Transportstyrelsen. Den får faktiskt dras på allmän väg, men i högst 30 km/h, med godkänd LGF-skylt baktill, aldrig på motorväg eller motortrafikled, och med enbart båten som last. Den behöver varken registreras eller besiktigas. Rätt använd är den ett billigt och fullt lagligt redskap för sjösättning, upptagning, vinterförvaring och kortare flyttar, men den ersätter inte en registrerad trailer för den som pendlar mellan fiskevatten.
+En **oregistrerad båtvagn**, som de i vårt [sortiment av båtvagnar](/utrustning/battrailers/), saknar fjädring och räknas då som efterfordon enligt Transportstyrelsen. Den får faktiskt dras på allmän väg, men i högst 30 km/h, med godkänd LGF-skylt baktill, aldrig på motorväg eller motortrafikled, och med enbart båten som last. Den behöver varken registreras eller besiktigas. Rätt använd är den ett billigt och fullt lagligt redskap för sjösättning, upptagning, vinterförvaring och kortare flyttar, men den ersätter inte en registrerad trailer för den som pendlar mellan fiskevatten. Alla viktgränser, hastigheter och efterfordonsregler finns samlade i guiden om [båttrailer och B-körkort](/guider/battrailer-b-korkort/).
 
 ## Reglerna som faktiskt gäller
 
@@ -36632,6 +37062,93 @@ Att övervikten ligger på oreglerade vatten är ingen slump, och det är värt 
 Läs alltid flödet tillsammans med [förhållandesidan](/forhallanden/), där du ser aktuell temperatur och vind vid vattnet. Ingen av siffrorna svarar på om fisken hugger. De svarar på vilket vatten du kommer till.
 ```
 
+## src/content/articles/vilken-utombordare.mdx
+```
+---
+title: "Välja utombordare till fiskebåten"
+slug: "vilken-utombordare"
+description: "Så väljer du rätt utombordare. Hästkrafter efter båtens maxgräns, kort eller lång rigg efter akterspegeln, och vikten som alla glömmer."
+excerpt: "Hästkrafter, rigglängd och vikt. Så matchar du utombordaren mot båten."
+heroImage: "/images/articles/vilken-utombordare.jpg"
+publishedAt: "2026-07-28"
+updatedAt: "2026-07-28"
+author: "rikard-giby"
+category: "guide"
+faq:
+  - q: "Hur stor motor får jag sätta på båten?"
+    a: "Aldrig större än vad tillverkarens CE-skylt anger som maxeffekt. Det finns ingen myndighet som kontrollerar det i förväg, men att överskrida gränsen är en säkerhetsrisk och kan sätta ned eller stryka försäkringsersättningen vid skada."
+  - q: "Vad är skillnaden på kort och lång rigg?"
+    a: "Rigglängden ska matcha akterspegelns höjd. Cirka 38 cm akterspegel kräver kort rigg och cirka 51 cm lång rigg. Fel rigglängd lägger propellern för grunt med kavitation som följd, eller för djupt med onödigt motstånd och sämre bränsleekonomi."
+  - q: "Räcker 6 hästkrafter till en eka?"
+    a: "Ja, för att ta sig runt i en insjö. En liten eka är sällan godkänd för mer, och skrovet begränsar ändå farten. Den som vill flytta mellan fiskeplatser på större vatten i högre fart behöver en större båt med högre maxgräns, inte en större motor på samma skrov."
+  - q: "Behöver man körkort för båt med stark motor?"
+    a: "Nej. Fritidsbåtar under 12 meters längd och 4 meters bredd kräver ingen behörighet oavsett motorstyrka. Däremot gäller sjöfyllerigränsen 0,2 promille alla båtar som med motor kan göra minst 15 knop, vilket även små båtar med 25 hästkrafter gör."
+---
+
+import ProduktRuta from '../../components/ProduktRuta.astro';
+
+En utombordare köps på tre siffror: hästkrafter, rigglängd och vikt. Två av dem går att läsa ut ur båten innan du ens öppnar en produktsida, och den tredje avgör om du kan montera motorn själv. Den här guiden går igenom siffrorna i tur och ordning, som en fördjupning av motoravsnittet i vår [köpguide för fiskebåt](/guider/valja-fiskebat/).
+
+## Maxeffekten på CE-skylten är taket
+
+Varje CE-märkt båt har en tillverkarskylt som anger högsta tillåtna motoreffekt, och den siffran är inte en rekommendation utan en konstruktionsgräns. Akterspegeln, skrovets styvhet och båtens balans är dimensionerade för den. Ingen kontrollerar valet i förväg, men den som monterar en större motor tar en dubbel risk: båten kan bete sig farligt i fart, och försäkringsbolagen kan sätta ned eller stryka ersättningen vid skada eftersom båten inte använts enligt sina förutsättningar.
+
+Så börja där. Läs skylten, och behandla siffran som tak, inte mål. En motor på eller strax under maxgränsen ger båtens fulla fartpotential, men för den som mest ror ut och vill ha motor som ryggstöd gör en mindre och lättare motor jobbet till lägre pris och vikt.
+
+## Hästkrafter efter båt och användning
+
+Under taket styr användningen. För att ta sig runt i en insjö räcker det minsta: en 6-hästare flyttar en liten eka i den fart skrovet ändå klarar, och mer effekt på samma skrov ger mest oväsen. För att flytta mellan fiskeplatser på större vatten i vettig fart är 9,8 till 15 hk rätt spann för en båt i 3,8-metersklassen, och det är också där planing börjar bli möjlig med lätt last. En 4,2-metersbåt som ska plana med två personer och utrustning motiverar 25 hk.
+
+En tumregel som sparar pengar: köp motor efter det fiske du faktiskt bedriver, inte det du kan tänkas bedriva någon gång. Mellanstegen går att hoppa över den dag båten byts, medan en överdimensionerad motor är dyr, tung och törstig varje tur.
+
+<ProduktRuta slug="outl1-utombordare-6hk" />
+
+## Rigglängden avgörs av akterspegeln
+
+Rigglängden är motorköpets vanligaste felkälla, och den är helt mätbar i förväg. Mät akterspegelns höjd från ovankanten där motorn hängs ned till skrovets botten. Cirka 38 cm motsvarar kort rigg, cirka 51 cm lång rigg och cirka 63 cm extra lång, måtten kommer från motorbranschens tumstandard på 15, 20 respektive 25 tum.
+
+Fel åt endera hållet kostar. En för kort rigg på hög akterspegel lägger propellern för grunt, den suger luft i svängar och sjögång, kaviterar och tappar grepp. En för lång rigg på låg akterspegel drar propellern onödigt djupt med mer motstånd, sämre bränsleekonomi och större risk att slå i grund. Mindre ekor och aluminiumbåtar har i regel låg akterspegel och kort rigg, medan styrpulpetbåtar och grövre skrov ofta kräver lång. Samma motorblock säljs ofta i båda utförandena, så kontrollera alltid riggmåttet före köp, inte bara hästkrafterna.
+
+<ProduktRuta slug="outl1-utombordare-15hk-kort" />
+
+## Vikten som alla glömmer
+
+Motorvikt växer snabbare än effekt. En 6-hästare väger runt 27 kg och hanteras av en person. En 15-hästare väger drygt 50 kg och en 25-hästare över 60, och då är montering på akterspegeln ett tvåpersonersjobb eller ett ärende för motorlyft. Vikten ska dessutom räknas in i båtens maxlast tillsammans med bränsle, batteri och packning, på en liten båt äter motorn en märkbar del av lastförmågan.
+
+Vikten spelar också roll för stölden. Utombordare är stöldbegärliga, och försäkringsbolagens aktsamhetskrav innebär i regel att motorn ska vara låst med godkänt motorlås, annars sätts ersättningen vid stöld normalt ned med 25 till 50 procent. Räkna in låset i motorbudgeten från början.
+
+## Tvåtakt eller fyrtakt
+
+Frågan avgör sig i praktiken själv. Nya utombordare som säljs i Sverige är fyrtaktare, byggda mot fritidsbåtsdirektivets avgas- och bullerkrav, och de går tystare, renare och snålare än äldre tvåtaktare. Tvåtaktsfrågan lever bara på begagnatmarknaden, där gamla motorer är billiga men törstiga, ljudliga och i vissa fall ovälkomna på känsliga vatten. Det finns inget förbud mot att köra en äldre tvåtaktare, men som nyköp är valet redan gjort åt dig.
+
+Tanklösningen är en mer praktisk skillnad mellan motorklasserna. De minsta motorerna har intern tank på någon liter, vilket räcker för förflyttningar men kräver påfyllning på heldagar. Från 9,8 hk och uppåt är extern tank på 12 till 24 liter standard, och då är räckvidden sällan begränsningen.
+
+## Motorerna i vårt sortiment jämförda
+
+Så här ser utombordarna vi bevakar ut på guidens tre siffror. Priserna är ordinarie cirkapriser, aktuellt pris och eventuella kampanjer framgår på produktsidorna.
+
+| Motor | Rigg | Vikt | Tank | Cirkapris |
+|---|---|---|---|---|
+| [Outl1 utombordare 6 hk](/utrustning/test/outl1-utombordare-6hk/) | Kort | 27 kg | 1,1 L intern | 7 000 kr |
+| [Outl1 utombordare 9,8 hk](/utrustning/test/outl1-utombordare-9-8-hk/) | Kort | 40 kg | 24 L extern | 14 500 kr |
+| [Outl1 utombordare 15 hk kort rigg](/utrustning/test/outl1-utombordare-15hk-kort/) | Kort | 53 kg | 24 L extern | 18 000 kr |
+| [Outl1 utombordare 15 hk lång rigg](/utrustning/test/outl1-utombordare-15hk-lang/) | Lång | anges ej | 24 L extern | 20 000 kr |
+| [Outl1 utombordare 25 hk kort rigg](/utrustning/test/outl1-utombordare-25hk-kort/) | Kort | 63 kg | 24 L extern | 27 000 kr |
+| [Outl1 utombordare 25 hk lång rigg](/utrustning/test/outl1-utombordare-25hk-lang/) | Lång | anges ej | 24 L extern | 30 000 kr |
+
+Hela kategorin med aktuella priser finns i [utombordarsortimentet](/utrustning/utombordare/), och den som hellre fiskar tyst hittar alternativen i [elmotorsortimentet](/utrustning/elmotorer/).
+
+## Tre kontrollfrågor innan du köper
+
+1. **Vad säger båtens CE-skylt?** Maxeffekten är taket, och behovet avgör hur nära taket du behöver gå.
+2. **Hur hög är akterspegeln?** Mät den, cirka 38 cm är kort rigg och cirka 51 cm lång. Rigglängd går alltid före pris.
+3. **Vem lyfter motorn, och vad väger allt ombord?** Över 50 kg är ett tvåpersonersjobb, och motorvikten ingår i maxlasten.
+
+Kan du svara på alla tre är motorköpet i praktiken redan gjort. Osäker på båten som motorn ska sitta på, börja i stället i [köpguiden för fiskebåt](/guider/valja-fiskebat/).
+
+*Strömkast finansieras via affiliate-länkar. Köper du utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar produkterna.*
+```
+
 # Content: authors
 
 ## src/content/authors/rikard-giby.json
@@ -36725,6 +37242,7 @@ Löptext i markdown utan rubriker. Längd: 150–250 ord. Tre stycken:
  * check-content.mjs - innehallsvalidering for Stromkast
  *
  * Kors med:  node check-content.mjs   (eller: npm run check)
+ * Tackningsrapport:  node check-content.mjs --coverage  (npm run check:coverage)
  *
  * Strukturfel (brutna slug-referenser, interna lankar utan avslutande slash,
  * gear-review med felaktig category) ger avslutskod 1 sa att ett bygge kan
@@ -36741,6 +37259,30 @@ import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 const ROOT = 'src/content';
+
+// Nar GearModul.astro ar live pa art- och tekniksidor genererar targetSpecies och
+// techniques riktiga lankar, och brutna varden ska da stoppa bygget. Fram till
+// dess racker varningar. Flippa till true samtidigt som modulen deployas.
+const GEAR_LINKS_LIVE = false;
+
+// Speglar TEKNIK_ALIAS i src/components/GearModul.astro. HALL TABELLERNA I SYNK.
+// jerkbait och wobbler ar betestyper utan tekniksida och ar giltiga varden.
+const TEKNIK_ALIAS = {
+  jigg: 'jiggfiske',
+  spinn: 'spinnfiske',
+  dropshot: 'dropshot',
+  trolling: 'trolling',
+  vertikal: 'vertikalfiske',
+  vertikalfiske: 'vertikalfiske',
+  mete: 'mete',
+  isfiske: 'isfiske',
+  flugfiske: 'flugfiske',
+  havsfiske: 'havsfiske',
+};
+const BETESTYPER = new Set(['jerkbait', 'wobbler']);
+// Kategorier dar tomma targetSpecies/techniques ar ett medvetet beslut:
+// vagnar och bensinmotorer ar inte art- eller teknikspecifika.
+const KATEGORIER_UTAN_KOPPLING = new Set(['battrailers', 'utombordare']);
 
 function walk(dir) {
   if (!existsSync(dir)) return [];
@@ -36802,6 +37344,12 @@ const speciesTitleByFold = new Map();  // fold(slug|titel) -> kanoniskt visnings
 const gearCategorySlugs = new Set();   // filnamn + JSON-slug for gear-categories
 const gearReviewSlugs = new Set();     // filnamn + slug for gear-reviews (ProduktRuta)
 
+const speciesIdByFold = new Map();     // fold(id|slug|titel) -> kanoniskt filnamn
+const techIdByKey = new Map();         // id|slug -> kanoniskt filnamn
+const speciesFiles = [];               // { id, title }
+const techFiles = [];                  // { id, title }
+const gearRefs = [];                   // { file, title, species[], techniques[] }
+
 function baseId(path) {
   return path.split('/').pop().replace(/\.(mdx?|json)$/, '');
 }
@@ -36837,6 +37385,23 @@ for (const f of files) {
       if (slug) speciesTitleByFold.set(fold(slug), title);
       speciesTitleByFold.set(fold(title), title);
     }
+    speciesFiles.push({ id, title: title ?? id });
+    speciesIdByFold.set(fold(id), id);
+    if (slug) speciesIdByFold.set(fold(slug), id);
+    if (title) speciesIdByFold.set(fold(title), id);
+  }
+  if (coll === 'techniques') {
+    techFiles.push({ id, title: title ?? id });
+    techIdByKey.set(id, id);
+    if (slug) techIdByKey.set(slug, id);
+  }
+  if (coll === 'gear-reviews') {
+    gearRefs.push({
+      file: f,
+      title: title ?? id,
+      species: getArray(fm, 'targetSpecies') ?? [],
+      techniques: getArray(fm, 'techniques') ?? [],
+    });
   }
 }
 
@@ -36878,6 +37443,44 @@ function checkRefs(file, coll, fm) {
         `${file}: category "${cat}" matchar ingen gear-kategori. ` +
         `Anvand kategorins slug med sma bokstaver (t.ex. flatlinor, fluorocarbon, nylon), inte displaynamnet.`
       );
+    }
+  }
+  // Kopplingsfalt i gear-reviews. Fel har ar tysta: ett filter som inte matchar
+  // ger noll traffar, inte ett byggfel, sa produkten forsvinner utan varning.
+  if (coll === 'gear-reviews') {
+    const level = GEAR_LINKS_LIVE ? errors : warnings;
+
+    const kopplingsfri = KATEGORIER_UTAN_KOPPLING.has(getField(fm, 'category'));
+    const specs = getArray(fm, 'targetSpecies');
+    if (specs === null || specs.length === 0) {
+      if (!kopplingsfri) warnings.push(`${file}: targetSpecies saknas eller ar tom. Produkten syns inte pa nagon artsida.`);
+    } else {
+      for (const v of specs) {
+        if (!speciesIds.has(v.toLowerCase())) {
+          const guess = speciesIdByFold.get(fold(v));
+          level.push(
+            `${file}: targetSpecies "${v}" matchar ingen artsida` +
+            (guess ? ` (skriv "${guess}")` : '')
+          );
+        }
+      }
+    }
+
+    const techs = getArray(fm, 'techniques');
+    if (techs === null || techs.length === 0) {
+      if (!kopplingsfri) warnings.push(`${file}: techniques saknas eller ar tom. Produkten syns inte pa nagon tekniksida.`);
+    } else {
+      for (const v of techs) {
+        if (BETESTYPER.has(v)) continue;
+        const upplost = TEKNIK_ALIAS[v] ?? v;
+        if (!techIdByKey.has(upplost)) {
+          const guess = [...techIdByKey.keys()].find((k) => k.startsWith(v) || v.startsWith(k));
+          level.push(
+            `${file}: techniques "${v}" matchar ingen tekniksida` +
+            (guess ? ` (menade du "${guess}"?)` : '')
+          );
+        }
+      }
     }
   }
   // Varningsregel: primarySpecies ar visningstext.
@@ -36975,8 +37578,43 @@ for (const f of files) {
   if (!f.endsWith('.json')) checkProduktRuta(f, raw);
 }
 
+// --- Tackning: hur manga produkter varje art- och tekniksida kan visa ---
+const perSpecies = new Map(speciesFiles.map((s) => [s.id, 0]));
+const perTech = new Map(techFiles.map((t) => [t.id, 0]));
+
+for (const g of gearRefs) {
+  const seenS = new Set();
+  for (const v of g.species) {
+    const id = speciesIdByFold.get(fold(v));
+    if (id && !seenS.has(id)) { perSpecies.set(id, perSpecies.get(id) + 1); seenS.add(id); }
+  }
+  const seenT = new Set();
+  for (const v of g.techniques) {
+    const id = techIdByKey.get(TEKNIK_ALIAS[v] ?? v);
+    if (id && !seenT.has(id)) { perTech.set(id, perTech.get(id) + 1); seenT.add(id); }
+  }
+}
+
+// Varna bara pa noll. Full fordelning far du med --coverage.
+for (const [id, n] of perSpecies) {
+  if (n === 0) warnings.push(`artsida "${id}": noll matchande produkter, utrustningsmodulen blir tom`);
+}
+for (const [id, n] of perTech) {
+  if (n === 0) warnings.push(`tekniksida "${id}": noll matchande produkter, utrustningsmodulen blir tom`);
+}
+
 // --- Rapport ---
 console.log(`\nKontrollerade ${files.length} innehallsfiler.\n`);
+
+if (process.argv.includes('--coverage')) {
+  const rad = ([id, n]) => `  ${id.padEnd(26)} ${String(n).padStart(3)}`;
+  const fallande = (a, b) => b[1] - a[1] || a[0].localeCompare(b[0]);
+  console.log('TACKNING, produkter per artsida:');
+  [...perSpecies.entries()].sort(fallande).forEach((e) => console.log(rad(e)));
+  console.log('\nTACKNING, produkter per tekniksida:');
+  [...perTech.entries()].sort(fallande).forEach((e) => console.log(rad(e)));
+  console.log('');
+}
 
 if (warnings.length) {
   console.log(`VARNINGAR (${warnings.length}):`);
@@ -36992,8 +37630,7 @@ if (errors.length) {
 }
 
 console.log(warnings.length ? 'Inga strukturfel. Se varningar ovan.' : 'Allt rent. Inga fel eller varningar.');
-process.exit(0);
-```
+process.exit(0);```
 
 ## .github/workflows/daily-rebuild.yml
 ```

@@ -733,6 +733,22 @@ type WeatherInput = { tempMean: number; windSpeed: number; precip: number };
 
 const ANCHOR = { peak: 92, ok: 66, off: 32 };
 
+/**
+ * Etiketttrosklar. Ligger avsiktligt bredvid ANCHOR eftersom de tva maste lasas
+ * ihop. Regeln ar att avstandet mellan ANCHOR.ok och TOP maste vara storre an
+ * manens maximala utslag, annars kan manfasen ensam lyfta en helt medelmattig
+ * sasongsplata till "Topplage" och tillbaka igen fyra ganger i manaden.
+ *
+ * ANCHOR.ok = 66, TOP = 72, marginal 6. moonAdjustment ger som mest +5.
+ * Vadret far fortfarande korsa granen (spann -25 .. +20), vilket ar avsikten:
+ * vadret ar faktisk information om just det dygnet, manfasen ar det inte.
+ *
+ * Tidigare lag TOP pa 68, alltsa 2 poang over ANCHOR.ok. 82 procent av alla
+ * fargbyten i kalendern orsakades da av manfasen ensam.
+ */
+const SCORE_TOP = 72;
+const SCORE_OK  = 42;
+
 function monthlyAnchor(sp: SeasonInput, month: number): number {
   if (sp.peakMonths.includes(month)) return ANCHOR.peak;
   if (sp.okMonths.includes(month))   return ANCHOR.ok;
@@ -903,10 +919,10 @@ export function getWeekScores(species: SpeciesData, year = 2026, region: RegionD
 // ---------------------------------------------------------------------------
 
 export function getScoreLabel(score: number, closed = false): { label: string; color: 'green' | 'amber' | 'stone' | 'slate' } {
-  if (closed)      return { label: 'Fredad',          color: 'slate' };
-  if (score >= 68) return { label: 'Toppläge',       color: 'green' };
-  if (score >= 42) return { label: 'Värt att testa', color: 'amber' };
-  return              { label: 'Trögt',           color: 'stone' };
+  if (closed)             return { label: 'Fredad',         color: 'slate' };
+  if (score >= SCORE_TOP) return { label: 'Toppläge',       color: 'green' };
+  if (score >= SCORE_OK)  return { label: 'Värt att testa', color: 'amber' };
+  return                         { label: 'Trögt',          color: 'stone' };
 }
 
 export function getSpeciesBySlug(slug: string): SpeciesData | undefined {

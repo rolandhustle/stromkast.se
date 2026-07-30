@@ -7,7 +7,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { getScore, SPECIES } from '../data/calendar';
+import { getScore, getScoreLabel, SPECIES } from '../data/calendar';
 import 'leaflet/dist/leaflet.css';
 
 function useIsMobile(breakpoint = 640): boolean {
@@ -43,9 +43,13 @@ function getSpeciesSeason(art: string, lat: number, now: Date): SpeciesSeason {
   const sp = SPECIES.find(s => s.slug === fold(art));
   if (!sp) return 'off';
   const { season, closed } = getScore({ species: sp, date: now, region: regionFromLat(lat) });
-  if (closed)       return 'fredad';
-  if (season >= 68) return 'peak';
-  if (season >= 42) return 'ok';
+  // Trösklarna ägs av getScoreLabel i calendar.ts och räknas inte om här.
+  // Chipet beskriver artens säsong, så det är säsongsbaslinjen som skickas in,
+  // inte totalpoängen. Nivåindelningen är däremot densamma som överallt annars.
+  const { color } = getScoreLabel(season, closed);
+  if (color === 'slate') return 'fredad';
+  if (color === 'green') return 'peak';
+  if (color === 'amber') return 'ok';
   return 'off';
 }
 
