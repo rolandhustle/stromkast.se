@@ -374,6 +374,12 @@ Validerar innehåll och körs som CI-kontroll. Regler: slug-korsreferenser, avsl
 interna länkar, kategori-/slug-skiftläge, samt att gear-review `category` matchar en
 gear-kategoris slug exakt. Stämmer även av språkregler (em-streck, en-streck före gemen, m.m.).
 
+### BESLUT.md
+Beslutsregister. Innehåller ingen kod och inget innehåll, bara de beslut som inte är
+självklara, skälet bakom dem, och vad som skulle få oss att ändra oss. `claude-context.md`
+beskriver vad som finns, `BESLUT.md` beskriver varför. Det är den enda filen som är portabel
+till en ny marknad. Se workflow-avsnittet längre ned för när en ny post ska föreslås.
+
 ### generate-claude-context.sh
 Aggregerar projektets faktiska filinnehåll till `claude-context.md`, som laddas upp till
 Claude-projektet och ersätter tidigare version. Inkluderar src/, config, content, prompts,
@@ -411,6 +417,36 @@ else:
     print("Alla URL:er OK")
 EOF
 ```
+
+---
+
+## Workflow: föreslå alltid en post i BESLUT.md när ett beslut fattats
+
+`BESLUT.md` förklarar **varför** sajten ser ut som den gör. Den är den enda filen som är
+portabel till en ny marknad, eftersom koden inte är det. Den är också det som hindrar att
+samma fråga utreds om från början i en senare session.
+
+Claude ska därför **självmant föreslå** en post när ett arbete avslutas och något av
+följande stämmer. Förslaget kommer i slutet av arbetet, medan mätvärden och alternativ
+fortfarande är färska, inte som en separat uppgift senare.
+
+- Ett val gjordes mellan två försvarbara alternativ, och det valda är inte självklart.
+- En bugg visade sig ha en **strukturell** orsak, alltså inte ett skrivfel utan ett mönster
+  som kan uppstå igen på andra ställen.
+- En konstant, tröskel eller kalibrering ändrades, eller två konstanter visade sig hänga ihop.
+- En kringgående lösning infördes vars skäl inte syns i koden.
+- Något valdes medvetet bort, och skälet skulle annars utredas om av nästa person.
+- En begränsning upptäcktes som är värd att känna till men inte värd att åtgärda nu.
+
+Föreslå **inte** en post för rutinarbete: nytt innehåll, produkttillägg, uppenbara buggfixar,
+formatering, textjusteringar.
+
+**Format per post:** beslutet, skälet, och den tröskel som skulle ändra det. Ta med mätta
+siffror när de finns, de är det som gör posten övertygande i efterhand. Skriv ut det konkreta
+symptomet, inte bara principen.
+
+**Kontrollera samtidigt** om klonavsnittet längst ned behöver en rad, alltså om principen är
+portabel till en annan marknad även när talen är lokala.
 
 ---
 
