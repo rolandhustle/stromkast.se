@@ -46,6 +46,7 @@ src/content/articles/basta-ekolod.mdx
 src/content/articles/basta-fiskespon-2026.mdx
 src/content/articles/basta-gaddbeten.mdx
 src/content/articles/battrailer-b-korkort.mdx
+src/content/articles/elmotor-till-fiskebat.mdx
 src/content/articles/nappkalender-guide.mdx
 src/content/articles/valja-fiskebat.mdx
 src/content/articles/valja-fiskelina.mdx
@@ -10660,7 +10661,7 @@ description: "Elmotor med 55 lbs dragkraft och kort rigg på 71 cm. Fem växlar 
 heroImage: "/images/gear/lyfco-nrs-55x.jpg"
 brand: "Lyfco"
 category: "elmotorer"
-price: 1799
+price: 1899
 rating: 3.7
 pros:
   - "Nästan ljudlös gång som inte skrämmer fisken"
@@ -10684,7 +10685,7 @@ Instegsmodellen i Lyfcos elmotorserie, med 55 lbs dragkraft, motsvarande 25 kg, 
 
 Det en elmotor tillför fisket är tystnaden. Trolling och smyg längs vasskanter går att göra utan motorljud som skrämmer fisken, och på vatten där förbränningsmotorer inte är tillåtna är eldrift enda alternativet, kontrollera alltid reglerna för ditt vatten. Motorn drivs på ett 12-voltsbatteri som inte ingår, ett fritidsbatteri på 100 Ah ger runt tre timmars körtid och väger omkring 20 kg som ska räknas in i båtens lastvikt.
 
-Med seriens lägsta dragkraft passar 55X lätta båtar i lugna vatten: gummibåtarna, 3-metersekan och flytringar med motorfäste. Blåser det upp eller ska en tyngre båt flyttas är [62X](/utrustning/test/lyfco-nrs-62x/) för 100 kr mer det stabilare valet. Priset 1 799 kr är ett kampanjpris som gäller till 29 juli 2026. Ordinarie pris är 2 299 kr.
+Med seriens lägsta dragkraft passar 55X lätta båtar i lugna vatten: gummibåtarna, 3-metersekan och flytringar med motorfäste. Blåser det upp eller ska en tyngre båt flyttas är [62X](/utrustning/test/lyfco-nrs-62x/) för 100 kr mer det stabilare valet.
 ```
 
 ## src/content/gear-reviews/lyfco-nrs-62x.mdx
@@ -10696,7 +10697,7 @@ description: "Elmotor med 62 lbs dragkraft och kort rigg på 71 cm. Drivs på et
 heroImage: "/images/gear/lyfco-nrs-62x.jpg"
 brand: "Lyfco"
 category: "elmotorer"
-price: 1899
+price: 1999
 rating: 3.9
 pros:
   - "Bra dragkraft utan att kräva mer än ett 12-voltsbatteri"
@@ -10768,7 +10769,7 @@ description: "Elmotor med 86 lbs dragkraft och lång rigg på 91 cm. Kräver 24-
 heroImage: "/images/gear/lyfco-nrs-86x-lang.jpg"
 brand: "Lyfco"
 category: "elmotorer"
-price: 2095
+price: 2195
 rating: 3.8
 pros:
   - "Störst dragkraft i serien, 86 lbs"
@@ -10793,7 +10794,7 @@ Samma motor som 86X med kort rigg, 86 lbs dragkraft på 24-voltsdrift, men med r
 
 Kraftkravet är detsamma som för kortriggen: två seriekopplade 12-voltsbatterier, där två 80 Ah-batterier ger runt fyra timmars körtid. Batterierna ingår inte och innebär uppåt 40 kg extra vikt och en kostnad i samma klass som motorn själv. Konstruktionen följer serien med aluminiumhölje, riggrör i komposit-glasfiber, sjögrässkyddad propeller, fem växlar framåt och tre bakåt samt vinklingsbart teleskophandtag. Godkänd för söt- och saltvatten.
 
-Rätt köpare har en båt med högt fribord som ska trollas tyst med last ombord. För gummibåtarna och de låga aluminiumbåtarna i sortimentet är [kortriggsversionen](/utrustning/test/lyfco-nrs-86x-kort/) det naturliga valet, och den som vill slippa dubbla batterier helt landar i [62X](/utrustning/test/lyfco-nrs-62x/). Priset 2 095 kr är ett kampanjpris som gäller till 29 juli 2026. Ordinarie pris är 2 595 kr.
+Rätt köpare har en båt med högt fribord som ska trollas tyst med last ombord. För gummibåtarna och de låga aluminiumbåtarna i sortimentet är [kortriggsversionen](/utrustning/test/lyfco-nrs-86x-kort/) det naturliga valet, och den som vill slippa dubbla batterier helt landar i [62X](/utrustning/test/lyfco-nrs-62x/).
 ```
 
 ## src/content/gear-reviews/mikado-inazuma-pro-zander.mdx
@@ -11160,7 +11161,7 @@ description: "Tvåcylindrig fyrtaktare på 15 hk med kort rigg. 362 cm³, extern
 heroImage: "/images/gear/outl1-utombordare-15hk-kort.jpg"
 brand: "Outl1"
 category: "utombordare"
-price: 14395
+price: 18999
 rating: 4.0
 pros:
   - "Kort rigg matchar 38 cm akterspegel på mindre aluminiumbåtar"
@@ -11196,7 +11197,7 @@ description: "Tvåcylindrig fyrtaktare på 15 hk med lång rigg för hög akters
 heroImage: "/images/gear/outl1-utombordare-15hk-lang.jpg"
 brand: "Outl1"
 category: "utombordare"
-price: 16995
+price: 17995
 rating: 4.0
 pros:
   - "Lång rigg ger rätt propellerdjup vid hög akterspegel"
@@ -11220,7 +11221,7 @@ Samma tvåcylindriga fyrtaktare på 15 hk som kortriggsversionen, med 362 cm³ s
 
 Rätt hemvist är styrpulpetbåtar och andra skrov med hög akterspegel i ungefär 3,8- till 5-metersklassen. Sortimentets egna aluminiumbåtar hör inte dit, deras akterspegel på 38 cm motsvarar kort rigg, så den som köper motor till en av dem ska välja [kortriggsversionen](/utrustning/test/outl1-utombordare-15hk-kort/). Rigglängd går före pris, en motor som sitter fel förlorar mer i verkningsgrad än prisskillnaden motiverar.
 
-Butiken anger ingen vikt för den här varianten. Kortriggsversionen med samma block väger 53 kg och långriggen lär inte väga mindre, så räkna med ett tvåpersonersjobb vid montering. Priset 16 995 kr är ett kampanjpris som gäller till 29 juli 2026. Ordinarie pris är 19 995 kr.
+Butiken anger ingen vikt för den här varianten. Kortriggsversionen med samma block väger 53 kg och långriggen lär inte väga mindre, så räkna med ett tvåpersonersjobb vid montering.
 ```
 
 ## src/content/gear-reviews/outl1-utombordare-25hk-kort.mdx
@@ -11232,7 +11233,7 @@ description: "Tvåcylindrig fyrtaktare på 25 hk med kort rigg. 498 cm³, extern
 heroImage: "/images/gear/outl1-utombordare-25hk-kort.jpg"
 brand: "Outl1"
 category: "utombordare"
-price: 20249
+price: 29988
 rating: 3.9
 pros:
   - "498 cm³ ger stark acceleration och marschfart med last"
@@ -11268,7 +11269,7 @@ description: "Tvåcylindrig fyrtaktare på 25 hk med lång rigg för hög akters
 heroImage: "/images/gear/outl1-utombordare-25hk-lang.jpg"
 brand: "Outl1"
 category: "utombordare"
-price: 24995
+price: 27995
 rating: 3.9
 pros:
   - "Lång rigg ger rätt propellerdjup vid hög akterspegel"
@@ -11292,7 +11293,7 @@ Långriggsversionen av sortimentets 25-hästare, med samma tvåcylindriga fyrtak
 
 Målgruppen är styrpulpetbåtar, arbetsbåtar och kraftigare skrov med hög akterspegel som är godkända för 25 hk eller mer. Sortimentets egna aluminiumbåtar har låg akterspegel på 38 cm och ska ha [kortriggsversionen](/utrustning/test/outl1-utombordare-25hk-kort/), oavsett att den här varianten är billigare under kampanjen. Rigglängden är inget man kompromissar med för att spara 2 000 kr, en propeller som sitter för djupt kostar verkningsgrad och bränsle varje timme motorn går.
 
-Butiken anger ingen vikt för långriggen. Kortriggen med samma block väger 63 kg, så planera för två personer eller motorlyft vid montering och räkna in vikten i båtens maxlast. Priset 24 995 kr är ett kampanjpris som gäller till 29 juli 2026. Ordinarie pris är 29 995 kr.
+Butiken anger ingen vikt för långriggen. Kortriggen med samma block väger 63 kg, så planera för två personer eller motorlyft vid montering och räkna in vikten i båtens maxlast.
 ```
 
 ## src/content/gear-reviews/outl1-utombordare-6hk.mdx
@@ -11304,7 +11305,7 @@ description: "Encylindrig fyrtaktare på 6 hk med kort rigg. Väger 27 kg, har i
 heroImage: "/images/gear/outl1-utombordare-6hk.jpg"
 brand: "Outl1"
 category: "utombordare"
-price: 6999
+price: 7999
 rating: 3.8
 pros:
   - "27 kg gör den hanterbar för en person"
@@ -11340,7 +11341,7 @@ description: "Tvåcylindrig fyrtaktare på 9,8 hk med kort rigg och extern tank 
 heroImage: "/images/gear/outl1-utombordare-9-8-hk.jpg"
 brand: "Outl1"
 category: "utombordare"
-price: 12988
+price: 13488
 rating: 3.9
 pros:
   - "Tvåcylindrig fyrtakt med jämn gång"
@@ -11348,7 +11349,7 @@ pros:
   - "40 kg är lågt för effektklassen"
   - "Under 9,9-hästargränsen som gäller för flera mindre båtar"
 cons:
-  - "Kampanjpris med slutdatum, ordinarie pris märkbart högre"
+  - "Extern tank tar plats i en liten båt"
   - "Service och reservdelar hanteras via butiken, inte via ett märkesverkstadsnät"
 affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/batmotor-9-8-h-2-cylindrig-4-takt-24-l-bransletank-tillerhandtag"
 merchant: "Outl1"
@@ -11364,7 +11365,7 @@ En tvåcylindrig fyrtaktare på 9,8 hk med kort rigg, 212 cm³ slagvolym och ext
 
 Vikten på 40 kg är låg för effekten och fortfarande inom vad en person kan montera själv med viss försiktighet. Effektsiffran är inte slumpvald: 9,8 hk ligger precis under den 9,9-hästargräns som flera mindre båtar har som maxrekommendation, vilket gör motorn till största tillåtna val för bland annat [Katamaran 300](/utrustning/test/lyfco-katamaran-300/). Den som vill maximera en sådan båt utan att bryta mot gränsen hamnar alltså exakt här.
 
-För aluminiumbåtarna i 3,8-metersklassen, där tillverkaren rekommenderar 9,8 till 15 hk, är detta instegsalternativet och [15-hästaren med kort rigg](/utrustning/test/outl1-utombordare-15hk-kort/) toppvalet. Skillnaden är fart med last, inte funktion. Priset 12 988 kr är ett kampanjpris som gäller till 29 juli 2026. Ordinarie pris är 14 488 kr.
+För aluminiumbåtarna i 3,8-metersklassen, där tillverkaren rekommenderar 9,8 till 15 hk, är detta instegsalternativet och [15-hästaren med kort rigg](/utrustning/test/outl1-utombordare-15hk-kort/) toppvalet. Skillnaden är fart med last, inte funktion.
 ```
 
 ## src/content/gear-reviews/pig-chopper-spinnerbait.mdx
@@ -36604,6 +36605,87 @@ Osäker på vilken båt som ska upp på vagnen i första läget, börja i [köpg
 *Strömkast finansieras via affiliate-länkar. Köper du utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar produkterna.*
 ```
 
+## src/content/articles/elmotor-till-fiskebat.mdx
+```
+---
+title: "Elmotor till fiskebåten: dragkraft och batteri"
+slug: "elmotor-till-fiskebat"
+description: "Så dimensionerar du elmotorn. Dragkraft i lbs efter båtens vikt, 12 eller 24 volt, och batteriet som avgör både körtid och totalkostnad."
+excerpt: "Dragkraft, spänning och batterival. Så väljer du elmotor för fisket."
+heroImage: "/images/articles/elmotor-till-fiskebat.jpg"
+publishedAt: "2026-07-30"
+updatedAt: "2026-07-30"
+author: "rikard-giby"
+category: "guide"
+faq:
+  - q: "Hur stark elmotor behöver jag till båten?"
+    a: "Tumregeln är minst 2 lbs dragkraft per 45 kg fullastad båt, alltså båt, personer, motor och packning tillsammans. En eka eller gummibåt med två personer landar oftast kring 55 till 62 lbs, medan tyngre båtar och blåsiga vatten motiverar 80 lbs eller mer."
+  - q: "Vilket batteri ska man ha till en elmotor?"
+    a: "Ett fritidsbatteri byggt för djupurladdning, inte ett startbatteri. Startbatterier är gjorda för korta strömtoppar och tar skada av att laddas ur långsamt. Räkna med minst 100 Ah för en halvdag på vattnet, och ladda batteriet efter varje pass."
+  - q: "Hur länge räcker batteriet till elmotorn?"
+    a: "Som riktvärde ger ett 100 till 110 Ah fritidsbatteri runt tre timmars blandad körning på en motor i 55 till 62 lbs-klassen, och två 80 Ah-batterier runt fyra timmar på en 86 lbs-motor. Full fart drar väsentligt mer än trollingfart, så körstilen avgör."
+  - q: "Behöver elmotorn kort eller lång rigg?"
+    a: "Rigglängden är mindre kritisk för elmotorer än för bensinmotorer eftersom effekten är låg, men grundregeln gäller: propellern ska arbeta under ytan utan att gå onödigt djupt. Kort rigg passar gummibåtar och låga ekor, och minskar risken att propellern tar i botten på grunt vatten."
+---
+
+import ProduktRuta from '../../components/ProduktRuta.astro';
+
+Elmotorn är fiskeverktyget i motorvalet: nästan ljudlös framdrift som låter dig trolla, smyga längs vasskanter och hålla position utan att skrämma fisken. Men den köps på andra siffror än bensinmotorn, dragkraft i stället för hästkrafter och batterikapacitet i stället för tankvolym, och det är batteridelen som oftast går fel. Den här guiden går igenom dimensioneringen steg för steg, som en fördjupning av motoravsnittet i vår [köpguide för fiskebåt](/guider/valja-fiskebat/).
+
+## Dragkraft, inte hästkrafter
+
+Elmotorer anges i pund dragkraft, lbs, och tumregeln för dimensionering är minst 2 lbs per 45 kg fullastad båt. Räkna ärligt: båtens vikt plus personer, batteri, motor och packning. En gummibåt på 35 kg med två personer och utrustning väger fullastad runt 250 kg och landar på minst 11 till 12 lbs i teorin, men i praktiken är marginalen poängen. Vind, vågor och ström äter dragkraft, och en motor som går på halvfart håller både tystnaden och batteritiden bättre än en som kämpar på max.
+
+Därför är 55 till 62 lbs den rimliga basnivån för ekor, gummibåtar och mindre aluminiumbåtar, medan 80 lbs och uppåt motiveras av tyngre båtar, öppna vatten och den som trollar med last. Mer dragkraft än båten behöver är sällan fel i sig, men den kommer med ett pris som inte syns på prislappen, och det är nästa avsnitt.
+
+## 12 eller 24 volt, den dolda kostnaden
+
+Spänningen är elmotorköpets viktigaste dolda variabel. Motorer upp till drygt 60 lbs drivs i regel på ett enda 12-voltsbatteri. Starkare motorer kring 80 lbs och uppåt kräver ofta 24 volt, alltså två seriekopplade 12-voltsbatterier, och då dubbleras både batterikostnaden och batterivikten. Två fritidsbatterier väger uppåt 40 kg, vilket ska rymmas i båtens maxlast och bäras ner till bryggan varje gång.
+
+Räkna därför alltid på helheten: en 24-voltsmotor som kostar några hundralappar mer än 12-voltsalternativet kan i praktiken kosta ett helt batteri mer. För de flesta fiskare i småbåtsklassen är en stark 12-voltsmotor den bästa balansen mellan kraft, kostnad och enkelhet.
+
+<ProduktRuta slug="lyfco-nrs-62x" />
+
+## Batteriet avgör mer än motorn
+
+Motorn är halva köpet, batteriet är andra halvan. Det ska vara ett fritidsbatteri byggt för djupurladdning, aldrig ett startbatteri, som är konstruerat för korta strömtoppar och tar skada av elmotorns långsamma urladdning. Som riktvärden vid blandad körning ger 100 till 110 Ah runt tre timmar på en motor i 55 till 62 lbs-klassen, och två 80 Ah-batterier runt fyra timmar på en 86 lbs-motor. Full gas drar flera gånger mer än trollingfart, så den som mest trollar kommer längre än siffrorna antyder.
+
+Tre praktiska råd som förlänger både pass och batteriliv: montera en säkring i storleksordningen 60 A mellan batteri och motor, ladda batteriet efter varje tur i stället för att lagra det urladdat, och överväg litium om vikten är kritisk, ett LiFePO4-batteri halverar ungefär vikten mot bly till högre inköpspris. Batterilåda med rejäla handtag är ingen lyx när 20 kg ska i och ur båten.
+
+## Rigglängd och montering
+
+För elmotorer är rigglängden mindre avgörande än för bensinmotorer, effekten är så låg att både kort och lång rigg fungerar i de flesta båtar. Grundregeln kvarstår ändå: propellern ska arbeta klart under ytan utan att gå onödigt djupt. Kort rigg på 71 cm passar gummibåtar och låga ekor, och har fördelen att propellern går friare från botten på grunt vatten, medan lång rigg på 91 cm hör hemma vid högre fribord.
+
+Motorerna i vårt sortiment är akterspegelmonterade med tillerstyrning, den enkla och robusta lösningen för småbåtar. I premiumsegmentet finns även frontmonterade motorer med GPS-ankare och fjärrstyrning, funktioner som är utmärkta men spelar i en annan prisklass och kräver större båtar, vi bevakar dem inte i dag. Den som väljer bensin som huvudmotor och el som fiskemotor hittar bensindelen i guiden om att [välja utombordare](/guider/vilken-utombordare/).
+
+## Reglerna på vattnet
+
+Ingen behörighet krävs, och elmotorns låga fart gör de flesta trafikregler odramatiska. Det som däremot alltid ska kontrolleras är det enskilda vattnets bestämmelser: många fiskevårdsområden begränsar eller förbjuder motordrift, och där skiljer vissa på förbränningsmotor och eldrift medan andra förbjuder allt. På vatten där bara eldrift tillåts är elmotorn din enda väg till motordrivet fiske, och på vatten med totalt motorförbud gäller årorna oavsett. Kontrollera fiskekortets villkor före sjösättning, mer om metoderna finns på vår sida om [trolling](/teknik/trolling/).
+
+## Motorerna i vårt sortiment jämförda
+
+Så här ser elmotorerna vi bevakar ut på guidens nyckeltal. Priserna är cirkapriser kontrollerade i slutet av juli 2026, aktuellt pris framgår på produktsidorna.
+
+| Motor | Dragkraft | Spänning | Rigg | Cirkapris |
+|---|---|---|---|---|
+| [Lyfco NRS-55X](/utrustning/test/lyfco-nrs-55x/) | 55 lbs | 12 V | Kort, 71 cm | 1 900 kr |
+| [Lyfco NRS-62X](/utrustning/test/lyfco-nrs-62x/) | 62 lbs | 12 V | Kort, 71 cm | 2 000 kr |
+| [Lyfco NRS-86X kort](/utrustning/test/lyfco-nrs-86x-kort/) | 86 lbs | 24 V | Kort, 71 cm | 2 000 kr |
+| [Lyfco NRS-86X lång](/utrustning/test/lyfco-nrs-86x-lang/) | 86 lbs | 24 V | Lång, 91 cm | 2 200 kr |
+
+Notera prisbilden: steget från 62X till 86X kort är i praktiken kostnadsfritt på prislappen men kostar ett extra batteri i verkligheten, det är 12 mot 24 volt i ett nötskal. Hela kategorin finns i [elmotorsortimentet](/utrustning/elmotorer/).
+
+## Tre kontrollfrågor innan du köper
+
+1. **Vad väger båten fullastad?** Minst 2 lbs per 45 kg, med marginal för vind och ström.
+2. **Ett batteri eller två?** Spänningen avgör totalkostnad och vikt, räkna på motor plus batterier före köp.
+3. **Vad säger fiskekortet?** Motorregler varierar per vatten, och eldrift är inte automatiskt tillåten överallt.
+
+Osäker på båten som motorn ska sitta på, börja i [köpguiden för fiskebåt](/guider/valja-fiskebat/).
+
+*Strömkast finansieras via affiliate-länkar. Köper du utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar produkterna.*
+```
+
 ## src/content/articles/nappkalender-guide.mdx
 ```
 ---
@@ -36806,7 +36888,7 @@ Rigglängden är lika viktig som effekten. Mät akterspegelns höjd från ovanka
 
 Elmotorn är fiskeverktyget snarare än transportmotorn. Nästan ljudlös gång gör att du kan trolla och smyga längs vasskanter utan att skrämma fisken, och på vatten där förbränningsmotorer är förbjudna är eldrift enda alternativet. Kontrollera alltid det enskilda vattnets regler, många fiskevårdsområden har motorbegränsningar.
 
-Dimensionera efter dragkraft: tumregeln är minst 2 lbs dragkraft per 45 kg fullastad båt. Modeller kring 55 till 62 lbs drivs på ett enda 12-voltsbatteri, medan motorer på över 80 lbs oftast kräver 24 volt, alltså två seriekopplade batterier med dubbel kostnad och dubbel vikt som följd. Ett fritidsbatteri på 100 till 110 Ah ger ungefär tre timmars körning på en 55-lbsmotor. Räkna in batteriet i både budgeten och båtens maxlast. Jämför modellerna i vårt [elmotorsortiment](/utrustning/elmotorer/) och läs mer om metoden på vår sida om [trolling](/teknik/trolling/).
+Dimensionera efter dragkraft: tumregeln är minst 2 lbs dragkraft per 45 kg fullastad båt. Modeller kring 55 till 62 lbs drivs på ett enda 12-voltsbatteri, medan motorer på över 80 lbs oftast kräver 24 volt, alltså två seriekopplade batterier med dubbel kostnad och dubbel vikt som följd. Ett fritidsbatteri på 100 till 110 Ah ger ungefär tre timmars körning på en 55-lbsmotor. Räkna in batteriet i både budgeten och båtens maxlast. Jämför modellerna i vårt [elmotorsortiment](/utrustning/elmotorer/) och läs mer om metoden på vår sida om [trolling](/teknik/trolling/). Hela dimensioneringen, med batteriguide, finns i guiden om [elmotor till fiskebåten](/guider/elmotor-till-fiskebat/).
 
 Många fiskare landar i kombinationen: bensinmotorn för transporten ut, elmotorn för själva fisket.
 
