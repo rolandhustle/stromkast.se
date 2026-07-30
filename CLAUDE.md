@@ -306,6 +306,14 @@ artchips (FiskeKarta), samt påverkar destinationssidornas poäng via `smhi.ts`.
 - Regional förskjutning: `regionalDay` skjuter vårtoppar senare norrut och hösttoppar tidigare
   norrut (kallt vatten fryser till tidigare). Mellansverige är referens.
 - Default-art i widgeten är Gädda.
+- **Trösklarna ägs av `getScoreLabel`.** `SCORE_TOP` (72) och `SCORE_OK` (42) definieras bredvid
+  `ANCHOR` i `calendar.ts`. Ingen vy får räkna om dem lokalt. Behöver en vy en annan indelning,
+  exportera en ny namngiven funktion ur `calendar.ts` i stället.
+- **`SCORE_TOP` och `ANCHOR.ok` är ett par.** Marginalen mellan dem (6 poäng) måste vara större än
+  `moonAdjustment` som mest kan ge (+5), annars flippar hela platåmånader på månfasen ensam.
+  Ändras det ena måste det andra följa med. Skälet står i `BESLUT.md`.
+- Kalenderrutans färg, stapel, siffra och detaljpanelens etikett härleds alla ur totalpoängen.
+  Månfasen syns bara som nyansdjup inom nivån, via `moonColorIntensity`.
 
 ---
 

@@ -89,7 +89,8 @@ const regionData = await Promise.all(
 regionData.sort((a, b) => {
   if (a.error && !b.error) return 1;
   if (!a.error && b.error) return -1;
-  return b.bite.score - a.bite.score;
+  // Oklampat värde, se kommentaren i BiteScore. score är 100 för de flesta i högsäsong.
+  return b.bite.raw - a.bite.raw;
 });
 
 const breadcrumbSchema = {
@@ -221,9 +222,9 @@ const fmt = (val: number | null, decimals = 1, unit = '') =>
                 </div>
               )}
               <div>
-                <p class="text-stone text-xs uppercase tracking-wider font-medium mb-0.5">Säsong</p>
+                <p class="text-stone text-xs uppercase tracking-wider font-medium mb-0.5">Betningspoäng</p>
                 <p class="text-deep text-sm font-semibold">
-                  {region.bite.score >= 68 ? 'Högsäsong' : region.bite.score >= 42 ? 'Mellansäsong' : 'Lågsäsong'}
+                  {region.bite.score} / 100
                 </p>
               </div>
             </div>

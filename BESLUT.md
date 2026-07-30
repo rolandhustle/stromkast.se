@@ -92,6 +92,52 @@ Resultatet: bara Kultsjön utses i dag, av 48. Det är rätt, för Kultsjön är
 
 ---
 
+### Dagsrutans färg härleds ur totalpoängen, och alla trösklar ägs av `getScoreLabel`
+
+**Beslut.** Kalenderrutans bakgrund, dess stapel, dess siffra och detaljpanelens etikett kommer alla från samma tal, dagens totalpoäng, via `getScoreLabel` i `calendar.ts`. Ingen vy räknar trösklar själv. Månfasen finns kvar som nyansdjup inom färgnivån, alltså som mättnad, inte som nivå.
+
+**Skäl.** Tidigare färgades rutan på säsongsbaslinjen medan panelen skrev ut totalpoängen. Två tal, samma ruta. Resultatet var att den 12 juli kunde visa 68 på grön botten medan den 27 juli visade 81 på gul, och båda fick etiketten Toppläge. Felet var osynligt i koden eftersom varje enskild rad var korrekt. Det syntes bara när någon läste färgen och siffran samtidigt.
+
+Samma trösklar låg dessutom hårdkodade i fyra filer: `KalenderWidget.tsx`, `FiskeKarta.tsx`, `smhi.ts` och `forhallanden/index.astro`. Duplicerade trösklar glider isär tyst, eftersom ingenting går sönder när de gör det. Sidorna säger bara olika saker.
+
+**Vad som skulle ändra det.** Att en vy behöver en genuint annan indelning, exempelvis en säsongsvy som medvetet bortser från väder. Då exporteras en andra namngiven funktion ur `calendar.ts`, den räknas inte om lokalt i vyn.
+
+---
+
+### Topplägetröskeln ligger längre från ok-ankaret än månfasens största utslag
+
+**Beslut.** `SCORE_TOP` är 72 och `ANCHOR.ok` är 66. Marginalen på 6 poäng är större än `moonAdjustment` någonsin kan ge, som mest +5. Konstanterna ligger bredvid varandra i `calendar.ts` just för att relationen ska vara läsbar.
+
+**Skäl.** Med tröskeln på 68 låg gränsen 2 poäng över ok-ankaret. En art på en halvbra månad står stilla på 66 hela månaden, så ny- och fullmåne räckte för att lyfta den till Toppläge och tillbaka igen, fyra gånger i månaden. Mätt över 17 arter och 4 regioner orsakades 721 av kalenderns 882 årliga färgbyten av månfasen ensam, alltså 82 procent. Kalendern rapporterade en förändring som inte fanns i vattnet.
+
+Vädret får fortfarande korsa gränsen, och det är avsikten. Vädret är faktisk information om just det dygnet. Månfasen är ett statistiskt mönster på några få procent och hör hemma som nyans, inte som nivåbyte.
+
+Effekten av ändringen är avgränsad. Alla verkliga toppmånader ligger på 84 till 93 och rörs inte. Det som flyttade sig var uteslutande månader på 68 till 71, alltså precis de fall där månen tryckte över en medelmåttig säsong. Andelen dagar som kallas Toppläge sjönk från 38 till 30 procent.
+
+**Vad som skulle ändra det.** Att `ANCHOR` kalibreras om. Trösklarna och ankarvärdena är ett par och kan inte ändras var för sig. Höjs `ANCHOR.ok` måste `SCORE_TOP` följa med, annars återkommer flimret.
+
+---
+
+### Destinationslistor sorteras på `raw`, medan `score` visas
+
+**Beslut.** `getBiteScore` returnerar både `score` och `raw`. `score` är klampad till 0-100 och är det som visas. `raw` är den oklampade summan `season + moonAdj + weatherAdj` för den styrande arten och är det som sorteras på. `raw` avrundas inte, bara `score` gör det. Både startsidans lista i `FiskeKarta.tsx` och `/forhallanden/` sorterar på `raw`.
+
+**Skäl.** `getScore` klampar varje arts poäng till 100. Modellen kan producera mer än så: `ANCHOR.peak` 92 plus månfas 5 plus väder 20 blir 117. En art i toppsäsong slår därför i taket redan vid en väderjustering på +3, och enbart en lufttemperatur mellan 8 och 17 grader ger +12.
+
+Konsekvensen är att `score` slutar särskilja destinationer under stora delar av året. Mätt över alla 48 destinationer har den bästa arten toppsäsong 58 procent av året, och vid en väderjustering på +9 klampas 44 av 48 till exakt 100.
+
+`Array.prototype.sort` är stabil. När alla nycklar är lika behålls ursprungsordningen, och den är samlingsordningen, alltså bokstavsordning på slug. Startsidans lista "Bäst just nu", med pokal och utskrivna placeringar 1 till 7, visade därför i praktiken en alfabetisk lista. Ordningen var Ångermanälven, Åsnen, Blekinge skärgård, Bolmen, Byskeälven, Dalälven, Dammån. Det var det enda felet på sajten som en besökare kunde se, och det syntes inte i koden eftersom varje rad var korrekt för sig.
+
+Att `raw` inte avrundas är en del av samma sak. Med avrundning slogs Kalixälven på 114,6 ihop med tre vatten på exakt 115,0, och de fyra föll tillbaka på bokstavsordning igen. Samma fel, mindre skala.
+
+**Vad `raw`-sorteringen faktiskt ordnar på.** Säsongsdelen är nästan konstant mellan destinationer i högsäsong. Utan väderdata ger `season + moonAdj` bara fyra unika värden över de 48, med median 97, eftersom varje vatten med någon art i topp landar på 92 plus 5. Det som skiljer dem åt är alltså vädret, vars spann är 45 poäng. Under vår och höst väger säsongen tyngre eftersom norr och söder då ligger olika. Rubriken "Bäst just nu" lovar därmed något bredare än vad listan levererar i högsommar, men ordningen är verklig och går att förklara.
+
+**Att mönstret redan fanns.** Tiodagarsutsikten i samma fil hade löst det här från början med sin `rawOf`, och regeln om bästa dagen ovan är formulerad i råpoäng just därför. `getBiteScore` fick aldrig samma behandling. Ett klampat värde kan visas men inte sorteras på.
+
+**Vad som skulle ändra det.** Att takhöjden åtgärdas, antingen genom sänkta ankarvärden så att 92 plus 25 ryms under 100, eller genom mjuk kompression i toppen i stället för hård klampning. Då sammanfaller `score` och `raw` i praktiken och uppdelningen behövs inte längre. Så länge modellen kan producera 117 på en hundragradig skala måste det sorterade och det visade vara två olika tal.
+
+---
+
 ## Innehåll och struktur
 
 ### Ingressen ligger i frontmattern, inte i brödtexten
@@ -199,7 +245,11 @@ Följande är **portabelt** och gäller oavsett land:
 - Flödesstationer måste matchas på vattendrag, inte på avstånd. Kontrollera att datakällan (USGS, NVE, motsvarande) anger vattendrag och inte bara avrinningsområde.
 - Realtidsdata saknas ofta för kraftverksstationer. Kontrollera periodtillgången per station innan en funktion byggs, inte efter.
 - Flöde vägs inte in i betningsmodellen förrän det finns källbelagd forskning för den marknadens arter.
-- Historiska normaler krävs för att en flödessiffra ska betyda något. Räkna dem ur arkivet en gång och checka in dem.
+- Alla etiketttrösklar ägs av en funktion. En vy som räknar om dem lokalt glider isär tyst, eftersom ingenting går sönder när den gör det.
+- Etiketttröskeln måste ligga längre från säsongens mellanankare än den största dagliga justeringen. Annars byter etiketten värde på en faktor som inte är dagsspecifik. Regeln är portabel, talen är lokala.
+- Färg, stapel, siffra och etikett i samma vy härleds ur samma tal. Två tal i samma ruta är ett fel som varje enskild kodrad ser korrekt ut i.
+- Ett klampat värde kan visas men inte sorteras på. Klampningen gör lika av det som är olika, och en stabil sortering på lika nycklar ger samlingsordningen, alltså bokstavsordning som ser ut som en rangordning.
+- En numrerad lista, en pokal eller ordet "bäst" är ett löfte till läsaren om en ordning. Kontrollera att nyckeln som sorteras på faktiskt har den upplösning löftet kräver.- Historiska normaler krävs för att en flödessiffra ska betyda något. Räkna dem ur arkivet en gång och checka in dem.
 - Reglerat mot oreglerat är den viktigaste tolkningsnyckeln för flöde. I ett korttidsreglerat vatten är ett dygnsmedelvärde nästintill oanvändbart för dagsplanering.
 - Internlänkning mot produktsidor härleds ur produkternas egna taggfält, inte ur manuella listor per sida. Mönstret (filtrera på art, teknik, vattentyp; override möjlig men inte förstahandsval) är portabelt. `GearModul.astro` flyttar med i stort sett oförändrad.
 - Produktfält som också beskriver bettyp (`techniques`) hålls isär från sidslugarna via en aliastabell, inte genom normalisering. Principen är portabel även om tabellens innehåll är lokalt.
@@ -209,6 +259,8 @@ Följande är **portabelt** och gäller oavsett land:
 Följande är **lokalt** och måste byggas om:
 
 - Artlistan och säsongskurvorna i `calendar.ts`
+- Kalibreringen av `ANCHOR` mot `SCORE_TOP` och `SCORE_OK` i `calendar.ts`: talen är lokala, relationen mellan dem är det inte
+- Takhöjden: att modellen kan producera 117 på en hundragradig skala är en följd av de svenska ankarvärdena och måste räknas om per marknad
 - Fredningstider (`closedMonths`)
 - Väderkällan och stationsmatchningen
 - Kostråd och miljögiftsråd

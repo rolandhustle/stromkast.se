@@ -68,6 +68,7 @@ export interface DestinationPin {
   biteLabel:   string;
   biteColor:   'green' | 'amber' | 'stone';
   biteScore:   number;
+  biteRaw:     number;
   error:       boolean;
   excerpt:     string;
   waterType:   string;
@@ -139,9 +140,12 @@ function Panel({
   moonName:      string;
   isMobile:      boolean;
 }) {
+  // Sortera på det oklampade värdet. biteScore är kapad till 100, och i högsäsong
+  // ligger de flesta destinationer på exakt 100. En sortering på det ger ingen
+  // ordning alls utan bara samlingsordningen, alltså bokstavsordning.
   const sorted = [...destinations]
     .filter(d => !d.error)
-    .sort((a, b) => b.biteScore - a.biteScore);
+    .sort((a, b) => b.biteRaw - a.biteRaw);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem', height: isMobile ? 'auto' : '100%' }}>

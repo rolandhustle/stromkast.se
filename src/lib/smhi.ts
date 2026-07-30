@@ -37,6 +37,12 @@ export interface BiteScore {
   label:  string;
   color:  'green' | 'amber' | 'stone';
   score:  number;
+  // Oklampad summa (season + moonAdj + weatherAdj) för den styrande arten.
+  // score klampas till 0-100 i getScore, vilket gör att en art i toppsäsong
+  // med hyggligt väder alltid landar på exakt 100. Med dagens väderläge gäller
+  // det 44 av 48 destinationer, och en sortering på score blir då ingen
+  // sortering alls utan bara samlingsordningen. Sortera på raw, visa score.
+  raw:    number;
   dots:   number;
 }
 
@@ -175,28 +181,36 @@ export function getBiteScore(
     .map(name => SPECIES.find(sp => sp.slug === fold(name)))
     .filter((sp): sp is NonNullable<typeof sp> => sp != null);
 
+  // Klampningen sitter i getScore, så .score är redan kapad till 100. Vi behöver
+  // den oklampade summan för att kunna skilja destinationer åt i toppen, precis
+  // som tiodagarsutsikten längre ner i den här filen redan gör med sin rawOf.
+  const rawOf = (r: { season: number; moonAdj: number; weatherAdj: number }) =>
+    r.season + r.moonAdj + r.weatherAdj;
+
   // Fredade arter (t.ex. asp i april och maj) ska inte styra ett vattens poäng
-  const openScores = matched
+  const open = matched
     .map(sp => getScore({ species: sp, date, region, forecast: weather }))
-    .filter(r => !r.closed)
-    .map(r => r.score);
+    .filter(r => !r.closed);
 
   let raw: number;
-  if (openScores.length) {
+  if (open.length) {
     // Bästa art i säsong styr (måne och väder är lika för alla arter)
-    raw = Math.max(...openScores);
+    raw = Math.max(...open.map(rawOf));
   } else {
     // Ingen känd eller öppen säsong: allmän utsikt = snitt av alla arter
-    const all = SPECIES.map(sp => getScore({ species: sp, date, region, forecast: weather }).score);
+    const all = SPECIES.map(sp => rawOf(getScore({ species: sp, date, region, forecast: weather })));
     raw = all.reduce((a, b) => a + b, 0) / all.length;
   }
 
+  // Avrunda bara det som visas. raw sorteras på och behåller sina decimaler,
+  // annars slås destinationer som skiljer sig med en halv poäng ihop till samma
+  // värde och faller tillbaka på samlingsordningen, alltså bokstavsordning.
   const score = Math.max(0, Math.min(100, Math.round(raw)));
 
   // Trösklarna ägs av getScoreLabel i calendar.ts och räknas inte om här.
   const { label, color } = getScoreLabel(score);
   const dots = color === 'green' ? 3 : color === 'amber' ? 2 : 1;
-  return { label, color: color as 'green' | 'amber' | 'stone', score, dots };
+  return { label, color: color as 'green' | 'amber' | 'stone', score, raw, dots };
 }
 
 // ---------------------------------------------------------------------------
