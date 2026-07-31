@@ -1,0 +1,7 @@
+{
+  "name": "Strömkasts redaktion",
+  "slug": "redaktionen",
+  "bio": "Strömkasts redaktion står bakom sajtens produktbevakning, prisuppdateringar och gemensamma guider. Vi skriver faktabaserat, redovisar källor och markerar alltid när något inte är testat av oss.",
+  "photo": "/images/authors/redaktionen.jpg",
+  "expertise": ["produktbevakning", "köpguider", "prisuppdateringar", "regelgenomgångar"]
+}

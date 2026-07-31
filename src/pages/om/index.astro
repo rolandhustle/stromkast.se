@@ -2,7 +2,8 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
-const authors = await getCollection('authors');
+// Om-sidan visar endast Rikard. Redaktionen finns i collectionen enbart for artikelbylines.
+const authors = (await getCollection('authors')).filter((a) => a.data.slug === 'rikard-giby');
 ---
 
 <BaseLayout
