@@ -23,7 +23,7 @@
  * Klaralven under GOTA ALV. Namnmatchning duger alltsa inte heller.
  *
  * ---------------------------------------------------------------------------
- * VARFOR BARA 13 AV 23 ALVAR
+ * VARFOR BARA 15 AV 26 ALVAR
  * ---------------------------------------------------------------------------
  *
  * Hydroobs har tre perioder: latest-hour, latest-day och corrected-archive.
@@ -43,6 +43,27 @@
  * speglar naturlig avrinning och faktiskt betyder nagot for fisket. Det vi
  * tappar ar i huvudsak reglerade kraftverksalvar, dar korttidsflodet anda
  * styrs av turbinschemat snarare an av vader.
+ *
+ * ---------------------------------------------------------------------------
+ * TILLAGG AUGUSTI 2026: LJUNGAN, RONNE A, VOXNAN
+ * ---------------------------------------------------------------------------
+ *
+ * Ljungan far inget flode. Sju aktiva stationer i systemet (12 850 km2). De
+ * fyra som tacker mer an 20 procent av arealen ar alla utan aktuell data,
+ * daribland Skallbole KRV (12 088 km2) som sitter strax uppstroms Viforsen och
+ * alltsa precis dar man vill mata. De tre som lever tacker 17, 1,1 och 0,1
+ * procent. Gimdalsby lever men ar redan kopplad till Giman.
+ *
+ * Ronne a och Voxnan far bada flode och ar inlagda nedan.
+ *
+ * KRV-agarskap ar en VARNINGSSIGNAL, inte en garanti. Forsmollan i Ronne a ar
+ * kraftbolagsagd, tacker 50 procent av arealen och levererar anda latest-day.
+ * Kontrollera alltid periodtillgangen per station i stallet for att sortera
+ * bort pa agarskap.
+ *
+ * Arealandel ar daremot en palitlig nyckel for huvudfara mot biflode. Under
+ * ungefar 20 procent av vattendragets totala areal sitter stationen i ett
+ * biflode eller en kallgren.
  */
 
 export interface HydroStation {
@@ -136,6 +157,24 @@ export const HYDRO_STATIONS: Record<string, HydroStation> = {
   'helge-a': {
     // Narmaste station var Kopinge pa 2 km2, alltsa ett dike.
     id: 2525, param: 1, name: 'Torsebro', catchmentKm2: 3668, distanceKm: 16,
+    regulated: true,
+  },
+  'ronne-a': {
+    // Forsmollan ar KRV men levererar latest-day, till skillnad fran de flesta
+    // kraftbolagsstationer. Enda stationen i huvudfaran: ovriga fem aktiva i
+    // systemet ligger i biflode (Arrarp, Klippan 2, Heakra) eller vid
+    // Ringsjons utlopp. 953 km2 av aons dryga 1 900 kan inte vara ett biflode.
+    id: 2372, param: 1, name: 'Forsmöllan', catchmentKm2: 953, distanceKm: 12,
+    regulated: true,
+    note: 'Flödet påverkas av regleringen vid Ringsjöns utlopp.',
+  },
+  voxnan: {
+    // Voxnan redovisas under catchmentName LJUSNAN, alltsa samma biflodesfalla
+    // som Giman under Ljungan. En sokning pa vattendragets eget namn ger noll
+    // traffar. Storsta stationen i Voxnans dalgang ar Alfta KRV (3 130 km2)
+    // men den saknar aktuell data. Nybro tacker 2 251 km2, alltsa 62 procent
+    // av Voxnans system, och kan darfor inte sitta i ett biflode.
+    id: 740, param: 1, name: 'Nybro', catchmentKm2: 2251, distanceKm: 2,
     regulated: true,
   },
   kavlingean: {

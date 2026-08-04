@@ -42,7 +42,7 @@ Att visa ett dikes flöde som Helge ås hade varit ett tyst fel, alltså ett som
 
 ---
 
-### Bara 13 av 23 älvar visar vattenföring
+### Bara 15 av 26 älvar visar vattenföring
 
 **Beslut.** Ångermanälven, Indalsälven, Mellanljusnan, Dalälven, Klarälven, Göta älv, Ätran, Nissan, Lagan och Dammån saknar flödesdata.
 
@@ -55,6 +55,32 @@ För de tio älvarna finns ingen station i **rätt** vattendrag med aktuell data
 **Bieffekt värd att notera.** Det som blir kvar är inte slumpmässigt. Kvar är alla fyra nationalälvar plus Gimån och Byskeälven, alltså just de **oreglerade** vattnen där flödet speglar naturlig avrinning och faktiskt betyder något. Det vi tappar är i huvudsak reglerade kraftverksälvar, där korttidsflödet ändå styrs av turbinschemat snarare än av väder.
 
 **Vad som skulle ändra det.** Att SMHI:s S-HYPE-modelldata går att automatisera vid byggtid. Den skulle täcka de tio, tydligt märkt som modell och inte mätning. Vattenwebb är dock en nedladdningsportal och inte ett API, så det är osäkert.
+
+**Uppdatering augusti 2026, Ljungan.** Ljungan tillkom som destination och saknar också flöde. 13 av 24. Kartläggningen gav sju aktiva stationer i avrinningsområdet (12 850 km²):
+
+| Station | Areal | Andel | Data |
+|---|---|---|---|
+| Skallböle KRV | 12 088 km² | 94 % | Ingen |
+| Östavallselet | 5 414 km² | 42 % | Ingen |
+| Torpshammar KRV | 4 295 km² | 33 % | Ingen |
+| Lännässjön | 2 692 km² | 21 % | Ingen |
+| Gimdalsby | 2 164 km² | 17 % | Aktuell |
+| Nedre Skärvagen | 142 km² | 1,1 % | Aktuell |
+| Norrsjön | 15 km² | 0,1 % | Aktuell |
+
+Skallböle är den station man vill ha. Den ligger strax uppströms Viforsen, alltså direkt ovanför laxsträckan, och täcker 94 procent av systemet. Den är KRV och har bara arkivet. Gimdalsby lever men sitter i Gimån och är redan kopplad till den destinationen. Nedre Skärvagen lever och är oreglerad, men beskriver 1,1 procent av systemet ungefär 30 mil uppströms det fiske sidan handlar om.
+
+**Arealandel fungerar som förhandsindikator.** I Ljungan levde ingen station över 20 procent av avrinningsområdets areal, och ingen under 20 procent var död. Arealregeln avgör huvudfåra mot biflöde och håller.
+
+**KRV-ägarskap är en varningssignal, inte en garanti.** Den ursprungliga formuleringen här drog slutsatsen för hårt på ett enda vattendrag. Kartläggningen av Rönne å samma dag gav ett motexempel: Forsmöllans KRV täcker 50 procent av åns areal, är kraftbolagsägd och levererar ändå `latest-day`. Att en station är KRV betyder att realtidsdata **kan** saknas, inte att den gör det. Kontrollera alltid per station i stället för att sortera bort på ägarskap.
+
+**Rönne å och Voxnan, augusti 2026.** Båda tillkom som destinationer och båda får flöde. 15 av 26.
+
+Rönne å kopplas till Forsmöllans KRV (2372, 953 km², 50 procent av åns areal). Den är enda stationen i huvudfåran. Övriga fem aktiva ligger i biflöden eller vid Ringsjöns utlopp. Två förbehåll: augustivärdet 1,2 m³/s är lågt nog att kräva kontroll mot normalerna innan det får visas, och dammarna i ån är föremål för utrivningsdiskussioner, vilket kan ta bort stationen på sikt.
+
+Voxnan kopplas till Nybro (740, 2 251 km², 62 procent). Voxnan redovisas under `catchmentName: "LJUSNAN"`, alltså samma biflödesfälla som Gimån under Ljungan, och en sökning på vattendragets eget namn ger noll träffar. Den största stationen i Voxnans dalgång är Alfta KRV (3 130 km², 86 procent) men den saknar aktuell data. Nybro ligger längre uppströms än idealt, vilket har liten praktisk betydelse eftersom fisket ligger på de mellersta och övre sträckorna.
+
+Båda sätts som `regulated: true`. För Forsmöllan är det uppenbart. För Nybro är det ett försiktighetsval, eftersom Voxnan har kraftverk och stationens läge i förhållande till dem inte är verifierat. En felaktig etikett "Oreglerad" är värre än en försiktig "Reglerad", eftersom hela tolkningen av siffran hänger på den.
 
 ---
 
@@ -190,7 +216,7 @@ En kontroll som bara letar efter det man nyss ändrat är ingen kontroll. Det en
 
 ### Ett tomt fält är bättre än en gissad siffra
 
-Den genomgående principen bakom flera av besluten ovan. Dammån saknar vattenföring. Tio älvar saknar den. "Jämnt läge" visas hellre än en påhittad bästa dag.
+Den genomgående principen bakom flera av besluten ovan. Dammån saknar vattenföring. Elva älvar saknar den. "Jämnt läge" visas hellre än en påhittad bästa dag.
 
 Falsk precision är svårare att upptäcka än ett tomt fält, eftersom den ser ut som kunskap.
 
@@ -249,8 +275,10 @@ Följande är **portabelt** och gäller oavsett land:
 - Etiketttröskeln måste ligga längre från säsongens mellanankare än den största dagliga justeringen. Annars byter etiketten värde på en faktor som inte är dagsspecifik. Regeln är portabel, talen är lokala.
 - Färg, stapel, siffra och etikett i samma vy härleds ur samma tal. Två tal i samma ruta är ett fel som varje enskild kodrad ser korrekt ut i.
 - Ett klampat värde kan visas men inte sorteras på. Klampningen gör lika av det som är olika, och en stabil sortering på lika nycklar ger samlingsordningen, alltså bokstavsordning som ser ut som en rangordning.
-- En numrerad lista, en pokal eller ordet "bäst" är ett löfte till läsaren om en ordning. Kontrollera att nyckeln som sorteras på faktiskt har den upplösning löftet kräver.- Historiska normaler krävs för att en flödessiffra ska betyda något. Räkna dem ur arkivet en gång och checka in dem.
+- En numrerad lista, en pokal eller ordet "bäst" är ett löfte till läsaren om en ordning. Kontrollera att nyckeln som sorteras på faktiskt har den upplösning löftet kräver.
+- Historiska normaler krävs för att en flödessiffra ska betyda något. Räkna dem ur arkivet en gång och checka in dem.
 - Reglerat mot oreglerat är den viktigaste tolkningsnyckeln för flöde. I ett korttidsreglerat vatten är ett dygnsmedelvärde nästintill oanvändbart för dagsplanering.
+- En kandidatstations andel av vattendragets totala areal avgör om den beskriver huvudfåran. Under ungefär 20 procent sitter den i ett biflöde eller en källgren. I utbyggda vattendrag är de stora stationerna dessutom ofta kraftbolagens och saknar realtidsdata, så andelen fungerar som förhandsindikator på att fältet blir tomt. Regeln är portabel, gränsen är en tumregel.
 - Internlänkning mot produktsidor härleds ur produkternas egna taggfält, inte ur manuella listor per sida. Mönstret (filtrera på art, teknik, vattentyp; override möjlig men inte förstahandsval) är portabelt. `GearModul.astro` flyttar med i stort sett oförändrad.
 - Produktfält som också beskriver bettyp (`techniques`) hålls isär från sidslugarna via en aliastabell, inte genom normalisering. Principen är portabel även om tabellens innehåll är lokalt.
 - Kärnutrustning viktas före tillbehör på tekniksidor. Principen är portabel. Vilka kategorier som är kärna respektive tillbehör beror på sortimentet och är lokalt.
