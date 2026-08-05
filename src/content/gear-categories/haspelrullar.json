@@ -3,5 +3,6 @@
   "slug": "haspelrullar",
   "parent": "rullar",
   "description": "Handplockade haspelrullar för abborre, gädda och gös. Vi har valt ut de bästa alternativen i varje prisklass.",
-  "heroImage": "/images/gear/haspelrullar.jpg"
+  "heroImage": "/images/gear/haspelrullar.jpg",
+  "guideUrl": "/guider/valja-haspelrulle/"
 }

@@ -1,0 +1,45 @@
+---
+/**
+ * RullValjareIsland.astro
+ * Serverwrapper som hämtar de tolv haspelrullarna ur gear-reviews-collectionen
+ * och matar dem till den interaktiva RullValjare-islanden. Inkludera bara den
+ * här i rullguiden, så lever väljaren bara där. Samma mönster som
+ * LinValjareIsland.astro och EkolodValjareIsland.astro.
+ */
+import { getCollection } from 'astro:content';
+import RullValjare from './RullValjare.tsx';
+
+const RULL_SLUGS = new Set<string>([
+  'shimano-nexave-fi-2500',
+  'okuma-ceymar-hd-2500a',
+  'okuma-inspira-2500a',
+  'okuma-itx-cb-2500h',
+  'shimano-miravel-2500',
+  'shimano-vanford-fa-2500',
+  'shimano-stella-fk-2500',
+  'shimano-stradic-fm-c3000-hg',
+  'kinetic-marshall-4000-fd',
+  'westin-w3-4000-fd',
+  'shimano-vanford-fa-4000',
+  'kinetic-brutalis-5000-fd',
+]);
+
+const allReviews = await getCollection('gear-reviews');
+
+const rullar = allReviews
+  .filter((entry) => {
+    const category = (entry.data.category ?? '').toLowerCase();
+    return RULL_SLUGS.has(entry.data.slug) || category === 'haspelrullar';
+  })
+  .map((entry) => ({
+    slug: entry.data.slug,
+    title: entry.data.title,
+    brand: entry.data.brand,
+    price: entry.data.price,
+    priceRange: entry.data.priceRange,
+    affiliateUrl: entry.data.affiliateUrl,
+    merchant: entry.data.merchant,
+  }));
+---
+
+<RullValjare client:load rullar={rullar} />
