@@ -42,7 +42,7 @@ Att visa ett dikes flöde som Helge ås hade varit ett tyst fel, alltså ett som
 
 ---
 
-### Bara 15 av 26 älvar visar vattenföring
+### Bara 13 av 23 älvar visar vattenföring
 
 **Beslut.** Ångermanälven, Indalsälven, Mellanljusnan, Dalälven, Klarälven, Göta älv, Ätran, Nissan, Lagan och Dammån saknar flödesdata.
 
@@ -55,32 +55,6 @@ För de tio älvarna finns ingen station i **rätt** vattendrag med aktuell data
 **Bieffekt värd att notera.** Det som blir kvar är inte slumpmässigt. Kvar är alla fyra nationalälvar plus Gimån och Byskeälven, alltså just de **oreglerade** vattnen där flödet speglar naturlig avrinning och faktiskt betyder något. Det vi tappar är i huvudsak reglerade kraftverksälvar, där korttidsflödet ändå styrs av turbinschemat snarare än av väder.
 
 **Vad som skulle ändra det.** Att SMHI:s S-HYPE-modelldata går att automatisera vid byggtid. Den skulle täcka de tio, tydligt märkt som modell och inte mätning. Vattenwebb är dock en nedladdningsportal och inte ett API, så det är osäkert.
-
-**Uppdatering augusti 2026, Ljungan.** Ljungan tillkom som destination och saknar också flöde. 13 av 24. Kartläggningen gav sju aktiva stationer i avrinningsområdet (12 850 km²):
-
-| Station | Areal | Andel | Data |
-|---|---|---|---|
-| Skallböle KRV | 12 088 km² | 94 % | Ingen |
-| Östavallselet | 5 414 km² | 42 % | Ingen |
-| Torpshammar KRV | 4 295 km² | 33 % | Ingen |
-| Lännässjön | 2 692 km² | 21 % | Ingen |
-| Gimdalsby | 2 164 km² | 17 % | Aktuell |
-| Nedre Skärvagen | 142 km² | 1,1 % | Aktuell |
-| Norrsjön | 15 km² | 0,1 % | Aktuell |
-
-Skallböle är den station man vill ha. Den ligger strax uppströms Viforsen, alltså direkt ovanför laxsträckan, och täcker 94 procent av systemet. Den är KRV och har bara arkivet. Gimdalsby lever men sitter i Gimån och är redan kopplad till den destinationen. Nedre Skärvagen lever och är oreglerad, men beskriver 1,1 procent av systemet ungefär 30 mil uppströms det fiske sidan handlar om.
-
-**Arealandel fungerar som förhandsindikator.** I Ljungan levde ingen station över 20 procent av avrinningsområdets areal, och ingen under 20 procent var död. Arealregeln avgör huvudfåra mot biflöde och håller.
-
-**KRV-ägarskap är en varningssignal, inte en garanti.** Den ursprungliga formuleringen här drog slutsatsen för hårt på ett enda vattendrag. Kartläggningen av Rönne å samma dag gav ett motexempel: Forsmöllans KRV täcker 50 procent av åns areal, är kraftbolagsägd och levererar ändå `latest-day`. Att en station är KRV betyder att realtidsdata **kan** saknas, inte att den gör det. Kontrollera alltid per station i stället för att sortera bort på ägarskap.
-
-**Rönne å och Voxnan, augusti 2026.** Båda tillkom som destinationer och båda får flöde. 15 av 26.
-
-Rönne å kopplas till Forsmöllans KRV (2372, 953 km², 50 procent av åns areal). Den är enda stationen i huvudfåran. Övriga fem aktiva ligger i biflöden eller vid Ringsjöns utlopp. Två förbehåll: augustivärdet 1,2 m³/s är lågt nog att kräva kontroll mot normalerna innan det får visas, och dammarna i ån är föremål för utrivningsdiskussioner, vilket kan ta bort stationen på sikt.
-
-Voxnan kopplas till Nybro (740, 2 251 km², 62 procent). Voxnan redovisas under `catchmentName: "LJUSNAN"`, alltså samma biflödesfälla som Gimån under Ljungan, och en sökning på vattendragets eget namn ger noll träffar. Den största stationen i Voxnans dalgång är Alfta KRV (3 130 km², 86 procent) men den saknar aktuell data. Nybro ligger längre uppströms än idealt, vilket har liten praktisk betydelse eftersom fisket ligger på de mellersta och övre sträckorna.
-
-Båda sätts som `regulated: true`. För Forsmöllan är det uppenbart. För Nybro är det ett försiktighetsval, eftersom Voxnan har kraftverk och stationens läge i förhållande till dem inte är verifierat. En felaktig etikett "Oreglerad" är värre än en försiktig "Reglerad", eftersom hela tolkningen av siffran hänger på den.
 
 ---
 
@@ -200,6 +174,22 @@ Vattenföringen är fyra siffror och behöver inte full bredd. Tiodagarsutsikten
 
 ---
 
+### Superlativ om ett vatten anger havsområde, art, mått och årtal
+
+**Beslut.** Ett superlativ om ett fiskevatten ("störst", "viktigast", "mest produktiv") får stå kvar i en text bara om det framgår vilket havsområde eller vilken region jämförelsen gäller, vilken art eller beståndsform som avses, vilket mått som ligger till grund, och från vilket år siffran kommer. Saknas någon av de fyra skrivs påståendet om utan superlativ.
+
+**Skäl, mätt på tre sidor.** Ätran beskrevs som "Sveriges viktigaste vildlaxälv" och som "landets största bestånd av naturreproducerande atlantlax". Mörrumsån beskrevs som "en av Östersjöns viktigaste vildlaxälvar". Torneälven beskrevs som "Östersjöns mest produktiva vildlaxälv". De tre kan inte alla stämma, och bara den sista gjorde det. Havs- och vattenmyndigheten kallar Torneälven ordagrant den enskilt mest produktiva laxälven i Östersjön, med över 1,5 miljoner smolt per år sedan 2016, ungefär hälften av all vild laxsmolt i Östersjön.
+
+Ätrans smoltutvandring låg enligt SLU i snitt på 5 806 per år under 2000 till 2022. Mörrumsåns årliga smoltproduktion uppskattas till omkring 15 000. Avståndet till Torneälven är två storleksordningar för Ätran och nästan lika mycket för Mörrumsån.
+
+Felet uppstod inte i en enskild mening utan i att jämförelsen aldrig ramades in. Ätran mynnar i Kattegatt och tillhör västkustens atlantlaxbestånd, medan Mörrumsån och Torneälven tillhör Östersjön. Tre sidor skrivna vid olika tillfällen kan var för sig låta rimliga och ändå motsäga varandra, eftersom ingen av dem sa vad den jämförde med. Det är ett strukturellt fel, inte ett skrivfel, och det upprepas på nästa laxälv om regeln inte finns.
+
+Rättningen: Ätran har "västkustens starkaste bestånd av vild atlantlax" (SLU Fiskbarometern 2023, Länsstyrelsen i Halland 2021:10). Mörrumsån är "ett av få kvarvarande ursprungliga vildlaxbestånd i södra Östersjön". Torneälven står oförändrad, eftersom en korrekt mening inte ska rättas för symmetrins skull.
+
+**Vad som skulle ändra det.** Regeln själv är svår att argumentera bort. Den kostar en handfull ord per ingress och fångar ett fel som är lätt för en läsare att avslöja. Talen åldras däremot. Om ICES eller SLU reviderar Torneälvens andel av vild Östersjösmolt tydligt bort från ungefär hälften, eller om Mörrumsån tappar sin MSY-status vid fortsatt svag uppvandring, måste formuleringarna uppdateras.
+
+---
+
 ## Metod
 
 ### Massändringar av innehåll verifieras mot git, aldrig mot egna mönster
@@ -216,7 +206,7 @@ En kontroll som bara letar efter det man nyss ändrat är ingen kontroll. Det en
 
 ### Ett tomt fält är bättre än en gissad siffra
 
-Den genomgående principen bakom flera av besluten ovan. Dammån saknar vattenföring. Elva älvar saknar den. "Jämnt läge" visas hellre än en påhittad bästa dag.
+Den genomgående principen bakom flera av besluten ovan. Dammån saknar vattenföring. Tio älvar saknar den. "Jämnt läge" visas hellre än en påhittad bästa dag.
 
 Falsk precision är svårare att upptäcka än ett tomt fält, eftersom den ser ut som kunskap.
 
@@ -264,6 +254,110 @@ Falsk precision är svårare att upptäcka än ett tomt fält, eftersom den ser 
 
 ---
 
+## Priser och produktfeeds
+
+### Priser hämtas ur Adtractions feed vid byggtid, frontmatter är reserv
+
+**Beslut.** `src/lib/feed.ts` hämtar produktfeeds från Adtraction vid varje bygge och slår upp pris per produkt via `affiliateUrl`. `price` i `gear-reviews` visas bara när feeden saknas, inte svarar, eller inte innehåller produkten. Fältet ska alltid innehålla ordinarie pris, aldrig ett reapris.
+
+**Skäl.** Vid genomgången 13 augusti 2026 låg 37 av 51 matchade FiskeOnline-priser på reanivå i stället för ordinarie, eftersom de matats in under pågående kampanj. Samtidigt var 50 av 94 produkter REA-märkta just då, vilket gör kampanj till normaltillstånd snarare än undantag hos butiken. Ett handinmatat pris är därmed nästan alltid fel, och regeln om att alltid verifiera priser mot butikssidan innan patchning skalade inte. Med den dagliga cron-körningen klockan 05:00 blir priset aldrig äldre än ett dygn.
+
+**Vad som skulle ändra det.** Att en butik slutar leverera feed, eller att andelen produkter utan feedträff blir så stor att reservvärdet dominerar. Vid 73 av 94 sidor med feedpris är byggtidshämtning klart bättre än statiska tal.
+
+---
+
+### Både kampanjpris och överstruket ordinarie visas, med hämtningsdatum
+
+**Beslut.** Är produkten nedsatt visar kortet och köpboxen kampanjpriset stort med ordinarie överstruket bredvid, försett med dold etikett för skärmläsare. Butiksraden kompletteras med "pris hämtat 13 augusti". Utan feedträff visas reservvärdet utan datum.
+
+**Skäl.** Alternativen var att visa ordinarie, vilket är fel under kampanj, eller enbart reapriset, vilket döljer att det är en nedsättning och gör prisklassindelningen instabil. Att visa båda är det enda som inte undanhåller information, och matchar hur butiken själv presenterar priset. Datumet är inte kosmetiskt: ett pris som ändras utan att vi ser det måste kunna dateras av läsaren, annars påstår kortet mer än vi vet. Att datumet utelämnas vid fallback är samma princip, vi vet då inte när priset senast stämde.
+
+**Vad som skulle ändra det.** Att byggfrekvensen sjunker så mycket att datumet oftare är gammalt än färskt. Då blir prisuppgiften i sig tveksam, inte bara datumet.
+
+---
+
+### `availability` utelämnas ur schemat när feeden tiger
+
+**Beslut.** `productSchema` sätter `availability` bara när feeden anger `in_stock` eller `out_of_stock`. Saknas produkten i feeden utelämnas fältet. Tidigare påstod schemat alltid `InStock`.
+
+**Skäl.** Feedsen innehåller bara produkter i lager, men att därav sluta sig till `OutOfStock` vore en slutsats vi inte kan belägga, och att alltid påstå `InStock` var direkt fel. Ett utelämnat fält är det ärliga svaret. Priset i schemat följer samtidigt det synliga priset, eftersom en avvikelse där både flaggas av Google och ger läsaren fel siffra i sökresultatet.
+
+**Vad som skulle ändra det.** Att utelämnandet mätbart försämrar rich results för produktsidorna. Då får avvägningen tas om, men inte genom att återinföra ett påstående vi inte kan belägga.
+
+---
+
+### Querystring strippas generellt vid matchning mot feed
+
+**Beslut.** `normalise()` i `feed.ts` tar bort querystring och fragment före jämförelse, för alla butiker. Samma regel speglas i `validate-feed.mjs` och `fix-fallback-prices.mjs`.
+
+**Skäl.** Outl1 lägger ett internt ID sist i varje produkt-URL, exempelvis `?var=14174`, medan våra publicerade länkar saknar det. Utan strippning matchade noll av 22 Outl1-produkter. Kontrollerat 13 augusti 2026: feeden innehöll 2 798 produkter fördelade på 2 798 unika produktsidor, alltså är parametern ett internt ID och inte en variantväljare. FiskeOnlines URL:er saknar querystring helt, så regeln kostar ingenting där.
+
+**Vad som skulle ändra det.** En butik som faktiskt använder query för att skilja produkter åt. Då slås två produkter ihop och fel pris visas. Modulen varnar därför vid bygget när två produkter i samma feed normaliserar till samma nyckel, så att antagandet upptäcks automatiskt i stället för att någon ska minnas den här raden. Kommer en sådan varning ska regeln göras per butik.
+
+---
+
+### Alla feeds slås ihop till ett uppslag i stället för att väljas på `merchant`
+
+**Beslut.** `feed.ts` läser samtliga konfigurerade feeds in i en gemensam karta med produkt-URL som nyckel. Uppslaget tar ingen butiksparameter.
+
+**Skäl.** Produkt-URL:erna skiljer sig redan åt på domännivå, så nycklarna kan inte krocka mellan butiker. Det gjorde att varken `AffiliateCard.astro` eller produktsidan behövde ändras när Outl1 lades till, och det tar bort risken att `merchant` i frontmatter hamnar i otakt med `affiliateUrl`. Butiker utan feed, i dag Fritid och Vildmark med 12 produkter, hanteras av samma fallback och kräver ingen egen kod.
+
+**Vad som skulle ändra det.** Två butiker som säljer via samma domän. Då behövs butiksval igen.
+
+---
+
+### Prisavvikelser under 10 procent listas inte
+
+**Beslut.** `validate-feed.mjs` rapporterar avvikelser mellan `price` och feedens ordinarie pris först vid 10 procent, och räknar övriga samman till en rad.
+
+**Skäl.** Reservvärdets fel spelar roll i proportion till sin storlek. Några procent märks inte den dag en feed uteblir, och `priceRange` påverkas först vid större skillnader. Vid införandet gav gränsen 36 listade avvikelser i stället för 37, alltså liten skillnad då, men den skyddar mot att stora avvikelser drunknar i små när sortimentet växer.
+
+**Vad som skulle ändra det.** Att sammanräkningen börjar dölja ett systematiskt fel. Talet är en kalibrering, inte en princip.
+
+---
+
+### Produkter som saknas i feeden är varning, inte fel
+
+**Beslut.** En produkt vars URL inte finns i feeden rapporteras som varning med texten att den troligen är slut i lager. Bara saknad eller felformaterad `affiliateUrl` och `price` som inte är ett tal räknas som fel och fäller `--strict`.
+
+**Skäl.** Feedsen innehåller bara produkter i lager. Kontrollerat 13 augusti 2026: samtliga nio saknade FiskeOnline-produkter svarade HTTP 200 hos butiken, alltså var ingen borttagen. Hade de räknats som fel skulle varje tillfälligt slutsåld produkt bryta bygget den dag `--strict` sätts på i CI, vilket gör kontrollen oanvändbar just när den behövs.
+
+**Vad som skulle ändra det.** Att samma produkt saknas under lång tid. Då är den sannolikt borttagen och länken bör bytas. Skriptet mäter inte varaktighet i dag.
+
+---
+
+### Publicerade annons-ID behålls i väntan på svar från Adtraction
+
+**Beslut.** `affiliateUrl` fortsätter använda `a=1954031990` för FiskeOnline och `a=1728546059` för Outl1. Feedernas egna länkar använder `1954031991` respektive `1728546061` och kopieras inte in.
+
+**Skäl.** Samma mönster i båda programmen tyder på separata annonsenheter snarare än fel i uppsättningen, men vilket ID som ska publiceras är obekräftat. Att blanda skulle splittra rapporteringen på två enheter. Feedlänkarna bär också `cupa_sku`, vilket ger konverteringsrapportering på produktnivå. Det är ett verkligt värde som ligger kvar outnyttjat tills frågan är besvarad. `validate-feed.mjs` kontrollerar förväntat ID per butik och fångar avvikelser.
+
+**Vad som skulle ändra det.** Besked från Adtraction. Är feedens ID rätt ska samtliga `affiliateUrl` byggas om, och då bör `cupa_sku` införas samtidigt.
+
+---
+
+### FiskeOnline körs via Adtraction trots identiska villkor i Addrevenue
+
+**Beslut.** FiskeOnline finns som annonsör i båda nätverken med 11 procent provision och 45 dagars cookietid i båda. Adtraction behålls.
+
+**Skäl.** Villkoren är likvärdiga, och spårningen via Adtraction är etablerad och fungerar. En flytt skulle kräva att samtliga `affiliateUrl` byggs om mot en oprövad uppsättning utan mätbar vinst. Adtractions spårningsdomän `pin.fiskeonline.com` ligger dessutom på butikens eget domännamn, vilket är mindre utsatt för annonsblockerare än en nätverksdomän, även om skillnadens storlek inte är uppmätt. Noteringen i CLAUDE.md om att FiskeOnline saknar produktfeed i Adtraction var felaktig och har rättats.
+
+**Vad som skulle ändra det.** Att FiskeOnline avaktiverar det oanvända Addrevenue-programmet, vilket inte påverkar sajten, eller att villkoren i något nätverk ändras.
+
+---
+
+### Rabattkodsinnehåll sänker provisionen till 4 procent
+
+**Beslut.** Ingen rabattkods- eller cashbacksida byggs för FiskeOnline utan att provisionsfrågan först retts ut.
+
+**Skäl.** FiskeOnlines program har två nivåer: 11 procent normalt och 4 procent för cashback- och kupongsajter. En rabattkodssida riskerar att omklassa hela kanalen till den lägre nivån, alltså en sänkning med nästan två tredjedelar på all trafik, inte bara den från rabattsidan.
+
+**Vad som skulle ändra det.** Skriftligt besked från FiskeOnline om att enstaka rabattkodsinnehåll inte utlöser omklassning.
+
+---
+
+---
+
 ## Vid kloning till ny marknad
 
 Följande är **portabelt** och gäller oavsett land:
@@ -275,14 +369,22 @@ Följande är **portabelt** och gäller oavsett land:
 - Etiketttröskeln måste ligga längre från säsongens mellanankare än den största dagliga justeringen. Annars byter etiketten värde på en faktor som inte är dagsspecifik. Regeln är portabel, talen är lokala.
 - Färg, stapel, siffra och etikett i samma vy härleds ur samma tal. Två tal i samma ruta är ett fel som varje enskild kodrad ser korrekt ut i.
 - Ett klampat värde kan visas men inte sorteras på. Klampningen gör lika av det som är olika, och en stabil sortering på lika nycklar ger samlingsordningen, alltså bokstavsordning som ser ut som en rangordning.
-- En numrerad lista, en pokal eller ordet "bäst" är ett löfte till läsaren om en ordning. Kontrollera att nyckeln som sorteras på faktiskt har den upplösning löftet kräver.
-- Historiska normaler krävs för att en flödessiffra ska betyda något. Räkna dem ur arkivet en gång och checka in dem.
+- En numrerad lista, en pokal eller ordet "bäst" är ett löfte till läsaren om en ordning. Kontrollera att nyckeln som sorteras på faktiskt har den upplösning löftet kräver.- Historiska normaler krävs för att en flödessiffra ska betyda något. Räkna dem ur arkivet en gång och checka in dem.
 - Reglerat mot oreglerat är den viktigaste tolkningsnyckeln för flöde. I ett korttidsreglerat vatten är ett dygnsmedelvärde nästintill oanvändbart för dagsplanering.
-- En kandidatstations andel av vattendragets totala areal avgör om den beskriver huvudfåran. Under ungefär 20 procent sitter den i ett biflöde eller en källgren. I utbyggda vattendrag är de stora stationerna dessutom ofta kraftbolagens och saknar realtidsdata, så andelen fungerar som förhandsindikator på att fältet blir tomt. Regeln är portabel, gränsen är en tumregel.
 - Internlänkning mot produktsidor härleds ur produkternas egna taggfält, inte ur manuella listor per sida. Mönstret (filtrera på art, teknik, vattentyp; override möjlig men inte förstahandsval) är portabelt. `GearModul.astro` flyttar med i stort sett oförändrad.
 - Produktfält som också beskriver bettyp (`techniques`) hålls isär från sidslugarna via en aliastabell, inte genom normalisering. Principen är portabel även om tabellens innehåll är lokalt.
 - Kärnutrustning viktas före tillbehör på tekniksidor. Principen är portabel. Vilka kategorier som är kärna respektive tillbehör beror på sortimentet och är lokalt.
 - Sidebar-kortet roterar en högmarginalkategori deterministiskt per destination. Rotationslogiken är portabel. Att kategorin är just ekolod är ett val för den svenska marknadens sortiment och ordervärde.
+
+- Ett superlativ om ett vatten anger havsområde, art, mått och årtal. Regeln är portabel, jämförelsegrupperna är lokala. En marknad med flera separata bassänger eller beståndsformer har samma fälla: Great Lakes mot Atlantkusten, insjölax mot havsvandrande lax, vilt bestånd mot utsatt. Utan inramning låter varje sida rimlig var för sig och sajten motsäger sig själv.
+
+- Produktpriser hämtas ur affiliatnätverkets feed vid byggtid, inte ur frontmatter. Fältet i innehållet är reservvärde och ska hålla ordinarie pris. Mönstret är portabelt, feedens URL och format är lokalt.
+- Ett visat pris som kan ändras utan redaktionell insyn förses med hämtningsdatum. Saknas färsk data utelämnas datumet i stället för att sättas till något ungefärligt.
+- Priset i strukturerad data följer det synliga priset. Avviker de flaggas det av sökmotorn och läsaren möter fel siffra i sökresultatet.
+- Ett fält i strukturerad data utelämnas hellre än fylls med ett antagande. `availability` som alltid påstår `InStock` är ett tyst fel av samma slag som en påhittad flödessiffra.
+- Antaganden om URL-normalisering byggs med automatisk upptäckt, inte med en anteckning. Om två produkter kan kollidera efter normalisering ska koden varna vid bygget.
+- Alla feeds slås ihop till ett uppslag när produkt-URL:erna skiljer sig åt på domännivå. Det gör att nya butiker kan läggas till utan att komponenter ändras.
+- Matchningslogik som delas av flera skript måste hållas i takt. Vid införandet glömdes ett av tre skript och rapporterade tyst noll träffar, vilket såg ut som att allt stämde.
 
 Följande är **lokalt** och måste byggas om:
 
@@ -296,3 +398,7 @@ Följande är **lokalt** och måste byggas om:
 - Aliastabellen `TEKNIK_ALIAS` i `GearModul.astro`: marknadens tekniknamn och deras sidslugar
 - Kategorivikterna `KATEGORI_VIKT`: vilka produktkategorier som räknas som kärnutrustning
 - Sidebar-rotationens kategori: vilken högmarginalkategori som lyfts i destinationernas sidokolumn
+- Butiksnamnen i `SOURCES` och deras miljövariabler
+- Annons-ID per butik i `validate-feed.mjs`
+- Tioprocentsgränsen för prisavvikelser
+- Antagandet att querystring i produkt-URL:er är interna ID:n, vilket är verifierat per butik och inte generellt
