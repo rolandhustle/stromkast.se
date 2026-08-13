@@ -2,15 +2,17 @@
 /**
  * validate-feed.mjs
  *
- * Kontrollerar src/content/gear-reviews/ mot Adtractions produktfeed för
- * FiskeOnline (Google Shopping RSS, XML). Rapporterar avvikelser, patchar
- * aldrig innehåll.
+ * Kontrollerar src/content/gear-reviews/ mot Adtractions produktfeeds.
+ * Rapporterar avvikelser, patchar aldrig innehåll.
+ *
+ * Matchning och normalisering följer src/lib/feed.ts. Ändras den ena måste den
+ * andra följa med, annars rapporterar skriptet avvikelser som sajten inte har.
  *
  * VAD SOM RÄKNAS SOM FEL
  *
- * Sedan src/lib/feed.ts hämtar priset vid byggtid är price i frontmatter ett
- * reservvärde, inte det som visas. En prisavvikelse är därför inte längre ett
- * fel på sidan, bara ett dåligt reservvärde, och rapporteras som varning.
+ * Sedan feed.ts hämtar priset vid byggtid är price i frontmatter ett
+ * reservvärde, inte det som visas. En prisavvikelse är därför inte ett fel på
+ * sidan, bara ett dåligt reservvärde, och rapporteras som varning.
  *
  * Fel är sådant som gör att en sida inte fungerar: saknad eller felformaterad
  * affiliateUrl, och price som inte är ett tal. Bara dessa fäller --strict, så
@@ -19,36 +21,48 @@
  * VARFÖR EN GRÄNS PÅ PRISAVVIKELSER
  *
  * Reservvärdets fel spelar roll i proportion till sin storlek. Några procent
- * märks inte om feeden en dag uteblir, och priceRange påverkas först vid
- * större skillnader. Avvikelser under gränsen räknas därför bara samman i
- * stället för att listas, annars drunknar de stora i de små.
+ * märks inte om en feed en dag uteblir, och priceRange påverkas först vid
+ * större skillnader. Avvikelser under gränsen räknas därför bara samman.
  *
  * PRODUKTER SOM SAKNAS I FEEDEN
  *
- * Feeden innehåller bara produkter i lager. En produkt som saknas är alltså
+ * Feedsen innehåller bara produkter i lager. En produkt som saknas är alltså
  * normalt tillfälligt slut, inte borttagen. Kontrollerat 2026-08-13: samtliga
- * nio saknade produkter svarade HTTP 200 hos butiken. Därför varning och inte
- * fel. Vid upprepade träffar över tid bör länken ändå ses över.
+ * nio saknade FiskeOnline-produkter svarade HTTP 200 hos butiken. Därför
+ * varning och inte fel. Vid upprepade träffar bör länken ändå ses över.
+ *
+ * BUTIKER UTAN FEED
+ *
+ * Fritid och Vildmark har ingen feed uppsatt. Produkterna hoppas över och
+ * räknas bara samman, eftersom det inte finns något att jämföra mot.
  *
  * Körning:
- *   ADTRACTION_FEED_URL="https://..." node validate-feed.mjs
- *   node validate-feed.mjs --file /tmp/feed.xml     lokal fil
- *   node validate-feed.mjs --rea                    lista pågående kampanjer
- *   node validate-feed.mjs --json                   maskinläsbar utdata
- *   node validate-feed.mjs --strict                 exit 1 vid fel, för CI
+ *   node --env-file=.env validate-feed.mjs
+ *   node --env-file=.env validate-feed.mjs --rea      lista pågående kampanjer
+ *   node --env-file=.env validate-feed.mjs --json     maskinläsbar utdata
+ *   node --env-file=.env validate-feed.mjs --strict   exit 1 vid fel, för CI
+ *
+ * Enskild feed från fil, för felsökning utan nätverk:
+ *   node validate-feed.mjs --file /tmp/feed.xml --merchant FiskeOnline
  */
 
 import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 
-/** Annons-ID i publicerade affiliateUrl. Feedens egna länkar använder ett annat. */
-const EXPECTED_AD_ID = '1954031990';
+/**
+ * Butiker med feed. adId är det annons-ID som ska finnas i publicerade
+ * affiliateUrl. Feedernas egna länkar använder ett annat ID i båda
+ * programmen, se BESLUT.md.
+ */
+const SOURCES = [
+  { name: 'FiskeOnline', env: 'ADTRACTION_FEED_URL_FISKEONLINE', legacyEnv: 'ADTRACTION_FEED_URL', adId: '1954031990' },
+  { name: 'Outl1', env: 'ADTRACTION_FEED_URL_OUTL1', adId: '1728546059' },
+];
 
 /** Prisavvikelser under denna andel räknas bara samman, de listas inte. */
 const PRICE_TOLERANCE = 0.10;
 
 const GEAR_DIR = 'src/content/gear-reviews';
-const MERCHANT = 'FiskeOnline';
 
 const args = process.argv.slice(2);
 const flag = (n) => args.includes(`--${n}`);
@@ -76,7 +90,6 @@ function tag(block, name) {
   return cdata ? cdata[1].trim() : decode(m[1]).trim();
 }
 
-/** "389 SEK" -> { amount: 389, currency: "SEK" } */
 function money(raw) {
   if (!raw) return null;
   const m = raw.replace(/\u00a0/g, ' ').match(/([\d\s.,]+)\s*([A-Z]{3})?/);
@@ -85,48 +98,18 @@ function money(raw) {
   return Number.isFinite(amount) ? { amount, currency: m[2] || null } : null;
 }
 
-function parseFeed(xml) {
-  const items = [];
-  const re = /<item[\s>][\s\S]*?<\/item>/gi;
-  let m;
-  while ((m = re.exec(xml)) !== null) {
-    const b = m[0];
-    items.push({
-      id: tag(b, 'g:id'),
-      title: tag(b, 'title'),
-      productUrl: productUrlFrom(tag(b, 'link')),
-      availability: tag(b, 'g:availability'),
-      price: money(tag(b, 'g:price')),
-      salePrice: money(tag(b, 'g:sale_price')),
-      label1: tag(b, 'g:custom_label_1'),
-    });
-  }
-  return items;
-}
-
-async function loadFeed() {
-  const file = opt('file');
-  if (file) return parseFeed(await readFile(file, 'utf8'));
-
-  const url = process.env.ADTRACTION_FEED_URL;
-  if (!url) {
-    console.error('Saknar ADTRACTION_FEED_URL. Sätt miljövariabeln eller kör med --file.');
-    process.exit(2);
-  }
-  const res = await fetch(url);
-  if (!res.ok) {
-    console.error(`Feed svarade ${res.status} ${res.statusText}`);
-    process.exit(2);
-  }
-  return parseFeed(await res.text());
-}
-
-/* ---------- länkar ---------- */
+/* ---------- länkar, speglar feed.ts ---------- */
 
 function productUrlFrom(trackingUrl) {
   if (!trackingUrl) return null;
   const i = trackingUrl.indexOf('&url=');
-  return i === -1 ? null : decode(trackingUrl.slice(i + 5));
+  if (i === -1) return null;
+  return normalise(decode(trackingUrl.slice(i + 5)));
+}
+
+/** Gemener, utan querystring, fragment eller avslutande slash. */
+function normalise(url) {
+  return url.trim().toLowerCase().split('#')[0].split('?')[0].replace(/\/+$/, '');
 }
 
 function adIdFrom(url) {
@@ -134,8 +117,85 @@ function adIdFrom(url) {
   return m ? m[1] : null;
 }
 
-function normUrl(u) {
-  return u ? u.trim().toLowerCase().replace(/\/+$/, '') : null;
+/* ---------- hämtning ---------- */
+
+function urlFor(source) {
+  return process.env[source.env] ?? (source.legacyEnv ? process.env[source.legacyEnv] : undefined) ?? '';
+}
+
+function parseInto(xml, source, index, warnings) {
+  let added = 0;
+  let collisions = 0;
+  const re = /<item[\s>][\s\S]*?<\/item>/gi;
+  let m;
+  while ((m = re.exec(xml)) !== null) {
+    const block = m[0];
+    const key = productUrlFrom(tag(block, 'link'));
+    if (!key) continue;
+    const price = money(tag(block, 'g:price'));
+    if (price === null) continue;
+
+    if (index.has(key)) {
+      collisions++;
+      continue;
+    }
+
+    index.set(key, {
+      merchant: source.name,
+      availability: tag(block, 'g:availability'),
+      price,
+      salePrice: money(tag(block, 'g:sale_price')),
+      label1: tag(block, 'g:custom_label_1'),
+    });
+    added++;
+  }
+
+  if (collisions > 0) {
+    warnings.push(`${source.name}: ${collisions} produkter delade nyckel efter normalisering, se BESLUT.md om querystring`);
+  }
+  return added;
+}
+
+async function loadFeeds() {
+  const index = new Map();
+  const counts = [];
+  const warnings = [];
+
+  const file = opt('file');
+  if (file) {
+    const name = opt('merchant') || SOURCES[0].name;
+    const source = SOURCES.find((s) => s.name === name);
+    if (!source) {
+      console.error(`Okänd butik "${name}". Kända: ${SOURCES.map((s) => s.name).join(', ')}`);
+      process.exit(2);
+    }
+    const added = parseInto(await readFile(file, 'utf8'), source, index, warnings);
+    counts.push({ name: source.name, added });
+    return { index, counts, warnings, only: source.name };
+  }
+
+  for (const source of SOURCES) {
+    const url = urlFor(source);
+    if (!url) {
+      warnings.push(`${source.name}: ${source.env} saknas, butiken kontrolleras inte`);
+      continue;
+    }
+    let res;
+    try {
+      res = await fetch(url);
+    } catch (err) {
+      warnings.push(`${source.name}: hämtning misslyckades (${err.message})`);
+      continue;
+    }
+    if (!res.ok) {
+      warnings.push(`${source.name}: Adtraction svarade ${res.status}`);
+      continue;
+    }
+    const added = parseInto(await res.text(), source, index, warnings);
+    counts.push({ name: source.name, added });
+  }
+
+  return { index, counts, warnings, only: null };
 }
 
 /* ---------- gear-reviews ---------- */
@@ -173,23 +233,28 @@ async function loadReviews(dir) {
 
 /* ---------- kontroll ---------- */
 
-function validate(reviews, feed) {
-  const byUrl = new Map();
-  for (const p of feed) {
-    const k = normUrl(p.productUrl);
-    if (k) byUrl.set(k, p);
-  }
-
+function validate(reviews, index, only) {
   const findings = [];
   const rea = [];
   let smallDiffs = 0;
   let matched = 0;
+  let noFeed = 0;
 
   const add = (level, slug, type, message) => findings.push({ level, slug, type, message });
+  const byName = new Map(SOURCES.map((s) => [s.name, s]));
 
   for (const r of reviews) {
     const slug = r.slug || r.file;
-    if (r.merchant && r.merchant !== MERCHANT) continue;
+    const source = r.merchant ? byName.get(r.merchant) : null;
+
+    // Butiker utan feed går inte att jämföra mot något.
+    if (!source) {
+      noFeed++;
+      continue;
+    }
+
+    // Vid --file kontrolleras bara den butik filen tillhör.
+    if (only && source.name !== only) continue;
 
     if (!r.affiliateUrl) {
       add('fel', slug, 'saknar-lank', 'affiliateUrl saknas');
@@ -197,8 +262,9 @@ function validate(reviews, feed) {
     }
 
     const adId = adIdFrom(r.affiliateUrl);
-    if (adId && adId !== EXPECTED_AD_ID) {
-      add('varning', slug, 'annons-id', `affiliateUrl använder a=${adId}, förväntat a=${EXPECTED_AD_ID}`);
+    if (adId && adId !== source.adId) {
+      add('varning', slug, 'annons-id',
+        `${source.name}: affiliateUrl använder a=${adId}, förväntat a=${source.adId}`);
     }
 
     const target = productUrlFrom(r.affiliateUrl);
@@ -212,9 +278,9 @@ function validate(reviews, feed) {
       add('fel', slug, 'pris-saknas', 'price saknas eller är inte ett tal');
     }
 
-    const p = byUrl.get(normUrl(target));
+    const p = index.get(target);
     if (!p) {
-      add('varning', slug, 'ur-feed', 'saknas i feeden, troligen slut i lager');
+      add('varning', slug, 'ur-feed', `${source.name}: saknas i feeden, troligen slut i lager`);
       continue;
     }
 
@@ -243,7 +309,7 @@ function validate(reviews, feed) {
     }
   }
 
-  return { findings, rea, smallDiffs, matched };
+  return { findings, rea, smallDiffs, matched, noFeed };
 }
 
 /* ---------- utdata ---------- */
@@ -251,17 +317,22 @@ function validate(reviews, feed) {
 const ORDER = { fel: 0, varning: 1 };
 const RUBRIK = { fel: 'FEL', varning: 'VARNING' };
 
-function report(res, counts) {
-  const { findings, rea, smallDiffs, matched } = res;
+function report(res, meta) {
+  const { findings, rea, smallDiffs, matched, noFeed } = res;
 
   if (flag('json')) {
-    console.log(JSON.stringify({ ...counts, matched, smallDiffs, findings, rea }, null, 2));
+    console.log(JSON.stringify({ ...meta, matched, noFeed, smallDiffs, findings, rea }, null, 2));
     return;
   }
 
-  console.log('\nFeedvalidering FiskeOnline');
-  console.log(`${counts.reviews} produktsidor kontrollerade mot ${counts.feed} produkter i feeden`);
-  console.log(`${matched} matchade mot feeden\n`);
+  console.log('\nFeedvalidering');
+  for (const c of meta.counts) console.log(`  ${c.name}: ${c.added} produkter i feeden`);
+  console.log(`\n${meta.reviews} produktsidor, ${matched} matchade mot feed`);
+  if (noFeed > 0) console.log(`${noFeed} produkter tillhör butiker utan feed och kontrolleras inte`);
+
+  for (const w of meta.warnings) console.log(`\nOBS  ${w}`);
+
+  console.log('');
 
   if (findings.length === 0) {
     console.log('Inga avvikelser.');
@@ -269,7 +340,6 @@ function report(res, counts) {
     const sorted = [...findings].sort(
       (a, b) => ORDER[a.level] - ORDER[b.level] || a.slug.localeCompare(b.slug, 'sv')
     );
-
     let current = null;
     for (const f of sorted) {
       if (f.level !== current) {
@@ -278,14 +348,12 @@ function report(res, counts) {
       }
       console.log(`  ${f.slug.padEnd(34)} ${f.message}`);
     }
-
     const n = (l) => findings.filter((f) => f.level === l).length;
     console.log(`\n${n('fel')} fel, ${n('varning')} varningar`);
   }
 
   if (smallDiffs > 0) {
-    const pct = Math.round(PRICE_TOLERANCE * 100);
-    console.log(`${smallDiffs} reservpriser avviker mindre än ${pct} procent och listas inte`);
+    console.log(`${smallDiffs} reservpriser avviker mindre än ${Math.round(PRICE_TOLERANCE * 100)} procent och listas inte`);
   }
 
   if (rea.length > 0) {
@@ -305,14 +373,15 @@ function report(res, counts) {
 
 /* ---------- main ---------- */
 
-const feed = await loadFeed();
-if (feed.length === 0) {
-  console.error('Feeden innehåller inga item-element. Kontrollera att filen är XML.');
+const { index, counts, warnings, only } = await loadFeeds();
+if (index.size === 0) {
+  console.error('Inga produkter kunde läsas ur någon feed.');
+  for (const w of warnings) console.error(`  ${w}`);
   process.exit(2);
 }
 
 const reviews = await loadReviews(opt('dir') || GEAR_DIR);
-const res = validate(reviews, feed);
-report(res, { reviews: reviews.length, feed: feed.length });
+const res = validate(reviews, index, only);
+report(res, { reviews: reviews.length, counts, warnings });
 
 if (flag('strict') && res.findings.some((f) => f.level === 'fel')) process.exit(1);

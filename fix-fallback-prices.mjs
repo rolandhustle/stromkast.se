@@ -24,15 +24,31 @@
  * validate-feed.mjs och ska bedömas redaktionellt, inte skrivas automatiskt.
  *
  * Körning:
- *   node fix-fallback-prices.mjs --file /tmp/feed.txt            torrkörning
- *   node fix-fallback-prices.mjs --file /tmp/feed.txt --apply    skriver filer
+ *   node --env-file=.env fix-fallback-prices.mjs            torrkörning
+ *   node --env-file=.env fix-fallback-prices.mjs --apply    skriver filer
+ *
+ * Enskild feed från fil, för felsökning utan nätverk:
+ *   node fix-fallback-prices.mjs --file /tmp/feed.xml
+ *
+ * Matchning och normalisering speglar src/lib/feed.ts. Ändras den ena måste
+ * detta skript och validate-feed.mjs följa med, annars rättar skriptet mot
+ * andra produkter än de sajten faktiskt visar.
  */
 
 import { readFile, writeFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 
 const GEAR_DIR = 'src/content/gear-reviews';
-const MERCHANT = 'FiskeOnline';
+/**
+ * Butiker med feed. Speglar SOURCES i src/lib/feed.ts och validate-feed.mjs.
+ * Butiker som saknas här hoppas över, eftersom det inte finns något att
+ * jämföra mot.
+ */
+const SOURCES = [
+  { name: 'FiskeOnline', env: 'ADTRACTION_FEED_URL_FISKEONLINE', legacyEnv: 'ADTRACTION_FEED_URL' },
+  { name: 'Outl1', env: 'ADTRACTION_FEED_URL_OUTL1' },
+];
+const MERCHANTS = new Set(SOURCES.map((s) => s.name));
 
 const args = process.argv.slice(2);
 const flag = (n) => args.includes(`--${n}`);
@@ -76,35 +92,62 @@ function productUrlFrom(trackingUrl) {
   return i === -1 ? null : decode(trackingUrl.slice(i + 5));
 }
 
-const normUrl = (u) => (u ? u.trim().toLowerCase().replace(/\/+$/, '') : null);
+/** Gemener, utan querystring, fragment eller avslutande slash. Speglar feed.ts. */
+const normUrl = (u) =>
+  u ? u.trim().toLowerCase().split('#')[0].split('?')[0].replace(/\/+$/, '') : null;
 
-async function loadFeed() {
-  const file = opt('file');
-  let xml;
-  if (file) {
-    xml = await readFile(file, 'utf8');
-  } else {
-    const url = process.env.ADTRACTION_FEED_URL;
-    if (!url) {
-      console.error('Saknar ADTRACTION_FEED_URL. Sätt miljövariabeln eller kör med --file.');
-      process.exit(2);
-    }
-    const res = await fetch(url);
-    if (!res.ok) {
-      console.error(`Feed svarade ${res.status} ${res.statusText}`);
-      process.exit(2);
-    }
-    xml = await res.text();
-  }
-
-  const index = new Map();
+function parseInto(xml, index) {
+  let added = 0;
   const re = /<item[\s>][\s\S]*?<\/item>/gi;
   let m;
   while ((m = re.exec(xml)) !== null) {
     const key = normUrl(productUrlFrom(tag(m[0], 'link')));
     const price = money(tag(m[0], 'g:price'));
-    if (key && price !== null) index.set(key, price);
+    // Första posten vinner, som i feed.ts.
+    if (key && price !== null && !index.has(key)) {
+      index.set(key, price);
+      added++;
+    }
   }
+  return added;
+}
+
+async function loadFeed() {
+  const index = new Map();
+
+  const file = opt('file');
+  if (file) {
+    const added = parseInto(await readFile(file, 'utf8'), index);
+    console.log(`  ${file}: ${added} produkter`);
+    return index;
+  }
+
+  for (const source of SOURCES) {
+    const url =
+      process.env[source.env] ??
+      (source.legacyEnv ? process.env[source.legacyEnv] : undefined);
+
+    if (!url) {
+      console.log(`  ${source.name}: ${source.env} saknas, butiken hoppas över`);
+      continue;
+    }
+
+    let res;
+    try {
+      res = await fetch(url);
+    } catch (err) {
+      console.log(`  ${source.name}: hämtning misslyckades (${err.message})`);
+      continue;
+    }
+    if (!res.ok) {
+      console.log(`  ${source.name}: Adtraction svarade ${res.status}`);
+      continue;
+    }
+
+    const added = parseInto(await res.text(), index);
+    console.log(`  ${source.name}: ${added} produkter`);
+  }
+
   return index;
 }
 
@@ -122,6 +165,7 @@ function readField(fm, name) {
 
 /* ---------- main ---------- */
 
+console.log('\nFeeds');
 const feed = await loadFeed();
 if (feed.size === 0) {
   console.error('Inga produkter lästes ur feeden. Kontrollera filen.');
@@ -149,7 +193,7 @@ for (const f of files) {
   if (!fm) continue;
 
   const merchant = readField(fm, 'merchant');
-  if (merchant && merchant !== MERCHANT) continue;
+  if (!merchant || !MERCHANTS.has(merchant)) continue;
 
   const slug = readField(fm, 'slug') || f;
   const affiliateUrl = readField(fm, 'affiliateUrl');
