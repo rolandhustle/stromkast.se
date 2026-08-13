@@ -53,12 +53,10 @@
 interface FeedSource {
   name: string;
   env: string;
-  /** Äldre variabelnamn som fortfarande accepteras. */
-  legacyEnv?: string;
 }
 
 const SOURCES: FeedSource[] = [
-  { name: 'FiskeOnline', env: 'ADTRACTION_FEED_URL_FISKEONLINE', legacyEnv: 'ADTRACTION_FEED_URL' },
+  { name: 'FiskeOnline', env: 'ADTRACTION_FEED_URL_FISKEONLINE' },
   { name: 'Outl1', env: 'ADTRACTION_FEED_URL_OUTL1' },
 ];
 
@@ -141,12 +139,7 @@ function urlFor(source: FeedSource): string {
   // kan importeras av fristående skript i projektroten utan att krascha.
   const env = import.meta.env as Record<string, string | undefined> | undefined;
   const proc = process.env as Record<string, string | undefined>;
-  return (
-    env?.[source.env] ??
-    proc[source.env] ??
-    (source.legacyEnv ? env?.[source.legacyEnv] ?? proc[source.legacyEnv] : undefined) ??
-    ''
-  );
+  return env?.[source.env] ?? proc[source.env] ?? '';
 }
 
 async function loadSource(

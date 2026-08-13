@@ -45,7 +45,7 @@ const GEAR_DIR = 'src/content/gear-reviews';
  * jämföra mot.
  */
 const SOURCES = [
-  { name: 'FiskeOnline', env: 'ADTRACTION_FEED_URL_FISKEONLINE', legacyEnv: 'ADTRACTION_FEED_URL' },
+  { name: 'FiskeOnline', env: 'ADTRACTION_FEED_URL_FISKEONLINE' },
   { name: 'Outl1', env: 'ADTRACTION_FEED_URL_OUTL1' },
 ];
 const MERCHANTS = new Set(SOURCES.map((s) => s.name));
@@ -123,9 +123,7 @@ async function loadFeed() {
   }
 
   for (const source of SOURCES) {
-    const url =
-      process.env[source.env] ??
-      (source.legacyEnv ? process.env[source.legacyEnv] : undefined);
+    const url = process.env[source.env];
 
     if (!url) {
       console.log(`  ${source.name}: ${source.env} saknas, butiken hoppas över`);

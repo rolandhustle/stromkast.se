@@ -55,7 +55,7 @@ import { join } from 'node:path';
  * programmen, se BESLUT.md.
  */
 const SOURCES = [
-  { name: 'FiskeOnline', env: 'ADTRACTION_FEED_URL_FISKEONLINE', legacyEnv: 'ADTRACTION_FEED_URL', adId: '1954031990' },
+  { name: 'FiskeOnline', env: 'ADTRACTION_FEED_URL_FISKEONLINE', adId: '1954031990' },
   { name: 'Outl1', env: 'ADTRACTION_FEED_URL_OUTL1', adId: '1728546059' },
 ];
 
@@ -120,7 +120,7 @@ function adIdFrom(url) {
 /* ---------- hämtning ---------- */
 
 function urlFor(source) {
-  return process.env[source.env] ?? (source.legacyEnv ? process.env[source.legacyEnv] : undefined) ?? '';
+  return process.env[source.env] ?? '';
 }
 
 function parseInto(xml, source, index, warnings) {
