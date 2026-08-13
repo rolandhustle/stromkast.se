@@ -11,3 +11,43 @@ jobs:
     steps:
       - name: Anropa Vercel deploy hook
         run: curl -fsS -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
+
+  # Eget jobb, inte ett steg i trigger. Valideringen får aldrig hindra den
+  # dagliga ombyggnaden: sajten behöver färska priser även en dag då en länk
+  # är trasig. Jobben körs därför parallellt och oberoende.
+  validera-feed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # validate-feed.mjs har inga beroenden, så npm install behövs inte.
+      - name: Kontrollera priser och länkar mot Adtractions feeds
+        env:
+          ADTRACTION_FEED_URL_FISKEONLINE: ${{ secrets.ADTRACTION_FEED_URL_FISKEONLINE }}
+          ADTRACTION_FEED_URL_OUTL1: ${{ secrets.ADTRACTION_FEED_URL_OUTL1 }}
+        run: |
+          set +e
+          node validate-feed.mjs --strict > /tmp/feedrapport.txt 2>&1
+          status=$?
+          set -e
+
+          # Rapporten skrivs till jobbsammanfattningen, inte bara till loggen.
+          # Varningar som bara syns i en loggfil läses aldrig.
+          {
+            echo '## Feedvalidering'
+            echo ''
+            echo '```'
+            cat /tmp/feedrapport.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          cat /tmp/feedrapport.txt
+
+          # --strict fälls bara av trasiga länkar och pris som inte är tal.
+          # Kampanjer, slutsålda produkter och prisavvikelser ger varning och
+          # syns i sammanfattningen utan att fälla körningen.
+          exit $status
