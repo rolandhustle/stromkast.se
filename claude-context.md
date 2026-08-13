@@ -35,6 +35,9 @@ src/components/NewsletterForm.astro
 src/components/ProduktRuta.astro
 src/components/quiz
 src/components/quiz/SpoQuiz.tsx
+src/components/rullvaljare
+src/components/rullvaljare/RullValjare.tsx
+src/components/rullvaljare/RullValjareIsland.astro
 src/components/SEO.astro
 src/content
 src/content.config.ts
@@ -46,13 +49,17 @@ src/content/articles/basta-ekolod.mdx
 src/content/articles/basta-fiskespon-2026.mdx
 src/content/articles/basta-gaddbeten.mdx
 src/content/articles/battrailer-b-korkort.mdx
+src/content/articles/ce-kategori-bat.mdx
 src/content/articles/elmotor-till-fiskebat.mdx
+src/content/articles/gummibat-fiske.mdx
 src/content/articles/nappkalender-guide.mdx
 src/content/articles/valja-fiskebat.mdx
 src/content/articles/valja-fiskelina.mdx
+src/content/articles/valja-haspelrulle.mdx
 src/content/articles/vattenforing-och-fiske.mdx
 src/content/articles/vilken-utombordare.mdx
 src/content/authors
+src/content/authors/redaktionen.json
 src/content/authors/rikard-giby.json
 src/content/destinations
 src/content/destinations/.DS_Store
@@ -80,6 +87,7 @@ src/content/destinations/kavlingean.mdx
 src/content/destinations/klaralven.mdx
 src/content/destinations/kultsjon.mdx
 src/content/destinations/lagan.mdx
+src/content/destinations/ljungan.mdx
 src/content/destinations/malaren.mdx
 src/content/destinations/mellanljusnan.mdx
 src/content/destinations/mockeln.mdx
@@ -92,6 +100,7 @@ src/content/destinations/ostergotlands-skargard.mdx
 src/content/destinations/ovre-fryken.mdx
 src/content/destinations/pitealven.mdx
 src/content/destinations/ringsjon.mdx
+src/content/destinations/ronne-a.mdx
 src/content/destinations/roxen.mdx
 src/content/destinations/siljan.mdx
 src/content/destinations/sommen.mdx
@@ -104,6 +113,7 @@ src/content/destinations/umealven.mdx
 src/content/destinations/vanern.mdx
 src/content/destinations/vattern.mdx
 src/content/destinations/vindelalven.mdx
+src/content/destinations/voxnan.mdx
 src/content/gear-categories
 src/content/gear-categories/batar.json
 src/content/gear-categories/battrailers.json
@@ -154,6 +164,8 @@ src/content/gear-reviews/lyfco-aluminiumbat-420-kategori-c.mdx
 src/content/gear-reviews/lyfco-aluminiumbat-420-kategori-d.mdx
 src/content/gear-reviews/lyfco-katamaran-300.mdx
 src/content/gear-reviews/lyfco-katamaran-420.mdx
+src/content/gear-reviews/lyfco-nrs-36l.mdx
+src/content/gear-reviews/lyfco-nrs-46l.mdx
 src/content/gear-reviews/lyfco-nrs-55x.mdx
 src/content/gear-reviews/lyfco-nrs-62x.mdx
 src/content/gear-reviews/lyfco-nrs-86x-kort.mdx
@@ -270,6 +282,7 @@ src/layouts
 src/layouts/BaseLayout.astro
 src/lib
 src/lib/.DS_Store
+src/lib/feed.ts
 src/lib/forecast.ts
 src/lib/hydro.ts
 src/lib/smhi.ts
@@ -746,6 +759,26 @@ const { title, description, ogImage, canonical, noindex, schema, heroOverlay = f
 ## src/components/AffiliateCard.astro
 ```
 ---
+/**
+ * AffiliateCard.astro
+ *
+ * Produktkort med pris, betyg och affiliate-länk.
+ *
+ * PRISET HÄMTAS VID BYGGTID
+ *
+ * price i frontmatter är reservvärde, inte sanning. Aktuellt pris slås upp i
+ * Adtractions produktfeed via affiliateUrl (src/lib/feed.ts). Feeden ger både
+ * ordinarie och kampanjpris, och kortet visar båda när produkten är nedsatt.
+ *
+ * Saknas feeden, svarar den med fel, eller är produkten slut i lager och
+ * därmed borta ur feeden, faller kortet tillbaka på price i frontmatter. Då
+ * visas inget hämtningsdatum, eftersom vi inte vet när priset senast stämde.
+ *
+ * Hämtningsdatumet är inte kosmetiskt. Ett pris som ändras utan att vi ser det
+ * måste kunna dateras av läsaren, annars påstår kortet mer än vi vet.
+ */
+import { getFeedPrice, formatFetchedAt } from '../lib/feed';
+
 interface Props {
   title: string;
   brand: string;
@@ -764,7 +797,22 @@ const { title, brand, price, rating, description, image, affiliateUrl, merchant,
 const reviewHref = slug ? `/utrustning/test/${slug}/` : null;
 
 const stars = Math.round(rating);
-const priceFormatted = new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK', maximumFractionDigits: 0 }).format(price);
+
+const kr = (v: number) =>
+  new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK', maximumFractionDigits: 0 }).format(v);
+
+const feed = await getFeedPrice(affiliateUrl);
+
+// Kampanj räknas bara när feeden faktiskt anger ett lägre pris än ordinarie.
+const onSale = feed !== null && feed.salePrice !== null && feed.salePrice < feed.price;
+
+// Det pris läsaren betalar i dag. Utan feed är det reservvärdet.
+const shownPrice = onSale ? feed!.salePrice! : (feed?.price ?? price);
+
+// Överstruket ordinarie visas bara vid kampanj.
+const strikePrice = onSale ? feed!.price : null;
+
+const fetchedLabel = feed ? formatFetchedAt(feed.fetchedAt) : '';
 ---
 
 <article class={`relative bg-white rounded-2xl overflow-hidden border ${featured ? 'border-rust shadow-lg shadow-rust/10' : 'border-mist'} transition-shadow hover:shadow-md`}>
@@ -811,16 +859,25 @@ const priceFormatted = new Intl.NumberFormat('sv-SE', { style: 'currency', curre
 
     <p class="text-sm text-stone leading-relaxed mb-4">{description}</p>
 
-    <div class="flex items-center justify-between">
-      <div>
-        <p class="text-xl font-bold text-deep">{priceFormatted}</p>
-        <p class="text-xs text-stone">{merchant}</p>
+    <div class="flex items-end justify-between gap-3">
+      <div class="min-w-0">
+        <p class="text-xl font-bold text-deep leading-tight">
+          {kr(shownPrice)}
+          {strikePrice !== null && (
+            <span class="ml-2 text-sm font-normal text-stone line-through whitespace-nowrap">
+              <span class="sr-only">Ordinarie pris </span>{kr(strikePrice)}
+            </span>
+          )}
+        </p>
+        <p class="text-xs text-stone mt-0.5">
+          {merchant}{fetchedLabel && `, pris hämtat ${fetchedLabel}`}
+        </p>
       </div>
       <a
         href={affiliateUrl || '#'}
         target="_blank"
         rel="noopener noreferrer sponsored"
-        class="inline-flex items-center gap-1.5 bg-pine text-white text-sm font-semibold px-4 py-2.5 rounded-full hover:bg-deep transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
+        class="shrink-0 inline-flex items-center gap-1.5 bg-pine text-white text-sm font-semibold px-4 py-2.5 rounded-full hover:bg-deep transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
         data-affiliate-merchant={merchant}
         data-affiliate-product={title}
       >
@@ -4080,6 +4137,380 @@ export default function SpoQuiz({ rods }: Props) {
 }
 ```
 
+## src/components/rullvaljare/RullValjare.tsx
+```
+import { useMemo, useState } from 'react';
+import { trackAffiliateClick } from '../../lib/track';
+
+/**
+ * RullValjare
+ * En deterministisk rullväljare i samma anda som LinValjare och EkolodValjare.
+ * Tre val (art, fisketempo, budget) ger direkt en rekommendation ur de tolv
+ * haspelrullarna i gear-reviews-collectionen.
+ *
+ * Rekommendationslogiken bygger på verifierade specar (vevtag, vikt, broms).
+ * Kinetic-modellerna saknar publicerade nyckelspecar och deltar därför på pris
+ * och storlek, aldrig med motiveringar de saknar täckning för. Taggen
+ * "Specar ej publicerade" visas öppet, samma ärlighetslinje som i rullguiden.
+ */
+
+interface RullProduct {
+  slug: string;
+  title: string;
+  brand: string;
+  price: number;
+  priceRange: 'budget' | 'mellanklass' | 'premium';
+  affiliateUrl: string;
+  merchant: string;
+}
+
+interface Props {
+  rullar: RullProduct[];
+}
+
+type Art = 'abborre' | 'gos' | 'gadda' | 'kust';
+type Tempo = 'allround' | 'snabb' | 'kraft' | 'basta';
+type Budget = 'lag' | 'mellan' | 'oavsett';
+
+const ARTER: { value: Art; label: string }[] = [
+  { value: 'abborre', label: 'Abborre och finesse' },
+  { value: 'gos', label: 'Gös och allround' },
+  { value: 'gadda', label: 'Gädda' },
+  { value: 'kust', label: 'Havsöring från kust' },
+];
+
+const TEMPON: { value: Tempo; label: string }[] = [
+  { value: 'allround', label: 'Blandat fiske' },
+  { value: 'snabb', label: 'Snabb invevning för jerk och spinnare' },
+  { value: 'kraft', label: 'Kraft för tunga beten' },
+  { value: 'basta', label: 'Bästa möjliga rulle' },
+];
+
+const BUDGETAR: { value: Budget; label: string }[] = [
+  { value: 'lag', label: 'Upp till ca 1 000 kr' },
+  { value: 'mellan', label: 'Upp till ca 2 500 kr' },
+  { value: 'oavsett', label: 'Spelar ingen roll' },
+];
+
+/** Visningstaggar per slug. Endast verifierade uppgifter, rullspecar ligger inte i schemat. */
+const ATTR: Record<string, { storlek: string; taggar: string[] }> = {
+  'shimano-nexave-fi-2500': { storlek: '2500', taggar: ['73 cm/vev', '250 g', 'Instegsmodell'] },
+  'okuma-ceymar-hd-2500a': { storlek: '2500', taggar: ['78 cm/vev', 'Filtbroms'] },
+  'okuma-inspira-2500a': { storlek: '2500', taggar: ['88 cm/vev', '226 g'] },
+  'okuma-itx-cb-2500h': { storlek: '2500', taggar: ['85 cm/vev', 'Kolfiberkropp'] },
+  'shimano-miravel-2500': { storlek: '2500', taggar: ['73 cm/vev', '205 g'] },
+  'shimano-vanford-fa-2500': { storlek: '2500', taggar: ['75 cm/vev', '175 g'] },
+  'shimano-stella-fk-2500': { storlek: '2500', taggar: ['75 cm/vev', '210 g', 'Flaggskepp'] },
+  'shimano-stradic-fm-c3000-hg': { storlek: 'C3000', taggar: ['86 cm/vev', '225 g', 'Kompakt kropp'] },
+  'kinetic-marshall-4000-fd': { storlek: '4000', taggar: ['Förspolad fläta', 'Specar ej publicerade'] },
+  'westin-w3-4000-fd': { storlek: '4000', taggar: ['79 cm/vev', '310 g', 'Kolfiberbroms'] },
+  'shimano-vanford-fa-4000': { storlek: '4000', taggar: ['87 cm/vev', '215 g'] },
+  'kinetic-brutalis-5000-fd': { storlek: '5000', taggar: ['Kolfiberbroms', 'Specar ej publicerade'] },
+};
+
+interface Rec {
+  /** Slugs i prioritetsordning */
+  slugs: string[];
+  /** Ärlig not när valet behöver en förklaring */
+  note?: string;
+}
+
+function recommend(art: Art, tempo: Tempo): Rec {
+  if (art === 'abborre') {
+    switch (tempo) {
+      case 'allround':
+        return { slugs: ['shimano-vanford-fa-2500', 'shimano-miravel-2500', 'okuma-ceymar-hd-2500a'] };
+      case 'snabb':
+        return { slugs: ['okuma-inspira-2500a', 'okuma-itx-cb-2500h', 'shimano-stradic-fm-c3000-hg'] };
+      case 'kraft':
+        return {
+          slugs: ['shimano-miravel-2500', 'shimano-nexave-fi-2500', 'shimano-vanford-fa-2500'],
+          note: 'Tunga beten på lätt abborrutrustning är en kompromiss. Långsammare invevning ger mer kraft, men fiskar du mest stora jiggar är en större rulle rätt väg.',
+        };
+      case 'basta':
+        return { slugs: ['shimano-stella-fk-2500', 'shimano-vanford-fa-2500'] };
+    }
+  }
+
+  if (art === 'gos') {
+    switch (tempo) {
+      case 'allround':
+        return { slugs: ['shimano-stradic-fm-c3000-hg', 'shimano-vanford-fa-2500', 'okuma-inspira-2500a'] };
+      case 'snabb':
+        return { slugs: ['shimano-stradic-fm-c3000-hg', 'okuma-inspira-2500a', 'okuma-itx-cb-2500h'] };
+      case 'kraft':
+        return { slugs: ['shimano-vanford-fa-4000', 'westin-w3-4000-fd', 'kinetic-marshall-4000-fd'] };
+      case 'basta':
+        return { slugs: ['shimano-stella-fk-2500', 'shimano-stradic-fm-c3000-hg'] };
+    }
+  }
+
+  if (art === 'gadda') {
+    switch (tempo) {
+      case 'allround':
+        return { slugs: ['westin-w3-4000-fd', 'shimano-vanford-fa-4000', 'kinetic-marshall-4000-fd'] };
+      case 'snabb':
+        return { slugs: ['shimano-vanford-fa-4000', 'westin-w3-4000-fd'] };
+      case 'kraft':
+        return { slugs: ['westin-w3-4000-fd', 'kinetic-brutalis-5000-fd', 'kinetic-marshall-4000-fd'] };
+      case 'basta':
+        return { slugs: ['shimano-vanford-fa-4000', 'westin-w3-4000-fd'] };
+    }
+  }
+
+  // art === 'kust'
+  switch (tempo) {
+    case 'allround':
+      return {
+        slugs: ['shimano-vanford-fa-2500', 'shimano-stradic-fm-c3000-hg', 'okuma-itx-cb-2500h'],
+        note: 'Skölj alltid rullen i kranvatten efter pass i bräckt kustvatten, det gör mer för livslängden än något köpbeslut.',
+      };
+    case 'snabb':
+      return {
+        slugs: ['shimano-stradic-fm-c3000-hg', 'okuma-inspira-2500a'],
+        note: 'Skölj alltid rullen i kranvatten efter pass i bräckt kustvatten, det gör mer för livslängden än något köpbeslut.',
+      };
+    case 'kraft':
+      return {
+        slugs: ['shimano-vanford-fa-4000', 'westin-w3-4000-fd'],
+        note: 'Skölj alltid rullen i kranvatten efter pass i bräckt kustvatten, det gör mer för livslängden än något köpbeslut.',
+      };
+    case 'basta':
+      return {
+        slugs: ['shimano-stella-fk-2500', 'shimano-vanford-fa-2500'],
+        note: 'Skölj alltid rullen i kranvatten efter pass i bräckt kustvatten, det gör mer för livslängden än något köpbeslut.',
+      };
+  }
+}
+
+function budgetCap(b: Budget): number {
+  if (b === 'lag') return 1000;
+  if (b === 'mellan') return 2500;
+  return Infinity;
+}
+
+const COLOR_ACTIVE = 'bg-pine text-white border-pine';
+const COLOR_IDLE = 'bg-white text-deep border-mist hover:border-pine';
+
+export default function RullValjare({ rullar }: Props) {
+  const [art, setArt] = useState<Art>('abborre');
+  const [tempo, setTempo] = useState<Tempo>('allround');
+  const [budget, setBudget] = useState<Budget>('oavsett');
+
+  const result = useMemo(() => {
+    const rec = recommend(art, tempo);
+    const bySlug = new Map(rullar.map((p) => [p.slug, p]));
+    const ranked = rec.slugs
+      .map((s) => bySlug.get(s))
+      .filter((p): p is RullProduct => Boolean(p));
+
+    const cap = budgetCap(budget);
+    const within = ranked.filter((p) => p.price <= cap);
+
+    if (within.length === 0 && ranked.length > 0) {
+      const cheapest = [...ranked].sort((a, b) => a.price - b.price).slice(0, 1);
+      return {
+        picks: cheapest,
+        note: 'Inget alternativ i den här gruppen ligger under vald budget. Det billigaste visas i stället.',
+      };
+    }
+
+    return { picks: within, note: rec.note };
+  }, [art, tempo, budget, rullar]);
+
+  const renderChips = <T extends string>(
+    options: { value: T; label: string }[],
+    selected: T,
+    onSelect: (v: T) => void,
+  ) => (
+    <div className="flex flex-wrap gap-2">
+      {options.map((o) => {
+        const active = selected === o.value;
+        return (
+          <button
+            key={o.value}
+            type="button"
+            aria-pressed={active}
+            onClick={() => onSelect(o.value)}
+            className={`px-4 py-2 rounded-full text-sm font-medium border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 ${
+              active ? COLOR_ACTIVE : COLOR_IDLE
+            }`}
+          >
+            {o.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  return (
+    <div className="max-w-xl mx-auto bg-mist/40 border border-mist rounded-3xl p-6 sm:p-8 not-prose">
+      <div className="mb-6">
+        <h2 className="font-display text-2xl font-bold text-deep mb-2">Rullväljaren</h2>
+        <p className="text-stone text-sm leading-relaxed">
+          Välj vad du fiskar, hur du fiskar och din budget. Du får direkt rätt rulle ur sortimentet,
+          rangordnad på verifierade specar som vevtag och vikt, inte på kullagerantal.
+        </p>
+      </div>
+
+      <fieldset className="mb-5">
+        <legend className="text-xs font-semibold uppercase tracking-wider text-stone mb-2">Vad fiskar du mest?</legend>
+        {renderChips(ARTER, art, setArt)}
+      </fieldset>
+
+      <fieldset className="mb-5">
+        <legend className="text-xs font-semibold uppercase tracking-wider text-stone mb-2">Hur fiskar du?</legend>
+        {renderChips(TEMPON, tempo, setTempo)}
+      </fieldset>
+
+      <fieldset className="mb-7">
+        <legend className="text-xs font-semibold uppercase tracking-wider text-stone mb-2">Budget</legend>
+        {renderChips(BUDGETAR, budget, setBudget)}
+      </fieldset>
+
+      <div>
+        {result.note && (
+          <div className="mb-4 bg-white border border-mist rounded-2xl px-4 py-3">
+            <p className="text-deep text-sm leading-relaxed">{result.note}</p>
+          </div>
+        )}
+
+        {result.picks.length > 0 ? (
+          <div className="space-y-3">
+            {result.picks.map((p, i) => {
+              const attr = ATTR[p.slug];
+              return (
+                <div key={p.slug} className="bg-white rounded-2xl border border-mist p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      {i === 0 && (
+                        <span className="inline-block text-[11px] font-semibold uppercase tracking-wider text-pine mb-1">
+                          Bäst för dig
+                        </span>
+                      )}
+                      <h3 className="font-display text-lg font-bold text-deep leading-tight">{p.title}</h3>
+                      <p className="text-stone text-xs mt-0.5">{p.brand}</p>
+                    </div>
+                    <span className="text-deep font-bold whitespace-nowrap">{p.price.toLocaleString('sv-SE')} kr</span>
+                  </div>
+
+                  {attr && (
+                    <div className="flex flex-wrap gap-1.5 mt-3">
+                      <span className="text-[11px] font-medium text-stone bg-mist/60 rounded-full px-2.5 py-1">
+                        {attr.storlek}
+                      </span>
+                      {attr.taggar.map((t) => (
+                        <span key={t} className="text-[11px] font-medium text-stone bg-mist/60 rounded-full px-2.5 py-1">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  <a
+                    href={p.affiliateUrl}
+                    target={p.affiliateUrl ? '_blank' : undefined}
+                    rel={p.affiliateUrl ? 'noopener noreferrer sponsored' : undefined}
+                    onClick={() => trackAffiliateClick(p.merchant, p.slug, i + 1, 'article')}
+                    className="inline-flex items-center gap-1.5 mt-4 text-pine text-sm font-semibold hover:text-deep transition-colors underline underline-offset-2"
+                  >
+                    Se pris hos {p.merchant}
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                      <path
+                        d="M2 10L10 2M10 2H4M10 2v6"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </a>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="bg-white rounded-2xl border border-mist p-5">
+            <p className="text-deep text-sm leading-relaxed mb-3">
+              Vi har i dag ingen rulle i sortimentet som matchar exakt för det här valet. Prova en
+              annan budget eller ett annat tempo.
+            </p>
+            <a
+              href="/utrustning/haspelrullar/"
+              className="inline-flex items-center gap-1.5 text-pine text-sm font-semibold hover:text-deep transition-colors underline underline-offset-2"
+            >
+              Se alla haspelrullar
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <path
+                  d="M3 6h6M6 3l3 3-3 3"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </a>
+          </div>
+        )}
+      </div>
+
+      <p className="text-xs text-stone/60 text-center mt-6">
+        Rekommendationerna bygger på vår redaktionella bedömning. Affiliatelänkar kan förekomma.
+      </p>
+    </div>
+  );
+}
+```
+
+## src/components/rullvaljare/RullValjareIsland.astro
+```
+---
+/**
+ * RullValjareIsland.astro
+ * Serverwrapper som hämtar de tolv haspelrullarna ur gear-reviews-collectionen
+ * och matar dem till den interaktiva RullValjare-islanden. Inkludera bara den
+ * här i rullguiden, så lever väljaren bara där. Samma mönster som
+ * LinValjareIsland.astro och EkolodValjareIsland.astro.
+ */
+import { getCollection } from 'astro:content';
+import RullValjare from './RullValjare.tsx';
+
+const RULL_SLUGS = new Set<string>([
+  'shimano-nexave-fi-2500',
+  'okuma-ceymar-hd-2500a',
+  'okuma-inspira-2500a',
+  'okuma-itx-cb-2500h',
+  'shimano-miravel-2500',
+  'shimano-vanford-fa-2500',
+  'shimano-stella-fk-2500',
+  'shimano-stradic-fm-c3000-hg',
+  'kinetic-marshall-4000-fd',
+  'westin-w3-4000-fd',
+  'shimano-vanford-fa-4000',
+  'kinetic-brutalis-5000-fd',
+]);
+
+const allReviews = await getCollection('gear-reviews');
+
+const rullar = allReviews
+  .filter((entry) => {
+    const category = (entry.data.category ?? '').toLowerCase();
+    return RULL_SLUGS.has(entry.data.slug) || category === 'haspelrullar';
+  })
+  .map((entry) => ({
+    slug: entry.data.slug,
+    title: entry.data.title,
+    brand: entry.data.brand,
+    price: entry.data.price,
+    priceRange: entry.data.priceRange,
+    affiliateUrl: entry.data.affiliateUrl,
+    merchant: entry.data.merchant,
+  }));
+---
+
+<RullValjare client:load rullar={rullar} />
+```
+
 # Sidmallar (pages)
 
 ## src/pages/404.astro
@@ -5641,7 +6072,7 @@ const articleSchema = {
   datePublished: d.publishedAt,
   dateModified: d.updatedAt,
   author: author ? {
-    '@type': 'Person',
+    '@type': author.data.slug === 'redaktionen' ? 'Organization' : 'Person',
     name: author.data.name,
     url: `https://stromkast.se/om/`,
   } : undefined,
@@ -7141,7 +7572,8 @@ return Astro.redirect('/', 301);
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
-const authors = await getCollection('authors');
+// Om-sidan visar endast Rikard. Redaktionen finns i collectionen enbart for artikelbylines.
+const authors = (await getCollection('authors')).filter((a) => a.data.slug === 'rikard-giby');
 ---
 
 <BaseLayout
@@ -8029,8 +8461,29 @@ const ungrouped = categories.filter((c) => !c.data.parent);
 ## src/pages/utrustning/test/[slug].astro
 ```
 ---
+/**
+ * utrustning/test/[slug].astro
+ *
+ * Produktsida med köpbox, betygsredovisning och redaktionellt innehåll.
+ *
+ * PRISET HÄMTAS VID BYGGTID
+ *
+ * Samma modell som AffiliateCard. price i frontmatter är reservvärde, aktuellt
+ * pris slås upp i Adtractions produktfeed via affiliateUrl (src/lib/feed.ts).
+ *
+ * Priset i productSchema måste följa det synliga priset. Säger strukturerad
+ * data ett pris och sidan ett annat flaggar Google avvikelsen, och läsaren
+ * möter fel siffra i sökresultatet. Vid kampanj är det kampanjpriset som
+ * gäller i båda.
+ *
+ * availability utgår ur schemat när produkten saknas i feeden. Feeden
+ * innehåller bara produkter i lager, men att därav påstå OutOfStock vore att
+ * dra en slutsats vi inte kan belägga, och att som tidigare alltid påstå
+ * InStock vore direkt fel. Utelämnat fält är det ärliga svaret.
+ */
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getCollection, render } from 'astro:content';
+import { getFeedPrice, formatFetchedAt } from '../../../lib/feed';
 
 export async function getStaticPaths() {
   const reviews = await getCollection('gear-reviews');
@@ -8049,11 +8502,51 @@ const related = allReviews
   .filter((x) => x.data.category === r.category && x.data.slug !== r.slug)
   .slice(0, 3);
 
-const priceFormatted = new Intl.NumberFormat('sv-SE', {
-  style: 'currency',
-  currency: 'SEK',
-  maximumFractionDigits: 0,
-}).format(r.price);
+const kr = (v: number) =>
+  new Intl.NumberFormat('sv-SE', {
+    style: 'currency',
+    currency: 'SEK',
+    maximumFractionDigits: 0,
+  }).format(v);
+
+// ---------------------------------------------------------------------------
+// Pris från feeden, med frontmatter som reserv
+// ---------------------------------------------------------------------------
+
+const feed = await getFeedPrice(r.affiliateUrl);
+
+const onSale = feed !== null && feed.salePrice !== null && feed.salePrice < feed.price;
+const shownPrice = onSale ? feed!.salePrice! : (feed?.price ?? r.price);
+const strikePrice = onSale ? feed!.price : null;
+const fetchedLabel = feed ? formatFetchedAt(feed.fetchedAt) : '';
+
+// Relaterade produkter har egna priser och slås upp var för sig.
+// Feeden hämtas ändå bara en gång per bygge, uppslagen går mot samma karta.
+const relatedWithPrice = await Promise.all(
+  related.map(async (rel) => {
+    const rf = await getFeedPrice(rel.data.affiliateUrl);
+    const sale = rf !== null && rf.salePrice !== null && rf.salePrice < rf.price;
+    return {
+      data: rel.data,
+      price: sale ? rf!.salePrice! : (rf?.price ?? rel.data.price),
+    };
+  })
+);
+
+const offer: Record<string, unknown> = {
+  '@type': 'Offer',
+  price: shownPrice,
+  priceCurrency: 'SEK',
+  url: `https://stromkast.se/utrustning/test/${r.slug}/`,
+  seller: { '@type': 'Organization', name: r.merchant },
+};
+
+// Sätts bara när feeden faktiskt uttalar sig om lagerstatus.
+if (feed?.availability === 'in_stock') {
+  offer.availability = 'https://schema.org/InStock';
+} else if (feed?.availability === 'out_of_stock') {
+  offer.availability = 'https://schema.org/OutOfStock';
+}
 
 const productSchema = {
   '@context': 'https://schema.org',
@@ -8062,14 +8555,7 @@ const productSchema = {
   description: r.description,
   brand: { '@type': 'Brand', name: r.brand },
   image: `https://stromkast.se${r.heroImage}`,
-  offers: {
-    '@type': 'Offer',
-    price: r.price,
-    priceCurrency: 'SEK',
-    availability: 'https://schema.org/InStock',
-    url: `https://stromkast.se/utrustning/test/${r.slug}/`,
-    seller: { '@type': 'Organization', name: r.merchant },
-  },
+  offers: offer,
   aggregateRating: {
     '@type': 'AggregateRating',
     ratingValue: r.rating,
@@ -8150,8 +8636,17 @@ const stars = Math.round(r.rating);
               <span class="text-stone text-sm">/ 5</span>
             </div>
 
-            <p class="text-3xl font-bold text-deep mb-1">{priceFormatted}</p>
-            <p class="text-stone text-sm mb-5">{r.merchant}</p>
+            <p class="text-3xl font-bold text-deep mb-1 leading-tight">
+              {kr(shownPrice)}
+              {strikePrice !== null && (
+                <span class="ml-2 text-base font-normal text-stone line-through whitespace-nowrap">
+                  <span class="sr-only">Ordinarie pris </span>{kr(strikePrice)}
+                </span>
+              )}
+            </p>
+            <p class="text-stone text-sm mb-5">
+              {r.merchant}{fetchedLabel && `, pris hämtat ${fetchedLabel}`}
+            </p>
 
             <a
               href={r.affiliateUrl || '#'}
@@ -8257,11 +8752,11 @@ const stars = Math.round(r.rating);
         </div>
 
         <!-- Related products -->
-        {related.length > 0 && (
+        {relatedWithPrice.length > 0 && (
           <div>
             <h2 class="font-display text-xl font-bold text-deep mb-5">Fler alternativ i kategorin</h2>
             <div class="space-y-3">
-              {related.map((rel) => (
+              {relatedWithPrice.map((rel) => (
                 <a
                   href={`/utrustning/test/${rel.data.slug}/`}
                   class="group flex items-center gap-4 bg-white border border-mist rounded-xl p-4 hover:border-pine/30 hover:shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
@@ -8278,9 +8773,7 @@ const stars = Math.round(r.rating);
                   <div class="flex-1 min-w-0">
                     <p class="text-xs text-stone font-medium">{rel.data.brand}</p>
                     <p class="font-semibold text-deep text-sm group-hover:text-pine transition-colors truncate">{rel.data.title}</p>
-                    <p class="text-deep text-sm font-bold mt-0.5">
-                      {new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK', maximumFractionDigits: 0 }).format(rel.data.price)}
-                    </p>
+                    <p class="text-deep text-sm font-bold mt-0.5">{kr(rel.price)}</p>
                   </div>
                   <svg class="text-stone/40 group-hover:text-pine transition-colors shrink-0" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                     <path d="M5 8h6M8 5l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -8303,6 +8796,278 @@ const stars = Math.round(r.rating);
 ```
 
 # Lib
+
+## src/lib/feed.ts
+```
+/**
+ * src/lib/feed.ts
+ *
+ * Hämtar Adtractions produktfeeds vid byggtid och slår upp aktuellt pris per
+ * produkt. Används av AffiliateCard och produktsidan via produktens
+ * affiliateUrl.
+ *
+ * Format: Google Shopping RSS (XML) med g:-namnrymd. Adtraction genererar
+ * samma struktur för alla butiker.
+ *
+ * VARFÖR BYGGTID OCH INTE FRONTMATTER
+ *
+ * price i gear-reviews är ett statiskt tal som åldras. FiskeOnline har haft
+ * kampanj på ungefär hälften av de produkter vi skriver om, och Outl1 kör
+ * outletkampanjer i perioder. Ett handinmatat pris är därför nästan alltid
+ * fel. Feeden hämtas i stället vid varje bygge, och med den dagliga
+ * cron-körningen blir priset aldrig äldre än ett dygn.
+ *
+ * VARFÖR ETT GEMENSAMT UPPSLAG
+ *
+ * Alla feeds slås ihop till en karta i stället för att väljas utifrån
+ * merchant. Produkt-URL:erna skiljer sig redan åt på domännivå, så nycklarna
+ * kan inte krocka mellan butiker. Det gör att uppslaget inte behöver veta
+ * vilken butik det gäller, och att merchant i frontmatter aldrig kan hamna i
+ * otakt med affiliateUrl.
+ *
+ * FALLBACK
+ *
+ * Feeden får aldrig fälla ett bygge. Saknas miljövariabeln, svarar Adtraction
+ * med fel, eller finns produkten inte i feeden, returneras null och anropande
+ * komponent faller tillbaka på price i frontmatter. Frontmatter ska därför
+ * alltid innehålla ordinarie pris, aldrig ett reapris.
+ *
+ * Butiker utan feed, i dag Fritid och Vildmark, hanteras av samma mekanism och
+ * kräver ingen egen kod.
+ *
+ * VARFÖR QUERYSTRING STRIPPAS VID MATCHNING
+ *
+ * Outl1 lägger ett internt ID sist i varje produkt-URL, till exempel
+ * ?var=14174, medan våra publicerade länkar saknar det. Utan strippning
+ * matchar ingen Outl1-produkt. Kontrollerat 2026-08-13: feeden innehöll 2 798
+ * produkter fördelade på 2 798 unika produktsidor, alltså är parametern ett
+ * internt ID och inte en variantväljare.
+ *
+ * Strippningen är generell och gäller alla butiker, eftersom querystring i
+ * produkt-URL:er nästan alltid är spårning eller interna ID:n. Antagandet
+ * bryter om en ny butik använder query för att skilja produkter åt. Därför
+ * varnar modulen vid bygget om två produkter i samma feed normaliserar till
+ * samma nyckel. Se BESLUT.md.
+ */
+
+/** En butik och miljövariabeln som pekar ut dess feed. */
+interface FeedSource {
+  name: string;
+  env: string;
+}
+
+const SOURCES: FeedSource[] = [
+  { name: 'FiskeOnline', env: 'ADTRACTION_FEED_URL_FISKEONLINE' },
+  { name: 'Outl1', env: 'ADTRACTION_FEED_URL_OUTL1' },
+];
+
+/** FiskeOnlines feed ligger på ca 13 MB och behöver marginal. */
+const TIMEOUT_MS = 30_000;
+
+export interface FeedPrice {
+  /** Ordinarie pris i SEK. Styr prisklass och visas överstruket vid kampanj. */
+  price: number;
+  /** Kampanjpris i SEK, eller null när produkten inte är nedsatt. */
+  salePrice: number | null;
+  /** Feedens kampanjetikett, t.ex. "REA". Null när den saknas. */
+  label: string | null;
+  /** in_stock, out_of_stock eller tomt när feeden inte anger något. */
+  availability: string;
+  /** Butiken produkten kom från. */
+  merchant: string;
+  /** ISO-datum för när feeden hämtades. Visas som "hämtat 13 augusti". */
+  fetchedAt: string;
+}
+
+// ---------------------------------------------------------------------------
+// XML
+// ---------------------------------------------------------------------------
+
+const ENTITIES: Record<string, string> = {
+  amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ',
+};
+
+function decode(s: string): string {
+  return s
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)))
+    .replace(/&([a-z]+);/gi, (m, name) => ENTITIES[name.toLowerCase()] ?? m);
+}
+
+function tag(block: string, name: string): string {
+  const m = block.match(new RegExp(`<${name}(?:\\s[^>]*)?>([\\s\\S]*?)</${name}>`, 'i'));
+  if (!m) return '';
+  const cdata = m[1].match(/^\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*$/);
+  return cdata ? cdata[1].trim() : decode(m[1]).trim();
+}
+
+/** "389 SEK" -> 389. Null när fältet saknas, är tomt eller inte går att tolka. */
+function money(raw: string): number | null {
+  if (!raw) return null;
+  const m = raw.replace(/\u00a0/g, ' ').match(/([\d\s.,]+)/);
+  if (!m) return null;
+  const n = Number(m[1].replace(/\s/g, '').replace(',', '.'));
+  return Number.isFinite(n) ? n : null;
+}
+
+/**
+ * Produktens rena URL ur en Adtraction-länk. Allt efter url= är målet, och
+ * parametern ligger sist i både feedens och våra egna länkar.
+ */
+function productUrlFrom(trackingUrl: string): string | null {
+  if (!trackingUrl) return null;
+  const i = trackingUrl.indexOf('&url=');
+  if (i === -1) return null;
+  return normalise(decode(trackingUrl.slice(i + 5)));
+}
+
+/** Gemener, utan querystring, fragment eller avslutande slash. */
+function normalise(url: string): string {
+  return url
+    .trim()
+    .toLowerCase()
+    .split('#')[0]
+    .split('?')[0]
+    .replace(/\/+$/, '');
+}
+
+// ---------------------------------------------------------------------------
+// Hämtning, en gång per bygge
+// ---------------------------------------------------------------------------
+
+function urlFor(source: FeedSource): string {
+  // import.meta.env finns bara i Astro. Optional chaining gör att modulen även
+  // kan importeras av fristående skript i projektroten utan att krascha.
+  const env = import.meta.env as Record<string, string | undefined> | undefined;
+  const proc = process.env as Record<string, string | undefined>;
+  return env?.[source.env] ?? proc[source.env] ?? '';
+}
+
+async function loadSource(
+  source: FeedSource,
+  index: Map<string, FeedPrice>,
+  fetchedAt: string
+): Promise<void> {
+  const url = urlFor(source);
+  if (!url) {
+    console.warn(`[feed] ${source.name}: ${source.env} saknas, priser faller tillbaka på frontmatter`);
+    return;
+  }
+
+  let xml: string;
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
+    if (!res.ok) {
+      console.warn(`[feed] ${source.name}: Adtraction svarade ${res.status}, priser faller tillbaka på frontmatter`);
+      return;
+    }
+    xml = await res.text();
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'okänt fel';
+    console.warn(`[feed] ${source.name}: hämtning misslyckades (${msg}), priser faller tillbaka på frontmatter`);
+    return;
+  }
+
+  let added = 0;
+  let collisions = 0;
+
+  const re = /<item[\s>][\s\S]*?<\/item>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(xml)) !== null) {
+    const block = m[0];
+    const key = productUrlFrom(tag(block, 'link'));
+    if (!key) continue;
+
+    const price = money(tag(block, 'g:price'));
+    if (price === null) continue;
+
+    if (index.has(key)) {
+      // Två produkter delar nyckel efter normalisering. Om butiken använder
+      // querystring för att skilja produkter åt håller inte antagandet ovan.
+      collisions++;
+      if (collisions <= 3) {
+        console.warn(`[feed] ${source.name}: två produkter delar nyckel efter normalisering: ${key}`);
+      }
+      continue;
+    }
+
+    index.set(key, {
+      price,
+      salePrice: money(tag(block, 'g:sale_price')),
+      label: tag(block, 'g:custom_label_1') || null,
+      availability: tag(block, 'g:availability'),
+      merchant: source.name,
+      fetchedAt,
+    });
+    added++;
+  }
+
+  if (collisions > 3) {
+    console.warn(`[feed] ${source.name}: ytterligare ${collisions - 3} nyckelkrockar, se BESLUT.md om querystring`);
+  }
+
+  if (added === 0) {
+    console.warn(`[feed] ${source.name}: inga produkter kunde läsas, kontrollera formatet`);
+  } else {
+    console.log(`[feed] ${source.name}: ${added} produkter inlästa`);
+  }
+}
+
+let feedPromise: Promise<Map<string, FeedPrice>> | null = null;
+
+async function loadFeeds(): Promise<Map<string, FeedPrice>> {
+  const index = new Map<string, FeedPrice>();
+  const fetchedAt = new Date().toISOString().slice(0, 10);
+
+  // Sekventiellt, inte parallellt. Feedsen är stora och ordningen gör
+  // varningar om nyckelkrockar läsbara per butik.
+  for (const source of SOURCES) {
+    await loadSource(source, index, fetchedAt);
+  }
+
+  return index;
+}
+
+/** Feedsen hämtas en gång per bygge, oavsett hur många sidor som frågar. */
+function getFeeds(): Promise<Map<string, FeedPrice>> {
+  if (!feedPromise) feedPromise = loadFeeds();
+  return feedPromise;
+}
+
+// ---------------------------------------------------------------------------
+// Publikt API
+// ---------------------------------------------------------------------------
+
+/**
+ * Slår upp aktuellt pris för en produkt utifrån dess affiliateUrl.
+ * Returnerar null när feeden saknas, inte svarar, eller inte innehåller
+ * produkten. Produkter som är slut i lager saknas i feeden.
+ */
+export async function getFeedPrice(affiliateUrl: string | undefined): Promise<FeedPrice | null> {
+  if (!affiliateUrl) return null;
+  const key = productUrlFrom(affiliateUrl);
+  if (!key) return null;
+  const feeds = await getFeeds();
+  return feeds.get(key) ?? null;
+}
+
+/** "1 299 kr" */
+export function formatPrice(value: number): string {
+  return `${value.toLocaleString('sv-SE')} kr`;
+}
+
+const MONTHS_SV = [
+  'januari', 'februari', 'mars', 'april', 'maj', 'juni',
+  'juli', 'augusti', 'september', 'oktober', 'november', 'december',
+];
+
+/** ISO-datum till "13 augusti", för prisets hämtningsdatum. */
+export function formatFetchedAt(iso: string): string {
+  const [y, m, d] = iso.split('-').map(Number);
+  if (!y || !m || !d) return '';
+  return `${d} ${MONTHS_SV[m - 1]}`;
+}
+```
 
 ## src/lib/forecast.ts
 ```
@@ -9252,7 +10017,8 @@ export function trackQuizCompleted(result_product_ids: string[]): void {
   "slug": "haspelrullar",
   "parent": "rullar",
   "description": "Handplockade haspelrullar för abborre, gädda och gös. Vi har valt ut de bästa alternativen i varje prisklass.",
-  "heroImage": "/images/gear/haspelrullar.jpg"
+  "heroImage": "/images/gear/haspelrullar.jpg",
+  "guideUrl": "/guider/valja-haspelrulle/"
 }
 ```
 
@@ -9382,7 +10148,7 @@ description: "Signaturspö från BFT i samarbete med Stefan Trumstedt. Lätt och
 heroImage: "/images/gear/bft-lizzard-x-stefan-trumstedt.jpg"
 brand: "BFT"
 category: "spon"
-price: 2899
+price: 3995
 rating: 4.7
 pros:
   - Signaturmodell från erfaren gäddfiskare
@@ -9422,7 +10188,7 @@ description: "Jerkbaitspö för abborre med medium aktion och obruten 1+1-klinga
 heroImage: "/images/gear/bft-ninety-two-mimic-stick.jpg"
 brand: "BFT"
 category: "spon"
-price: 1599
+price: 1795
 rating: 4.3
 pros:
   - "Obruten 1+1-klinga ger hög känslighet och hållbarhet"
@@ -10158,7 +10924,7 @@ description: "8-tradig flatlinor fran Wiggler i signalgult. Hog brottstyrka, tys
 heroImage: "/images/gear/hurricane-x8-braid-012mm.jpg"
 brand: "Hurricane"
 category: "flatlinor"
-price: 145
+price: 189
 rating: 4.6
 pros:
   - "8-tradig for rundare profil och battre kastlangd"
@@ -10200,7 +10966,7 @@ description: "Prisvaerd 4-tradig flatlinor fran Kinetic i klassisk Dusty Green. 
 heroImage: "/images/gear/kinetic-4-braid-012mm.jpg"
 brand: "Kinetic"
 category: "flatlinor"
-price: 65
+price: 79
 rating: 4.5
 pros:
   - "Extremt prisvaerd"
@@ -10284,7 +11050,7 @@ description: "Kraftfull budgetrulle fran Kinetic med forstarkt grafitkropp och C
 heroImage: "/images/gear/kinetic-brutalis-5000-fd.jpg"
 brand: "Kinetic"
 category: "haspelrullar"
-price: 449
+price: 549
 rating: 3.8
 pros:
   - "Kraftfull konstruktion for prisnivan"
@@ -10366,7 +11132,7 @@ description: "Kraftfullt gäddspö till budgetpris från Kinetic. Kastvikten 40-
 heroImage: "/images/gear/kinetic-xarann-predator-trigger-ct.jpg"
 brand: "Kinetic"
 category: "spon"
-price: 699
+price: 899
 rating: 3.9
 pros:
   - Mycket prisvärt
@@ -10431,7 +11197,7 @@ Lyfcos minsta aluminiumbåt är en 3 meter lång eka för en till två personer,
 
 Tre fasta sittbänkar ger flexibel placering vid rodd och fiske, och tvådelade plaståror med tullar ingår. Stävöglan gör den enkel att förtöja och vinscha, och mitt- och aktersitsen har säkerhetshandtag. Akterspegeln tar en utombordare på upp till 6 hk, vilket räcker för att ta sig runt i en insjö men inte för längre sträckor. Maxlasten på 200 kg motsvarar en vuxen med full utrustning eller två som packar lätt, så räkna på vikten innan ni är två i båten.
 
-Båten är CE-certifierad i kategori C, formellt vind upp till 12 m/s och signifikant våghöjd på 2 meter, men storleken gör att den hör hemma i skyddade vatten. Aluminium kräver i praktiken inget underhåll, ingen bottenmålning och ingen ytbehandling. Den som ofta är två i båten med mycket utrustning får bättre marginal i [3,8-metersmodellen i kategori C](/utrustning/test/lyfco-aluminiumbat-380-kategori-c/). Priset 14 995 kr är ett kampanjpris som gäller till 2 augusti 2026. Ordinarie pris är 17 995 kr.
+Båten är CE-certifierad i kategori C, formellt vind upp till 12 m/s och signifikant våghöjd på 2 meter, men storleken gör att den hör hemma i skyddade vatten. Aluminium kräver i praktiken inget underhåll, ingen bottenmålning och ingen ytbehandling. Den som ofta är två i båten med mycket utrustning får bättre marginal i [3,8-metersmodellen i kategori C](/utrustning/test/lyfco-aluminiumbat-380-kategori-c/).
 ```
 
 ## src/content/gear-reviews/lyfco-aluminiumbat-380-kategori-c.mdx
@@ -10443,7 +11209,7 @@ description: "Aluminiumbåt på 3,8 meter för fyra personer. Helsvetsat skrov i
 heroImage: "/images/gear/lyfco-aluminiumbat-380-kategori-c.jpg"
 brand: "Lyfco"
 category: "batar"
-price: 21995
+price: 24995
 rating: 4.1
 pros:
   - "Bra balans mellan storlek och hanterbar vikt på 75 kg"
@@ -10467,7 +11233,7 @@ En 3,8 meter lång aluminiumbåt med helsvetsat skrov i 1,5 mm godstjocklek och 
 
 Tre fasta sittbänkar, stävögla i fören och säkerhetshandtag vid mitt- och aktersits. Tvådelade plaståror med tullar ingår. Akterspegeln är dimensionerad för utombordare mellan 9,8 och 15 hk, vilket räcker för att flytta mellan fiskeplatser på större sjöar i rimlig fart. Maxlasten är 350 kg. Fyra vuxna med utrustning går inte ihop med den siffran, så som fiskebåt är två till tre personer det realistiska.
 
-CE-kategori C innebär certifiering för kustnära vatten, stora bukter och sjöar med vind upp till 12 m/s och signifikant våghöjd på 2 meter. Leveransen kommer som tungt fraktgods där föraren inte hjälper till med urlastning, så ha bärhjälp ordnad eller välj kranbilsleverans i kassan. Den som prioriterar lastkapacitet framför kustcertifiering bör jämföra med [2 mm-versionen i kategori D](/utrustning/test/lyfco-aluminiumbat-380-kategori-d/). Priset 21 995 kr är ett kampanjpris som gäller till 2 augusti 2026. Ordinarie pris är 27 995 kr.
+CE-kategori C innebär certifiering för kustnära vatten, stora bukter och sjöar med vind upp till 12 m/s och signifikant våghöjd på 2 meter. Leveransen kommer som tungt fraktgods där föraren inte hjälper till med urlastning, så ha bärhjälp ordnad eller välj kranbilsleverans i kassan. Den som prioriterar lastkapacitet framför kustcertifiering bör jämföra med [2 mm-versionen i kategori D](/utrustning/test/lyfco-aluminiumbat-380-kategori-d/).
 ```
 
 ## src/content/gear-reviews/lyfco-aluminiumbat-380-kategori-d.mdx
@@ -10503,7 +11269,7 @@ Samma längd som seriens kategori C-modell men med skrov i 2 mm aluminium i stä
 
 Utrustningen följer seriens mönster med tre fasta sittbänkar, stävögla i fören och säkerhetshandtag vid mitt- och aktersits. Tvådelade plaståror med tullar ingår. Akterspegeln tar utombordare mellan 9,8 och 15 hk. Med den högre maxlasten fungerar båten för tre personer med full fiskeutrustning, vilket den tunnare modellen inte gör med samma marginal.
 
-Certifieringen är däremot kategori D, alltså skyddade vatten med vind upp till 8 m/s och signifikant våghöjd på 0,5 meter. Tjockare skrov betyder inte högre sjövärdighetsklass, och den skillnaden är värd att förstå före köp. För insjöfiske spelar den sällan någon roll, men den som fiskar kustnära eller på riktigt stora sjöar bör i stället titta på [1,5 mm-versionen i kategori C](/utrustning/test/lyfco-aluminiumbat-380-kategori-c/) eller [4,2-metersmodellen i kategori C](/utrustning/test/lyfco-aluminiumbat-420-kategori-c/). Priset 29 995 kr är ett kampanjpris som gäller till 2 augusti 2026. Ordinarie pris är 33 995 kr.
+Certifieringen är däremot kategori D, alltså skyddade vatten med vind upp till 8 m/s och signifikant våghöjd på 0,5 meter. Tjockare skrov betyder inte högre sjövärdighetsklass, och den skillnaden är värd att förstå före köp. För insjöfiske spelar den sällan någon roll, men den som fiskar kustnära eller på riktigt stora sjöar bör i stället titta på [1,5 mm-versionen i kategori C](/utrustning/test/lyfco-aluminiumbat-380-kategori-c/) eller [4,2-metersmodellen i kategori C](/utrustning/test/lyfco-aluminiumbat-420-kategori-c/).
 ```
 
 ## src/content/gear-reviews/lyfco-aluminiumbat-420-kategori-c.mdx
@@ -10515,7 +11281,7 @@ description: "Aluminiumbåt på 4,2 meter för fem personer. Helsvetsat skrov i 
 heroImage: "/images/gear/lyfco-aluminiumbat-420-kategori-c.jpg"
 brand: "Lyfco"
 category: "batar"
-price: 24995
+price: 29995
 rating: 4.3
 pros:
   - "Kustcertifierad i kategori C med rejält djup på 64 cm"
@@ -10539,7 +11305,7 @@ Den mest kapabla fiskebåten i Lyfcos aluminiumserie för den som rör sig på s
 
 Akterspegeln tar utombordare upp till 30 hk. Det öppnar för trolling i marschfart och snabba förflyttningar mellan fiskeplatser, något som gör verklig skillnad på vatten som Vänern, Vättern och Storsjön. Tre fasta sittbänkar med säkerhetshandtag vid samtliga platser, stävögla i fören och tvådelade plaståror som ingår. Maxlasten på 600 kg räcker för tre fiskande med full utrustning.
 
-Vikten på 116 kg innebär att båten kräver kärra eller trailer och två personer vid hantering på land. Leveransen kommer som tungt fraktgods där föraren inte lastar ur, så ordna bärhjälp eller välj kranbilsleverans i kassan. Den som mest fiskar skyddade insjöar och vill ha mer lastkapacitet för pengarna kan jämföra med [kategori D-versionen i samma längd](/utrustning/test/lyfco-aluminiumbat-420-kategori-d/). Priset 24 995 kr är ett kampanjpris som gäller till 2 augusti 2026. Ordinarie pris är 34 995 kr.
+Vikten på 116 kg innebär att båten kräver kärra eller trailer och två personer vid hantering på land. Leveransen kommer som tungt fraktgods där föraren inte lastar ur, så ordna bärhjälp eller välj kranbilsleverans i kassan. Den som mest fiskar skyddade insjöar och vill ha mer lastkapacitet för pengarna kan jämföra med [kategori D-versionen i samma längd](/utrustning/test/lyfco-aluminiumbat-420-kategori-d/).
 ```
 
 ## src/content/gear-reviews/lyfco-aluminiumbat-420-kategori-d.mdx
@@ -10551,7 +11317,7 @@ description: "Aluminiumbåt på 4,2 meter med 2 mm skrov och 1 000 kg maxlast. V
 heroImage: "/images/gear/lyfco-aluminiumbat-420-kategori-d.jpg"
 brand: "Lyfco"
 category: "batar"
-price: 34995
+price: 39995
 rating: 4.1
 pros:
   - "Hög maxlast på 1 000 kg enligt tillverkaren"
@@ -10575,7 +11341,7 @@ Seriens lastdragare. En 4,2 meter lång aluminiumbåt med helsvetsat 2 mm skrov,
 
 Vikten stannar på 105 kg, alltså något lägre än systermodellen trots samma skrovtjocklek. Utrustningen är seriens standard med tre fasta sittbänkar, säkerhetshandtag vid samtliga sittplatser, stävögla i fören och tvådelade plaståror som ingår. Akterspegeln tar utombordare upp till 30 hk, vilket ger bra fart även med last ombord.
 
-Certifieringen är kategori D, skyddade vatten med vind upp till 8 m/s och signifikant våghöjd på 0,5 meter. Precis som för 3,8-metersmodellerna gäller att lastkapacitet och sjövärdighetsklass är två olika saker. På insjöar i normalt sommarväder är det sällan en begränsning, men för kustfiske och stora öppna sjöar är [kategori C-versionen](/utrustning/test/lyfco-aluminiumbat-420-kategori-c/) rätt val trots lägre maxlast. Leveransen kommer som tungt fraktgods utan urlastning, så ordna bärhjälp eller kranbil. Priset 34 995 kr är ett kampanjpris som gäller till 2 augusti 2026. Ordinarie pris är 39 995 kr.
+Certifieringen är kategori D, skyddade vatten med vind upp till 8 m/s och signifikant våghöjd på 0,5 meter. Precis som för 3,8-metersmodellerna gäller att lastkapacitet och sjövärdighetsklass är två olika saker. På insjöar i normalt sommarväder är det sällan en begränsning, men för kustfiske och stora öppna sjöar är [kategori C-versionen](/utrustning/test/lyfco-aluminiumbat-420-kategori-c/) rätt val trots lägre maxlast. Leveransen kommer som tungt fraktgods utan urlastning, så ordna bärhjälp eller kranbil.
 ```
 
 ## src/content/gear-reviews/lyfco-katamaran-300.mdx
@@ -10652,6 +11418,80 @@ Transomen är i plywood, vilket ger en stadigare infästning för motorn än hel
 Maxlasten anges till 800 kg och åtta personer, men som fiskebåt är två till tre personer med utrustning det rimliga. Till skillnad från 300-modellen framgår det inte vilka tillbehör som ingår, så kontrollera hos butiken om pump och åror följer med före köp. Den som vill ha ett komplett paket direkt ur kartongen bör jämföra med [Katamaran 300](/utrustning/test/lyfco-katamaran-300/), och den som hellre vill ha en fast båt i samma storlek med [4,2-metersmodellen i aluminium](/utrustning/test/lyfco-aluminiumbat-420-kategori-c/).
 ```
 
+## src/content/gear-reviews/lyfco-nrs-36l.mdx
+```
+---
+title: "Lyfco NRS-36L elmotor 36 lbs"
+slug: "lyfco-nrs-36l"
+description: "Elmotor med 36 lbs dragkraft och lång rigg på 91 cm. Drivs på ett 12-voltsbatteri med upp till fyra timmars körtid på 80 Ah. Seriens instegsmodell."
+heroImage: "/images/gear/lyfco-nrs-36l.jpg"
+brand: "Lyfco"
+category: "elmotorer"
+price: 1399
+rating: 3.6
+pros:
+  - "Kategorins lägsta pris och enklaste insteg till eldrift"
+  - "Lägst strömförbrukning i serien, upp till fyra timmar på 80 Ah"
+  - "Motorhölje i aluminium och rigg i komposit-glasfiber"
+  - "Sjögrässkyddad propeller och nästan ljudlös gång"
+cons:
+  - "36 lbs är känsligt för vind och ström, marginalerna är små"
+  - "Finns endast med lång rigg"
+  - "Handtaget kan inte vinklas i höjdled som på X-serien"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/billig-elektrisk-batmotor"
+merchant: "Outl1"
+featured: false
+budgetPick: true
+targetSpecies: ["abborre", "gadda", "gos"]
+techniques: ["trolling"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Seriens minsta motor och kategorins billigaste väg till eldrift. NRS-36L ger 36 lbs dragkraft, motsvarande 16,3 kg, genom en rigg på 91 cm, och drivs på ett enda 12-voltsbatteri. Den låga effekten har en egen fördel: strömförbrukningen är seriens lägsta, och ett 80 Ah-batteri räcker enligt tillverkaren upp till fyra timmar, längst i sortimentet på samma laddning.
+
+Konstruktionen delar seriens nivå med motorhölje i aluminium och riggrör i komposit-glasfiber, sjögrässkyddad propeller, fem hastigheter framåt och tre bakåt, batteriindikator med tio lysdioder, uppfällbar rigg och teleskophandtag vridbart 180 grader. Skillnaden mot X-serien är handtaget: L-modellerna kan inte vinkla det i höjdled, en komfortdetalj som märks mest vid långa trollingpass.
+
+Rätt hemvist är flytringar med motorfäste, lätta jollar och små ekor i skyddade vatten, där tystnaden och priset är poängen och kraftbehovet litet. Var ärlig med begränsningen: 36 lbs har små marginaler mot vind och ström, och den långa riggen gör den mindre lämpad för gummibåtar på grunt vatten, där är [55X med kort rigg](/utrustning/test/lyfco-nrs-55x/) rätt val. Den som vill ha mer marginal för hundralappen extra tar steget till [NRS-46L](/utrustning/test/lyfco-nrs-46l/).
+```
+
+## src/content/gear-reviews/lyfco-nrs-46l.mdx
+```
+---
+title: "Lyfco NRS-46L elmotor 46 lbs"
+slug: "lyfco-nrs-46l"
+description: "Elmotor med 46 lbs dragkraft och lång rigg på 91 cm. Drivs på ett 12-voltsbatteri, cirka tre timmars körtid på 80 Ah. Steget mellan 36L och 55X."
+heroImage: "/images/gear/lyfco-nrs-46l.jpg"
+brand: "Lyfco"
+category: "elmotorer"
+price: 1488
+rating: 3.7
+pros:
+  - "Bra mellansteg i dragkraft till lågt pris"
+  - "Drivs på ett enda 12-voltsbatteri"
+  - "Motorhölje i aluminium och rigg i komposit-glasfiber"
+  - "Sjögrässkyddad propeller och nästan ljudlös gång"
+cons:
+  - "Finns endast med lång rigg"
+  - "Handtaget kan inte vinklas i höjdled som på X-serien"
+  - "Batteri ingår inte"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/billig-elektrisk-utombordsmotor"
+merchant: "Outl1"
+featured: false
+budgetPick: false
+targetSpecies: ["abborre", "gadda", "gos"]
+techniques: ["trolling"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Mellansteget i Lyfcos L-serie, med 46 lbs dragkraft, motsvarande 20,9 kg, genom en lång rigg på 91 cm. Motorn drivs på ett enda 12-voltsbatteri och drar 480 W på full effekt, vilket enligt tillverkaren ger runt tre timmars körning på ett 80 Ah-batteri. Batterienkelheten är poängen i hela det nedre segmentet: ett batteri, en laddare, en hanterbar vikt.
+
+Byggkvaliteten följer serien med motorhölje i aluminium, riggrör i komposit-glasfiber, sjögrässkyddad propeller, fem hastigheter framåt och tre bakåt, batteriindikator, uppfällbar rigg och teleskophandtag vridbart 180 grader. Precis som 36L saknar L-serien X-modellernas vinklingsbara handtag i höjdled, en komfortskillnad snarare än en funktionell.
+
+Positionen i sortimentet är tydlig: märkbart mer dragkraft än [36L](/utrustning/test/lyfco-nrs-36l/) för ungefär hundralappen extra, till lägre pris än [55X](/utrustning/test/lyfco-nrs-55x/). Den långa riggen passar jollar, roddbåtar och ekor med lite högre fribord i skyddade vatten, medan gummibåtsägaren på grunt vatten fortsatt gör bäst i att titta på kortriggarna. Den som trollar regelbundet med last, eller fiskar mer utsatta vatten, får stabilare marginaler i [62X](/utrustning/test/lyfco-nrs-62x/).
+```
+
 ## src/content/gear-reviews/lyfco-nrs-55x.mdx
 ```
 ---
@@ -10674,18 +11514,18 @@ cons:
 affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/billig-eldriven-utombordsmotor"
 merchant: "Outl1"
 featured: false
-budgetPick: true
+budgetPick: false
 targetSpecies: ["abborre", "gadda", "gos"]
 techniques: ["trolling"]
 priceRange: "budget"
 quizEnabled: false
 ---
 
-Instegsmodellen i Lyfcos elmotorserie, med 55 lbs dragkraft, motsvarande 25 kg, och kort rigg på 71 cm. Motorhöljet är i aluminium och riggröret i komposit-glasfiber, en materialnivå som inte är given i prisklassen. Propellern är sjögrässkyddad, reglaget har fem hastigheter framåt och tre bakåt, och batterinivån visas med tio lysdioder på panelen. Styret kan vridas 180 grader och handtaget vinklas i höjdled.
+Den minsta kortriggade modellen i Lyfcos elmotorserie, med 55 lbs dragkraft, motsvarande 25 kg, och rigg på 71 cm. Motorhöljet är i aluminium och riggröret i komposit-glasfiber, en materialnivå som inte är given i prisklassen. Propellern är sjögrässkyddad, reglaget har fem hastigheter framåt och tre bakåt, och batterinivån visas med tio lysdioder på panelen. Styret kan vridas 180 grader och handtaget vinklas i höjdled.
 
 Det en elmotor tillför fisket är tystnaden. Trolling och smyg längs vasskanter går att göra utan motorljud som skrämmer fisken, och på vatten där förbränningsmotorer inte är tillåtna är eldrift enda alternativet, kontrollera alltid reglerna för ditt vatten. Motorn drivs på ett 12-voltsbatteri som inte ingår, ett fritidsbatteri på 100 Ah ger runt tre timmars körtid och väger omkring 20 kg som ska räknas in i båtens lastvikt.
 
-Med seriens lägsta dragkraft passar 55X lätta båtar i lugna vatten: gummibåtarna, 3-metersekan och flytringar med motorfäste. Blåser det upp eller ska en tyngre båt flyttas är [62X](/utrustning/test/lyfco-nrs-62x/) för 100 kr mer det stabilare valet.
+Som minsta kortriggsmodell passar 55X lätta båtar i lugna vatten: gummibåtarna, 3-metersekan och flytringar med motorfäste, och den som klarar lång rigg hittar billigare insteg i [NRS-36L](/utrustning/test/lyfco-nrs-36l/) och [NRS-46L](/utrustning/test/lyfco-nrs-46l/). Blåser det upp eller ska en tyngre båt flyttas är [62X](/utrustning/test/lyfco-nrs-62x/) för 100 kr mer det stabilare valet.
 ```
 
 ## src/content/gear-reviews/lyfco-nrs-62x.mdx
@@ -10806,7 +11646,7 @@ description: "Lätt och känsligt jigg- och dropshotspö till ett mycket förmå
 heroImage: "/images/gear/mikado-inazuma-pro-zander.jpg"
 brand: "Mikado"
 category: "spon"
-price: 699
+price: 1299
 rating: 4.0
 pros:
   - Mycket prisvärt
@@ -10846,7 +11686,7 @@ description: "Lat haspelrulle fran Okuma med grafitkropp och overdimensionerat d
 heroImage: "/images/gear/okuma-ceymar-hd-2500a.jpg"
 brand: "Okuma"
 category: "haspelrullar"
-price: 899
+price: 1199
 rating: 4.1
 pros:
   - "EFR II linspridare med DLC-belaggning"
@@ -10887,7 +11727,7 @@ description: "Lat och smidig mellanklass-rulle fran Okuma med aluminium TCA-kons
 heroImage: "/images/gear/okuma-inspira-2500a.jpg"
 brand: "Okuma"
 category: "haspelrullar"
-price: 1199
+price: 1599
 rating: 4.2
 pros:
   - "Aluminium TCA-konstruktion for styvhet och latthet"
@@ -10970,7 +11810,7 @@ description: "Komplett trollingkombo fran Okuma med spo och Classic CLX-300La-ru
 heroImage: "/images/gear/okuma-magda-finn-trolling-combo.jpg"
 brand: "Okuma"
 category: "trollingspon"
-price: 999
+price: 1399
 rating: 4.0
 pros:
   - "Komplett kombo - bada spo och rulle ingaar"
@@ -11010,7 +11850,7 @@ description: "Robust och prisvaerd trollingspo fran Okuma med styrka pa 15-30lb.
 heroImage: "/images/gear/okuma-magda-finn-trollingspo.jpg"
 brand: "Okuma"
 category: "trollingspon"
-price: 449
+price: 649
 rating: 3.8
 pros:
   - "Mycket prisvaert"
@@ -11305,7 +12145,7 @@ description: "Encylindrig fyrtaktare på 6 hk med kort rigg. Väger 27 kg, har i
 heroImage: "/images/gear/outl1-utombordare-6hk.jpg"
 brand: "Outl1"
 category: "utombordare"
-price: 7999
+price: 6995
 rating: 3.8
 pros:
   - "27 kg gör den hanterbar för en person"
@@ -11378,7 +12218,7 @@ heroImage: "/images/gear/pig-chopper-spinnerbait.jpg"
 heroSource: "illustration"
 brand: "The Pig"
 category: "spinnare"
-price: 149
+price: 179
 rating: 4.5
 pros:
   - "50 gram kastar långt och skär genom vind"
@@ -11415,7 +12255,7 @@ heroImage: "/images/gear/pig-shad-jr.jpg"
 heroSource: "illustration"
 brand: "The Pig"
 category: "jiggar"
-price: 99
+price: 169
 rating: 4.5
 pros:
   - "Stor siluett som drar till sig grov gädda"
@@ -11488,7 +12328,7 @@ description: "JDM-haspelspö från Shimanos Zodias 2026-serie med Hi-Power X-kli
 heroImage: "/images/gear/shimano-26-zodias-haspelspo.jpg"
 brand: "Shimano"
 category: "spon"
-price: 2495
+price: 2799
 rating: 4.6
 pros:
   - "Hi-Power X-klinga ger precisa kast och minskad vridning"
@@ -11530,7 +12370,7 @@ description: "Lätt finessespö från Shimano med hög känslighet. Blank i Ci4+
 heroImage: "/images/gear/shimano-expride-haspelspo-198m.jpg"
 brand: "Shimano"
 category: "spon"
-price: 2999
+price: 3399
 rating: 4.8
 pros:
   - Enastående känslighet
@@ -11569,7 +12409,7 @@ description: "Premium 8-tradig flatlinor fran Shimano med VT Method-konstruktion
 heroImage: "/images/gear/shimano-kairiki-8-013mm.jpg"
 brand: "Shimano"
 category: "flatlinor"
-price: 249
+price: 289
 rating: 4.6
 pros:
   - "VT Method ger tatare och rundare profil"
@@ -11612,7 +12452,7 @@ description: "Prisvard mellanklass-rulle fran Shimanos Magnumlite-serie med CI4+
 heroImage: "/images/gear/shimano-miravel-2500.jpg"
 brand: "Shimano"
 category: "haspelrullar"
-price: 1299
+price: 1599
 rating: 4.4
 pros:
   - "CI4+ kompositkropp ger utmarkt latthet"
@@ -11694,7 +12534,7 @@ description: "Pålitligt nybörjarspö från Shimano. Snabb aktion och smal kast
 heroImage: "/images/gear/shimano-nexave-haspelspo-191m.jpg"
 brand: "Shimano"
 category: "spon"
-price: 799
+price: 899
 rating: 3.9
 pros:
   - Välkänt varumärke
@@ -11776,7 +12616,7 @@ description: "Premiuminspirerad mellanklass-rulle fran Shimano med HAGANE-vaxel,
 heroImage: "/images/gear/shimano-stradic-fm-c3000-hg.jpg"
 brand: "Shimano"
 category: "haspelrullar"
-price: 2349
+price: 2799
 rating: 4.6
 pros:
   - "HAGANE Gear, X-Ship och MicroModule II"
@@ -11819,7 +12659,7 @@ description: "Lat premiumrulle fran Shimanos Magnumlite-serie med CI4+ kropp och
 heroImage: "/images/gear/shimano-vanford-fa-2500.jpg"
 brand: "Shimano"
 category: "haspelrullar"
-price: 2295
+price: 3199
 rating: 4.7
 pros:
   - "Extremt lat CI4+ kompositkropp"
@@ -11861,7 +12701,7 @@ description: "Lat premiumrulle fran Shimanos Magnumlite-serie i storlek 4000. Pa
 heroImage: "/images/gear/shimano-vanford-fa-4000.jpg"
 brand: "Shimano"
 category: "haspelrullar"
-price: 2495
+price: 3399
 rating: 4.7
 pros:
   - "Extremt lat for storleken"
@@ -11904,7 +12744,7 @@ description: "Dedikerat gäddspö från Shimano med XH-aktion för kraftfull hug
 heroImage: "/images/gear/shimano-yasei-bb-pike-xh.jpg"
 brand: "Shimano"
 category: "spon"
-price: 1299
+price: 1599
 rating: 4.5
 pros:
   - Känt Shimano-varumärke
@@ -11980,7 +12820,7 @@ description: "Premiumlina fran CWC med tatt flatsad Micro-fiber-konstruktion och
 heroImage: "/images/gear/strike-wire-extreme-015mm.jpg"
 brand: "Strike Wire"
 category: "flatlinor"
-price: 269
+price: 359
 rating: 4.5
 pros:
   - "Tatt flatsad Micro-fiber ger superkompakt profil"
@@ -12273,7 +13113,7 @@ description: "Westins absoluta toppmodell i flatlinor med 13-tradig CORE-konstru
 heroImage: "/images/gear/westin-w10-13-braid-coastal.jpg"
 brand: "Westin"
 category: "flatlinor"
-price: 629
+price: 699
 rating: 4.9
 pros:
   - "13-tradig CORE-konstruktion for maximal styrka"
@@ -12316,7 +13156,7 @@ description: "Mångsidigt gäddspö i mellanklass från Westin. Kastvikten 20-80
 heroImage: "/images/gear/westin-w2-powercast-t-spinnspo.jpg"
 brand: "Westin"
 category: "spon"
-price: 949
+price: 1199
 rating: 4.3
 pros:
   - Bra pris för Westin
@@ -12356,7 +13196,7 @@ description: "Premiumtrolingspo fran Westins W2-serie med 24/30 ton kolfiberklin
 heroImage: "/images/gear/westin-w2-predator-trolling.jpg"
 brand: "Westin"
 category: "trollingspon"
-price: 1049
+price: 1199
 rating: 4.5
 pros:
   - "24/30 ton High Performance Carbon-klinga"
@@ -12396,7 +13236,7 @@ description: "Allround-haspelrulle fran Westin med aluminiumkropp och Carbon Dra
 heroImage: "/images/gear/westin-w3-4000-fd.jpg"
 brand: "Westin"
 category: "haspelrullar"
-price: 1649
+price: 2149
 rating: 4.3
 pros:
   - "Robust aluminiumkropp och gavel"
@@ -12438,7 +13278,7 @@ description: "8-tradig flatlinor fran Westin i diskret Smokey Grey. Konstruerad 
 heroImage: "/images/gear/westin-w3-8-braid-smokey-grey.jpg"
 brand: "Westin"
 category: "flatlinor"
-price: 229
+price: 249
 rating: 4.6
 pros:
   - "Japanska premium UHMPE-fibrer"
@@ -12480,7 +13320,7 @@ description: "Dedikerat jiggspö för abborre med medium fast aktion. Kastvikten
 heroImage: "/images/gear/westin-w3-finesse-jig-3rd.jpg"
 brand: "Westin"
 category: "spon"
-price: 1489
+price: 1699
 rating: 4.4
 pros:
   - Bra huggkänsel
@@ -12559,7 +13399,7 @@ description: "Mångsidigt spö som fungerar med både haspel och multirulle. Bra
 heroImage: "/images/gear/westin-w3-hybridcast-t-3rd.jpg"
 brand: "Westin"
 category: "spon"
-price: 1649
+price: 1899
 rating: 4.4
 pros:
   - Fungerar med haspel och multirulle
@@ -12600,7 +13440,7 @@ description: "Dedikerat gösspö med längd och känslighet för jiggfiske på d
 heroImage: "/images/gear/westin-w3-powerteez-3rd.jpg"
 brand: "Westin"
 category: "spon"
-price: 1749
+price: 1999
 rating: 4.5
 pros:
   - Bra längd för jiggfiske efter gös
@@ -12639,7 +13479,7 @@ description: "Kraftfullt trollingspo fran Westins W3-serie med Torayca-klinga oc
 heroImage: "/images/gear/westin-w3-predator-trolling-3rd.jpg"
 brand: "Westin"
 category: "trollingspon"
-price: 1299
+price: 1499
 rating: 4.4
 pros:
   - "Torayca High Performance Carbon-klinga"
@@ -12679,7 +13519,7 @@ description: "Premium 8-tradig flatlinor fran Westins W6-serie med Advanced High
 heroImage: "/images/gear/westin-w6-8-braid-0148mm.jpg"
 brand: "Westin"
 category: "flatlinor"
-price: 359
+price: 399
 rating: 4.7
 pros:
   - "Advanced High PIC med 36 vavningar per tum"
@@ -12721,7 +13561,7 @@ description: "Dedikerat toppspö för dropshotfiske efter abborre. Byggd specifi
 heroImage: "/images/gear/westin-w6-dropshot-haspelspo.jpg"
 brand: "Westin"
 category: "spon"
-price: 2659
+price: 3699
 rating: 4.7
 pros:
   - Byggd specifikt för dropshot
@@ -12759,7 +13599,7 @@ description: "Dedikerat jerkbait- och swimbaitmspö från Westins toppseriet. H-
 heroImage: "/images/gear/westin-w6-jerk-swimbait-t-2nd.jpg"
 brand: "Westin"
 category: "spon"
-price: 3449
+price: 3899
 rating: 4.2
 pros:
   - Toppkvalitet från Westins W6-serie
@@ -12797,7 +13637,7 @@ description: "Kraftfullt gäddspö från Westins toppline. XXH-aktion och kastvi
 heroImage: "/images/gear/westin-w6-powercast-t-spinnspo.jpg"
 brand: "Westin"
 category: "spon"
-price: 2849
+price: 3999
 rating: 4.8
 pros:
   - Byggd för stora gäddor och tunga beten
@@ -12836,7 +13676,7 @@ description: "Jiggspö för gös från Westins W6-serie. MH-aktion och kastvikt 
 heroImage: "/images/gear/westin-w6-powerteez-haspelspo.jpg"
 brand: "Westin"
 category: "spon"
-price: 2944
+price: 4099
 rating: 4.8
 pros:
   - Toppkänslighet för gösfiske
@@ -20338,7 +21178,7 @@ Mörrumsån nedströms Åsnen är en av Europas mest kända laxälvar med lax oc
 ---
 title: "Ätran"
 slug: "atran"
-description: "Ätran är Sveriges främsta vildlaxälv med en vild laxstam. Den klassiska laxsträckan ligger mitt i Falkenberg och fiskas på fiskekort via ifiske.se."
+description: "Ätran har västkustens starkaste bestånd av vild atlantlax. Den klassiska laxsträckan ligger mitt i Falkenberg och fiskas på fiskekort via ifiske.se."
 heroImage: "/images/destinations/atran.jpg"
 heroSource: photo
 heroCredit: "Rikard Giby"
@@ -20348,15 +21188,15 @@ län: "Halland, Västra Götaland"
 primarySpecies: ["Lax", "Havsöring", "Öring", "Gädda", "Abborre"]
 waterType: "river"
 iFiskeUrl: "https://www.ifiske.se/fiske-falkenbergs-laxfiske.htm"
-excerpt: "Sveriges främsta vildlaxälv med klassiskt laxfiske mitt i Falkenberg."
+excerpt: "Västkustens starkaste vildlaxstam, mitt i centrala Falkenberg."
 recommendedGear: []
 publishedAt: "2026-06-13"
-updatedAt: "2026-06-13"
+updatedAt: "2026-08-04"
 kostrad: ["kvicksilver"]
 intro: >-
-  Ätran är Sveriges viktigaste vildlaxälv. Här leker landets största bestånd av
-  naturreproducerande atlantlax helt utan kompensationsodling, och biflödet Högvadsån är
-  systemets viktigaste lekområde. Den klassiska laxsträckan rinner rakt genom centrala
+  Ätran har västkustens starkaste bestånd av vild atlantlax. Beståndet reproducerar sig
+  naturligt utan kompensationsodling, och biflödet Högvadsån är systemets viktigaste
+  lekområde. Den klassiska laxsträckan rinner rakt genom centrala
   Falkenberg, från Hertingforsen ner till Hålan, och fiskas på fiskekort. Ätran är också
   platsen för en av Europas mest framgångsrika älvrestaureringar. När Hertings
   kraftverksdamm revs ut 2013 och 2014 öppnades fri vandringsväg för första gången på
@@ -20613,7 +21453,6 @@ Trots restaureringen är beståndet pressat. Korttidsregleringen vid Ätraforsda
 | Närmaste tätort | Falkenberg |
 
 *Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/blekinge-skargard.mdx
@@ -26850,6 +27689,344 @@ I dag drivs Statkrafts ansökan om ett nytt underjordiskt kraftverk vid Bassalt/
 
 ```
 
+## src/content/destinations/ljungan.mdx
+```
+---
+title: "Ljungan"
+slug: "ljungan"
+description: "Fiskeguide till Ljungan i Medelpad och Jämtland. Laxfisket nedanför Viforsen, harrströmmarna i Haverö och Sölvbacka, fiskekort och regler."
+heroImage: "/images/destinations/ljungan.jpg"
+heroSource: illustration
+lat: 62.4881
+lng: 16.3186
+län: "Västernorrlands län, Jämtlands län"
+primarySpecies: ["Lax", "Havsöring", "Öring", "Harr", "Gädda", "Abborre"]
+waterType: "river"
+iFiskeUrl: "https://www.ifiske.se/fiske-nedre-ljungan.htm"
+excerpt: "Vild storlax nedanför Viforsen och harr i outbyggda fjällströmmar."
+recommendedGear: []
+publishedAt: "2026-08-03"
+updatedAt: "2026-08-03"
+kostrad: ["kvicksilver", "dioxin"]
+intro: >-
+  Ljungan rinner omkring 350 kilometer från fjällen nordost om Helagsfjället till
+  Bottenhavet söder om Sundsvall och har ett avrinningsområde på drygt 12 800
+  kvadratkilometer. Älven är hårt utbyggd med ett tjugotal kraftverk, och den nedersta
+  fria sträckan på ungefär 17 kilometer nedanför Viforsen bär hela lax- och
+  havsöringsfisket. Där leker ett vilt bestånd av storvuxen Östersjölax som räknas till
+  de mest hotade i landet. Uppströms magasinen ligger outbyggda strömsträckor som Haverö
+  strömmar och Sölvbacka strömmar med harr och öring. Längst upp, kring Storsjö och
+  Ljungdalen, blir fisket fjällnära.
+---
+
+## Fiskekort och regler
+
+Ljungan har inget sammanhängande regelverk. Älven är uppdelad på ett tjugotal fiskevårdsområden och arrendatorer från fjället ned till kusten, och du köper kort till den sträcka du faktiskt ska fiska. Störst skillnad är det mellan nedre älven, där lax och havsöring styr reglerna och det nationella regelverket för Östersjön gäller ovanpå kortets villkor, och de övre delarna, där harr och öring är målarterna och fönsteruttag är vanligt.
+
+Reglerna i nedre Ljungan ändrades under 2026. Havs- och vattenmyndigheten beslutade den 3 juni 2026 om ändringar i FIFS 2004:36 med motiveringen att laxbeståndet i Ljungan har återhämtat sig efter flera år med sjukdom och kraftigt minskad produktion av laxungar. Beslutet innebär att handredskapsfiske efter lax åter tillåts i älven, med tidsmässiga begränsningar. Nedre Ljungans Sportfiske har uppgett att laxfisket öppnade den 12 juni 2026. Kontrollera alltid det exakta läget på [svenskafiskeregler.se](https://www.svenskafiskeregler.se) innan du åker, eftersom detta är en färsk ändring.
+
+### Vad är fritt och vad kräver tillstånd?
+
+Fritt handredskapsfiske gäller inte i älvfåran. Fiskekort krävs på i stort sett hela Ljungan. Undantag finns på enstaka sträckor i Ånge kommun, bland annat mellan Haverö och Ånge fiskevårdsområden och mellan Ovansjö och Alby, där fisket är fritt. Kontrollera gränserna lokalt, de är inte utmärkta i terrängen överallt.
+
+Barn och ungdom fiskar kostnadsfritt i flera områden, men åldersgränsen varierar. I Nedre Ljungan gäller kostnadsfritt årskort för den som är under 18 år. I flera övre fiskevårdsområden går gränsen vid 15 eller 16 år.
+
+### Var köper du fiskekort?
+
+Nedre Ljungan, alltså sträckan från Viforsens kraftverk ned till havet, säljs via [iFiske](https://www.ifiske.se/fiske-nedre-ljungan.htm) och hos Allsta Fiskecamp. Fångstrapportering är obligatorisk.
+
+Längre upp säljs korten områdesvis. Tuna Östra fiskevårdsområde täcker Matfors och Nedansjö och har ombud i Matfors. Haverö fiskevårdsområde, Ånge fiskevårdsområde och Borgsjö säljs via iFiske och hos handlare i Ånge. I Bergs kommun samlas flera områden under fiskaiBergkortet, som täcker bland annat Rätan och Åsarna. Storsjö fiskevårdsområde, som förvaltar Sölvbacka strömmar och Skärkån, säljer kort via iFiske och via Storsjö Fjällturism. Längst upp gäller Ljungdalens fiskevårdsområde.
+
+### Priser 2026
+
+| Område | Korttyp | Pris |
+|---|---|---|
+| Nedre Ljungan | Dygnskort | 250 kr |
+| Nedre Ljungan | Årskort | 2 500 kr |
+| Nedre Ljungan | Årskort under 18 år | Kostnadsfritt |
+
+Nedre Ljungans kort gäller sportfiske med ett spö från Viforsen till havet under perioden 1 mars till 31 december. Priserna avser 2026 och är hämtade från iFiske. Priser för övriga fiskevårdsområden längs älven varierar och ändras mellan säsonger, så hämta dem direkt från respektive områdes sida på iFiske innan du köper.
+
+### Minimimått och fönsteruttag
+
+| Sträcka | Art | Mått |
+|---|---|---|
+| Nedre Ljungan | Lax | Min. 60 cm |
+| Nedre Ljungan | Havsöring | Min. 50 cm |
+| Nedre Ljungan | Harr | Fönster 35–40 cm |
+| Storsjö FVO, strömmande vatten | Öring och harr | Fönster 35–45 cm |
+
+I nedre älven får en fettfeneklippt havsöring behållas per fiskare och dygn. Fisk utanför fönstermåttet ska återutsättas omedelbart. I Storsjö fiskevårdsområdes strömmar får sammanlagt tre fiskar behållas per dygn.
+
+Minimimåttet för lax i Östersjön är 60 cm och för havsöring 50 cm enligt Havs- och vattenmyndighetens föreskrifter. De måtten gäller oavsett vad det lokala kortet säger, och lokala regler kan bara vara strängare.
+
+### Fredningstider och fredningsområden
+
+I nedre Ljungan har allt fiske varit förbjudet under lekperioden på hösten och under vintermånaderna. Fredningsdatumen har justerats flera gånger de senaste åren och påverkas av regeländringen från juni 2026. Läs de aktuella datumen på fiskevårdsområdets egen sida innan du planerar en resa i oktober eller november.
+
+Utanför mynningen finns två fredningsområden. Det inre heter Ljungan och Selångersåns fredningsområde och där är fiske efter lax och öring förbjudet. Ljungans yttre fredningsområde tillkom 2023 och har fortsatt förbud mot fiske efter lax och öring hela året, men lättnader infördes 2026 för nätfiske och fasta redskap som riktas mot andra arter. Vid sådant fiske får fettfeneklippt lax och öring behållas.
+
+Harren har lekfredning under våren i flera områden. Perioden varierar mellan fiskevårdsområdena och är inte densamma i nedre och övre älven.
+
+### Catch and release-rutin
+
+I nedre Ljungan är återutsättning en regel, inte bara en rekommendation. Fisk som ska släppas får inte lyftas ur vattnet eller dras upp på land, och kroken ska lossas med peang. Ryckfiske är förbjudet enligt lag, och felkrokad fisk ska återutsättas.
+
+Redskapsreglerna i nedre älven begränsar krokgapet. Drag får ha enkelkrok eller trekrok med högst 13 mm krokgap. För fluga gäller högst 13 mm på enkelkrok och högst 9 mm på dubbel- eller trekrok. Sänken och beten som innehåller bly är förbjudna.
+
+Fångstrapportering är obligatorisk för lax, havsöring och harr, även för fisk som återutsätts. Rapporten lämnas via iFiske inom 48 timmar, och du ska ange om fisken var fettfeneklippt. Kontrollavgiften vid regelbrott är 2 500 kr.
+
+> Aktuella regler finns alltid på [HaV:s webbplats](https://www.havochvatten.se) och via [Länsstyrelsens sidor](https://www.lansstyrelsen.se). Fiskevårdsområdets egna regler kan avvika och gäller alltid vid sidan av det nationella regelverket.
+
+---
+
+**Att äta fångsten:** Det finns kostråd att känna till för fisk från det här vattnet. Läs mer under Kostråd och miljögifter längre ned.
+
+---
+
+## Fiskarter
+
+### Lax
+
+Ljungan hyser ett av få naturligt reproducerande laxbestånd söder om Bottenviken, och beståndet klassas som ett av de mest hotade i Sverige. Leken sker på den fria sträckan nedanför Viforsen, som är cirka 17 kilometer lång. Elfiskena visade mycket låga tätheter av laxungar åren efter 2017, då sjuk vuxen lax slog ut stora delar av reproduktionen. Sedan omkring 2022 syns en återhämtning, och det var den som låg bakom att handredskapsfisket efter lax åter tillätts 2026. Laxen i Ljungan är storvuxen och älven har länge haft rykte om sig att producera några av Bottenhavets grövsta fiskar. Uppgången börjar normalt kring midsommar och blank fisk stiger långt in i september. Ovanpå kortets regler gäller EU:s begränsning för Östersjön, som innebär att bara fettfeneklippt lax får behållas och att övrig lax ska återutsättas.
+
+[Läs mer om lax](/arter/lax/)
+
+### Havsöring
+
+Havsöringen är för många den mest realistiska målarten i nedre Ljungan. Den kommer normalt igång vid månadsskiftet juli och augusti, senare under torra och varma somrar. De första fiskarna på säsongen är ofta stora, och exemplar på 4 till 5 kg förekommer i augusti. Under sensommaren och hösten dominerar sedan fisk kring 0,5 till 1 kg. Havsöringen står i strömkanterna och i utloppen från de större forsarna, och den är mest villig i gryning och skymning. Bara fettfeneklippt havsöring får behållas, en per fiskare och dygn.
+
+[Läs mer om havsöring](/arter/havsoring/)
+
+### Öring
+
+Ovanför kraftverken lever öringen som strömfisk och som sjövandrande storöring. I Storsjön i Härjedalen finns fisk upp mot 5 till 6 kg, och Skärkån är det viktigaste lekvattnet för det beståndet. I Sölvbacka strömmar och i de mindre strömsträckorna kring Rätan och Åsarna handlar det om strömöring som betar insekter och småfisk. Genetiska undersökningar har visat att flera av de lokala öringbestånden i systemet är isolerade och har små effektiva populationsstorlekar, vilket är skälet till att fönsteruttag och begränsade uttag används i stället för enkla minimimått.
+
+[Läs mer om öring](/arter/oring/)
+
+### Harr
+
+Harren är den art som bär fisket i de outbyggda mellan- och övre delarna. Haverö strömmar, Kölsillre, Nästelströmmen vid Rätan och Åsarnaströmmen är de mest kända sträckorna. Fisket är som bäst från slutet av maj till midsommar och sedan igen från augusti till september. I nedre Ljungan finns också harr, och där gäller ett fönsteruttag på 35 till 40 cm som skyddar både småfisk och de största lekfiskarna. Harren står i strömnackar och bakom stenar i det syrerika vattnet och tar torrfluga under kläckningar.
+
+[Läs mer om harr](/arter/harr/)
+
+### Gädda
+
+Gädda finns framför allt i magasinen och de lugnflytande partierna, bland annat i Torpsjön, Marmen och Holmsjön. Bestånden är stabila och fisk på 4 till 8 kg förekommer regelbundet. Den största kända gäddan ur Torpsjön vägde 17 kg och togs på 1950-talet. Gäddan står vid vassar, grundplatåer och inlopp under våren och hösten, och söker sig djupare under högsommaren. Bästa perioder är maj till juni och september till oktober.
+
+[Läs mer om gädda](/arter/gadda/)
+
+### Abborre
+
+Abborren finns i hela systemet och är den art som ger mest fisk per timme i magasinen. Den samlas kring stenbotten, sjunktimmer och kanter mot djupare vatten. I Torpsjön och Marmen fungerar både jigg och mete bra, och på vintern är abborren tillsammans med siken den vanligaste pimpelfångsten. Bästa perioder är maj till juni och augusti till oktober.
+
+[Läs mer om abborre](/arter/abborre/)
+
+Övriga förekommande arter: sik, lake, id, mört, löja, gärs och ål. I fjällnära sjöar kring Ljungdalen och Storsjö finns röding, och i enstaka anlagda vatten längs älvdalen sätts regnbåge ut.
+
+## Vattnets karaktär
+
+### Grundfakta
+
+| | |
+|---|---|
+| Längd | ca 350 km, upp till 399 km räknat från källflödena |
+| Avrinningsområde | ca 12 850 km² |
+| Medelvattenföring vid mynningen | ca 140 m³/s |
+| Källområde | fjällen nordost om Helagsfjället |
+| Mynning | Bottenhavet vid Njurundabommen, söder om Sundsvall |
+| Kraftverk | ett tjugotal, totalt ca 610 MW installerad effekt |
+| Nedersta kraftverk | Viforsen, ca 17 km från havet |
+
+Längduppgifterna skiljer sig mellan källorna beroende på vilket källflöde som räknas som huvudfåra. SMHI-baserade uppgifter anger omkring 350 kilometer, medan andra sammanställningar anger 399 kilometer.
+
+### Topografi och sträckor
+
+Älven delas naturligt i tre delar med helt olika fiske. Övre Ljungan går från fjällkällorna via Ljungdalen och Storsjö ned mot Rätan och Åsarna. Här är vattnet klart och kallt, sträckorna är i huvudsak outbyggda och skyddade mot vattenkraftsutbyggnad enligt miljöbalkens fjärde kapitel.
+
+Mellersta Ljungan från Rätan ned genom Ånge och Torpshammar är en blandning. Kraftverkskedjan med bland annat Järnvägsforsen, Parteboda, Hermansboda och Ljunga bryter av mot kvarvarande outbyggda strömsträckor, där Haverö strömmar är den mest kända. Gimån ansluter vid Torpshammar och är älvens största biflöde.
+
+Nedre Ljungan från Nedansjö och Matfors ned mot kusten är kraftigt reglerad genom Nederede, Skallböle, Matfors och slutligen Viforsen. Nedanför Viforsen ligger den sista fria sträckan, ungefär 17 kilometer strömmande vatten med forsar, block och djuphålor hela vägen ut till Bottenhavet.
+
+### Vattentemperatur och flöden
+
+Flödet i nedre älven styrs av tappningen vid Viforsen. Enligt vattendomen ska korttidsregleringen återregleras, och Statkraft har åtagit sig att inte tappa mindre än 30 m³/s nedströms kraftverket. Lokala fiskare anger 80 till 120 m³/s som det mest gynnsamma spannet för fisket, men fisket fungerar även vid andra flöden. Statkraft redovisar aktuell vattenföring vid Viforsen.
+
+Regleringen gör att vårfloden dämpas eller uteblir, vilket påverkar både lek och uppväxt. Snabba flödesförändringar har varit ett återkommande stridsämne mellan sportfiskeintressen och kraftbolaget. Vattentemperaturen i de övre, outbyggda delarna håller sig lägre under högsommaren och gynnar harr och öring, medan magasinen värms mer och gynnar gädda och abborre.
+
+### Isläggning
+
+Magasinen och sjöarna längs mellersta och övre älven lägger sig normalt under december och bär för pimpelfiske från januari till mars. Nedanför Viforsen är strömsträckan öppen större delen av vintern, men fisket där är stängt under den lokala vinterfredningen. Isen kring kraftverksutskov och inlopp är alltid opålitlig och ska undvikas oavsett årstid.
+
+### Tillflöden
+
+Drygt fyrtio större biflöden ansluter till Ljungan. Fiskemässigt viktigast är Gimån, som mynnar vid Torpshammar och är en av landets kvarvarande storöringsströmmar. Stångån är det största biflödet nedströms Viforsen och mynnar vid Njurundabommen. Skärkån i de övre delarna är den viktigaste lekplatsen för Storsjöns öring.
+
+[Läs mer om Gimån](/destinationer/giman/)
+
+### Naturreservat och skyddade områden
+
+Ljungan uppströms Storsjön, Gimån uppströms Holmsjön, sträckan mellan Havern och Holmsjön samt sträckan nedströms Viforsen är skyddade mot vattenkraftsutbyggnad enligt miljöbalkens fjärde kapitel. Haverö strömmar är naturreservat och omfattar en lång sträcka strömmande vatten med kulturmiljö från flottningsepoken, bland annat fiskehus från tidigt 1900-tal. I systemet finns skyddsvärda arter som flodpärlmussla, utter och flodnejonöga.
+
+## Fiskemetoder
+
+Metodvalet i Ljungan bestäms av vilken av de tre älvdelarna du fiskar. Detaljerade teknikanvisningar finns på respektive tekniksida.
+
+### Flugfiske
+
+Flugfiske är huvudmetoden både i nedre älvens laxfiske och i harrströmmarna längre upp. Nedanför Viforsen fiskas lax och havsöring med tvåhandsspö i de större forsnackarna och utloppen, med krokgapsbegränsning som styr flugvalet. I Haverö strömmar, Sölvbacka strömmar och Nästelströmmen handlar det i stället om enhandsfiske med torrfluga och nymf efter harr och öring, framför allt vid kvällskläckningar från slutet av maj.
+
+[Läs mer om flugfiske](/teknik/flugfiske/)
+
+### Spinnfiske
+
+Spinnfiske är tillåtet i nedre Ljungan under kortets villkor, med begränsat krokgap och förbud mot blyhaltiga beten och sänken. Det fungerar bra för havsöring i strömkanterna under sensommar och höst. I magasinen längre upp är spinnfiske den vanligaste metoden för gädda och abborre.
+
+[Läs mer om spinnfiske](/teknik/spinnfiske/)
+
+### Jiggfiske
+
+Jigg fungerar bäst i de lugnare delarna, alltså i Torpsjön, Marmen och de större magasinen. Lätta riggar för abborre längs kanter och stenbotten är effektiva under sommaren, och grövre jigg för gädda fungerar från sensommaren och in i oktober.
+
+[Läs mer om jiggfiske](/teknik/jiggfiske/)
+
+### Isfiske
+
+Isfiske efter abborre och sik bedrivs i magasinen och sjöarna längs mellersta och övre älven under januari till mars. Lake går att fiska på angeldon under lekperioden i mitten av vintern. Undvik alltid isen nära utskov och inlopp, där flödet ändras utan förvarning.
+
+[Läs mer om isfiske](/teknik/isfiske/)
+
+## Hotspots och lokaler
+
+### Viforsen
+
+Den översta delen av den fria sträckan, direkt nedanför kraftverket. Primär lokal för uppvandrande lax och havsöring. Trappa ned till fiskeplatsen på södra sidan byggdes 2023 och förbättrade tillgängligheten. Nedre Ljungans kort gäller. Landfiske, och flödet ändras med tappningen från kraftverket.
+
+### Allsta och forsarna i Njurunda
+
+Sträckan nedanför Viforsen med Krokforsen, Allstaforsen och Grenforsen är det mest fiskade partiet i älven. Lax, havsöring, harr och sik. Flugfiske i strömnackar och utlopp, spinnfiske i kanterna. Vindskydd finns längs sträckan, och Allsta Fiskecamp ligger intill. Nedre Ljungans kort.
+
+### Nedersta partiet mot mynningen
+
+Från den sista forsen ned mot havet blir älven lugnare. Gädda och abborre går att fiska här, och lokalen är enklare att ta sig till med barn eller för den som inte vill vada. Observera att fredningsområdena i havet utanför mynningen har egna regler som skiljer sig från älvkortet.
+
+### Matfors och Nedansjö
+
+Tuna Östra fiskevårdsområde upplåter strömfiske från bron i Matfors och uppströms mot Nedansjö. Öring och harr sätts ut nedströms Skallböle. Lättillgängligt från väg, och kort säljs lokalt i Matfors.
+
+### Torpsjön och Gimåns mynning
+
+Lugnvatten med abborre, gädda, sik, id och lake, samt harr och öring närmare inloppen. Mete och spinnfiske från land fungerar bra, och det finns fiskeplatser kring Vikbron. Kort via lokala fiskevårdsområden på iFiske.
+
+### Haverö strömmar
+
+Naturreservat med tre sammanhängande strömsträckor i outbyggd älvfåra. Klassiskt harr- och öringfiske, bäst från slutet av maj till midsommar. Lekgrus har lagts ut för att stärka reproduktionen. Haverö fiskevårdsområdes kort, som även säljs hos handlare i Ånge. Landfiske och vadning.
+
+### Nästelströmmen och Rätan
+
+Strömsträcka med god harrförekomst och grov öring, samt gädda och abborre i de anslutande sjöarna. Ingår i fiskaiBergkortet, som täcker flera områden i Bergs kommun. Kontrollavgift tillämpas i området.
+
+### Sölvbacka strömmar och Storsjö kapell
+
+Den övre älvens flaggskepp, med lång strömsträcka uppströms Storsjön och storöring som vandrar upp för att leka i Skärkån. Fönsteruttag 35 till 45 cm gäller i strömmande vatten och högst tre fiskar per dygn får behållas. Tillgänglighetsanpassad brygga finns vid Osvallen. Storsjö fiskevårdsområdes kort.
+
+## Säsongsöversikt
+
+| Månad | Bästa art | Bästa metod |
+|-------|-----------|-------------|
+| Januari | Abborre, sik | Isfiske |
+| Februari | Abborre, lake | Isfiske |
+| Mars | Abborre | Isfiske |
+| April | Gädda | Spinnfiske |
+| Maj | Harr, gädda | Flugfiske, spinnfiske |
+| Juni | Harr, lax | Flugfiske |
+| Juli | Lax, harr | Flugfiske |
+| Augusti | Havsöring, lax | Flugfiske, spinnfiske |
+| September | Havsöring, öring | Flugfiske, spinnfiske |
+| Oktober | Havsöring, gädda | Spinnfiske, jiggfiske |
+| November | Gädda, abborre | Jiggfiske |
+| December | Abborre | Isfiske |
+
+Nedre Ljungan har fiskestopp under lekperioden på hösten och under vintern, och harren är fredad under lekvandringen på våren. Datumen skiljer sig mellan fiskevårdsområdena och ändrades i samband med Havs- och vattenmyndighetens beslut i juni 2026. Kontrollera aktuella datum för den sträcka du ska fiska.
+
+## Kostråd och miljögifter
+
+Livsmedelsverket avråder känsliga grupper från att äta vildfångad lax och öring från Östersjön och dess älvar oftare än två till tre gånger per år. Med känsliga grupper avses barn och unga upp till 18 år, den som planerar graviditet, gravida och ammande. Orsaken är förhöjda halter av dioxin och PCB. Övriga vuxna kan enligt Livsmedelsverket äta sådan fisk upp till en gång per vecka. Halterna i havsöring har i provtagningar legat lägre än i lax, men rådet omfattar båda arterna.
+
+För insjöfisk i magasinen och sjöarna längs älven gäller Livsmedelsverkets råd om kvicksilver. Det berör framför allt gädda, abborre, gös och lake. Känsliga grupper rekommenderas äta dessa arter högst två till tre gånger per år, medan övriga vuxna kan äta dem upp till en gång i veckan.
+
+Aktuella råd finns på [livsmedelsverket.se](https://www.livsmedelsverket.se).
+
+## Infrastruktur och praktisk information
+
+### Fiskeguider och camper
+
+Allsta Fiskecamp ligger vid nedre älvens forssträcka och säljer även fiskekort. I de övre delarna erbjuder Storsjö Fjällturism guidning och flugfiskekurser med inriktning mot Sölvbacka strömmar och Skärkån. Lokala guider förmedlas också via turistinformationen i Ånge och Bergs kommun.
+
+### Båtramper
+
+| Plats | Notering |
+|-------|----------|
+| Torpsjön, Fränsta | Ramp för mindre båtar, lugnvatten |
+| Marmen | Iläggning för småbåt, magasinsfiske |
+| Holmsjön | Flera iläggningsplatser, störst av magasinen |
+| Storsjön, Härjedalen | Iläggning nära Storsjö kapell |
+
+Strömsträckan nedanför Viforsen fiskas från land. Båtfiske är inte ett alternativ där.
+
+### Landfiske
+
+Nedre Ljungan är väl anpassat för landfiske med stigar, vindskydd och parkeringar längs forssträckan i Njurunda. Haverö strömmar, Nästelströmmen och Matfors nås också från väg med korta gångavstånd. Vid Osvallen i Storsjö finns en tillgänglighetsanpassad brygga.
+
+### Boende
+
+- **Allsta Fiskecamp** (Njurunda): ligger direkt vid nedre älvens forssträcka, säljer fiskekort.
+- **Bergafjärdens Camping** (Njurunda): kustnära, kort körning till mynningen.
+- **Qvarnsjö Camp och Skålans Naturcamp** (Ånge och Bergs kommun): boende nära mellersta älvens strömmar.
+- **Storsjö Fjällturism och Fiskecamp** (Storsjö kapell): utgångspunkt för Sölvbacka strömmar och fjällfisket.
+- **Rätans Camping**: centralt för Nästelströmmen och sjöarna kring Rätan.
+
+### Kommunikationer
+
+E14 följer älvdalen från Sundsvall via Ånge och vidare mot Jämtland och är huvudstråket för hela mellersta älven. Väg 315 leder upp mot Storsjö kapell och Ljungdalen. Mittbanan trafikerar Sundsvall och Ånge med tåg. Närmaste flygplats är Sundsvall-Timrå, Midlanda, ungefär en halvtimmes bilresa från nedre älven.
+
+### Sjösäkerhet
+
+Flödet nedanför Viforsen kan ändras snabbt när kraftverket ändrar tappningen. Vada aldrig utan att först kontrollera aktuell vattenföring och ha en plan för att ta dig upp om nivån stiger. I magasinen kan vinden bygga hård sjö på kort tid, särskilt i Holmsjön.
+
+## Historik och bakgrund
+
+Ljungan var tidigt ute i den svenska kraftverkshistorien. Alby kraftverk togs i drift 1899 och var en av landets första anläggningar som överförde el längre sträckor. Utbyggnaden fortsatte under hela 1900-talet, och nuvarande Viforsens kraftverk stod färdigt 1982. Parallellt rensades älven för flottning, vilket tog bort lekbottnar och ståndplatser på sträckor som aldrig återställdes.
+
+Följden blev att laxen förlorade nästan hela sitt reproduktionsområde. Kvar blev de knappt två milen nedströms Viforsen. Ovanpå detta lades kompensationsodling med fettfeneklippt smolt, som sätts ut för att kompensera det förlorade fisket. SLU:s forskning på arkiverat DNA har visat att ett sekel av utsättningar gjort Östersjöns laxbestånd genetiskt mer lika varandra, och att förändringen varit störst i just de små vildlaxbestånden. Det är en av anledningarna till att Ljungans kvarvarande vilda del bevakas noga.
+
+Under 2010-talet drabbades beståndet av sjuka lekfiskar och en kraftig nedgång i produktionen av laxungar. Elfisken i slutet av årtiondet gav mycket få eller inga årsungar. Under samma period skärptes reglerna kraftigt. Fasta redskap i mynningen löstes in i samarbete mellan Stiftelsen för Östersjölaxen och det lokala fiskevårdsområdet, och fredningsområdena i havet utvidgades 2023. Lekgrus har lagts ut både i huvudfåran och i Haverö. Att laxfisket åter kunde öppnas 2026 är resultatet av den kedjan av åtgärder.
+
+Vattenkraftens miljövillkor prövas i dag om inom den nationella planen för moderna miljövillkor. Ljungan och Gimån utgör en egen prövningsgrupp, och Fortum lämnade sommaren 2025 in ansökningar för Parteboda, Hermansboda och Ljunga med åtgärder som väntas förbättra förhållandena för strömlevande öring och harr. I biflödet Stångån har beslut om utrivning av dammar fattats.
+
+## Snabbfakta
+
+| | |
+|---|---|
+| Fritt handredskapsfiske | Nej, med undantag för enstaka sträckor i Ånge kommun |
+| Fiskekort krävs för | Hela älven i praktiken, områdesvis förvaltning |
+| Var köps kortet | iFiske, Allsta Fiskecamp och lokala ombud |
+| Dygnskort Nedre Ljungan 2026 | 250 kr |
+| Årskort Nedre Ljungan 2026 | 2 500 kr |
+| Minimimått lax | 60 cm |
+| Minimimått havsöring | 50 cm |
+| Fönsteruttag harr, nedre älven | 35–40 cm |
+| Fångstrapportering | Obligatorisk inom 48 timmar via iFiske |
+| Fri vandringssträcka för lax | ca 17 km nedströms Viforsen |
+| Närmaste tätort, nedre älven | Kvissleby och Sundsvall |
+| Närmaste tätort, mellersta älven | Ånge |
+| Koordinater | 62,49°N, 16,32°Ö (Torpshammar) |
+
+---
+
+*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
+```
+
 ## src/content/destinations/malaren.mdx
 ```
 ---
@@ -27759,7 +28936,7 @@ Frågan om fiskvägar är aktuell. Inom den nationella planen för moderna milj�
 ---
 title: "Mörrumsån"
 slug: "morrum"
-description: "Mörrumsån i Blekinge är ett av Europas mest klassiska sportfiskevatten och en av Östersjöns viktigaste vildlaxälvar. Guide till fiskekort, säsong och hotspots."
+description: "Mörrumsån i Blekinge är ett av Europas klassiska sportfiskevatten och ett av få ursprungliga vildlaxbestånd i södra Östersjön. Guide till kort och hotspots."
 heroImage: "/images/destinations/morrum.jpg"
 lat: 56.18
 lng: 14.75
@@ -27770,11 +28947,11 @@ excerpt: "Europas mest klassiska sportfiskeälv för lax och havsöring."
 iFiskeUrl: "https://www.ifiske.se/fiske-morrumsans-fvo-ebbemala-amma.htm"
 recommendedGear: []
 publishedAt: "2025-01-01"
-updatedAt: "2026-06-07"
+updatedAt: "2026-08-04"
 kostrad: ["kvicksilver", "dioxin"]
 intro: >-
-  Mörrumsån i Blekinge är ett av Europas mest klassiska sportfiskevatten och en av
-  Östersjöns viktigaste vildlaxälvar. Den nedre delen drivs sedan 1941 som Mörrums
+  Mörrumsån i Blekinge är ett av Europas mest klassiska sportfiskevatten och ett av få
+  kvarvarande ursprungliga vildlaxbestånd i södra Östersjön. Den nedre delen drivs sedan 1941 som Mörrums
   Kronolaxfiske av Sveaskog och är världsberömd för sina storväxta laxar och havsöringar.
   Säsongen 2026 är den 86:e officiella fiskepremiären. Snittvikten på fångad lax ligger
   historiskt runt 8 kg och laxrekordet är 26,72 kg. Mörrumsån är ett vatten med struktur
@@ -28084,7 +29261,7 @@ Avrinningsområdet drabbades hårt av försurning under 1970- och 80-talen. Kalk
 
 ### Ärlig bild
 
-Mörrumsån är inte ett vatten för spontanbesök. Dagkortet kostar 750 kr och storlaxarna tar inte varje dag. Catch and release-graden är ca 85 % och totalkvoten 2026 är 100 fiskar för hela säsongen. Poängen är upplevelsen, kontakten med en av Östersjöns sista vilda laxstammar och strukturen i ett av Europas bäst förvaltade laxvatten.
+Mörrumsån är inte ett vatten för spontanbesök. Dagkortet kostar 750 kr och storlaxarna tar inte varje dag. Catch and release-graden är ca 85 % och totalkvoten 2026 är 100 fiskar för hela säsongen. Poängen är upplevelsen, kontakten med ett av södra Östersjöns få ursprungliga laxbestånd och strukturen i ett av Europas bäst förvaltade laxvatten.
 
 Vill du testa till lägre kostnad, börja med FVO Ebbemåla–Åmma i april (300 kr/dag) eller ett eftermiddagskort på Kronolaxfisket.
 
@@ -28109,7 +29286,6 @@ Vill du testa till lägre kostnad, börja med FVO Ebbemåla–Åmma i april (300
 ---
 
 *Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/nissan.mdx
@@ -30324,6 +31500,323 @@ Yrkesfisket har lång tradition i Ringsjön och fångar i dag främst gös, abbo
 
 *Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 
+```
+
+## src/content/destinations/ronne-a.mdx
+```
+---
+title: "Rönne å"
+slug: "ronne-a"
+description: "Rönne å är Skånes främsta laxvatten. Guide till fiskekort och priser 2026, fredningstider, arter, hotspots och dammrivningen vid Klippan."
+heroImage: "/images/destinations/ronne-a.jpg"
+lat: 56.185
+lng: 13.010
+län: "Skåne"
+primarySpecies: ["Lax", "Havsöring", "Gädda", "Abborre", "Mört", "Braxen"]
+waterType: "river"
+iFiskeUrl: "https://www.ifiske.se/fiske-ronne-a-nedre.htm"
+excerpt: "Skånes främsta laxå, från Ringsjön ut i Skälderviken."
+recommendedGear: []
+kostrad: ["kvicksilver"]
+publishedAt: "2026-08-03"
+updatedAt: "2026-08-03"
+intro: >-
+  Rönne å rinner 83 kilometer från Västra Ringsjön till mynningen i Skälderviken vid
+  Ängelholm och är Skånes näst vattenrikaste vattendrag med en medelvattenföring kring
+  22 kubikmeter per sekund. Här finns västkustens sydligaste självreproducerande bestånd
+  av atlantlax, och fiskar över 10 kilo rapporteras varje säsong. Tre nedlagda kraftverk
+  vid Klippan stänger fortfarande av huvudfåran och begränsar laxen till de nedre fyra
+  milen. Klippans kommun har fått tillstånd att riva dem, men domen är överklagad.
+  Fisket är starkast från Ängelholm upp till Stackarpsdammen.
+---
+
+## Fiskekort och regler
+
+### Vad är fritt och vad kräver tillstånd?
+
+Rönne å är enskilt vatten hela vägen från Ringsjön till mynningen, och fiskekort krävs för allt fiske i ån. Fisket förvaltas av tre olika aktörer på tre skilda sträckor, och ett kort gäller aldrig hela ån. Utanför mynningen, i havet och från pirarna i Skälderviken, gäller fritt handredskapsfiske från land inom ramen för de nationella reglerna. Uppströms Forsmöllan mot Ringsjön är fiskerätten uppdelad på många privata markägare, och långa sträckor är inte upplåtna för kortfiske alls.
+
+Barn och ungdomar fiskar utan kostnad, men åldersgränsen skiljer sig mellan förvaltarna. Kontrollera vilken gräns som gäller på den sträcka du tänker fiska.
+
+### Vem förvaltar vilken sträcka?
+
+| Sträcka | Förvaltare | Karaktär |
+|---|---|---|
+| Mynningen upp till Gåsahalsen, Ängelholm | Ängelholms Sport- och Fiskevårdsförening inom Rönneåns nedre fiskevårdsområde | Lax och havsöring, lugnflytande |
+| Forsmöllan ned till nedanför Stackarpsdammen, samt Bäljane å | Klippans Sport- och Fiskevårdsförening | Strömsträckor, lax och havsöring |
+| Länsgränsen ned till Forsmöllan, Ljungbyhed | Rönneådalens fiskevårdsområde | Lugnvatten, gädda, abborre, vitfisk |
+| Ringsjön | Ringsjöns fiskevårdsområde | Gös, abborre, gädda |
+
+Rönneåns nedre fiskevårdsområde omfattar även Rössjöholmsån nedströms E6, Kägleån och Lerbäcken.
+
+### Var köper du fiskekort?
+
+Samtliga tre förvaltare säljer kort digitalt via iFiske.se. Lokala ombud finns också. I Klippan säljs kort hos Preem på Storgatan, hos Time på Vedbyvägen och hos Retro Sportfiske i Tullssonhuset. I Ängelholm säljs kort hos Varuhallen Hobby och på turistbyrån, och i Helsingborg hos Sportfiskedepån. Kortet är personligt och ska kunna visas vid tillsyn.
+
+### Priser 2026
+
+| Kort | Sträcka | Pris |
+|---|---|---|
+| Dagkort | Rönne å nedre, Ängelholm | 80 kr |
+| Veckokort | Rönne å nedre, Ängelholm | 200 kr |
+| Säsongskort 9 mars till 31 december | Rönne å nedre, Ängelholm | 800 kr |
+| Premiärkort, två dagar | Rönne å nedre, Ängelholm | 200 kr |
+| Dagkort, säljs 1 april till 30 september | Rönne å och Bäljane å, Klippan | 80 kr |
+| Säsongskort 1 april till 30 september | Rönne å och Bäljane å, Klippan | 700 kr |
+| Barn och ungdom | Samtliga sträckor | Utan kostnad |
+
+Priserna är hämtade från förvaltarnas egna kortsidor och gällde sommaren 2026. Åldersgränsen för avgiftsfritt fiske är 17 år i Ängelholm, 14 år inom Rönneådalens fiskevårdsområde och 11 år i Klippan. Kontrollera aktuellt pris i iFiske inför besöket.
+
+### Fisketider och fredning
+
+| Sträcka | Regel |
+|---|---|
+| Rönne å nedre, Ängelholm | Totalt fiskeförbud januari och februari. Fiske efter laxartad fisk från första helgen i mars till 30 september. Övrigt fiske till 31 december |
+| Rönne å och Bäljane å, Klippan | Totalt fiskeförbud 1 oktober till 28 februari. Premiär 1 mars för medlemmar, 1 april för övriga |
+| Mynningen i Skälderviken | Fredningsområde nummer 7 i Skåne län. Förbudstiden inträder 15 oktober |
+
+Ål är fredad. Sedan 1 maj 2025 är allt fritidsfiske efter ål förbjudet i hela Rönne å, från Ringsjöarna till mynningen vid Ängelholm. Tidigare undantogs sträckan ovanför kraftverken, men när turbinerna stängdes kan blankålen vandra ut levande och undantaget togs bort.
+
+### Minimimått och fångstbegränsningar
+
+| Art | Regel |
+|---|---|
+| Lax | Minimimått 50 cm. Max 2 laxar per säsong och kort |
+| Havsöring | Minimimått 45 cm. Max 2 havsöringar per säsong och kort |
+| Lax och öring per dag | Max 2 laxartade fiskar per fiskedag i Klippan |
+| Gädda | Minimimått 40 cm |
+| Ål | Fiskeförbud |
+
+I Klippan gäller dessutom att endast en krok per bete får användas och att huggkrok är förbjuden. Mete efter laxartad fisk är förbjudet hela året på den nedre sträckan, och mete är inte tillåtet alls under mars. Trolling är förbjudet hela året, medan dragrodd är tillåtet.
+
+### Catch and release
+
+All lekfärgad lax ska återutsättas oavsett tidpunkt, och all lax som fångas från och med 1 september ska återutsättas. Det är en regel, inte en rekommendation. Utöver det uppmanar Ängelholms Sport- och Fiskevårdsförening tills vidare fiskare att återutsätta all lax, eftersom uppgången varit svag. Den uppmaningen är en rekommendation och kan ändras när beståndet svarar på restaureringen.
+
+> Aktuella regler finns alltid på [HaV:s webbplats](https://www.havochvatten.se) och via [Länsstyrelsens sidor](https://www.lansstyrelsen.se). Fiskevårdsområdets egna regler kan avvika och gäller alltid vid sidan av det nationella regelverket.
+
+## Fiskarter
+
+### Lax
+
+Rönne å håller västkustens sydligaste självreproducerande bestånd av atlantlax. Reproduktionen sker främst i biflödena Bäljane å, Rössjöholmsån och Pinnån, eftersom kraftverken vid Klippan stänger av huvudfåran uppströms. Storlaxen stiger sent i mars och under april, mellanlaxen i april och maj, och smålaxen kring midsommar. Fiskar över 10 kilo fångas årligen och det rapporterade rekordet ligger på 13,5 kilo från 1991. Bästa säsongen som dokumenterats är 1996 med omkring 500 rapporterade laxar. Senare år är betydligt magrare, med 100 laxar 2012 och 35 under torråret 2016. Minimimåttet är 50 cm, max två laxar per säsong, och all lekfärgad lax samt all lax efter 31 augusti ska återutsättas.
+
+[Läs mer om lax](/arter/lax/)
+
+### Havsöring
+
+Havsöringen stiger normalt kring månadsskiftet juni och juli, men huvuddelen av fisket sker i augusti och september. Den fördelar sig över hela den nedre sträckan och går längre upp i biflödena än laxen. Fiskar kring 5 kilo förekommer. Minimimåttet är 45 cm och max två havsöringar per säsong får behållas. Lekfärgad fisk återutsätts.
+
+[Läs mer om havsöring](/arter/havsoring/)
+
+### Gädda
+
+Gädda finns i hela systemet men dominerar i lugnvattnen uppströms Klippan, på sträckan mot Ljungbyhed och Herrevadskloster, samt i Ringsjön. Den står vid vasskanter, i djuphålor och i de meandrande partierna där strömmen mattas av. Fisket är bäst under våren före lövsprickningen och under senhösten. Minimimåttet är 40 cm. Uppströms Klippan är gäddan den mest självklara målarten för den som fiskar med spinn eller jigg.
+
+[Läs mer om gädda](/arter/gadda/)
+
+### Abborre
+
+Abborren är allmän i hela ån och blir storvuxen i de näringsrika lugnvattnen kring Ljungbyhed och i Ringsjön. Den samlas kring broar, stenpartier och strömkanter, och tar både jigg och mask. Sensommar och tidig höst ger normalt de största fiskarna. Abborren är ett bra alternativ på de sträckor där laxfisket är stängt eller där kortet inte omfattar laxartad fisk.
+
+[Läs mer om abborre](/arter/abborre/)
+
+### Ål
+
+Ål förekommer i hela systemet och har historiskt varit en central art i ån, både för yrkesfisket och för hushållen. Sedan 1 maj 2025 är allt fritidsfiske efter ål förbjudet i hela Rönne å. Får du ål på kroken ska den återutsättas omgående. Blankålens utvandring är en av de tyngsta ekologiska motiveringarna bakom arbetet med att öppna ån.
+
+[Läs mer om ål](/arter/al/)
+
+### Övriga arter
+
+Ån är artrik och flera arter förekommer vid sidan av huvudarterna. [Mört](/arter/mort/) och [braxen](/arter/braxen/) finns i goda bestånd i lugnvattnen och är vanliga vid mete. [Sutare](/arter/sutare/), [sarv](/arter/sarv/) och [karp](/arter/karp/) förekommer också, framför allt i de varmare och långsammare partierna uppströms. [Gös](/arter/gos/) fiskas i Ringsjön i åns källområde. Havsnejonöga och flodnejonöga finns i systemet, liksom sandkrypare och elritsa. I biflödena förekommer hotade stormusslor, bland annat flodpärlmussla och tjockskalig målarmussla.
+
+---
+
+## Ånens karaktär
+
+### Grundfakta
+
+- **Längd:** 83 km
+- **Avrinningsområde:** cirka 1 890 km², Skånes näst största
+- **Medelvattenföring:** cirka 22 m³/s, näst vattenrikast i Skåne efter Helge å
+- **Källa:** Västra Ringsjön
+- **Mynning:** Skälderviken vid Ängelholm
+- **Fallhöjd genom Klippan:** 23 m fördelat på tre kraftverk
+- **Viktigaste biflöden:** Bäljane å, Rössjöholmsån, Pinnån, Kägleån
+
+### Sträckor och topografi
+
+Från utloppet ur Västra Ringsjön meandrar ån genom betesmarker, våtmarker och lövskog. Rönneholms mosse och Ageröds mosse ligger i den övre delen av dalgången. Efter Stockamöllan blir dalgången markerad, med branta sidor klädda i ädellövskog. Vid Klippan, ungefär 38 kilometer från kusten, ändras geologin och ån blir strömmande med forsar och stenbotten. Det är här kraftverken byggdes och här de bästa laxlokalerna ligger. Från Klippan och ned mot Ängelholm rinner ån lugnt genom bördig jordbruksbygd och bildar till sist ett grönstråk rakt genom Ängelholms tätort innan den mynnar i Skälderviken.
+
+### Vandringshinder vid Klippan
+
+Tre kraftverk står i ån genom Klippan. Forsmöllan och Klippans pappersbruk började leverera el 1913, Stackarp under 1920- och 1930-talen. Samtliga turbiner stängdes för gott i juni 2019 sedan Klippans kommun köpt anläggningarna. Dammarna står dock kvar och stoppar fortfarande vandrande fisk.
+
+Den 6 maj 2026 gav Mark- och miljödomstolen i Växjö Klippans kommun tillstånd att riva ut alla tre. Domen har därefter överklagats och ärendet ligger hos överinstans i väntan på besked om prövningstillstånd. Rivning kan tidigast påbörjas försommaren 2027. Om utrivningen genomförs öppnas hela huvudfåran upp till Ringsjöarna, vilket tillsammans med biflödena innebär omkring 100 kilometer lek- och uppväxtområden. Läget kan ha ändrats sedan den här sidan uppdaterades, så kontrollera aktuell status hos Klippans kommun.
+
+### Vattenkvalitet
+
+Rönne å klassas som måttlig ekologisk status enligt vattendirektivet. De tyngsta orsakerna är bristande konnektivitet på grund av vandringshindren, förändrad morfologi och övergödning från jordbruket i avrinningsområdet. Vattnet är näringsrikt och grumligare än i typiska västkustvattendrag längre norrut. Utsläpp från pappersbruket i Klippan pågick ända fram till 1971 och präglade ån under lång tid.
+
+### Vattenföring och flöden
+
+Ån fiskar erfarenhetsmässigt bäst i lite högt vatten, särskilt efter laxartad fisk. Under torra somrar sjunker flödet påtagligt och laxuppgången skjuts framåt. Vattenföringen mäts vid flera stationer i systemet, bland annat vid Forsmöllan, Klippan, Heåkra och vid utloppet ur Ringsjön, samt i Bäljane å nedströms Klippan. Aktuella värden finns via SMHI Vattenwebb.
+
+### Skyddade områden
+
+Delar av ån och dalgången ingår i Natura 2000 med naturtypen vattendrag med flytbladsvegetation eller akvatiska mossor. Utpekade arter i området är bland annat utter, större vattensalamander och bred paljettdykare. Rönneåns dalgång och Ageröds mosse är av riksintresse för naturvård, och området Frostavallen, Ringsjön och Fulltofta är av riksintresse för friluftsliv. Herrevadskloster är naturreservat. Längs ån ses regelbundet utter, kungsfiskare, forsärla och strömstare.
+
+---
+
+## Fiskemetoder
+
+Metoderna nedan är anpassade till Rönne ås förhållanden. Detaljerade teknikanvisningar finns på respektive tekniksida.
+
+### Flugfiske
+
+Flugfiske är den klassiska metoden efter lax och havsöring på strömsträckorna kring Klippan och nedströms Stackarp. Under vårens storlaxfiske används tunga rör och sjunklinor i det höga vattnet, medan sommarens öringsfiske klarar sig med lättare utrustning och mindre mönster. Skymning och gryning är de produktiva tiderna under sommaren. På den nedre, lugnflytande sträckan i Ängelholm fungerar flugan bäst där ån smalnar av och får fart.
+
+[Läs mer om flugfiske](/teknik/flugfiske/)
+
+### Spinnfiske
+
+Spinnfiske är den vanligaste metoden i hela ån. Efter lax och havsöring fiskas skeddrag och wobbler i strömsträckorna, medan gädda och abborre tas längs vasskanter och i djuphålor uppströms Klippan. Observera att endast en krok per bete får användas i Klippan och att huggkrok är förbjuden. Trolling är förbjudet hela året, dragrodd är tillåtet.
+
+[Läs mer om spinnfiske](/teknik/spinnfiske/)
+
+### Mete
+
+Mete passar för mört, braxen, sutare, sarv och abborre i lugnvattnen uppströms Klippan och i de bredare partierna genom Ängelholm. Flöte med mask eller majs räcker långt. Tänk på att mete efter laxartad fisk är förbjudet hela året på den nedre sträckan, och att mete inte är tillåtet alls under mars.
+
+[Läs mer om mete](/teknik/mete/)
+
+### Jiggfiske
+
+Jiggfiske är effektivt efter gädda och abborre i de djupare lugnvattnen, kring broar och vid strömkanter. Metoden kommer bäst till sin rätt på sträckan mellan Ljungbyhed och Forsmöllan samt i Ringsjön, där gös också finns. Mjukbeten i naturliga färger fungerar i det grumligare vattnet, och tyngre huvuden behövs där strömmen tar.
+
+[Läs mer om jiggfiske](/teknik/jiggfiske/)
+
+---
+
+## Hotspots och lokaler
+
+### Mynningen och Ängelholms hamn
+
+Åns yttersta del där sötvattnet möter Skälderviken. Havsöring och lax passerar här på väg upp, och från pirarna gäller fritt handredskapsfiske från land. Området är lättillgängligt med parkering nära hamnen. Observera fredningsområdet utanför mynningen och att förbudstiden inträder 15 oktober.
+
+### Pyttebron och sträckan genom Ängelholm
+
+Ån rinner rakt genom tätorten och är tillgänglig från gångstråk och broar. Flytbryggor gör flera partier fiskbara utan vadning. Lax och havsöring passerar under uppvandringen, och gädda, abborre och vitfisk finns året runt inom den tillåtna fisketiden. Detta är åns mest lättillgängliga sträcka.
+
+### Gåsahalsen
+
+Övre gränsen för Rönneåns nedre fiskevårdsområde. Lugnflytande vatten i jordbrukslandskapet med fiske efter lax, havsöring, gädda och abborre. Mindre trafikerat än sträckan inne i Ängelholm.
+
+### Nedströms Stackarpsdammen
+
+Den mest kända laxsträckan i ån. Strömmande vatten med stenbotten ger ståndplatser, och fisken samlas nedanför dammen eftersom den inte kan komma längre. Kortet från Klippans Sport- och Fiskevårdsförening gäller här. Fiske är förbjudet på kraftverkens vallar och 200 meter nedströms verken, så kontrollera var gränsen går innan du börjar.
+
+### Forsmöllan
+
+Forsmiljö vid det översta av de tre kraftverken. Fiske är tillåtet på västra sidan av dammen. Strömpartierna ger omväxling mot lugnvattnet och håller havsöring under säsong. Även här gäller förbudszonen kring själva verket.
+
+### Bäljane å
+
+Biflödet som mynnar vid Klippan och som är ett av åns viktigaste reproduktionsområden för lax och havsöring. Ingår i Klippans kort. Mindre vatten som kräver försiktigt uppträdande och lättare utrustning.
+
+### Ljungbyhed och Herrevadskloster
+
+Lugnvattensträckan inom Rönneådalens fiskevårdsområde. Gädda, abborre och vitfisk i ett meandrande lopp genom öppen mark och lövskog. Fisket är reglerat till vissa sidor av ån, till exempel norra sidan från Spången upp mot Herrevadsklosters naturreservat. Läs områdesbeskrivningen innan du fiskar.
+
+### Ringsjöns utlopp
+
+Där ån börjar sitt lopp ur Västra Ringsjön. Strömmen drar till sig abborre och gädda, och Ringsjön själv är en av Skånes bättre gössjöar. Separat fiskekort krävs för sjön.
+
+---
+
+## Säsongsöversikt
+
+| Månad | Bästa art | Bästa metod |
+|-------|-----------|-------------|
+| Januari–februari | Fiskeförbud på huvudsträckorna | Ingen |
+| Mars | Lax (storlax) | Fluga, spinn |
+| April | Lax, havsöring | Fluga, spinn |
+| Maj | Lax, gädda | Fluga, spinn, jigg |
+| Juni | Lax (smålax), gädda, abborre | Spinn, jigg, mete |
+| Juli | Havsöring, abborre, vitfisk | Fluga, mete |
+| Augusti | Havsöring | Fluga, spinn |
+| September | Havsöring, gädda | Fluga, spinn, jigg |
+| Oktober–december | Gädda, abborre (nedre sträckan) | Spinn, jigg |
+
+Fisketiderna skiljer sig mellan sträckorna. På den nedre sträckan i Ängelholm är fisket helt stängt i januari och februari, laxartad fisk får fiskas från första helgen i mars till 30 september, och övrigt fiske pågår till 31 december. I Klippan är allt fiske stängt 1 oktober till 28 februari. All lax som fångas från och med 1 september ska återutsättas.
+
+---
+
+## Kostråd och miljögifter
+
+Livsmedelsverkets generella råd om kvicksilver gäller stor rovfisk från sjöar och vattendrag. Det omfattar gädda, stor abborre, gös och lake. Barn, samt den som är gravid, ammar eller planerar att skaffa barn, bör äta dessa arter högst två till tre gånger per år. Övriga vuxna rekommenderas att inte äta dem oftare än en gång i veckan.
+
+Livsmedelsverkets råd om dioxiner och PCB i fet fisk gäller Östersjöområdet samt Vänern och Vättern. Skälderviken ligger i Kattegatt, alltså utanför det området, och lax och havsöring från Rönne å omfattas därför inte av dioxinrådet.
+
+Inga särskilda lokala kostråd för Rönne å eller Ringsjön har publicerats av Länsstyrelsen Skåne. Aktuella råd finns alltid på [livsmedelsverket.se](https://www.livsmedelsverket.se) och hos Länsstyrelsen Skåne.
+
+---
+
+## Infrastruktur och praktisk information
+
+### Landfiske och tillgänglighet
+
+Nästan allt fiske i Rönne å sker från land. Den nedre sträckan genom Ängelholm är den mest tillgängliga, med gångstråk, ett stort antal flytbryggor och tre vindskydd med eldstäder. Strömsträckorna i Klippan kräver mer rörlighet och ofta vadare. På sträckan vid Ljungbyhed är fisket begränsat till vissa sidor av ån, vilket framgår av fiskevårdsområdets karta.
+
+### Kanotleden
+
+Rönne å är en populär kanotled i två etapper, Stockamöllan till Forsmöllan i Klippans kommun och Stackarp till Skälderviken i Ängelholms kommun. Paddlingen är som mest intensiv under sommaren och kan störa fisket, särskilt vid låga flöden. Planera fisket till tidig morgon eller kväll under högsäsong. Kanotuthyrning finns bland annat i Ljungbyhed.
+
+### Boende
+
+Ängelholm har campingar nära kusten och mynningen, bland annat Råbocka och Solhäll. I Klippanområdet finns Skäralids Camping och vandrarhem i Ljungbyhed samt Kvidingebadets camping. Söderåsen Resort erbjuder hotell, vandrarhem och bed and breakfast. Kontrollera aktuella öppettider och priser hos respektive aktör inför besöket.
+
+### Kommunikationer
+
+Ängelholm, Klippan och Åstorp har alla tågstation med Pågatåg och goda förbindelser mot Helsingborg, Malmö och Lund. Med bil nås mynningen via E6 vid Ängelholm, och väg 13 följer ån inåt landet mot Klippan. Ängelholm Helsingborg Airport ligger nära mynningsområdet. Närheten till Helsingborg gör ån till ett realistiskt kvällsvatten för många skåningar.
+
+---
+
+## Historik och bakgrund
+
+Laxen har präglat mynningsområdet länge. Det senmedeltida fiskeläget Luntertun vid åmynningen, föregångaren till Ängelholm, byggde delar av sin ekonomi på laxfiske, och Ängelholms stadsvapen bär två korslagda laxar under en krona.
+
+Kraftverken byggdes av Klippans pappersbruk. Forsmöllan och verket vid bruket började leverera el 1913, och Stackarp tillkom under mellankrigstiden med en utbyggnad på 1950-talet. Fallhöjden på 23 meter genom samhället var en tillgång för industrin och blev samtidigt det som stängde ute lax och havsöring från fyra femtedelar av vattensystemet. Pappersbrukets utsläpp till ån upphörde först 1971.
+
+Från 1990-talet drev lokala sportfiskeklubbar i Klippan, Helsingborg och Ängelholm på för fiskevård i ån, med stöd av Länsstyrelsen Skåne. Kalkning har bedrivits mot försurning i delar av avrinningsområdet, och våtmarker har anlagts för att minska näringsläckaget från jordbruket.
+
+Klippans kommun köpte kraftverken och stängde turbinerna i juni 2019. Arbetet med att riva dammarna drivs inom EU-projektet LIFE CONNECTS, med finansiering från bland andra Naturvårdsverket, Naturskyddsföreningens miljöfond, Vattenkraftens miljöfond och Världsnaturfonden, samt bidrag från grannkommunerna Eslöv, Hörby, Höör, Åstorp och Ängelholm. Kommunen har lagt över 50 miljoner kronor på projektet. Enligt projektets egna beräkningar skulle laxsmoltproduktionen kunna överstiga 17 000 individer fem år efter en genomförd restaurering. Det är en prognos, inte ett uppmätt resultat.
+
+---
+
+## Snabbfakta
+
+| | |
+|---|---|
+| Fritt handredskapsfiske | Nej i ån, ja från land i havet utanför mynningen |
+| Fiskekort krävs för | Allt fiske i ån, olika kort på olika sträckor |
+| Var köps kortet | iFiske.se samt ombud i Klippan, Ängelholm och Helsingborg |
+| Dagkort | 80 kr på båda de kortbelagda sträckorna |
+| Säsongskort | 800 kr Ängelholm, 700 kr Klippan |
+| Minimimått lax | 50 cm |
+| Minimimått havsöring | 45 cm |
+| Minimimått gädda | 40 cm |
+| Fångstbegränsning | Max 2 laxar och 2 havsöringar per säsong |
+| Återutsättning | All lekfärgad lax och all lax från 1 september |
+| Ål | Fiskeförbud i hela ån sedan 1 maj 2025 |
+| Fiskeförbud | Januari och februari i Ängelholm, 1 oktober till 28 februari i Klippan |
+| Trolling | Förbjudet hela året |
+| Närmaste tätorter | Ängelholm, Klippan, Ljungbyhed |
+
+---
+
+*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/roxen.mdx
@@ -34255,6 +35748,347 @@ Den frusna älven används än i dag som renflyttled. Det samiska namnet Juhttá
 
 ```
 
+## src/content/destinations/voxnan.mdx
+```
+---
+title: "Voxnan"
+slug: "voxnan"
+description: "Guide till fiske i Voxnan i Hälsingland. Harr och öring i strömmarna, fiskekort per fiskevårdsområde, regler, hotspots och säsong."
+heroImage: "/images/destinations/voxnan.jpg"
+lat: 61.36
+lng: 15.49
+län: "Gävleborgs län"
+primarySpecies: ["Harr", "Öring", "Gädda", "Abborre", "Gös", "Sik"]
+waterType: "river"
+iFiskeUrl: "https://www.ifiske.se/fiske-voxnan-storhamrasjon-mfl.htm"
+excerpt: "Skyddad skogsälv med vild harr och öring i strömmarna."
+recommendedGear: []
+kostrad: ["kvicksilver"]
+publishedAt: "2026-08-03"
+updatedAt: "2026-08-03"
+intro: >-
+  Voxnan rinner cirka 150 kilometer från Siksjön i Härjedalen till mynningen i sjön Varpen
+  vid Bollnäs. Sträckan uppströms Vallhaga kraftverk är i huvudsak oreglerad och skyddad mot
+  vattenkraftsutbyggnad enligt miljöbalkens fjärde kapitel, samma lagrum som skyddar de fyra
+  nationalälvarna. I strömmarna finns självreproducerande bestånd av harr och öring, och i
+  flera biflöden lever den fridlysta flodpärlmusslan. Hylströmmen med 23 meters fallhöjd
+  räknas av Länsstyrelsen som södra Norrlands största vattenfall. Nedre delen kring Voxsjön
+  är en annan sorts fiske, med grov gädda och ett växande gösbestånd.
+---
+
+## Fiskekort och regler
+
+Voxnan är enskilt vatten i hela sin längd. Fritt handredskapsfiske gäller inte här, och du behöver fiskekort oavsett var på älven du fiskar. Det som gör Voxnan besvärligare att planera än de flesta andra älvar är att fisket delas mellan sex fiskevårdsområden med olika kort, olika mått och olika fångstbegränsningar. Reglerna kan skilja sig markant mellan två strömmar som ligger några mil ifrån varandra. Läs alltid reglerna för den sträcka du tänker fiska, inte för älven som helhet.
+
+### Vem förvaltar vilken sträcka?
+
+| Sträcka | Förening | Fiskekort |
+|---|---|---|
+| Övre Voxnan, Los och Hamra | Los-Hamra FVOF | iFiske |
+| Mjösjön till Hylen | Finnmarkens FVO och Los-Hamra FVOF | Lokalt |
+| Hylen till Homna, naturreservatet | Voxna Norra FVF och Voxna Södra FVF | Lokala ombud |
+| Mellersta Ovanåker, Edsbyn | Ovanåkers FVOF | iFiske, betal-SMS, Swish |
+| Alfta och Runemo | Alfta FVOF | iFiske |
+| Nedre Voxnan, Voxsjön och Varpen | Bollnäs FVF | iFiske |
+
+### Var köper du fiskekort?
+
+Los-Hamra FVOF, Ovanåkers FVOF, Alfta FVOF och Bollnäs FVF säljer kort via [iFiske](https://www.ifiske.se). Ovanåkers FVOF säljer även via betal-SMS och Swish, med olika nummer för olika vatten, samt hos Kjells Cykel och Motor och Knåda Sport i Edsbyn.
+
+Voxna Norra FVF och Voxna Södra FVF, som förvaltar reservatssträckan förbi Hylströmmen, säljer inte online. Kort löses hos Voxnabruks Kanot och Camping, Voxna Livs, i kortautomaten i Lövriset eller hos föreningarnas kortförsäljare. Det gäller även de särskilda korten för Finnstugeströmmen och Galttjärn.
+
+### Priser 2026
+
+Priserna nedan är avlästa hos föreningarna och på iFiske under vintern 2025 och 2026. Kortpriser ändras normalt inför säsongen. Kontrollera aktuellt pris i samband med köpet.
+
+| Förening | Korttyp | Pris |
+|---|---|---|
+| Los-Hamra FVOF | Dygnskort | 110 kr |
+| Los-Hamra FVOF | Veckokort, 7 dygn | 310 kr |
+| Los-Hamra FVOF | Årskort | 550 kr |
+| Los-Hamra FVOF | Bygdekort, ortsbo | 330 kr |
+| Ovanåkers FVOF | Dagkort | 50 kr |
+| Ovanåkers FVOF | Årskort | 200 kr |
+| Alfta FVOF | Dygnskort | 60 kr |
+| Alfta FVOF | Säsongskort, 3 månader | 150 kr |
+| Alfta FVOF | Årskort, familj med barn till och med 15 år | 300 kr |
+| Voxna Södra FVF | Finnstugeströmmen, dagkort | 70 kr |
+| Voxna Södra FVF | Galttjärn, dagkort | 50 kr |
+
+Put and take-vatten och andra särskilt avsatta tjärnar har egna dagkort som ligger mellan 40 och 200 kr och som inte ingår i årskortet. Barn och ungdomar fiskar avgiftsfritt i vissa vatten, till och med 16 år inom Los-Hamra FVOF och till och med 15 år inom Bollnäs FVF.
+
+### Minimimått, maxmått och fångstfönster
+
+| Förening | Art | Regel |
+|---|---|---|
+| Ovanåkers FVOF | Harr och öring i rinnande vatten | Fångstfönster 35–45 cm |
+| Ovanåkers FVOF | Gädda | All fisk över 100 cm återutsätts |
+| Alfta FVOF | Harr i strömmande vatten | Minimimått 45 cm |
+| Alfta FVOF | Öring i strömmande vatten | Minimimått 25 cm |
+| Alfta FVOF | Gös | Fångstfönster 45–70 cm, max 2 per dygn |
+| Bollnäs FVF | Harr | All harr återutsätts |
+| Bollnäs FVF | Öring | Fångstfönster 35–55 cm, 1 fisk per dag |
+| Bollnäs FVF | Gös | Maxmått 70 cm, max 3 per kort och dag |
+| Bollnäs FVF | Gädda | Maxmått 80 cm, max 3 per kort och dag |
+
+Inom Alfta FVOF gäller dessutom högst tre ädelfiskar per dygnskort, högst två kort per dygn och högst ett spö med två krokar per lina. Inom Ovanåkers FVOF ska all fisk som sparas avlivas omedelbart. Måtten skiljer sig alltså åt både i storlek och i konstruktion mellan föreningarna. Ett fångstfönster på 35 till 45 cm i Ovanåker och ett minimimått på 45 cm i Alfta betyder att samma harr hanteras på två olika sätt beroende på var du står.
+
+### Fredningstider
+
+| Förening | Art | Fredning |
+|---|---|---|
+| Ovanåkers FVOF | Öring i rinnande vatten | 1 september–15 maj |
+| Ovanåkers FVOF | Harr | 1 april–15 maj |
+| Bollnäs FVF | Strömsträckor, Bollnäsströmmarna | Öppet 15 maj–15 september |
+
+Övriga föreningar har egna datum som visas vid kortköpet. Kontrollera dem innan resan bokas, eftersom strömfisket efter öring i praktiken är begränsat till sommarhalvåret i hela systemet.
+
+### Redskapsregler och catch and release
+
+Finnstugeströmmen inom Voxna Södra FVF är en ren flugfiskesträcka. Endast flugspö med en fluga och hullinglös enkelkrok är tillåtet, och all fisk ska återutsättas. Det är en regel, inte en rekommendation.
+
+Lidmans Svartån, den övre delen av Flaxnan, arrenderas sedan 2003 av föreningen Woxnadalens Flugfiske och drivs som flugfiskesträcka med återutsättning och egna regler.
+
+Inom Bollnäs FVF gäller att all harr ska återutsättas, och att endast flug- och spinnfiske med hullinglös enkelkrok är tillåtet efter harr och öring på strömsträckorna. Maskmete är tillåtet på lugnvatten nedströms Åsbackadammen men inte i strömmarna.
+
+Alfta FVOF förbjuder ekolod med livegivare och 360-givare, alltså den typ av realtidsekolod som blivit vanlig de senaste åren. Föreningen har också nätfiskeförbud i flera namngivna vatten, med undantag för siklöja. Överträdelser är belagda med kontrollavgift, 1 000 kr per fisk över kvoten inom Alfta FVOF och 1 000 kr inom Ovanåkers FVOF.
+
+### Kräftfiske
+
+Kräftfiske i Voxnansystemet är förbehållet fiskerättsägare och ingår inte i något fiskekort. Inom Bollnäs FVF löses kräftfisket i det egna skifteslaget, och delar av Galvån har kräftfiskeförbud tills vidare. Tvätta och torka tinor, båt och redskap innan de flyttas mellan vatten, eftersom signalkräftan sprider kräftpest.
+
+> Aktuella regler finns alltid på [HaV:s webbplats](https://www.havochvatten.se) och via [Länsstyrelsens sidor](https://www.lansstyrelsen.se). Fiskevårdsområdets egna regler kan avvika och gäller alltid vid sidan av det nationella regelverket.
+
+## Fiskarter
+
+### Harr
+
+Harren är Voxnans mest efterfrågade art och finns i hela älven, men fisket är bäst i de mellersta och södra delarna. Bestånden är vilda och självreproducerande, och vid Hylströmmen finns naturliga bestånd av både harr och öring. Harren betar insekter i och kring ytfilmen under sommaren, med dag-, natt- och bäcksländor som viktigaste föda. De hårdaste reglerna gäller just harren. Inom Bollnäs FVF ska all harr återutsättas, inom Ovanåkers FVOF gäller ett fångstfönster på 35 till 45 cm, och inom Alfta FVOF ett minimimått på 45 cm. Bästa perioden är juni till september.
+
+[Läs mer om harr](/arter/harr/)
+
+### Öring
+
+Öringen är strömlevande och vild, och beståndet är starkast i de övre delarna kring Los och Hamra. Den står i strömnackar, bakom block och i övergången mellan strömt och lugnt vatten, där den tar både insekter och småfisk. Öringen är också värdfisk för flodpärlmusslan, vilket är skälet till att restaureringsarbetet i biflödena riktas mot just öringens uppväxtmiljöer. Under Hans Lidmans tid rapporterades öring på upp till två kilo i Svartåns system. Öringen är fredad från 1 september inom Ovanåkers FVOF, och fångstbegränsningarna är stränga i hela älven.
+
+[Läs mer om öring](/arter/oring/)
+
+### Gädda
+
+Gäddan finns i lugnvattnen, i selen och framför allt i Voxsjön och Varpen i nedre delen av systemet. Bollnäs FVF rapporterar gäddor över 14 kilo från Voxsjön. Fisken jagar abborre och vitfisk längs vasskanter och grundområden, och fisket är bäst under våren och hösten. Maxmått gäller på flera håll. Inom Bollnäs FVF ska gädda över 80 cm återutsättas, och inom Ovanåkers FVOF gäller gränsen 100 cm.
+
+[Läs mer om gädda](/arter/gadda/)
+
+### Abborre
+
+Abborren är talrik i hela systemet och den art som är enklast att komma igång med. Den står vid grynnor, stenbottnar och strukturer, och samlar sig i stim under sommaren. I sjöarna och de lugnare partierna fungerar både jigg, spinnare och naturligt bete. Abborren är också den viktigaste vinterarten på isen tillsammans med laken.
+
+[Läs mer om abborre](/arter/abborre/)
+
+### Gös
+
+Gösen hör hemma i den nedre delen av systemet, i Voxsjön och Varpen, samt i ett antal utpekade gösvatten inom Alfta FVOF. Beståndet växer. Gösen jagar i skymning och under natten och står ofta djupt längs kanter och i sänkor. Reglerna är detaljerade och skiljer sig åt. Inom Alfta FVOF gäller fångstfönster 45 till 70 cm och två fiskar per dygn, inom Bollnäs FVF maxmått 70 cm och tre fiskar per kort och dag.
+
+[Läs mer om gös](/arter/gos/)
+
+### Sik
+
+Sik förekommer i normal utsträckning i systemet och fångas oftast som bifångst vid flugfiske efter harr. Den betar bottendjur och insektslarver och står gärna i lugnare strömpartier och i sjöarnas djupare delar. Siken kan ge ett trevligt mellanfiske under sommaren för den som är beredd att fiska smått.
+
+[Läs mer om sik](/arter/sik/)
+
+Övriga förekommande arter: lake, braxen, mört, ål, röding och bäckröding. Regnbåge och röding förekommer i put and take-vatten och utsatta tjärnar men inte som naturligt bestånd i älven. Asp är sällsynt.
+
+## Älvens karaktär
+
+### Grundfakta
+
+| | |
+|---|---|
+| Längd, hela älven | cirka 150 km |
+| Oreglerad sträcka, Siksjön till Vallhaga | cirka 123 km |
+| Avrinningsområde | cirka 3 140 km² |
+| Medelvattenföring vid mynningen | cirka 33 m³/s |
+| Källsjö | Siksjön i Härjedalen |
+| Mynning | Sjön Varpen vid Bollnäs, del av Ljusnan |
+| Fallhöjd, Hylströmmen | 23 m |
+| Antal kraftverk | 10 i den nedre delen |
+| Vattentyp | Oreglerad skogsälv med utbyggd nedre del |
+
+Uppgifterna om längd, avrinningsområde och medelvattenföring bygger på Nationalencyklopedin och är inte avstämda mot SMHI:s modelldata.
+
+### Topografi och sträckor
+
+Voxnan är en skogsälv som växlar mellan forsar, strömnackar, sel och sjöar. Den övre delen kring Siksjön, Los och Hamra rinner genom glesbebyggd finnmark. Mellersta delen, från Hylen ned mot Voxnabruk, är den vildaste sträckan och den som skyddas av naturreservatet. Nedanför Vallhaga byter älven karaktär. Där tar kraftverken vid, och vattnet blir lugnare och bredare på väg mot Edsbyn, Alfta och Voxsjön.
+
+Längs hela älven finns lämningar efter flottningen i form av rensade fåror, stenkistor och flottledsarmar. De är i dag föremål för återställning snarare än underhåll.
+
+### Vattenföring och flöde
+
+Namnet Voxnan betyder ungefär den som växer, och det är en beskrivning av flödet. Vattnet kan stiga och sjunka snabbt, särskilt under snösmältningen på våren. Vid Vallhaga är normalvattenföringen reglerad till cirka 24 m³/s, och nära mynningen vid Sunnerstaholm ligger medelflödet omkring 40 m³/s.
+
+Den oreglerade delen följer naturlig avrinning med kraftig vårflod och lägre flöden under sommar och vinter. Nedströms kraftverken styrs korttidsflödet i stället av produktionen, vilket kan ge låga flöden nattetid och under helger. Kontrollera flödet innan du planerar vadning.
+
+### Naturreservat och skyddade områden
+
+Naturreservatet Voxnan och Hylströmmen omfattar enligt Länsstyrelsen Gävleborg 773 hektar. Det bildades 1990 och utvidgades 1994 och 2000, och berör Ljusdals och Ovanåkers kommuner. Total fallhöjd inom reservatet är närmare 165 meter.
+
+Voxnan uppströms Vallhaga, med käll- och biflöden, är skyddad mot vattenkraftsutbyggnad enligt miljöbalkens fjärde kapitel sjätte paragraf. Det är samma bestämmelse som skyddar nationalälvarna Torneälven, Kalixälven, Piteälven och Vindelälven. Älven är dessutom riksintresse för naturvård och ingår i Natura 2000. Länsstyrelsen har föreslagit utvidgat strandskydd på 200 meter för den övre delen, från källsjöarna ned till strax norr om Voxnabruk.
+
+## Fiskemetoder
+
+Voxnan är i första hand ett strömfiskevatten, men nedre delen fiskas som insjö. Detaljerade teknikanvisningar finns på respektive tekniksida.
+
+### Flugfiske
+
+Flugfiske är den dominerande metoden i strömmarna och den enda tillåtna på flera sträckor. Torrfluga fungerar under kläckningar från försommaren och framåt, när harren vakar i ytfilmen. Tungt nymffiske ger fisk vid högre flöden och när inget syns på ytan. Streamer och våtfluga fungerar tidigt på säsongen för öring. På Finnstugeströmmen är endast flugspö med en fluga och hullinglös enkelkrok tillåtet.
+
+[Läs mer om flugfiske](/teknik/flugfiske/)
+
+### Spinnfiske
+
+Spinnfiske med spinnare och lätta skeddrag är tillåtet på de flesta sträckor och fungerar för öring i strömmarna och för gädda och abborre i selen och sjöarna. Kontrollera krokreglerna för den aktuella sträckan. Inom Bollnäs FVF krävs hullinglös enkelkrok på strömsträckorna, och inom Alfta FVOF gäller högst ett spö med två krokar per lina.
+
+[Läs mer om spinnfiske](/teknik/spinnfiske/)
+
+### Jiggfiske
+
+Jiggfiske hör hemma i den nedre delen av systemet, i Voxsjön och Varpen, där gös och grov abborre står djupt längs kanter och i sänkor. Sommar och tidig höst är bästa perioden. Tänk på att Alfta FVOF förbjuder realtidsekolod med livegivare och 360-givare, vilket påverkar hur du kan söka av strukturer i föreningens vatten.
+
+[Läs mer om jiggfiske](/teknik/jiggfiske/)
+
+### Isfiske
+
+Isfisket bedrivs i sjöar och tjärnar, inte i älvfåran. Abborre och lake är huvudarterna, och flera av put and take-vattnen inom Ovanåkers och Alfta FVOF fiskas på vintern. Inom Ovanåkers FVOF får högst tolv angeldon eller ismetesspön användas per person. Isen på en reglerad älvsträcka är aldrig pålitlig, och isfiske ska hållas till sjöarna.
+
+[Läs mer om isfiske](/teknik/isfiske/)
+
+## Hotspots och lokaler
+
+### Hylströmmen
+
+Älvens mest kända plats och kärnan i naturreservatet. Fallet är 23 meter högt med ett medelflöde omkring 12 m³/s, och här finns naturliga bestånd av både harr och öring. Området nås via väg 296 mellan Voxnabruk och Los, skyltat söder om Lobonäs. Parkering, rastplats, eldstad, vindskydd och dass finns på plats, och en hängbro monterades 2018. Blankspolade hällar gör landfiske möjligt, men strömmen är stark och vadning ska hanteras med respekt.
+
+### Finnstugeströmmen
+
+Voxna Södra FVF:s flugfiskesträcka med harr och öring av bra storlek. Endast flugspö med en fluga och hullinglös enkelkrok, och all fisk återutsätts. Sträckan kräver eget dagkort som inte ingår i årskortet, och kortet löses lokalt i Voxnabruk.
+
+### Runemoströmmarna
+
+Klassiskt harr- och öringfiske ungefär en halvmil utanför Alfta, inom Alfta FVOF. Lättillgängligt från väg och en bra utgångspunkt för den som vill fiska ström utan att åka långt norrut. Vid Runemodammen finns en deniltrappa som Fortum anlagt för att släppa fisk förbi kraftverket.
+
+### Lidmans Svartån
+
+Den övre delen av Flaxnan, även kallad Mållångsboån, i Frösteboåns system som mynnar i Voxnan nära Alfta. Sträckan arrenderas av Woxnadalens Flugfiske och drivs som flugfiskesträcka med återutsättning. En miljödom 2001 tvingade kraftbolaget att släppa minst 1 m³/s sommartid och 0,5 m³/s vintertid, och biotopvård genomfördes 2005. Hans Lidmans litterära Svartån var i själva verket flera olika åar i det här systemet.
+
+### Övre Voxnan vid Los och Hamra
+
+Los-Hamra FVOF förvaltar den övre delen, där öringfisket är som bäst. Glesbefolkad finnmark, mindre fisketryck och längre avstånd mellan platserna. Kortet gäller även ett stort antal skogssjöar och tjärnar, samt put and take-vattnet Abborrtjärn som kräver eget dagkort.
+
+### Voxsjön
+
+Nedre delens sjöfiske, förvaltat av Bollnäs FVF. Gädda över 14 kilo har tagits här, och gösbeståndet växer. Båtramp finns i Mödänge, öppen för alla med Bollnäs FVF-kort via kodlås. Rampen vid Stagården tillhör Voxsjöns båtklubb och kräver medlemskap. Maxmått gäller för både gädda och gös.
+
+### Bollnäsströmmarna
+
+Bollnäs FVF:s kort omfattar även Bollnäsströmmarna, som ligger i Ljusnan och inte i Voxnan. Centrumnära strömfiske efter harr och öring med öppen säsong 15 maj till 15 september. Hullinglös enkelkrok krävs, och all harr ska återutsättas. Sträckan är mer utmanande än den ser ut från land.
+
+## Säsongsöversikt
+
+| Månad | Bästa art | Bästa metod |
+|-------|-----------|-------------|
+| Januari | Abborre, lake | Isfiske |
+| Februari | Abborre, lake | Isfiske |
+| Mars | Abborre | Isfiske |
+| April | Gädda, abborre | Spinnfiske, jiggfiske |
+| Maj | Harr, öring från 16 maj | Flugfiske |
+| Juni | Harr, öring | Flugfiske |
+| Juli | Harr | Flugfiske, torrfluga |
+| Augusti | Harr, öring | Flugfiske |
+| September | Harr | Flugfiske, nymf |
+| Oktober | Harr, gädda | Flugfiske, spinnfiske |
+| November | Gädda, gös | Jiggfiske, spinnfiske |
+| December | Lake, abborre | Isfiske |
+
+Inom Ovanåkers FVOF är öringen fredad 1 september till 15 maj och harren 1 april till 15 maj. Inom Bollnäs FVF är strömsträckorna öppna 15 maj till 15 september. Övriga föreningar har egna datum. Strömfisket efter öring är alltså i praktiken ett sommarfiske i hela systemet, medan harrfisket sträcker sig längre in på hösten. Vinterfisket sker i sjöar och tjärnar, inte i älvfåran.
+
+## Kostråd och miljögifter
+
+Livsmedelsverkets nationella råd om kvicksilver gäller fisk från Voxnan. Abborre, gädda, gös och lake kan innehålla höga halter kvicksilver. Den som äter dessa arter oftare än en gång i veckan kan enligt Livsmedelsverket få i sig mängder som på sikt skadar hälsan. Den som är eller planerar att bli gravid, samt den som ammar, bör inte äta dem mer än två till tre gånger per år.
+
+Dioxinrådet är däremot inte tillämpligt här. Det omfattar fet fisk från Östersjön, Bottniska viken och deras älvar, samt Vänern och Vättern. Voxnan mynnar visserligen via Ljusnan i Bottenhavet, men vandringshinder i Ljusnan stänger av uppvandringen. Ingen havsvandrande lax eller havsöring når Voxnan, och älvens öring och harr är stationär ström- och insjöfisk. Det är därför kvicksilverrådet för insjörovfisk som är det relevanta.
+
+Inga särskilda lokala kostråd från Länsstyrelsen Gävleborg för just Voxnan har publicerats. Aktuella råd finns på [livsmedelsverket.se](https://www.livsmedelsverket.se).
+
+## Infrastruktur och praktisk information
+
+### Fiskeguider och lokala aktörer
+
+Ovanåkers kommun förtecknar de fiskeguider som är verksamma i kommunen. Woxnadalens Sportfiskeklubb i Edsbyn är den aktiva sportfiskeföreningen i området, och Woxnadalens Flugfiske förvaltar sträckan i Lidmans Svartån. Kjells Cykel och Motor samt Knåda Sport i Edsbyn säljer fiskekort och lokal utrustning.
+
+### Landfiske och tillgänglighet
+
+Voxnan är i grunden ett vad- och landfiskevatten på strömsträckorna. Vid Hylströmmen finns parkering, rastplats och blankspolade hällar som medger landfiske utan vadning. Flera av put and take-vattnen inom Ovanåkers och Alfta FVOF har tillgänglighetsanpassade bryggor, bland annat Björatjärn, Östra Nyasen och Sandsjön.
+
+### Båtramper
+
+| Plats | Notering |
+|---|---|
+| Mödänge, Voxsjön | Öppen för alla med Bollnäs FVF-kort, kodlås |
+| Stagården, Voxsjön | Tillhör Voxsjöns båtklubb, medlemskap krävs |
+
+Båtfiske är i praktiken begränsat till Voxsjön, Varpen och de större sjöarna. Strömsträckorna fiskas från land eller vadande.
+
+### Boende
+
+- **Voxnabruks Kanot och Camping**: camping och stugor mitt i reservatssträckan, närmast Hylströmmen och Finnstugeströmmen.
+- **Edsbyn**: hotell och stugboende, bas för Ovanåkers FVOF:s vatten.
+- **Alfta**: boende och turistinformation vid Hälsingegården Ol-Anders, bas för Runemoströmmarna.
+- **Los och Hamra**: enklare boende och stugor för den som fiskar övre Voxnan.
+- **Bollnäs**: störst utbud av boende och närmast Voxsjön och Bollnäsströmmarna.
+
+### Kommunikationer
+
+Bollnäs har tågförbindelse på Norra stambanan. Med bil når du älven via riksväg 83 mellan Bollnäs och Ljusdal, väg 50 västerut, väg 301 mot Edsbyn och väg 296 mellan Voxnabruk och Los. Väg 296 är tillfartsvägen till Hylströmmen och de övre strömsträckorna. Avstånden är långa och mobiltäckningen ojämn i finnmarken.
+
+### Kanottrafik
+
+Voxnan är en etablerad kanotälv med egen ledbeskrivning, och forspaddlingen är koncentrerad till samma oreglerade sträckor som strömfisket. Under högsäsong kan kanotister och fiskare konkurrera om samma strömmar. Tidiga morgnar är i regel lugnast.
+
+## Historik och bakgrund
+
+Voxnan flottades från mitten av 1800-talet. Den allmänna flottningen upphörde 1965, Ljusnan-Voxnans flottningsförening lades ned 1967 och flottlederna avlystes formellt den 17 maj 1968. Under flottningsepoken rensades strömmarna på block och byggdes stenkistor, ingrepp som fortfarande präglar älvens bottenstruktur.
+
+Vid Voxna bruk har järn framställts sedan 1726, då Anders Swab fick privilegium på masugn och hammare vid Selmåns utlopp i Voxnan. Wilhelm Kempe övertog bruket på 1840-talet och lade grunden till Ljusne-Voxna AB. Tackjärnsblåsningen upphörde 1874 och smidestillverkningen 1932. Voxna smedja är byggnadsminne sedan 1989.
+
+Skyddet av älven avgjordes i två steg. Riksdagen beslutade den 26 november 1986 att föra Hylströmmen till de älvsträckor som undantas från vattenkraftsexploatering. Därefter skyddades hela Voxnan uppströms Vallhaga med käll- och biflöden enligt naturresurslagen och senare miljöbalken. Den ideella föreningen Bevara Voxnans Strömmar drev motståndet mot utbyggnadsplanerna.
+
+Fiskevården har längre rötter än så. Ovanåkers FVOF:s protokoll berättar att den dåvarande ordföranden, författaren Hans Lidman, på 1950-talet förhandlade fram 900 kr i ersättning för det harr- och öringfiske som förstördes när Vallhaga kraftverk byggdes.
+
+Sedan 2019 pågår EU-projektet Rivers of LIFE, som drivs av bland andra Länsstyrelsen Gävleborg. Projektet återställer omkring 120 kilometer vattendrag i Ljusnan, Voxnan och Gimån genom att lägga tillbaka block, öppna sidofåror och återskapa lekbottnar. Inför restaureringarna har fler än 10 000 flodpärlmusslor flyttats i Voxnansystemet, ett arbete som omfattat Ångerån, Kolarsjöbäcken, Västerhocklan och Ängraån. Flodpärlmusslan är fridlyst sedan 1994 och beroende av öring som värdfisk, vilket knyter ihop musselvården med öringbeståndets utveckling.
+
+## Snabbfakta
+
+| | |
+|---|---|
+| Fritt handredskapsfiske | Nej, fiskekort krävs i hela älven |
+| Antal fiskevårdsområden | Sex, med olika regler och kort |
+| Fiskekort, övre delen | 110 kr per dygn, Los-Hamra FVOF via iFiske |
+| Fiskekort, Edsbyn | 50 kr per dygn, Ovanåkers FVOF |
+| Fiskekort, Alfta | 60 kr per dygn, Alfta FVOF |
+| Fångstfönster harr, Ovanåker | 35–45 cm |
+| Minimimått harr, Alfta | 45 cm |
+| Harr, Bollnäs FVF | All harr återutsätts |
+| Fredningstid öring, Ovanåker | 1 september–15 maj |
+| Skyddsstatus | Miljöbalken 4 kap 6 §, Natura 2000, naturreservat |
+| Närmaste tätort | Edsbyn, Alfta, Bollnäs och Voxnabruk |
+| Koordinater | 61.36°N, 15.49°Ö (Voxnabruk) |
+
+---
+
+*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
+```
+
 # Content: techniques
 
 ## src/content/techniques/dropshot.mdx
@@ -36033,7 +37867,7 @@ excerpt: "Aluminium eller glasfiber? Så skiljer sig materialen för fiskaren."
 heroImage: "/images/articles/aluminiumbat-eller-plastbat.jpg"
 publishedAt: "2026-07-26"
 updatedAt: "2026-07-26"
-author: "rikard-giby"
+author: "redaktionen"
 category: "guide"
 faq:
   - q: "Är aluminiumbåt bättre än plastbåt för fiske?"
@@ -36524,7 +38358,7 @@ excerpt: "Viktgränser, hastigheter och efterfordonsregler för båt på väg."
 heroImage: "/images/articles/battrailer-b-korkort.jpg"
 publishedAt: "2026-07-29"
 updatedAt: "2026-07-29"
-author: "rikard-giby"
+author: "redaktionen"
 category: "guide"
 faq:
   - q: "Hur tung båttrailer får jag dra med B-körkort?"
@@ -36605,6 +38439,87 @@ Osäker på vilken båt som ska upp på vagnen i första läget, börja i [köpg
 *Strömkast finansieras via affiliate-länkar. Köper du utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar produkterna.*
 ```
 
+## src/content/articles/ce-kategori-bat.mdx
+```
+---
+title: "CE-kategori och regler för små fiskebåtar"
+slug: "ce-kategori-bat"
+description: "CE-kategorierna A till D förklarade, plus reglerna för körkort, registrering, promille och flytväst i små fiskebåtar. Kontrollerat juli 2026."
+excerpt: "CE-skalan A till D och reglerna som gäller din fiskebåt, utan myter."
+heroImage: "/images/articles/ce-kategori-bat.jpg"
+publishedAt: "2026-07-30"
+updatedAt: "2026-07-30"
+author: "redaktionen"
+category: "guide"
+faq:
+  - q: "Vad betyder CE-kategori D på en båt?"
+    a: "Kategori D betyder att båten är konstruerad för skyddade farvatten, med vindar upp till och med vindstyrka 4, cirka 8 m/s, och en signifikant våghöjd på 0,3 meter med enstaka vågor upp till 0,5 meter. Det är en konstruktionsklass som beskriver vad båten är byggd för, inte ett tillstånd eller förbud."
+  - q: "Behöver man förarintyg för fritidsbåt?"
+    a: "Nej. Fritidsbåtar under 12 meters längd och 4 meters bredd kräver ingen behörighet. Förarintyg är en frivillig utbildning som ofta ger rabatt på båtförsäkringen. Ryktet om att obligatoriskt förarbevis är på väg stämmer inte, regeringen avskrev frågan i budgeten för 2026. Vattenskoter är undantaget och kräver förarbevis."
+  - q: "Måste man registrera en fiskebåt?"
+    a: "Nej, båtar under 15 meter är inte registreringspliktiga i Sverige. Frivillig registrering i fartygsregistret är möjlig för båtar från 5 meter, men för en vanlig fiskebåt finns inget krav."
+  - q: "Gäller promillegränsen i en liten fiskebåt?"
+    a: "Ofta, ja. Gränsen 0,2 promille gäller båtar som är minst 10 meter långa eller som med motor kan göra minst 15 knop. En liten båt med 25 hästkrafter gör över 15 knop och omfattas därför fullt ut. Även under gränsvärdena kan den dömas som inte kan framföra båten på ett betryggande sätt."
+---
+
+import ProduktRuta from '../../components/ProduktRuta.astro';
+
+Reglerna kring små fritidsbåtar omges av fler myter än nästan någon annan del av fisket: att körkort krävs, att båten måste registreras, att förarbevis är på väg. Sanningen är enklare och friare, men de regler som faktiskt finns är värda att kunna på riktigt. Den här guiden går igenom dem på djupet, med allt kontrollerat mot Transportstyrelsen, sjölagen och Konsumenternas i juli 2026, som en fördjupning av regelavsnittet i vår [köpguide för fiskebåt](/guider/valja-fiskebat/). Reglerna för båt på väg har en egen genomgång i guiden om [båttrailer och B-körkort](/guider/battrailer-b-korkort/).
+
+## CE-kategorierna A till D förklarade
+
+Varje ny fritidsbåt mellan 2,5 och 24 meter ska vara CE-märkt enligt EU:s fritidsbåtsdirektiv, och märkningen placerar båten i en av fyra konstruktionskategorier:
+
+| Kategori | Avsedd för | Vind upp till | Signifikant våghöjd |
+|---|---|---|---|
+| A | Ocean | Över vindstyrka 8 | Över 4 m |
+| B | Utomskärs och öppet hav | Vindstyrka 8, cirka 20 m/s | Upp till 4 m |
+| C | Kust, stora bukter och sjöar | Vindstyrka 6, cirka 14 m/s | Upp till 2 m |
+| D | Skyddade farvatten | Vindstyrka 4, cirka 8 m/s | 0,3 m, enstaka vågor 0,5 m |
+
+Signifikant våghöjd är medelhöjden på den högsta tredjedelen av vågorna, enskilda vågor kan alltså vara påtagligt högre än siffran i tabellen. För småbåtsklassen är det C och D som gäller: kategori C är kravet för stora sjöar och kustfiske, kategori D räcker för skyddade insjöar.
+
+Det viktigaste att förstå är vad kategorin inte är. Den är ingen behörighet, inget tillstånd och inget användningsförbud, ingen myndighet stoppar en D-båt på Vänern. Kategorin beskriver vad konstruktionen är dimensionerad för, och att hålla sig inom den är sjömanskap snarare än juridik. Notera också att kategorin sitter i hela konstruktionen: i vårt [båtsortiment](/utrustning/batar/) finns systermodeller där båten med tjockare skrov har lägre kategori, plåttjocklek och sjövärdighetsklass är två olika saker.
+
+<ProduktRuta slug="lyfco-aluminiumbat-420-kategori-c" />
+
+## Vad CE-skylten mer berättar
+
+Tillverkarskylten är båtens viktigaste dokument och värd en minut vid varje köp, ny som begagnad. Utöver kategorin anger den högsta tillåtna motoreffekt, maxlast och största antal personer. Maxeffekten är en konstruktionsgräns som försäkringsbolagen tar på allvar, en för stor motor kan sätta ned eller stryka ersättningen vid skada. Maxlasten ska rymma personer, motor, batteri och packning tillsammans, och personantalet är räknat utan packning. Hur siffrorna används i praktiken finns i guiderna om att [välja utombordare](/guider/vilken-utombordare/) och [välja fiskebåt](/guider/valja-fiskebat/).
+
+## Körkort och förarintyg
+
+Fritidsbåtar under 12 meters längd och 4 meters bredd får framföras helt utan behörighet, oavsett motorstyrka och ålder på föraren. Det enda undantaget är vattenskoter, som sedan 2022 kräver förarbevis från 15 års ålder.
+
+Förarintyget, utbildningen genom Nämnden för båtlivsutbildning, är frivilligt men ingen dum idé: kursen täcker sjövägsregler, navigation och säkerhet, och flera försäkringsbolag ger rabatt till innehavare. Och ryktet som återkommer varje säsong, att obligatoriskt förarbevis för fritidsbåt är på väg, saknar grund. Regeringen avskrev riksdagens gamla tillkännagivande i budgeten för 2026 och frågan är formellt slutbehandlad. Påståenden om skärpta krav förekommer främst i utbildningsföretags marknadsföring och ska läsas därefter.
+
+## Registrering och försäkring
+
+Båtar under 15 meter är inte registreringspliktiga, och frivillig registrering i fartygsregistret är möjlig först från 5 meters längd. En vanlig fiskebåt existerar alltså helt utan pappersarbete, vilket också betyder att köpekontrakt och kvitton är din enda ägarhandling, spara dem.
+
+Försäkringen är frivillig men ansvarsdelen gör den självklar, skadestånd efter en olycka på vattnet kan bli mycket stora. Många hemförsäkringar täcker småbåtar upp till ungefär 6 meter med motor upp till omkring 15 hk, gränserna varierar mellan bolag, och en separat båtförsäkring för en liten motorbåt kostar från drygt tusenlappen per år. För utombordaren gäller aktsamhetskrav: godkänt motorlås, annars sätts stöldersättningen normalt ned med 25 till 50 procent.
+
+## Sjöfylleri och flytväst
+
+Promillegränsen 0,2 gäller båtar som är minst 10 meter långa eller som med motor kan göra minst 15 knop, och den andra delen fångar fler småbåtar än många tror. En 4-metersbåt med 25 hästkrafter gör över 15 knop och omfattas fullt ut, med grovt sjöfylleri från 1,0 promille. Även i långsammare båtar, och under gränsvärdena, kan den dömas som inte kan framföra båten betryggande, så den praktiska regeln är enkel: nykter på vattnet.
+
+Flytväst är inte lagkrav i Sverige, för vare sig vuxna eller barn, men statistiken är entydig: i genomsnitt omkommer runt 26 personer per år i fritidsbåtsolyckor, och typolyckan är en ensam fiskare i liten båt nära land utan väst. Västen är den billigaste säkerhetsutrustning som finns i förhållande till vad den gör, köp den med båten och ha den på.
+
+## Kommande regler
+
+Två saker är på väg men gäller inte i dag. EU:s nya körkortsdirektiv höjer B-behörighetens viktgränser med merparten av reglerna i kraft från november 2029, relevant för trailerekipage och beskrivet närmare i [trailerguiden](/guider/battrailer-b-korkort/). Och Transportstyrelsen har uttryckt vilja att analysera förarbevisfrågan för fritidsbåtar som en av flera säkerhetsåtgärder, men någon lagstiftning finns inte och inget förslag ligger. Vi uppdaterar den här guiden när något ändras, datumstämpeln i inledningen visar när innehållet senast kontrollerades.
+
+## Checklistan före första turen
+
+1. **Läs CE-skylten**: kategori, maxeffekt, maxlast. Den styr allt annat.
+2. **Ordna västen och motorlåset**: ingen lag kräver västen, statistiken gör det, och låset kräver försäkringen i praktiken.
+3. **Kontrollera fiskekortets motorregler**: vattnets egna bestämmelser är den regelnivå som oftast överraskar.
+
+Med det på plats är juridiken avklarad, resten är fiske. Hela köpresan från vattentyp till motor finns i [köpguiden för fiskebåt](/guider/valja-fiskebat/).
+
+*Strömkast finansieras via affiliate-länkar. Köper du utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar produkterna.*
+```
+
 ## src/content/articles/elmotor-till-fiskebat.mdx
 ```
 ---
@@ -36614,8 +38529,8 @@ description: "Så dimensionerar du elmotorn. Dragkraft i lbs efter båtens vikt,
 excerpt: "Dragkraft, spänning och batterival. Så väljer du elmotor för fisket."
 heroImage: "/images/articles/elmotor-till-fiskebat.jpg"
 publishedAt: "2026-07-30"
-updatedAt: "2026-07-30"
-author: "rikard-giby"
+updatedAt: "2026-08-04"
+author: "redaktionen"
 category: "guide"
 faq:
   - q: "Hur stark elmotor behöver jag till båten?"
@@ -36668,6 +38583,8 @@ Så här ser elmotorerna vi bevakar ut på guidens nyckeltal. Priserna är cirka
 
 | Motor | Dragkraft | Spänning | Rigg | Cirkapris |
 |---|---|---|---|---|
+| [Lyfco NRS-36L](/utrustning/test/lyfco-nrs-36l/) | 36 lbs | 12 V | Lång, 91 cm | 1 400 kr |
+| [Lyfco NRS-46L](/utrustning/test/lyfco-nrs-46l/) | 46 lbs | 12 V | Lång, 91 cm | 1 500 kr |
 | [Lyfco NRS-55X](/utrustning/test/lyfco-nrs-55x/) | 55 lbs | 12 V | Kort, 71 cm | 1 900 kr |
 | [Lyfco NRS-62X](/utrustning/test/lyfco-nrs-62x/) | 62 lbs | 12 V | Kort, 71 cm | 2 000 kr |
 | [Lyfco NRS-86X kort](/utrustning/test/lyfco-nrs-86x-kort/) | 86 lbs | 24 V | Kort, 71 cm | 2 000 kr |
@@ -36682,6 +38599,86 @@ Notera prisbilden: steget från 62X till 86X kort är i praktiken kostnadsfritt 
 3. **Vad säger fiskekortet?** Motorregler varierar per vatten, och eldrift är inte automatiskt tillåten överallt.
 
 Osäker på båten som motorn ska sitta på, börja i [köpguiden för fiskebåt](/guider/valja-fiskebat/).
+
+*Strömkast finansieras via affiliate-länkar. Köper du utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar produkterna.*
+```
+
+## src/content/articles/gummibat-fiske.mdx
+```
+---
+title: "Gummibåt och katamaran för fiske"
+slug: "gummibat-fiske"
+description: "Passar en uppblåsbar båt för fiske? Vi går igenom stabilitet, krokrisken, motorval och skötsel, och när aluminium är det bättre valet."
+excerpt: "Uppblåsbart för fiskaren: när det fungerar och när det inte gör det."
+heroImage: "/images/articles/gummibat-fiske.jpg"
+publishedAt: "2026-07-31"
+updatedAt: "2026-07-31"
+author: "rikard-giby"
+category: "guide"
+faq:
+  - q: "Är gummibåt bra för fiske?"
+    a: "Ja, med rätt förväntningar. En uppblåsbar båt löser förvaring och transport som ingen annan båttyp, och en katamaranmodell ger stabil ståyta för kastfiske. Priset är materialkänslighet mot krokar och vassa föremål, montering per pass och lägre andrahandsvärde än aluminium."
+  - q: "Vilken motor kan man ha på en gummibåt?"
+    a: "Det avgörs av tillverkarens maxgräns per modell. Mindre uppblåsbara båtar tar ofta upp till 9,9 hk medan större modeller med plywood-transom kan vara godkända för 30 hk. Kort rigg är i regel rätt val eftersom det minskar risken att propellern tar i botten, och en elmotor räcker långt för tyst fiske."
+  - q: "Hur länge håller en gummibåt?"
+    a: "Med skötsel håller PVC-material många säsonger: torka båten före packning, förvara den frostfritt och mörkt, kontrollera luftkammare och ventiler varje vår och lappa småskador direkt. Slarv med fukt och UV-ljus förkortar livslängden mer än själva användningen."
+  - q: "Är en katamaran stabilare än en vanlig gummibåt?"
+    a: "Ja, dubbla pontoner ger bredare stödyta och mindre gungning i sidled, vilket märks mest när man ställer sig upp för att kasta. Det är skälet till att katamaranformen blivit vanlig bland uppblåsbara båtar byggda med fiske i åtanke."
+---
+
+import ProduktRuta from '../../components/ProduktRuta.astro';
+
+Den uppblåsbara båten är fiskets mest missförstådda farkost: avfärdad som badleksak av somliga, överskattad som allvädersbåt av andra. Sanningen ligger där den brukar, i användningen. För rätt fiskare är den enda realistiska vägen till eget flyt, för fel fiskare blir den en dyr besvikelse, och den här guiden går igenom vilket som gäller dig, som en fördjupning av båttypsavsnittet i vår [köpguide för fiskebåt](/guider/valja-fiskebat/).
+
+## När den uppblåsbara båten är rätt val
+
+Argumentet är förvaringen och transporten, och det är starkare än det låter. En båt som packas i en väska på 35 kg kräver ingen båtplats, ingen tomt, ingen trailer och inget bygglov för ställningen, den bor i förrådet och åker i bagageluckan. För den som bor i lägenhet, fiskar olika semestervatten varje år eller vill ha en båt i husbilen finns inget alternativ i samma prisklass som löser samma problem.
+
+Det betyder också att den uppblåsbara båten ofta inte konkurrerar med en fast båt utan med ingen båt alls. Frågan är sällan gummibåt eller aluminiumbåt, utan gummibåt eller landfiske. Sedd så är kalkylen en annan: för under tiotusenlappen öppnas djupkanter, öar och vikar som aldrig nås från stranden.
+
+## Katamaranskrov mot klassisk gummibåt
+
+Den klassiska gummibåtens svaghet för fiskaren är rankheten, att stå upp och kasta i en rund enkelpontonbåt är vingligt. Katamaranformen med dubbla pontoner löser det: bredare stödyta, mindre gungning i sidled och en durk som ligger plant mellan pontonerna. Skillnaden märks mest i exakt det ögonblick fiskaren bryr sig om, när hugget kommer och du reser dig med spöt.
+
+Pontondiametern är siffran att titta på, grövre pontoner bär mer och ger högre fribord. Räkna också med att uppblåsbar durk eller air mat-däck gör ståytan styv nog för kastfiske, en mjuk textildurk gör det inte.
+
+## Materialet och krokarna
+
+Här kommer den ärliga delen. PVC på 0,9 mm är slitstarkt mot skav och normalt bruk men har tre naturliga fiender i just fiskebåten: trekrokar, filékniven och vassa strandstenar. En jerkbait med frihängande krokar som tappas i durken är en verklig risk, inte en teoretisk. Motmedlen är rutiner snarare än oro, beten i betesask och inte på durken, kniv i slida, landstigning på sand hellre än klappersten, och en lagningssats i båten från dag ett.
+
+Konstruktionen är förlåtande när olyckan ändå är framme: fyra luftkammare plus en separat i durken betyder att en punktering sänker farten, inte båten. Det är en säkerhetsmarginal värd att kräva oavsett märke.
+
+<ProduktRuta slug="lyfco-katamaran-300" />
+
+## Motor på gummibåt
+
+Motorgränserna varierar stort mellan modeller, från 9,9 hk på mindre båtar till 30 hk på större modeller med transom i plywood, och tillverkarens gräns är taket precis som på alla båtar. Transomens material är värt en extra blick vid köp: plywood ger stadigare infästning än helt uppblåsbara motorfästen och är i praktiken ett krav för bensinmotorer med någon effekt.
+
+Kort rigg är i regel rätt på uppblåsbart, propellern går friare från botten i de grunda vatten där de här båtarna trivs. Och för många är elmotorn det naturliga valet: tyst, lätt och tillräcklig för båtar som väger 35 till 65 kg. Hela dimensioneringen finns i guiden om [elmotor till fiskebåten](/guider/elmotor-till-fiskebat/).
+
+<ProduktRuta slug="lyfco-katamaran-420" />
+
+## Skötsel, livslängd och andrahandsvärde
+
+En uppblåsbar båt kräver en annan sorts omsorg än aluminium. Räkna med tio till femton minuters montering per pass, och lika viktigt, torka båten innan den packas, fukt i väskan är materialets långsammaste fiende. Förvara den frostfritt och mörkt över vintern, UV-ljus åldrar PVC mer än användning, och gå igenom kammare, ventiler och limfogar varje vår.
+
+Andrahandsvärdet ska sägas rakt ut: det är lågt jämfört med aluminium, en begagnad gummibåt är svårvärderad eftersom skicket sitter i material som inte syns utanpå. Köp därför uppblåsbart för att använda, inte för att äga, kalkylen bygger på fiskepassen den ger, inte på vad den säljs för sedan.
+
+## Vad de uppblåsbara inte gör
+
+Två begränsningar till, för ärlighetens skull. Tillverkarna anger sällan CE-kategori för de enklare uppblåsbara båtarna, våra produktsidor skriver då anges ej i stället för att gissa, och utan köl driver en lätt uppblåsbar båt påtagligt i sidvind, den som fiskar öppna fjärdar i blåst kommer irritera sig. Är fisket i huvudsak stora vatten, hårt väder eller tung packning pekar allt mot en fast båt i stället, jämförelsen finns i guiden om [aluminiumbåt eller plastbåt](/guider/aluminiumbat-eller-plastbat/) och hela sortimentet i [båtkategorin](/utrustning/batar/).
+
+## Packlistan som gör skillnad
+
+Uppblåsbart fiske har sin egen utrustningslista, och den väger nästan ingenting. Lagningssatsen är redan nämnd och åker alltid med. Ett litet ankare med tillräcklig lina är viktigare än på fasta båtar, eftersom en köllös lättviktsbåt driver fort i vind och ett drivande kastläge sällan varar. Fotpumpen ska med även på passet, inte bara vid montering, trycket sjunker när vattnet kyler luften i pontonerna och en minut pumpande återställer styvheten i durken. Betesaskar med lock och kniv i slida skyddar materialet, en torkhandduk i väskan skyddar förvaringen, och en vattentät packpåse ersätter de stuvfack som inte finns. Flytvästen, slutligen, är extra motiverad här: den som fiskar ensam från en lätt båt långt från land är exakt den profil olycksstatistiken pekar ut. Allt tillsammans ryms i en ryggsäck och kostar en bråkdel av båten.
+
+## Tre frågor innan du köper
+
+1. **Var ska båten bo?** Är svaret förråd, bagagelucka eller husbil är uppblåsbart sannolikt rätt, finns tomt och vagn förtjänar aluminium en titt.
+2. **Står du upp och kastar?** Då är katamaranform och styv durk kraven att ställa.
+3. **Hur ser dina krokrutiner ut?** Betesaskar och slidkniv är billigare än lagningssatser, och båda ska med från första turen.
+
+Hela beslutskedjan från vattentyp till motor finns i [köpguiden för fiskebåt](/guider/valja-fiskebat/).
 
 *Strömkast finansieras via affiliate-länkar. Köper du utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar produkterna.*
 ```
@@ -36813,7 +38810,7 @@ description: "Så väljer du rätt fiskebåt för svenska vatten. Båttyp, storl
 excerpt: "Aluminiumbåt, gummibåt eller eka? Så väljer du rätt båt för ditt fiske."
 heroImage: "/images/articles/valja-fiskebat.jpg"
 publishedAt: "2026-07-19"
-updatedAt: "2026-07-26"
+updatedAt: "2026-08-04"
 author: "rikard-giby"
 category: "guide"
 faq:
@@ -36860,7 +38857,7 @@ Nackdelarna är två. Aluminium är ljudligt, vågskvalp och tappade betesaskar 
 
 Den uppblåsbara båtens argument är förvaringen. Den packas i en väska, åker i bagageluckan och kräver varken båtplats, trailer eller tomtyta. För den som bor i lägenhet, fiskar semestervatten eller vill ha en båt i husbilen är det ofta enda realistiska vägen till eget flyt. Moderna uppblåsbara katamaraner med dubbla pontoner ger dessutom en förvånansvärt stabil ståyta för kastfiske.
 
-Baksidan är materialet. PVC tål inte trekrokar, filékniv eller vassa strandstenar på det sätt aluminium gör, och andrahandsvärdet är lågt. Räkna också med tio till femton minuters montering per fiskepass och att luftkammare ska ses över varje säsong.
+Baksidan är materialet. PVC tål inte trekrokar, filékniv eller vassa strandstenar på det sätt aluminium gör, och andrahandsvärdet är lågt. Räkna också med tio till femton minuters montering per fiskepass och att luftkammare ska ses över varje säsong. En hel genomgång av båttypen, med krokrutiner och skötsel, finns i guiden om [gummibåt för fiske](/guider/gummibat-fiske/).
 
 ### Plastbåt
 
@@ -36916,7 +38913,7 @@ Här är den goda nyheten: en liten fiskebåt är bland det minst reglerade du k
 
 **Försäkra rätt.** Många hemförsäkringar täcker småbåtar upp till ungefär 6 meter med motor upp till omkring 15 hk, men gränserna varierar mellan bolag, så kontrollera villkoren. En separat båtförsäkring för en liten motorbåt kostar från drygt tusenlappen per år. För utombordaren gäller aktsamhetskrav: motorn ska vara låst med godkänt motorlås, annars sätts ersättningen vid stöld normalt ned med 25 till 50 procent.
 
-En kommande förändring att känna till: EU:s nya körkortsdirektiv höjer på sikt viktgränserna för B-körkort, men merparten av reglerna börjar gälla först i november 2029. Fram till dess gäller siffrorna ovan.
+En kommande förändring att känna till: EU:s nya körkortsdirektiv höjer på sikt viktgränserna för B-körkort, men merparten av reglerna börjar gälla först i november 2029. Fram till dess gäller siffrorna ovan. En fördjupning av samtliga regler, med hela CE-skalan förklarad, finns i guiden om [CE-kategori och regler](/guider/ce-kategori-bat/).
 
 ## Nytt eller begagnat
 
@@ -36940,11 +38937,11 @@ Som avslutning, så här ser båtarna vi bevakar ut ställda mot varandra på ex
 
 | Båt | Längd | CE | Maxlast | Vikt | Cirkapris |
 |---|---|---|---|---|---|
-| [Lyfco aluminiumbåt 3 m](/utrustning/test/lyfco-aluminiumbat-300/) | 3,0 m | C | 200 kg | 45 kg | 15 000 kr |
-| [Lyfco aluminiumbåt 3,8 m kategori C](/utrustning/test/lyfco-aluminiumbat-380-kategori-c/) | 3,8 m | C | 350 kg | 75 kg | 22 000 kr |
-| [Lyfco aluminiumbåt 3,8 m kategori D](/utrustning/test/lyfco-aluminiumbat-380-kategori-d/) | 3,8 m | D | 550 kg | 80 kg | 30 000 kr |
-| [Lyfco aluminiumbåt 4,2 m kategori C](/utrustning/test/lyfco-aluminiumbat-420-kategori-c/) | 4,2 m | C | 600 kg | 116 kg | 25 000 kr |
-| [Lyfco aluminiumbåt 4,2 m kategori D](/utrustning/test/lyfco-aluminiumbat-420-kategori-d/) | 4,2 m | D | 1 000 kg | 105 kg | 35 000 kr |
+| [Lyfco aluminiumbåt 3 m](/utrustning/test/lyfco-aluminiumbat-300/) | 3,0 m | C | 200 kg | 45 kg | 16 000 kr |
+| [Lyfco aluminiumbåt 3,8 m kategori C](/utrustning/test/lyfco-aluminiumbat-380-kategori-c/) | 3,8 m | C | 350 kg | 75 kg | 25 000 kr |
+| [Lyfco aluminiumbåt 3,8 m kategori D](/utrustning/test/lyfco-aluminiumbat-380-kategori-d/) | 3,8 m | D | 550 kg | 80 kg | 34 000 kr |
+| [Lyfco aluminiumbåt 4,2 m kategori C](/utrustning/test/lyfco-aluminiumbat-420-kategori-c/) | 4,2 m | C | 600 kg | 116 kg | 30 000 kr |
+| [Lyfco aluminiumbåt 4,2 m kategori D](/utrustning/test/lyfco-aluminiumbat-420-kategori-d/) | 4,2 m | D | 1 000 kg | 105 kg | 40 000 kr |
 | [Lyfco Katamaran 300 gummibåt](/utrustning/test/lyfco-katamaran-300/) | 3,0 m | anges ej | 474 kg | 35 kg | 8 000 kr |
 | [Lyfco Katamaran 420 gummibåt](/utrustning/test/lyfco-katamaran-420/) | 4,2 m | anges ej | 800 kg | 65 kg | 9 800 kr |
 
@@ -37055,6 +39052,117 @@ Vilken art och teknik fiskar du mest? Det avgör huvudlinans dimension och färg
 Behöver du se linan eller gömma den? High-vis om du läser hugget på linan, lågsynligt i klart vatten och mot skygg fisk.
 
 Är fläta rätt huvudlina, eller är det ett trolling- eller laxfiske där nylon passar bättre? Stretchen avgör. För allt vanligt kastfiske är fläta plus fluorocarbontafs grunden. Behöver du hjälp att välja spö till linan finns [spöväljaren](/spovaljaren/).
+
+*Strömkast finansieras via affiliate-länkar. Köper du utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar produkterna.*
+```
+
+## src/content/articles/valja-haspelrulle.mdx
+```
+---
+title: "Välja haspelrulle: storlek, utväxling och broms"
+slug: "valja-haspelrulle"
+description: "Så väljer du rätt haspelrulle. Storlek efter art, vevtag i stället för utväxling, och varför kullagerantalet inte betyder det du tror."
+excerpt: "Storlek, vevtag och broms. Så väljer du haspelrulle utan att gå på myterna."
+heroImage: "/images/articles/valja-haspelrulle.jpg"
+publishedAt: "2026-08-04"
+updatedAt: "2026-08-04"
+author: "rikard-giby"
+category: "guide"
+faq:
+  - q: "Vilken storlek på haspelrulle ska jag ha?"
+    a: "För abborre och lättare finessfiske 1000 till 2500, för gös 2500 till 4000 och för gädda 4000 eller större. Storleken 2500 är den vanligaste i Sverige och det bästa valet för den som vill ha en enda allroundrulle. Notera att storlekssiffrorna inte är jämförbara mellan märken, jämför vikt och linkapacitet i stället."
+  - q: "Vad betyder 2500 på en haspelrulle?"
+    a: "Siffran anger rullens storleksklass inom tillverkarens eget system, där högre siffra betyder större rulle med mer linkapacitet och kraftigare broms. Systemen skiljer sig dock mellan märken, en Shimano 2500 och en Daiwa 2500 är olika stora, så siffran fungerar bäst för att jämföra rullar inom samma märke."
+  - q: "Hur många kullager behöver en haspelrulle?"
+    a: "Färre än marknadsföringen antyder. Kullagerantalet säger lite om kvaliteten, en rulle med fem eller sex bra lager går jämnare och håller längre än en billig rulle med femton enkla. Titta på lagerkvalitet och tätning i stället för antalet, särskilt om du fiskar i brackvatten längs kusten."
+  - q: "Vad är utväxling på en haspelrulle?"
+    a: "Utväxlingen, till exempel 5.8:1, anger hur många varv rotorn snurrar per vevtag. Ett mer användbart mått är invevning i centimeter per vev, eftersom spolens storlek också påverkar hur mycket lina som tas hem. Snabb invevning passar jerkbait och spinnerbait, långsammare ger mer kraft för tunga beten."
+---
+
+import ProduktRuta from '../../components/ProduktRuta.astro';
+import RullValjareIsland from '../../components/rullvaljare/RullValjareIsland.astro';
+
+Rullköpet är utrustningsvalet med flest siffror och flest myter. Storlekssystem som inte betyder samma sak mellan märken, kullagerantal som låter som kvalitet men inte är det, och maxbromsvärden dimensionerade för fiskar som inte simmar i svenska vatten. Den här guiden går igenom vad siffrorna faktiskt betyder och vilka som spelar roll, med verifierade specifikationer för rullarna i vårt sortiment.
+
+## Storleken är första beslutet
+
+Haspelrullar storleksmärks i tusental, från 1000 upp till 5000 och vidare, där högre siffra betyder större rulle, mer lina och starkare broms. För svenskt spinnfiske är fördelningen väl etablerad:
+
+| Fiske | Storlek |
+|---|---|
+| Abborre och finesse | 1000 till 2500 |
+| Havsöring från kust | 2500 till 3000 |
+| Gös | 2500 till 4000 |
+| Gädda | 4000 och uppåt |
+
+Storleken 2500 är den vanligaste i Sverige och rätt svar för den som vill ha en enda rulle till blandat fiske, den klarar abborren med god marginal och den måttliga gäddan utan panik.
+
+Det viktiga finstilta: storlekssiffrorna är inte standardiserade mellan tillverkare. En Shimano 2500 och en Daiwa 2500 är olika stora, historiskt har en Daiwa 2500 legat närmare en Shimano 3000. Shimano använder dessutom prefixet C för kompakt, en C3000 är en 3000-spole på en mindre 2500-kropp, mer lina utan mer vikt men med den mindre kroppens växlar. Jämför därför alltid vikt och linkapacitet i verkliga tal när du står mellan märken, siffran ensam räcker bara inom samma märke.
+
+## Hitta rätt rulle direkt
+
+Väljaren nedan gör guidens jobb på tre klick: art, tempo och budget mot sortimentets verifierade specar.
+
+<RullValjareIsland />
+
+## Utväxling och vevtag
+
+Utväxlingen, skriven som 5.0:1 eller 6.2:1, anger rotorns varv per vevtag, och Shimano kodar den med suffix: PG för låg utväxling med mer kraft, HG för hög och XG för extra hög. Men utväxlingen ensam lurar, eftersom spolens diameter avgör hur mycket lina varje rotorvarv faktiskt tar hem. Det ärliga jämförelsemåttet är invevning i centimeter per vev, och det är den kolumnen vår tabell längre ned leder med.
+
+Praktiskt betyder snabb invevning, runt 85 cm per vev och uppåt, att slack lina försvinner fort, värdefullt vid jerkbaitfiske och när spinnerbaiten ska hem för nästa kast. Långsammare invevning ger mer utväxlat vridmoment, rätt för stora jiggar och tunga beten som ska arbetas långsamt. För blandat fiske är mittfältet kring 75 till 85 cm per vev den bekväma kompromissen.
+
+<ProduktRuta slug="shimano-miravel-2500" />
+
+## Kullagermyten
+
+Kullagerantalet är rullbranschens mest missbrukade siffra, och det förtjänar att sägas rakt: antalet säger nästan ingenting om kvaliteten. En rulle med fem eller sex bra lager på rätt platser går jämnare och håller längre än en billig rulle med femton enkla, och branschbedömare brukar sätta ungefär fem lager som fullt tillräcklig grund för en bra haspelrulle. Budgetrullar har typiskt tre till fem lager, premiumrullar sex till tolv, men det som skiljer dem är lagrens precision och tätning, inte antalet.
+
+Tätningen är den detalj svenska kustfiskare ska bry sig om. Skärmade eller tätade lager står emot salt och sand betydligt bättre, och den som fiskar havsöring i brackvatten får mer livslängd av fyra tätade lager än av tio öppna.
+
+## Bromsen: jämnhet före maxtal
+
+Frontbromsen överst på spolen pressar en stack bromsbrickor mot varandra, och större rullar ger större bromsyta och högre maxvärden. Men maxsiffrorna är rullvärldens hästkrafter, imponerande och sällan använda. Bromsen ställs efter linans brottstyrka, inte efter rullens förmåga, och för svenskt fiske räcker väl tilltagna marginaler långt: som riktlinje brukar 8 till 11 kg maxbroms anges som gott och väl tillräckligt även för seriöst gäddfiske, och viktigare än talet är att bromsen släpper lina jämnt utan ryck, det är rycket som klipper tafsar och rätar krokar.
+
+Bromsbrickornas material är slitagefrågan: oljad filt går mjukt men slits, kolfiber tål värme och håller längre, och moderna hybridbrickor kombinerar båda egenskaperna. I vårt sortiment spänner lösningarna från Okumas filtbromsar i budgetklassen till Westins kolfiberbroms och Shimanos hybridbrickor högre upp.
+
+## Matcha rullen mot spö och lina
+
+Rullen väljs aldrig ensam. En för stor rulle på ett lätt abborrspö gör hela setupet framtungt, dödar känslan i spötoppen och tröttar handleden i kast efter kast, medan en för liten rulle på ett gäddspö får för lite lina och för klen broms. Balanspunkten ska hamna vid spöets rullfäste, så känn alltid setupet komplett om möjligt.
+
+Linkapaciteten följer storleken: 1000 till 2500 för tunn fläta kring 0,10 till 0,16 mm, 2500 till 4000 för allroundflätan 0,16 till 0,20 mm, och 4000 och uppåt för grov fläta till gädd- och havsfiske. Spöklasserna och linvalen har egna genomgångar i [spöguiden](/guider/basta-fiskespon-2026/) och [linguiden](/guider/valja-fiskelina/), rulle, spö och lina är tre delar av samma beslut.
+
+<ProduktRuta slug="westin-w3-4000-fd" />
+
+## Rullarna i vårt sortiment jämförda
+
+Verifierade specifikationer för sortimentets tolv rullar, sorterade efter storlek. Där tillverkaren inte publicerar en uppgift står det anges ej, vi gissar inte. Aktuella priser finns på produktsidorna.
+
+| Rulle | Storlek | Vikt | Vevtag | Maxbroms |
+|---|---|---|---|---|
+| [Shimano Nexave FI 2500](/utrustning/test/shimano-nexave-fi-2500/) | 2500 | 250 g | 73 cm | 4 kg |
+| [Okuma Ceymar HD 2500A](/utrustning/test/okuma-ceymar-hd-2500a/) | 2500 | 235 g | 78 cm | anges ej |
+| [Okuma Inspira 2500A](/utrustning/test/okuma-inspira-2500a/) | 2500 | 226 g | 88 cm | 8 kg |
+| [Okuma ITX CB 2500H](/utrustning/test/okuma-itx-cb-2500h/) | 2500 | anges ej | 85 cm | 8 kg |
+| [Shimano Miravel 2500](/utrustning/test/shimano-miravel-2500/) | 2500 | 205 g | 73 cm | 9 kg |
+| [Shimano Vanford FA 2500](/utrustning/test/shimano-vanford-fa-2500/) | 2500 | 175 g | 75 cm | 9 kg |
+| [Shimano Stella FK 2500](/utrustning/test/shimano-stella-fk-2500/) | 2500 | 210 g | 75 cm | 9 kg |
+| [Shimano Stradic FM C3000HG](/utrustning/test/shimano-stradic-fm-c3000-hg/) | C3000 | 225 g | 86 cm | 9 kg |
+| [Kinetic Marshall 4000 FD](/utrustning/test/kinetic-marshall-4000-fd/) | 4000 | anges ej | anges ej | anges ej |
+| [Westin W3 4000 FD](/utrustning/test/westin-w3-4000-fd/) | 4000 | 310 g | 79 cm | 8 kg |
+| [Shimano Vanford FA 4000](/utrustning/test/shimano-vanford-fa-4000/) | 4000 | 215 g | 87 cm | 11 kg |
+| [Kinetic Brutalis 5000 FD](/utrustning/test/kinetic-brutalis-5000-fd/) | 5000 | anges ej | anges ej | anges ej |
+
+Tabellen illustrerar guidens poänger i praktiken. Vanford 2500 väger 30 procent mindre än Nexave i samma storlek, det är materialskillnaden mellan budget och mellanklass i ett tal. Stradic C3000HG visar kompaktkonceptet, 3000-spolens kapacitet på 225 gram. Och att Kinetic-raderna säger anges ej beror på att tillverkaren inte publicerar uppgifterna, hela sortimentet finns i [rullkategorin](/utrustning/haspelrullar/).
+
+## Skötseln som dubblar livslängden
+
+Fyra vanor gör mer för rullens livslängd än något köpbeslut. Skölj rullen i kranvatten efter varje pass i salt eller bräckt vatten, kustens salt äter växlar inifrån. Sänk aldrig ner rullen helt, det pressar vatten förbi tätningarna i stället för att skölja bort salt utanpå. Lätta på bromsen inför förvaring, en hårt åtdragen slirbroms deformerar brickorna i onödan. Och ge rörliga delar några droppar rullolja per säsong, med full service av växellådan årligen vid intensivt fiske.
+
+## Tre kontrollfrågor innan du köper
+
+1. **Vilket fiske ska rullen bära?** Storleken följer arten, och en enda allroundrulle heter 2500.
+2. **Hur mycket tar den hem per vev?** Jämför invevning i centimeter, inte utväxlingssiffran eller kullagerantalet.
+3. **Balanserar den ditt spö?** Rulle, spö och lina väljs som helhet, guiderna för [spön](/guider/basta-fiskespon-2026/) och [linor](/guider/valja-fiskelina/) tar vid där denna slutar.
 
 *Strömkast finansieras via affiliate-länkar. Köper du utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar produkterna.*
 ```
@@ -37280,6 +39388,17 @@ Kan du svara på alla tre är motorköpet i praktiken redan gjort. Osäker på b
 ```
 
 # Content: authors
+
+## src/content/authors/redaktionen.json
+```
+{
+  "name": "Strömkasts redaktion",
+  "slug": "redaktionen",
+  "bio": "Strömkasts redaktion står bakom sajtens produktbevakning, prisuppdateringar och gemensamma guider. Vi skriver faktabaserat, redovisar källor och markerar alltid när något inte är testat av oss.",
+  "photo": "/images/authors/redaktionen.jpg",
+  "expertise": ["produktbevakning", "köpguider", "prisuppdateringar", "regelgenomgångar"]
+}
+```
 
 ## src/content/authors/rikard-giby.json
 ```
@@ -37762,6 +39881,649 @@ if (errors.length) {
 console.log(warnings.length ? 'Inga strukturfel. Se varningar ovan.' : 'Allt rent. Inga fel eller varningar.');
 process.exit(0);```
 
+## validate-feed.mjs
+```
+#!/usr/bin/env node
+/**
+ * validate-feed.mjs
+ *
+ * Kontrollerar src/content/gear-reviews/ mot Adtractions produktfeeds.
+ * Rapporterar avvikelser, patchar aldrig innehåll.
+ *
+ * Matchning och normalisering följer src/lib/feed.ts. Ändras den ena måste den
+ * andra följa med, annars rapporterar skriptet avvikelser som sajten inte har.
+ *
+ * VAD SOM RÄKNAS SOM FEL
+ *
+ * Sedan feed.ts hämtar priset vid byggtid är price i frontmatter ett
+ * reservvärde, inte det som visas. En prisavvikelse är därför inte ett fel på
+ * sidan, bara ett dåligt reservvärde, och rapporteras som varning.
+ *
+ * Fel är sådant som gör att en sida inte fungerar: saknad eller felformaterad
+ * affiliateUrl, och price som inte är ett tal. Bara dessa fäller --strict, så
+ * att varken pågående kampanjer eller slutsålda produkter kan bryta ett bygge.
+ *
+ * VARFÖR EN GRÄNS PÅ PRISAVVIKELSER
+ *
+ * Reservvärdets fel spelar roll i proportion till sin storlek. Några procent
+ * märks inte om en feed en dag uteblir, och priceRange påverkas först vid
+ * större skillnader. Avvikelser under gränsen räknas därför bara samman.
+ *
+ * PRODUKTER SOM SAKNAS I FEEDEN
+ *
+ * Feedsen innehåller bara produkter i lager. En produkt som saknas är alltså
+ * normalt tillfälligt slut, inte borttagen. Kontrollerat 2026-08-13: samtliga
+ * nio saknade FiskeOnline-produkter svarade HTTP 200 hos butiken. Därför
+ * varning och inte fel. Vid upprepade träffar bör länken ändå ses över.
+ *
+ * BUTIKER UTAN FEED
+ *
+ * Fritid och Vildmark har ingen feed uppsatt. Produkterna hoppas över och
+ * räknas bara samman, eftersom det inte finns något att jämföra mot.
+ *
+ * Körning:
+ *   node --env-file=.env validate-feed.mjs
+ *   node --env-file=.env validate-feed.mjs --rea      lista pågående kampanjer
+ *   node --env-file=.env validate-feed.mjs --json     maskinläsbar utdata
+ *   node --env-file=.env validate-feed.mjs --strict   exit 1 vid fel, för CI
+ *
+ * Enskild feed från fil, för felsökning utan nätverk:
+ *   node validate-feed.mjs --file /tmp/feed.xml --merchant FiskeOnline
+ */
+
+import { readFile, readdir } from 'node:fs/promises';
+import { join } from 'node:path';
+
+/**
+ * Butiker med feed. adId är det annons-ID som ska finnas i publicerade
+ * affiliateUrl. Feedernas egna länkar använder ett annat ID i båda
+ * programmen, se BESLUT.md.
+ */
+const SOURCES = [
+  { name: 'FiskeOnline', env: 'ADTRACTION_FEED_URL_FISKEONLINE', adId: '1954031990' },
+  { name: 'Outl1', env: 'ADTRACTION_FEED_URL_OUTL1', adId: '1728546059' },
+];
+
+/** Prisavvikelser under denna andel räknas bara samman, de listas inte. */
+const PRICE_TOLERANCE = 0.10;
+
+const GEAR_DIR = 'src/content/gear-reviews';
+
+const args = process.argv.slice(2);
+const flag = (n) => args.includes(`--${n}`);
+const opt = (n) => {
+  const i = args.indexOf(`--${n}`);
+  return i !== -1 ? args[i + 1] : null;
+};
+
+/* ---------- XML ---------- */
+
+const ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
+
+function decode(s) {
+  if (!s) return '';
+  return s
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)))
+    .replace(/&([a-z]+);/gi, (m, name) => ENTITIES[name.toLowerCase()] ?? m);
+}
+
+function tag(block, name) {
+  const m = block.match(new RegExp(`<${name}(?:\\s[^>]*)?>([\\s\\S]*?)</${name}>`, 'i'));
+  if (!m) return '';
+  const cdata = m[1].match(/^\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*$/);
+  return cdata ? cdata[1].trim() : decode(m[1]).trim();
+}
+
+function money(raw) {
+  if (!raw) return null;
+  const m = raw.replace(/\u00a0/g, ' ').match(/([\d\s.,]+)\s*([A-Z]{3})?/);
+  if (!m) return null;
+  const amount = Number(m[1].replace(/\s/g, '').replace(',', '.'));
+  return Number.isFinite(amount) ? { amount, currency: m[2] || null } : null;
+}
+
+/* ---------- länkar, speglar feed.ts ---------- */
+
+function productUrlFrom(trackingUrl) {
+  if (!trackingUrl) return null;
+  const i = trackingUrl.indexOf('&url=');
+  if (i === -1) return null;
+  return normalise(decode(trackingUrl.slice(i + 5)));
+}
+
+/** Gemener, utan querystring, fragment eller avslutande slash. */
+function normalise(url) {
+  return url.trim().toLowerCase().split('#')[0].split('?')[0].replace(/\/+$/, '');
+}
+
+function adIdFrom(url) {
+  const m = (url || '').match(/[?&]a=(\d+)/);
+  return m ? m[1] : null;
+}
+
+/* ---------- hämtning ---------- */
+
+function urlFor(source) {
+  return process.env[source.env] ?? '';
+}
+
+function parseInto(xml, source, index, warnings) {
+  let added = 0;
+  let collisions = 0;
+  const re = /<item[\s>][\s\S]*?<\/item>/gi;
+  let m;
+  while ((m = re.exec(xml)) !== null) {
+    const block = m[0];
+    const key = productUrlFrom(tag(block, 'link'));
+    if (!key) continue;
+    const price = money(tag(block, 'g:price'));
+    if (price === null) continue;
+
+    if (index.has(key)) {
+      collisions++;
+      continue;
+    }
+
+    index.set(key, {
+      merchant: source.name,
+      availability: tag(block, 'g:availability'),
+      price,
+      salePrice: money(tag(block, 'g:sale_price')),
+      label1: tag(block, 'g:custom_label_1'),
+    });
+    added++;
+  }
+
+  if (collisions > 0) {
+    warnings.push(`${source.name}: ${collisions} produkter delade nyckel efter normalisering, se BESLUT.md om querystring`);
+  }
+  return added;
+}
+
+async function loadFeeds() {
+  const index = new Map();
+  const counts = [];
+  const warnings = [];
+
+  const file = opt('file');
+  if (file) {
+    const name = opt('merchant') || SOURCES[0].name;
+    const source = SOURCES.find((s) => s.name === name);
+    if (!source) {
+      console.error(`Okänd butik "${name}". Kända: ${SOURCES.map((s) => s.name).join(', ')}`);
+      process.exit(2);
+    }
+    const added = parseInto(await readFile(file, 'utf8'), source, index, warnings);
+    counts.push({ name: source.name, added });
+    return { index, counts, warnings, only: source.name };
+  }
+
+  for (const source of SOURCES) {
+    const url = urlFor(source);
+    if (!url) {
+      warnings.push(`${source.name}: ${source.env} saknas, butiken kontrolleras inte`);
+      continue;
+    }
+    let res;
+    try {
+      res = await fetch(url);
+    } catch (err) {
+      warnings.push(`${source.name}: hämtning misslyckades (${err.message})`);
+      continue;
+    }
+    if (!res.ok) {
+      warnings.push(`${source.name}: Adtraction svarade ${res.status}`);
+      continue;
+    }
+    const added = parseInto(await res.text(), source, index, warnings);
+    counts.push({ name: source.name, added });
+  }
+
+  return { index, counts, warnings, only: null };
+}
+
+/* ---------- gear-reviews ---------- */
+
+function parseFrontmatter(text) {
+  const m = text.match(/^---\n([\s\S]*?)\n---/);
+  if (!m) return null;
+  const fm = {};
+  for (const line of m[1].split('\n')) {
+    const kv = line.match(/^([a-zA-Z]+):\s*(.*)$/);
+    if (!kv) continue;
+    const v = kv[2].trim();
+    if (v === '' || v.startsWith('-')) continue;
+    fm[kv[1]] = v.replace(/^["']|["']$/g, '');
+  }
+  return fm;
+}
+
+async function loadReviews(dir) {
+  let files;
+  try {
+    files = await readdir(dir);
+  } catch {
+    console.error(`Hittar inte ${dir}. Kör skriptet från projektroten.`);
+    process.exit(2);
+  }
+  const out = [];
+  for (const f of files) {
+    if (!/\.mdx?$/.test(f)) continue;
+    const fm = parseFrontmatter(await readFile(join(dir, f), 'utf8'));
+    if (fm) out.push({ file: f, ...fm });
+  }
+  return out;
+}
+
+/* ---------- kontroll ---------- */
+
+function validate(reviews, index, only) {
+  const findings = [];
+  const rea = [];
+  let smallDiffs = 0;
+  let matched = 0;
+  let noFeed = 0;
+
+  const add = (level, slug, type, message) => findings.push({ level, slug, type, message });
+  const byName = new Map(SOURCES.map((s) => [s.name, s]));
+
+  for (const r of reviews) {
+    const slug = r.slug || r.file;
+    const source = r.merchant ? byName.get(r.merchant) : null;
+
+    // Butiker utan feed går inte att jämföra mot något.
+    if (!source) {
+      noFeed++;
+      continue;
+    }
+
+    // Vid --file kontrolleras bara den butik filen tillhör.
+    if (only && source.name !== only) continue;
+
+    if (!r.affiliateUrl) {
+      add('fel', slug, 'saknar-lank', 'affiliateUrl saknas');
+      continue;
+    }
+
+    const adId = adIdFrom(r.affiliateUrl);
+    if (adId && adId !== source.adId) {
+      add('varning', slug, 'annons-id',
+        `${source.name}: affiliateUrl använder a=${adId}, förväntat a=${source.adId}`);
+    }
+
+    const target = productUrlFrom(r.affiliateUrl);
+    if (!target) {
+      add('fel', slug, 'lankformat', 'affiliateUrl saknar &url=-parameter');
+      continue;
+    }
+
+    const fmPrice = Number(r.price);
+    if (!Number.isFinite(fmPrice)) {
+      add('fel', slug, 'pris-saknas', 'price saknas eller är inte ett tal');
+    }
+
+    const p = index.get(target);
+    if (!p) {
+      add('varning', slug, 'ur-feed', `${source.name}: saknas i feeden, troligen slut i lager`);
+      continue;
+    }
+
+    matched++;
+
+    const ordinarie = p.price?.amount;
+
+    if (Number.isFinite(fmPrice) && Number.isFinite(ordinarie) && ordinarie !== fmPrice) {
+      const ratio = Math.abs(ordinarie - fmPrice) / fmPrice;
+      if (ratio >= PRICE_TOLERANCE) {
+        const diff = Math.round(((ordinarie - fmPrice) / fmPrice) * 100);
+        add('varning', slug, 'reservpris',
+          `price ${fmPrice} kr, ordinarie i feeden ${ordinarie} kr (${diff > 0 ? '+' : ''}${diff} %)`);
+      } else {
+        smallDiffs++;
+      }
+    }
+
+    if (p.salePrice && Number.isFinite(ordinarie) && p.salePrice.amount < ordinarie) {
+      rea.push({ slug, sale: p.salePrice.amount, ordinarie, label: p.label1 || null });
+    }
+
+    const cur = p.price?.currency;
+    if (cur && cur !== 'SEK') {
+      add('varning', slug, 'valuta', `feedens valuta är ${cur}`);
+    }
+  }
+
+  return { findings, rea, smallDiffs, matched, noFeed };
+}
+
+/* ---------- utdata ---------- */
+
+const ORDER = { fel: 0, varning: 1 };
+const RUBRIK = { fel: 'FEL', varning: 'VARNING' };
+
+function report(res, meta) {
+  const { findings, rea, smallDiffs, matched, noFeed } = res;
+
+  if (flag('json')) {
+    console.log(JSON.stringify({ ...meta, matched, noFeed, smallDiffs, findings, rea }, null, 2));
+    return;
+  }
+
+  console.log('\nFeedvalidering');
+  for (const c of meta.counts) console.log(`  ${c.name}: ${c.added} produkter i feeden`);
+  console.log(`\n${meta.reviews} produktsidor, ${matched} matchade mot feed`);
+  if (noFeed > 0) console.log(`${noFeed} produkter tillhör butiker utan feed och kontrolleras inte`);
+
+  for (const w of meta.warnings) console.log(`\nOBS  ${w}`);
+
+  console.log('');
+
+  if (findings.length === 0) {
+    console.log('Inga avvikelser.');
+  } else {
+    const sorted = [...findings].sort(
+      (a, b) => ORDER[a.level] - ORDER[b.level] || a.slug.localeCompare(b.slug, 'sv')
+    );
+    let current = null;
+    for (const f of sorted) {
+      if (f.level !== current) {
+        current = f.level;
+        console.log(RUBRIK[f.level]);
+      }
+      console.log(`  ${f.slug.padEnd(34)} ${f.message}`);
+    }
+    const n = (l) => findings.filter((f) => f.level === l).length;
+    console.log(`\n${n('fel')} fel, ${n('varning')} varningar`);
+  }
+
+  if (smallDiffs > 0) {
+    console.log(`${smallDiffs} reservpriser avviker mindre än ${Math.round(PRICE_TOLERANCE * 100)} procent och listas inte`);
+  }
+
+  if (rea.length > 0) {
+    if (flag('rea')) {
+      console.log('\nPÅGÅENDE KAMPANJER');
+      for (const x of [...rea].sort((a, b) => a.slug.localeCompare(b.slug, 'sv'))) {
+        const l = x.label ? `, märkt ${x.label}` : '';
+        console.log(`  ${x.slug.padEnd(34)} ${x.sale} kr mot ordinarie ${x.ordinarie} kr${l}`);
+      }
+    } else {
+      console.log(`${rea.length} produkter är nedsatta just nu, kör med --rea för lista`);
+    }
+  }
+
+  console.log('');
+}
+
+/* ---------- main ---------- */
+
+const { index, counts, warnings, only } = await loadFeeds();
+if (index.size === 0) {
+  console.error('Inga produkter kunde läsas ur någon feed.');
+  for (const w of warnings) console.error(`  ${w}`);
+  process.exit(2);
+}
+
+const reviews = await loadReviews(opt('dir') || GEAR_DIR);
+const res = validate(reviews, index, only);
+report(res, { reviews: reviews.length, counts, warnings });
+
+if (flag('strict') && res.findings.some((f) => f.level === 'fel')) process.exit(1);
+```
+
+## fix-fallback-prices.mjs
+```
+#!/usr/bin/env node
+/**
+ * fix-fallback-prices.mjs
+ *
+ * Engångsrättning av price i src/content/gear-reviews/ till ordinarie pris
+ * enligt Adtractions produktfeed.
+ *
+ * BAKGRUND
+ *
+ * price i frontmatter är sedan src/lib/feed.ts infördes ett reservvärde som
+ * visas när feeden inte svarar eller saknar produkten. Vid genomgången
+ * 2026-08-13 låg 37 av 51 matchade priser på en reanivå i stället för
+ * ordinarie, eftersom de matats in under pågående kampanj. Ett reservvärde på
+ * gammal reanivå är sämre än ett på ordinarie, och priceRange räknas dessutom
+ * på ordinarie pris.
+ *
+ * SÄKERHET
+ *
+ * Skriptet skriver ingenting utan --apply. Raden byts bara när det nuvarande
+ * värdet är exakt det som valideringen läste, och bara när price förekommer
+ * precis en gång i frontmatterblocket. Allt annat lämnas orört och rapporteras.
+ *
+ * Detta är en engångsåtgärd. Löpande avvikelser rapporteras av
+ * validate-feed.mjs och ska bedömas redaktionellt, inte skrivas automatiskt.
+ *
+ * Körning:
+ *   node --env-file=.env fix-fallback-prices.mjs            torrkörning
+ *   node --env-file=.env fix-fallback-prices.mjs --apply    skriver filer
+ *
+ * Enskild feed från fil, för felsökning utan nätverk:
+ *   node fix-fallback-prices.mjs --file /tmp/feed.xml
+ *
+ * Matchning och normalisering speglar src/lib/feed.ts. Ändras den ena måste
+ * detta skript och validate-feed.mjs följa med, annars rättar skriptet mot
+ * andra produkter än de sajten faktiskt visar.
+ */
+
+import { readFile, writeFile, readdir } from 'node:fs/promises';
+import { join } from 'node:path';
+
+const GEAR_DIR = 'src/content/gear-reviews';
+/**
+ * Butiker med feed. Speglar SOURCES i src/lib/feed.ts och validate-feed.mjs.
+ * Butiker som saknas här hoppas över, eftersom det inte finns något att
+ * jämföra mot.
+ */
+const SOURCES = [
+  { name: 'FiskeOnline', env: 'ADTRACTION_FEED_URL_FISKEONLINE' },
+  { name: 'Outl1', env: 'ADTRACTION_FEED_URL_OUTL1' },
+];
+const MERCHANTS = new Set(SOURCES.map((s) => s.name));
+
+const args = process.argv.slice(2);
+const flag = (n) => args.includes(`--${n}`);
+const opt = (n) => {
+  const i = args.indexOf(`--${n}`);
+  return i !== -1 ? args[i + 1] : null;
+};
+
+const APPLY = flag('apply');
+
+/* ---------- feed ---------- */
+
+const ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
+
+function decode(s) {
+  if (!s) return '';
+  return s
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)))
+    .replace(/&([a-z]+);/gi, (m, name) => ENTITIES[name.toLowerCase()] ?? m);
+}
+
+function tag(block, name) {
+  const m = block.match(new RegExp(`<${name}(?:\\s[^>]*)?>([\\s\\S]*?)</${name}>`, 'i'));
+  if (!m) return '';
+  const cdata = m[1].match(/^\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*$/);
+  return cdata ? cdata[1].trim() : decode(m[1]).trim();
+}
+
+function money(raw) {
+  if (!raw) return null;
+  const m = raw.replace(/\u00a0/g, ' ').match(/([\d\s.,]+)/);
+  if (!m) return null;
+  const n = Number(m[1].replace(/\s/g, '').replace(',', '.'));
+  return Number.isFinite(n) ? n : null;
+}
+
+function productUrlFrom(trackingUrl) {
+  if (!trackingUrl) return null;
+  const i = trackingUrl.indexOf('&url=');
+  return i === -1 ? null : decode(trackingUrl.slice(i + 5));
+}
+
+/** Gemener, utan querystring, fragment eller avslutande slash. Speglar feed.ts. */
+const normUrl = (u) =>
+  u ? u.trim().toLowerCase().split('#')[0].split('?')[0].replace(/\/+$/, '') : null;
+
+function parseInto(xml, index) {
+  let added = 0;
+  const re = /<item[\s>][\s\S]*?<\/item>/gi;
+  let m;
+  while ((m = re.exec(xml)) !== null) {
+    const key = normUrl(productUrlFrom(tag(m[0], 'link')));
+    const price = money(tag(m[0], 'g:price'));
+    // Första posten vinner, som i feed.ts.
+    if (key && price !== null && !index.has(key)) {
+      index.set(key, price);
+      added++;
+    }
+  }
+  return added;
+}
+
+async function loadFeed() {
+  const index = new Map();
+
+  const file = opt('file');
+  if (file) {
+    const added = parseInto(await readFile(file, 'utf8'), index);
+    console.log(`  ${file}: ${added} produkter`);
+    return index;
+  }
+
+  for (const source of SOURCES) {
+    const url = process.env[source.env];
+
+    if (!url) {
+      console.log(`  ${source.name}: ${source.env} saknas, butiken hoppas över`);
+      continue;
+    }
+
+    let res;
+    try {
+      res = await fetch(url);
+    } catch (err) {
+      console.log(`  ${source.name}: hämtning misslyckades (${err.message})`);
+      continue;
+    }
+    if (!res.ok) {
+      console.log(`  ${source.name}: Adtraction svarade ${res.status}`);
+      continue;
+    }
+
+    const added = parseInto(await res.text(), index);
+    console.log(`  ${source.name}: ${added} produkter`);
+  }
+
+  return index;
+}
+
+/* ---------- filer ---------- */
+
+function frontmatterBlock(text) {
+  const m = text.match(/^---\n([\s\S]*?)\n---/);
+  return m ? m[1] : null;
+}
+
+function readField(fm, name) {
+  const m = fm.match(new RegExp(`^${name}:\\s*(.*)$`, 'm'));
+  return m ? m[1].trim().replace(/^["']|["']$/g, '') : null;
+}
+
+/* ---------- main ---------- */
+
+console.log('\nFeeds');
+const feed = await loadFeed();
+if (feed.size === 0) {
+  console.error('Inga produkter lästes ur feeden. Kontrollera filen.');
+  process.exit(2);
+}
+
+const dir = opt('dir') || GEAR_DIR;
+let files;
+try {
+  files = await readdir(dir);
+} catch {
+  console.error(`Hittar inte ${dir}. Kör skriptet från projektroten.`);
+  process.exit(2);
+}
+
+const changed = [];
+const skipped = [];
+
+for (const f of files) {
+  if (!/\.mdx?$/.test(f)) continue;
+
+  const path = join(dir, f);
+  const text = await readFile(path, 'utf8');
+  const fm = frontmatterBlock(text);
+  if (!fm) continue;
+
+  const merchant = readField(fm, 'merchant');
+  if (!merchant || !MERCHANTS.has(merchant)) continue;
+
+  const slug = readField(fm, 'slug') || f;
+  const affiliateUrl = readField(fm, 'affiliateUrl');
+  if (!affiliateUrl) continue;
+
+  const target = normUrl(productUrlFrom(affiliateUrl));
+  const ordinarie = target ? feed.get(target) : undefined;
+  if (ordinarie === undefined) continue;
+
+  const current = Number(readField(fm, 'price'));
+  if (!Number.isFinite(current) || current === ordinarie) continue;
+
+  // Raden måste finnas exakt en gång i frontmatterblocket.
+  const lineRe = new RegExp(`^price:\\s*${current}\\s*$`, 'gm');
+  const hits = fm.match(lineRe);
+  if (!hits || hits.length !== 1) {
+    skipped.push({ slug, reason: `price: ${current} förekommer ${hits ? hits.length : 0} gånger i frontmatter` });
+    continue;
+  }
+
+  const newFm = fm.replace(new RegExp(`^price:\\s*${current}\\s*$`, 'm'), `price: ${ordinarie}`);
+  const newText = text.replace(`---\n${fm}\n---`, `---\n${newFm}\n---`);
+
+  if (newText === text) {
+    skipped.push({ slug, reason: 'kunde inte byta ut raden, frontmatter oväntat formaterad' });
+    continue;
+  }
+
+  changed.push({ slug, file: f, from: current, to: ordinarie });
+  if (APPLY) await writeFile(path, newText, 'utf8');
+}
+
+console.log(`\nReservpriser mot ordinarie pris i feeden${APPLY ? '' : ' (torrkörning)'}\n`);
+
+if (changed.length === 0) {
+  console.log('Inget att rätta.\n');
+} else {
+  for (const c of changed.sort((a, b) => a.slug.localeCompare(b.slug, 'sv'))) {
+    const diff = Math.round(((c.to - c.from) / c.from) * 100);
+    console.log(`  ${c.slug.padEnd(34)} ${c.from} -> ${c.to} kr (${diff > 0 ? '+' : ''}${diff} %)`);
+  }
+  console.log(`\n${changed.length} filer ${APPLY ? 'rättade' : 'skulle rättas'}`);
+}
+
+if (skipped.length > 0) {
+  console.log('\nHOPPADE ÖVER');
+  for (const s of skipped) console.log(`  ${s.slug.padEnd(34)} ${s.reason}`);
+}
+
+if (!APPLY && changed.length > 0) {
+  console.log('\nKör om med --apply för att skriva filerna.');
+}
+
+console.log('');
+```
+
 ## .github/workflows/daily-rebuild.yml
 ```
 name: Daglig ombyggnad (SMHI)
@@ -37777,4 +40539,44 @@ jobs:
     steps:
       - name: Anropa Vercel deploy hook
         run: curl -fsS -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
+
+  # Eget jobb, inte ett steg i trigger. Valideringen får aldrig hindra den
+  # dagliga ombyggnaden: sajten behöver färska priser även en dag då en länk
+  # är trasig. Jobben körs därför parallellt och oberoende.
+  validera-feed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # validate-feed.mjs har inga beroenden, så npm install behövs inte.
+      - name: Kontrollera priser och länkar mot Adtractions feeds
+        env:
+          ADTRACTION_FEED_URL_FISKEONLINE: ${{ secrets.ADTRACTION_FEED_URL_FISKEONLINE }}
+          ADTRACTION_FEED_URL_OUTL1: ${{ secrets.ADTRACTION_FEED_URL_OUTL1 }}
+        run: |
+          set +e
+          node validate-feed.mjs --strict > /tmp/feedrapport.txt 2>&1
+          status=$?
+          set -e
+
+          # Rapporten skrivs till jobbsammanfattningen, inte bara till loggen.
+          # Varningar som bara syns i en loggfil läses aldrig.
+          {
+            echo '## Feedvalidering'
+            echo ''
+            echo '```'
+            cat /tmp/feedrapport.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          cat /tmp/feedrapport.txt
+
+          # --strict fälls bara av trasiga länkar och pris som inte är tal.
+          # Kampanjer, slutsålda produkter och prisavvikelser ger varning och
+          # syns i sammanfattningen utan att fälla körningen.
+          exit $status
 ```
