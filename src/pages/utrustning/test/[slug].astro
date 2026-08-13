@@ -1,6 +1,27 @@
 ---
+/**
+ * utrustning/test/[slug].astro
+ *
+ * Produktsida med köpbox, betygsredovisning och redaktionellt innehåll.
+ *
+ * PRISET HÄMTAS VID BYGGTID
+ *
+ * Samma modell som AffiliateCard. price i frontmatter är reservvärde, aktuellt
+ * pris slås upp i Adtractions produktfeed via affiliateUrl (src/lib/feed.ts).
+ *
+ * Priset i productSchema måste följa det synliga priset. Säger strukturerad
+ * data ett pris och sidan ett annat flaggar Google avvikelsen, och läsaren
+ * möter fel siffra i sökresultatet. Vid kampanj är det kampanjpriset som
+ * gäller i båda.
+ *
+ * availability utgår ur schemat när produkten saknas i feeden. Feeden
+ * innehåller bara produkter i lager, men att därav påstå OutOfStock vore att
+ * dra en slutsats vi inte kan belägga, och att som tidigare alltid påstå
+ * InStock vore direkt fel. Utelämnat fält är det ärliga svaret.
+ */
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getCollection, render } from 'astro:content';
+import { getFeedPrice, formatFetchedAt } from '../../../lib/feed';
 
 export async function getStaticPaths() {
   const reviews = await getCollection('gear-reviews');
@@ -19,11 +40,51 @@ const related = allReviews
   .filter((x) => x.data.category === r.category && x.data.slug !== r.slug)
   .slice(0, 3);
 
-const priceFormatted = new Intl.NumberFormat('sv-SE', {
-  style: 'currency',
-  currency: 'SEK',
-  maximumFractionDigits: 0,
-}).format(r.price);
+const kr = (v: number) =>
+  new Intl.NumberFormat('sv-SE', {
+    style: 'currency',
+    currency: 'SEK',
+    maximumFractionDigits: 0,
+  }).format(v);
+
+// ---------------------------------------------------------------------------
+// Pris från feeden, med frontmatter som reserv
+// ---------------------------------------------------------------------------
+
+const feed = await getFeedPrice(r.affiliateUrl);
+
+const onSale = feed !== null && feed.salePrice !== null && feed.salePrice < feed.price;
+const shownPrice = onSale ? feed!.salePrice! : (feed?.price ?? r.price);
+const strikePrice = onSale ? feed!.price : null;
+const fetchedLabel = feed ? formatFetchedAt(feed.fetchedAt) : '';
+
+// Relaterade produkter har egna priser och slås upp var för sig.
+// Feeden hämtas ändå bara en gång per bygge, uppslagen går mot samma karta.
+const relatedWithPrice = await Promise.all(
+  related.map(async (rel) => {
+    const rf = await getFeedPrice(rel.data.affiliateUrl);
+    const sale = rf !== null && rf.salePrice !== null && rf.salePrice < rf.price;
+    return {
+      data: rel.data,
+      price: sale ? rf!.salePrice! : (rf?.price ?? rel.data.price),
+    };
+  })
+);
+
+const offer: Record<string, unknown> = {
+  '@type': 'Offer',
+  price: shownPrice,
+  priceCurrency: 'SEK',
+  url: `https://stromkast.se/utrustning/test/${r.slug}/`,
+  seller: { '@type': 'Organization', name: r.merchant },
+};
+
+// Sätts bara när feeden faktiskt uttalar sig om lagerstatus.
+if (feed?.availability === 'in_stock') {
+  offer.availability = 'https://schema.org/InStock';
+} else if (feed?.availability === 'out_of_stock') {
+  offer.availability = 'https://schema.org/OutOfStock';
+}
 
 const productSchema = {
   '@context': 'https://schema.org',
@@ -32,14 +93,7 @@ const productSchema = {
   description: r.description,
   brand: { '@type': 'Brand', name: r.brand },
   image: `https://stromkast.se${r.heroImage}`,
-  offers: {
-    '@type': 'Offer',
-    price: r.price,
-    priceCurrency: 'SEK',
-    availability: 'https://schema.org/InStock',
-    url: `https://stromkast.se/utrustning/test/${r.slug}/`,
-    seller: { '@type': 'Organization', name: r.merchant },
-  },
+  offers: offer,
   aggregateRating: {
     '@type': 'AggregateRating',
     ratingValue: r.rating,
@@ -120,8 +174,17 @@ const stars = Math.round(r.rating);
               <span class="text-stone text-sm">/ 5</span>
             </div>
 
-            <p class="text-3xl font-bold text-deep mb-1">{priceFormatted}</p>
-            <p class="text-stone text-sm mb-5">{r.merchant}</p>
+            <p class="text-3xl font-bold text-deep mb-1 leading-tight">
+              {kr(shownPrice)}
+              {strikePrice !== null && (
+                <span class="ml-2 text-base font-normal text-stone line-through whitespace-nowrap">
+                  <span class="sr-only">Ordinarie pris </span>{kr(strikePrice)}
+                </span>
+              )}
+            </p>
+            <p class="text-stone text-sm mb-5">
+              {r.merchant}{fetchedLabel && `, pris hämtat ${fetchedLabel}`}
+            </p>
 
             <a
               href={r.affiliateUrl || '#'}
@@ -227,11 +290,11 @@ const stars = Math.round(r.rating);
         </div>
 
         <!-- Related products -->
-        {related.length > 0 && (
+        {relatedWithPrice.length > 0 && (
           <div>
             <h2 class="font-display text-xl font-bold text-deep mb-5">Fler alternativ i kategorin</h2>
             <div class="space-y-3">
-              {related.map((rel) => (
+              {relatedWithPrice.map((rel) => (
                 <a
                   href={`/utrustning/test/${rel.data.slug}/`}
                   class="group flex items-center gap-4 bg-white border border-mist rounded-xl p-4 hover:border-pine/30 hover:shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
@@ -248,9 +311,7 @@ const stars = Math.round(r.rating);
                   <div class="flex-1 min-w-0">
                     <p class="text-xs text-stone font-medium">{rel.data.brand}</p>
                     <p class="font-semibold text-deep text-sm group-hover:text-pine transition-colors truncate">{rel.data.title}</p>
-                    <p class="text-deep text-sm font-bold mt-0.5">
-                      {new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK', maximumFractionDigits: 0 }).format(rel.data.price)}
-                    </p>
+                    <p class="text-deep text-sm font-bold mt-0.5">{kr(rel.price)}</p>
                   </div>
                   <svg class="text-stone/40 group-hover:text-pine transition-colors shrink-0" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                     <path d="M5 8h6M8 5l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>

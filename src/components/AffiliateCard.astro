@@ -1,4 +1,24 @@
 ---
+/**
+ * AffiliateCard.astro
+ *
+ * Produktkort med pris, betyg och affiliate-länk.
+ *
+ * PRISET HÄMTAS VID BYGGTID
+ *
+ * price i frontmatter är reservvärde, inte sanning. Aktuellt pris slås upp i
+ * Adtractions produktfeed via affiliateUrl (src/lib/feed.ts). Feeden ger både
+ * ordinarie och kampanjpris, och kortet visar båda när produkten är nedsatt.
+ *
+ * Saknas feeden, svarar den med fel, eller är produkten slut i lager och
+ * därmed borta ur feeden, faller kortet tillbaka på price i frontmatter. Då
+ * visas inget hämtningsdatum, eftersom vi inte vet när priset senast stämde.
+ *
+ * Hämtningsdatumet är inte kosmetiskt. Ett pris som ändras utan att vi ser det
+ * måste kunna dateras av läsaren, annars påstår kortet mer än vi vet.
+ */
+import { getFeedPrice, formatFetchedAt } from '../lib/feed';
+
 interface Props {
   title: string;
   brand: string;
@@ -17,7 +37,22 @@ const { title, brand, price, rating, description, image, affiliateUrl, merchant,
 const reviewHref = slug ? `/utrustning/test/${slug}/` : null;
 
 const stars = Math.round(rating);
-const priceFormatted = new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK', maximumFractionDigits: 0 }).format(price);
+
+const kr = (v: number) =>
+  new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK', maximumFractionDigits: 0 }).format(v);
+
+const feed = await getFeedPrice(affiliateUrl);
+
+// Kampanj räknas bara när feeden faktiskt anger ett lägre pris än ordinarie.
+const onSale = feed !== null && feed.salePrice !== null && feed.salePrice < feed.price;
+
+// Det pris läsaren betalar i dag. Utan feed är det reservvärdet.
+const shownPrice = onSale ? feed!.salePrice! : (feed?.price ?? price);
+
+// Överstruket ordinarie visas bara vid kampanj.
+const strikePrice = onSale ? feed!.price : null;
+
+const fetchedLabel = feed ? formatFetchedAt(feed.fetchedAt) : '';
 ---
 
 <article class={`relative bg-white rounded-2xl overflow-hidden border ${featured ? 'border-rust shadow-lg shadow-rust/10' : 'border-mist'} transition-shadow hover:shadow-md`}>
@@ -64,16 +99,25 @@ const priceFormatted = new Intl.NumberFormat('sv-SE', { style: 'currency', curre
 
     <p class="text-sm text-stone leading-relaxed mb-4">{description}</p>
 
-    <div class="flex items-center justify-between">
-      <div>
-        <p class="text-xl font-bold text-deep">{priceFormatted}</p>
-        <p class="text-xs text-stone">{merchant}</p>
+    <div class="flex items-end justify-between gap-3">
+      <div class="min-w-0">
+        <p class="text-xl font-bold text-deep leading-tight">
+          {kr(shownPrice)}
+          {strikePrice !== null && (
+            <span class="ml-2 text-sm font-normal text-stone line-through whitespace-nowrap">
+              <span class="sr-only">Ordinarie pris </span>{kr(strikePrice)}
+            </span>
+          )}
+        </p>
+        <p class="text-xs text-stone mt-0.5">
+          {merchant}{fetchedLabel && `, pris hämtat ${fetchedLabel}`}
+        </p>
       </div>
       <a
         href={affiliateUrl || '#'}
         target="_blank"
         rel="noopener noreferrer sponsored"
-        class="inline-flex items-center gap-1.5 bg-pine text-white text-sm font-semibold px-4 py-2.5 rounded-full hover:bg-deep transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
+        class="shrink-0 inline-flex items-center gap-1.5 bg-pine text-white text-sm font-semibold px-4 py-2.5 rounded-full hover:bg-deep transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
         data-affiliate-merchant={merchant}
         data-affiliate-product={title}
       >
