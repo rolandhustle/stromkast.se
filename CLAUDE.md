@@ -32,11 +32,25 @@ Affiliate-transparens är viktigt och ska synas i komponenter och sidmallar.
 - **SMHI-data hämtas vid byggtid** i `index.astro`, `forhallanden/index.astro`
   och `destinationer/[slug].astro` via `src/lib/smhi.ts`. Datan uppdateras
   alltså bara när sajten byggs om, inte vid sidladdning.
+- **Produktpriser hämtas vid byggtid** ur Adtractions produktfeeds via
+  `src/lib/feed.ts`, anropad från `AffiliateCard.astro` och
+  `utrustning/test/[slug].astro`. Samma sak gäller här: priset uppdateras bara
+  vid ombyggnad, vilket den dagliga cron-körningen sköter.
+  - Miljövariabler: `ADTRACTION_FEED_URL_FISKEONLINE` och
+    `ADTRACTION_FEED_URL_OUTL1`. Lokalt i `.env`, i Vercel under Settings ->
+    Environment Variables (Production och Preview), i GitHub som Actions-secrets.
+    Aldrig i klartext i repot.
+  - Saknas en variabel, svarar Adtraction med fel, eller finns produkten inte i
+    feeden faller sidan tillbaka på `price` i frontmatter. Bygget går alltid
+    igenom. `[feed]`-rader i byggloggen visar hur många produkter som lästes.
 - **Daglig automatisk ombyggnad** håller väderdatan färsk:
   - Schemalagt GitHub Actions-workflow: `.github/workflows/daily-rebuild.yml`,
     schema `0 5 * * *` (UTC = 06–07 svensk tid). `workflow_dispatch` finns
     för manuell körning.
   - Workflowet POST:ar mot en Vercel deploy hook, vilket startar ett nytt bygge.
+  - Ett andra jobb, `validera-feed`, kör `validate-feed.mjs --strict` och skriver
+    rapporten till jobbsammanfattningen. Jobben är oberoende: valideringen får
+    aldrig hindra den dagliga ombyggnaden.
   - Deploy hook skapas i Vercel: Settings -> Git -> Deploy Hooks, branch `main`.
   - Hook-URL:en lagras som GitHub-secret `VERCEL_DEPLOY_HOOK`
     (repo -> Settings -> Secrets and variables -> Actions). Aldrig i klartext i repot.
@@ -135,7 +149,8 @@ Gemensamma hero-fält på destinations, species och gear-categories:
 title, slug, description, heroImage,
 brand: string,
 category: string,          // matchar slug i gear-categories, gemena bokstäver
-price: number,             // SEK, statiskt (rek. cirkapris, ej reapris)
+price: number,             // SEK, RESERVVÄRDE. Ordinarie cirkapris, aldrig reapris.
+                           // Visas bara när feeden saknar produkten. Se feed.ts.
 rating: number (0–5),      // redaktionellt betyg, ej eget test
 pros: string[],
 cons: string[],
@@ -188,7 +203,11 @@ OBS: `category`-fältet i en gear-review MÅSTE matcha kategorins slug exakt och
 
 ---
 
-## Gear-reviews (50 st)
+## Gear-reviews (94 st)
+
+Tabellerna nedan är ett urval och inte fullständiga. `claude-context.md` är
+auktoritativ för vilka produkter som faktiskt finns, och `ls src/content/gear-reviews/`
+ger det snabba svaret.
 
 ### Spön (category: spon, alla quizEnabled: true)
 
@@ -325,6 +344,12 @@ artchips (FiskeKarta), samt påverkar destinationssidornas poäng via `smhi.ts`.
 
 Betyget är redaktionellt. Disclaimer visas automatiskt via [slug].astro.
 CTA-texten är "Se pris hos FiskeOnline", aldrig ett fast pris.
+
+**Priset kommer ur produktfeeden, inte ur frontmatter.** Är produkten nedsatt
+visas kampanjpriset stort med ordinarie överstruket bredvid, plus raden
+"pris hämtat [datum]". Utan feedträff visas `price` från frontmatter, och då
+utan datum eftersom vi inte vet när det senast stämde. Priset i `productSchema`
+följer alltid det synliga priset.
 Produktbilder ligger i `public/images/gear/[slug].jpg`.
 Kategorier med en relaterad guide länkar via `guideUrl` (linguiden, spöguiden).
 
@@ -332,6 +357,9 @@ Kategorier med en relaterad guide länkar via `guideUrl` (linguiden, spöguiden)
 
 **Spön:** budget under 800 kr, mellanklass 800–1 800 kr, premium 1 800–3 500 kr
 **Haspelrullar:** budget under 600 kr, mellanklass 600–1 500 kr, premium 1 500–3 500 kr
+
+`priceRange` sätts på ordinarie pris, aldrig på ett kampanjpris. Ett premiumspö
+på rea ska inte glida ner i mellanklass så länge kampanjen pågår.
 
 ### Quiz (SpoQuiz)
 
@@ -348,17 +376,53 @@ rullväljare (quiz för haspelrullar, fas 2).
 
 **Nätverk:** Adtraction (tidigare AdRecord, fusionerade maj 2026). Även CJ Affiliate och Awin.
 **Godkända program:** FiskeOnline, Frilufts & Vildmark, Outdoorexperten, Scandinavian Outdoor, Outl1, Tacticalstore, Goingoutdoor
-**FiskeOnline provision:** 11% per order, Fair Tracking
-**FiskeOnline baslänk:** `https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1`
-**Länkformat:** Baslänk + `&url=` + produktens URL på FiskeOnline
+**Länkformat:** Baslänk + `&url=` + produktens URL hos butiken
+
+### FiskeOnline
+
+**Provision:** 11 % per order, Fair Tracking. Cookietid 45 dagar.
+**Baslänk:** `https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1`
 
 ```
 https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/[produkt-slug]/
 ```
 
 OBS: FiskeOnline URL-sluggar använder bindestreck för decimaler, t.ex. `0-148mm` inte `0148mm`.
+Med produktfeeden är det problemet borta, eftersom feeden ger den exakta URL:en.
+
+**Provisionen sjunker till 4 % för cashback- och kupongsajter.** Bygg ingen
+rabattkodssida utan att först ha rett ut om det omklassar hela kanalen.
+
+**FiskeOnline finns även i Addrevenue** med identiska villkor, 11 % och 45 dagar.
+Adtraction används ändå, eftersom spårningen är etablerad och en flytt inte ger
+något mätbart. Se BESLUT.md.
+
+### Outl1
+
+**Baslänk:** `https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1`
+
+Produkt-URL:erna i Outl1:s feed har ett internt ID sist, `?var=NNNNN`. Våra
+publicerade länkar ska inte ha det. Matchningen ignorerar querystring.
+
+### Produktfeeds
+
+Både FiskeOnline och Outl1 har produktfeed i Adtraction, i Google Shopping-format
+(XML). Feeden hämtas vid byggtid av `src/lib/feed.ts` och används för priser.
+Feed-URL:en kopieras från Adtraction under respektive annonsör.
+
+**Annons-ID skiljer sig mellan publicerade länkar och feedens länkar.** Feeden
+använder `1954031991` för FiskeOnline och `1728546061` för Outl1, medan vi
+publicerar `1954031990` respektive `1728546059`. Kopiera inte in feedens länkar
+rakt av. Frågan är obekräftad hos Adtraction, se BESLUT.md.
+
+ID-mappning i Adtractions gränssnitt för FiskeOnline: Brand ID `1954031989`,
+Brand AD ID `1954031990`, Selected channel ID `2072765905`. Det är Brand AD ID
+plus kanal-ID som används i baslänken, inte Brand ID.
+
+**Fritid & Vildmark har ingen feed.** De produkterna visar `price` från
+frontmatter och kontrolleras inte av `validate-feed.mjs`.
+
 Verifiera alltid att affiliate-URL:er returnerar 200 med URL-testskriptet nedan.
-FiskeOnline har ingen produktfeed i Adtraction. Länkar byggs manuellt eller via add-product.py.
 
 ### Affiliate-disclosure
 - "*Affiliatelänk. Vi tjänar en provision utan kostnad för dig.*" i AffiliateCard
@@ -373,6 +437,33 @@ FiskeOnline har ingen produktfeed i Adtraction. Länkar byggs manuellt eller via
 Validerar innehåll och körs som CI-kontroll. Regler: slug-korsreferenser, avslutande slash på
 interna länkar, kategori-/slug-skiftläge, samt att gear-review `category` matchar en
 gear-kategoris slug exakt. Stämmer även av språkregler (em-streck, en-streck före gemen, m.m.).
+
+### validate-feed.mjs
+Kontrollerar `gear-reviews` mot Adtractions produktfeeds. Kräver miljövariablerna,
+kör som `node --env-file=.env validate-feed.mjs`. Rapporterar avvikelser, patchar
+aldrig innehåll.
+
+Fel är bara sådant som gör en sida trasig: saknad eller felformaterad
+`affiliateUrl`, och `price` som inte är ett tal. Bara dessa fäller `--strict`.
+Prisavvikelser, slutsålda produkter och fel annons-ID ger varning. Avvikelser
+under 10 procent räknas bara samman. Flaggor: `--rea` listar pågående kampanjer,
+`--json` ger maskinläsbar utdata, `--file` plus `--merchant` läser en enskild
+feed från fil.
+
+Körs även dagligen i `daily-rebuild.yml`.
+
+### fix-fallback-prices.mjs
+Engångsverktyg som skriver om `price` i frontmatter till feedens ordinarie pris.
+Torrkörning som standard, `--apply` skriver filerna. Byter bara ut raden när
+nuvarande värde är exakt det förväntade.
+
+Används när reservvärdena hamnat på reanivå, inte som löpande underhåll. Löpande
+avvikelser bedöms redaktionellt utifrån `validate-feed.mjs`.
+
+**Matchningslogiken är kopierad mellan `feed.ts`, `validate-feed.mjs` och
+`fix-fallback-prices.mjs`.** Ändras normaliseringen i en av dem måste de andra
+följa med. När det missades en gång rapporterade skriptet tyst noll träffar,
+vilket såg ut som att allt stämde.
 
 ### BESLUT.md
 Beslutsregister. Innehåller ingen kod och inget innehåll, bara de beslut som inte är
@@ -455,9 +546,10 @@ portabel till en annan marknad även när talen är lokala.
 1. Kör `python3 add-product.py` och fyll i info
 2. Spara produktbild som `public/images/gear/[slug].jpg`
 3. Verifiera med URL-testskriptet
-4. `npm run check` för innehållsvalidering
-5. `rm -rf .astro && npm run dev` för att rensa cache
-6. `git status` och `git add` för nya filer, sedan `git commit`
+4. `node --env-file=.env validate-feed.mjs` för att kontrollera pris och länk mot feeden
+5. `npm run check` för innehållsvalidering
+6. `rm -rf .astro && npm run dev` för att rensa cache
+7. `git status` och `git add` för nya filer, sedan `git commit`
 
 ---
 
