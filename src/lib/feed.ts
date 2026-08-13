@@ -1,41 +1,68 @@
 /**
  * src/lib/feed.ts
  *
- * Hämtar FiskeOnlines produktfeed från Adtraction vid byggtid och slår upp
- * aktuellt pris per produkt. Används av AffiliateCard via produktens
+ * Hämtar Adtractions produktfeeds vid byggtid och slår upp aktuellt pris per
+ * produkt. Används av AffiliateCard och produktsidan via produktens
  * affiliateUrl.
  *
- * Format: Google Shopping RSS (XML) med g:-namnrymd. Feeden ligger på ca 13 MB
- * och 6 400 produkter, och hämtas därför exakt en gång per bygge.
+ * Format: Google Shopping RSS (XML) med g:-namnrymd. Adtraction genererar
+ * samma struktur för alla butiker.
  *
  * VARFÖR BYGGTID OCH INTE FRONTMATTER
  *
- * Priset i gear-reviews är ett statiskt tal som åldras. FiskeOnline har haft
- * kampanj på ungefär hälften av de produkter vi skriver om, vilket gör att ett
- * handinmatat pris nästan alltid är fel. Feeden hämtas i stället vid varje
- * bygge, och med den dagliga cron-körningen blir priset aldrig äldre än ett
- * dygn. Datumet exponeras så att kortet kan visa när priset hämtades.
+ * price i gear-reviews är ett statiskt tal som åldras. FiskeOnline har haft
+ * kampanj på ungefär hälften av de produkter vi skriver om, och Outl1 kör
+ * outletkampanjer i perioder. Ett handinmatat pris är därför nästan alltid
+ * fel. Feeden hämtas i stället vid varje bygge, och med den dagliga
+ * cron-körningen blir priset aldrig äldre än ett dygn.
+ *
+ * VARFÖR ETT GEMENSAMT UPPSLAG
+ *
+ * Alla feeds slås ihop till en karta i stället för att väljas utifrån
+ * merchant. Produkt-URL:erna skiljer sig redan åt på domännivå, så nycklarna
+ * kan inte krocka mellan butiker. Det gör att uppslaget inte behöver veta
+ * vilken butik det gäller, och att merchant i frontmatter aldrig kan hamna i
+ * otakt med affiliateUrl.
  *
  * FALLBACK
  *
- * Feeden får aldrig fälla ett bygge. Saknas ADTRACTION_FEED_URL, svarar
- * Adtraction med fel, eller finns produkten inte i feeden, returneras null och
- * anropande komponent faller tillbaka på price i frontmatter. Frontmatter ska
- * därför alltid innehålla ordinarie pris, aldrig ett reapris.
+ * Feeden får aldrig fälla ett bygge. Saknas miljövariabeln, svarar Adtraction
+ * med fel, eller finns produkten inte i feeden, returneras null och anropande
+ * komponent faller tillbaka på price i frontmatter. Frontmatter ska därför
+ * alltid innehålla ordinarie pris, aldrig ett reapris.
  *
- * VARFÖR PRODUKT-URL SOM NYCKEL
+ * Butiker utan feed, i dag Fritid och Vildmark, hanteras av samma mekanism och
+ * kräver ingen egen kod.
  *
- * Feedens <link> är en spårningslänk med ett annat annons-ID än det vi
- * publicerar, så länkarna kan inte jämföras rakt av. Produktens rena URL ligger
- * i url-parametern i båda, och den är stabil. Se BESLUT.md om annons-ID.
+ * VARFÖR QUERYSTRING STRIPPAS VID MATCHNING
+ *
+ * Outl1 lägger ett internt ID sist i varje produkt-URL, till exempel
+ * ?var=14174, medan våra publicerade länkar saknar det. Utan strippning
+ * matchar ingen Outl1-produkt. Kontrollerat 2026-08-13: feeden innehöll 2 798
+ * produkter fördelade på 2 798 unika produktsidor, alltså är parametern ett
+ * internt ID och inte en variantväljare.
+ *
+ * Strippningen är generell och gäller alla butiker, eftersom querystring i
+ * produkt-URL:er nästan alltid är spårning eller interna ID:n. Antagandet
+ * bryter om en ny butik använder query för att skilja produkter åt. Därför
+ * varnar modulen vid bygget om två produkter i samma feed normaliserar till
+ * samma nyckel. Se BESLUT.md.
  */
 
-// import.meta.env finns bara i Astro. Optional chaining gör att modulen även
-// kan importeras av fristående skript i projektroten utan att krascha.
-const FEED_URL =
-  import.meta.env?.ADTRACTION_FEED_URL ?? process.env.ADTRACTION_FEED_URL ?? '';
+/** En butik och miljövariabeln som pekar ut dess feed. */
+interface FeedSource {
+  name: string;
+  env: string;
+  /** Äldre variabelnamn som fortfarande accepteras. */
+  legacyEnv?: string;
+}
 
-/** 13 MB över nätet behöver mer marginal än SMHI:s JSON-svar. */
+const SOURCES: FeedSource[] = [
+  { name: 'FiskeOnline', env: 'ADTRACTION_FEED_URL_FISKEONLINE', legacyEnv: 'ADTRACTION_FEED_URL' },
+  { name: 'Outl1', env: 'ADTRACTION_FEED_URL_OUTL1' },
+];
+
+/** FiskeOnlines feed ligger på ca 13 MB och behöver marginal. */
 const TIMEOUT_MS = 30_000;
 
 export interface FeedPrice {
@@ -47,6 +74,8 @@ export interface FeedPrice {
   label: string | null;
   /** in_stock, out_of_stock eller tomt när feeden inte anger något. */
   availability: string;
+  /** Butiken produkten kom från. */
+  merchant: string;
   /** ISO-datum för när feeden hämtades. Visas som "hämtat 13 augusti". */
   fetchedAt: string;
 }
@@ -73,7 +102,7 @@ function tag(block: string, name: string): string {
   return cdata ? cdata[1].trim() : decode(m[1]).trim();
 }
 
-/** "389 SEK" -> 389. Null när fältet saknas eller inte går att tolka. */
+/** "389 SEK" -> 389. Null när fältet saknas, är tomt eller inte går att tolka. */
 function money(raw: string): number | null {
   if (!raw) return null;
   const m = raw.replace(/\u00a0/g, ' ').match(/([\d\s.,]+)/);
@@ -83,8 +112,8 @@ function money(raw: string): number | null {
 }
 
 /**
- * Produktens rena URL ur en Adtraction-länk. Allt efter url= är målet,
- * och parametern ligger sist i både feedens och våra egna länkar.
+ * Produktens rena URL ur en Adtraction-länk. Allt efter url= är målet, och
+ * parametern ligger sist i både feedens och våra egna länkar.
  */
 function productUrlFrom(trackingUrl: string): string | null {
   if (!trackingUrl) return null;
@@ -93,40 +122,60 @@ function productUrlFrom(trackingUrl: string): string | null {
   return normalise(decode(trackingUrl.slice(i + 5)));
 }
 
-/** Gemener och utan avslutande slash, så att små skillnader inte missar. */
+/** Gemener, utan querystring, fragment eller avslutande slash. */
 function normalise(url: string): string {
-  return url.trim().toLowerCase().replace(/\/+$/, '');
+  return url
+    .trim()
+    .toLowerCase()
+    .split('#')[0]
+    .split('?')[0]
+    .replace(/\/+$/, '');
 }
 
 // ---------------------------------------------------------------------------
 // Hämtning, en gång per bygge
 // ---------------------------------------------------------------------------
 
-let feedPromise: Promise<Map<string, FeedPrice>> | null = null;
+function urlFor(source: FeedSource): string {
+  // import.meta.env finns bara i Astro. Optional chaining gör att modulen även
+  // kan importeras av fristående skript i projektroten utan att krascha.
+  const env = import.meta.env as Record<string, string | undefined> | undefined;
+  const proc = process.env as Record<string, string | undefined>;
+  return (
+    env?.[source.env] ??
+    proc[source.env] ??
+    (source.legacyEnv ? env?.[source.legacyEnv] ?? proc[source.legacyEnv] : undefined) ??
+    ''
+  );
+}
 
-async function loadFeed(): Promise<Map<string, FeedPrice>> {
-  const index = new Map<string, FeedPrice>();
-
-  if (!FEED_URL) {
-    console.warn('[feed] ADTRACTION_FEED_URL saknas, priser faller tillbaka på frontmatter');
-    return index;
+async function loadSource(
+  source: FeedSource,
+  index: Map<string, FeedPrice>,
+  fetchedAt: string
+): Promise<void> {
+  const url = urlFor(source);
+  if (!url) {
+    console.warn(`[feed] ${source.name}: ${source.env} saknas, priser faller tillbaka på frontmatter`);
+    return;
   }
-
-  const fetchedAt = new Date().toISOString().slice(0, 10);
 
   let xml: string;
   try {
-    const res = await fetch(FEED_URL, { signal: AbortSignal.timeout(TIMEOUT_MS) });
+    const res = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
     if (!res.ok) {
-      console.warn(`[feed] Adtraction svarade ${res.status}, priser faller tillbaka på frontmatter`);
-      return index;
+      console.warn(`[feed] ${source.name}: Adtraction svarade ${res.status}, priser faller tillbaka på frontmatter`);
+      return;
     }
     xml = await res.text();
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'okänt fel';
-    console.warn(`[feed] hämtning misslyckades (${msg}), priser faller tillbaka på frontmatter`);
-    return index;
+    console.warn(`[feed] ${source.name}: hämtning misslyckades (${msg}), priser faller tillbaka på frontmatter`);
+    return;
   }
+
+  let added = 0;
+  let collisions = 0;
 
   const re = /<item[\s>][\s\S]*?<\/item>/gi;
   let m: RegExpExecArray | null;
@@ -138,27 +187,56 @@ async function loadFeed(): Promise<Map<string, FeedPrice>> {
     const price = money(tag(block, 'g:price'));
     if (price === null) continue;
 
+    if (index.has(key)) {
+      // Två produkter delar nyckel efter normalisering. Om butiken använder
+      // querystring för att skilja produkter åt håller inte antagandet ovan.
+      collisions++;
+      if (collisions <= 3) {
+        console.warn(`[feed] ${source.name}: två produkter delar nyckel efter normalisering: ${key}`);
+      }
+      continue;
+    }
+
     index.set(key, {
       price,
       salePrice: money(tag(block, 'g:sale_price')),
       label: tag(block, 'g:custom_label_1') || null,
       availability: tag(block, 'g:availability'),
+      merchant: source.name,
       fetchedAt,
     });
+    added++;
   }
 
-  if (index.size === 0) {
-    console.warn('[feed] inga produkter kunde läsas ur feeden, kontrollera formatet');
+  if (collisions > 3) {
+    console.warn(`[feed] ${source.name}: ytterligare ${collisions - 3} nyckelkrockar, se BESLUT.md om querystring`);
+  }
+
+  if (added === 0) {
+    console.warn(`[feed] ${source.name}: inga produkter kunde läsas, kontrollera formatet`);
   } else {
-    console.log(`[feed] ${index.size} produkter inlästa från Adtraction`);
+    console.log(`[feed] ${source.name}: ${added} produkter inlästa`);
+  }
+}
+
+let feedPromise: Promise<Map<string, FeedPrice>> | null = null;
+
+async function loadFeeds(): Promise<Map<string, FeedPrice>> {
+  const index = new Map<string, FeedPrice>();
+  const fetchedAt = new Date().toISOString().slice(0, 10);
+
+  // Sekventiellt, inte parallellt. Feedsen är stora och ordningen gör
+  // varningar om nyckelkrockar läsbara per butik.
+  for (const source of SOURCES) {
+    await loadSource(source, index, fetchedAt);
   }
 
   return index;
 }
 
-/** Feeden hämtas en gång per bygge, oavsett hur många sidor som frågar. */
-function getFeed(): Promise<Map<string, FeedPrice>> {
-  if (!feedPromise) feedPromise = loadFeed();
+/** Feedsen hämtas en gång per bygge, oavsett hur många sidor som frågar. */
+function getFeeds(): Promise<Map<string, FeedPrice>> {
+  if (!feedPromise) feedPromise = loadFeeds();
   return feedPromise;
 }
 
@@ -175,8 +253,8 @@ export async function getFeedPrice(affiliateUrl: string | undefined): Promise<Fe
   if (!affiliateUrl) return null;
   const key = productUrlFrom(affiliateUrl);
   if (!key) return null;
-  const feed = await getFeed();
-  return feed.get(key) ?? null;
+  const feeds = await getFeeds();
+  return feeds.get(key) ?? null;
 }
 
 /** "1 299 kr" */
