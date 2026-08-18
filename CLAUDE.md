@@ -382,6 +382,8 @@ rullväljare (quiz för haspelrullar, fas 2).
 
 **Provision:** 11 % per order, Fair Tracking. Cookietid 45 dagar.
 **Baslänk:** `https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1`
+**Tillåtet:** betald annonsering, sociala medier, e-post, kupong, cashback, CSS, retargeting.
+**Inte tillåtet:** annonser i sökmotorer.
 
 ```
 https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/[produkt-slug]/
@@ -400,9 +402,20 @@ något mätbart. Se BESLUT.md.
 ### Outl1
 
 **Baslänk:** `https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1`
+**Cookietid:** 30 dagar, alltså kortare än FiskeOnlines 45.
+**Tillåtet:** annonser i sociala medier, cashback, lojalitet.
+**Inte tillåtet:** rabattkoder, webbläsartillägg, CSS, retargeting, annonser i sökmotorer.
+
+Villkoren är strängare än FiskeOnlines på flera punkter. **Rabattkoder är helt
+förbjudna hos Outl1**, medan FiskeOnline tillåter dem mot lägre provision. En
+rabattkodssida skulle alltså bryta mot Outl1:s villkor rakt av, inte bara sänka
+ersättningen. CSS och retargeting är tillåtet hos FiskeOnline men inte här.
 
 Produkt-URL:erna i Outl1:s feed har ett internt ID sist, `?var=NNNNN`. Våra
 publicerade länkar ska inte ha det. Matchningen ignorerar querystring.
+
+ID-mappning: Brand ID `1728546056`, Brand AD ID `1728546059`, Selected channel ID
+`2072765905`. Samma mönster som FiskeOnline, alltså Brand AD ID i baslänken.
 
 ### Produktfeeds
 
