@@ -74,6 +74,11 @@ PRICE_THRESHOLDS = {
 
 TRACKING_PARAMS = ("gclid", "gbraid", "wbraid", "gad_source", "fbclid", "msclkid")
 
+# Adtractions gräns för egna parametervärden, plus tecken som är säkra i en
+# querystring utan kodning.
+MAX_SKU_LENGTH = 128
+SAFE_SKU = re.compile(r'^[A-Za-z0-9._-]+$')
+
 
 def load_env(path=".env"):
     """Läser .env utan att skriva över variabler som redan är satta."""
@@ -410,8 +415,6 @@ def main():
         if not yes(ask("Fortsätta ändå? (j/n)", "n")):
             sys.exit(0)
 
-    affiliate_url = f"{merchant['base']}&url={url}"
-
     # --- feeduppslag -------------------------------------------------------
 
     print(f"\nHämtar produktfeed för {merchant['name']}...")
@@ -438,6 +441,20 @@ def main():
             print("    kampanjpriset automatiskt så länge det gäller.")
         if product["gtin"]:
             print(f"    EAN: {product['gtin']}")
+
+    # cupa_sku måste ligga före &url=, eftersom Adtraction inte URL-kodar målet
+    # och allt efter &url= tolkas som produktens adress. Parametern ger
+    # konverteringsrapportering per produkt och fungerar med det vanliga
+    # annons-ID:t, bekräftat av Adtraction 2026-08-14.
+    sku = product["sku"] if product else None
+    if sku and (len(sku) > MAX_SKU_LENGTH or not SAFE_SKU.match(sku)):
+        print(f"  SKU {sku} kräver kodning eller är för långt, cupa_sku utelämnas.")
+        sku = None
+
+    if sku:
+        affiliate_url = f"{merchant['base']}&cupa_sku={sku}&url={url}"
+    else:
+        affiliate_url = f"{merchant['base']}&url={url}"
 
     categories = load_categories()
     category = ask_single("Kategori:", categories)

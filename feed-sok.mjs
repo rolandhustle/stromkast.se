@@ -62,6 +62,12 @@ const SOURCES = [
 const GEAR_DIR = 'src/content/gear-reviews';
 const IMAGES_DIR = 'public/images/gear';
 
+/** Adtractions gräns för egna parametervärden. */
+const MAX_SKU_LENGTH = 128;
+
+/** Tecken som är säkra i en querystring utan kodning. */
+const SAFE_SKU = /^[A-Za-z0-9._-]+$/;
+
 /* ---------- argument ---------- */
 
 const argv = process.argv.slice(2);
@@ -300,8 +306,16 @@ function printItem(item, status) {
   // Affiliatelänken byggs utan querystring, som de befintliga länkarna.
   // Feedens interna ID (?var= hos Outl1) behövs inte för att landa rätt och
   // Adtraction URL-kodar inte målet, så färre parametrar är säkrare.
+  //
+  // cupa_sku måste ligga före &url=, eftersom allt efter &url= tolkas som
+  // produktens adress. Parametern ger konverteringsrapportering per produkt.
   const target = item.rawUrl.split('?')[0];
-  console.log(`  affiliateUrl: ${item.base}&url=${target}`);
+  const sku = SAFE_SKU.test(item.sku) && item.sku.length <= MAX_SKU_LENGTH ? item.sku : null;
+  const tracking = sku ? `${item.base}&cupa_sku=${sku}` : item.base;
+  console.log(`  affiliateUrl: ${tracking}&url=${target}`);
+  if (!sku) {
+    console.log(`               (cupa_sku utelämnad, SKU "${item.sku}" kräver kodning eller är för långt)`);
+  }
   if (target !== item.rawUrl) {
     console.log(`               (${item.rawUrl.slice(target.length)} borttaget, som i befintliga länkar)`);
   }
