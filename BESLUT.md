@@ -268,6 +268,44 @@ Mönstren är heuristiska och därför varningar, inte fel. Prismönstret kräve
 
 ## Internlänkning och produktmodul
 
+### Betyget följer priset, med en liten premie för Shimano
+
+**Beslut.** Betyget på en ny produktsida sätts så att det passar in bland befintliga produkter i samma kategori. Regeln är härledd ur hur de tolv haspelrullarna faktiskt är satta i augusti 2026, inte beslutad i förväg.
+
+Skalan för haspelrullar: 399 kr ger 3,7, 549 kr ger 3,8, 599 kr ger 4,0, 1 199 kr ger 4,1, 1 599 kr ger 4,2 till 4,4, 1 669 kr ger 4,3, 2 149 kr ger 4,3, 2 799 kr ger 4,6, 3 199 kr ger 4,7 och 7 999 kr ger 5,0. Shimano ligger ungefär 0,1 över annat märke vid samma pris, vilket syns mellan Miravel på 4,4 och Inspira på 4,2 vid 1 599 kr.
+
+Shimano Sahara FJ 2500 fick 4,2 enligt regeln: samma pris som Ceymar HD på 4,1, plus Shimano-premien.
+
+**Skäl.** Betyg som inte hänger ihop inbördes är värdelösa. Utan en regel blir varje nytt betyg en isolerad gissning, och sidorna motsäger varandra över tid. Att härleda regeln ur befintliga sidor ger konsekvens utan att kräva att någon minns hur de tidigare sattes.
+
+**Förbehållet är att regeln i praktiken är en omskrivning av priset.** Ett betyg som bara upprepar prislappen tillför läsaren ingenting, eftersom priset redan står bredvid. Stella på 5,0 säger dessutom att rullen är felfri, vilket ingen produkt är. Disclaimern under betyget säger att det bygger på specifikationer, prisnivå och varumärkets rykte, och prisnivån dominerar helt.
+
+**Vad som skulle ändra det.** Att betyget ska säga något priset inte redan säger. Då krävs kriterier per kategori, exempelvis kullager, materialval och bromskraft i förhållande till pris, och en produkt måste kunna få lågt betyg trots högt pris. Så länge betyget följer priset är det ärligare att kalla det prisklass än betyg.
+
+---
+
+### Storleksvarianter får egna sidor, färgvarianter gör det inte
+
+**Beslut.** Rullar och spön i olika storlekar är egna produktsidor. Beten i olika färger är det inte.
+
+**Skäl.** En sökning på jigg i FiskeOnlines feed gav 103 träffar, varav ett tjugotal var Rapala Jigging Rap i tre längder och lika många färger. En sida per färg vore tunt duplicerat innehåll av precis det slag som skadar topikal auktoritet.
+
+Storlek är däremot produktrelevant. Shimano Sahara i 1000 är en abborrulle och i 4000 en gäddrulle. Slås de ihop går det inte längre att sätta `targetSpecies` per storlek, och GearModul bygger hela sin matchning på det fältet. En familjesida måste dessutom peka sin affiliatelänk på en enda variant, vilket är ett godtyckligt val som feeden inte kan hjälpa till med.
+
+**Vad som skulle ändra det.** Att en storleksserie är så smal att storlekarna delar art och teknik. Då är familjesidan bättre, och storlekarna nämns i texten.
+
+---
+
+### Produktbilder hämtas ur feeden, inte manuellt
+
+**Beslut.** `node --env-file=.env feed-sok.mjs --bild slug=SKU` laddar ner produktbilden till `public/images/gear/<slug>.jpg`. Bilden sparas inte längre för hand från butikssidan.
+
+**Skäl.** Feedens `g:image_link` är butikens egen produktbild i full upplösning. Att hämta den programmatiskt tar bort ett manuellt steg, ger rätt filnamn direkt och undviker att fel bild sparas för fel produkt. Butiker utan feed, i dag Fritid och Vildmark, kräver fortfarande manuell hämtning.
+
+**Vad som skulle ändra det.** Att en butiks feedbilder håller för låg upplösning eller innehåller vattenstämplar. Kontrollera bilden efter hämtning första gången en ny butik läggs till.
+
+---
+
 ### Produktlänkning härleds ur data, kurateras inte manuellt
 
 **Beslut.** `GearModul.astro` renderar produktkort på art-, teknik- och destinationssidor genom att filtrera `gear-reviews` på `targetSpecies`, `techniques` och `waterType`. Den manuella listan (`gearRecs` på arter, `recommendedGear` på destinationer) är kvar men fungerar som override, inte som förstahandsval. Är den tom härleds produkterna.
@@ -457,6 +495,8 @@ Följande är **portabelt** och gäller oavsett land:
 - Utförda engångsskript flyttas ur projektroten. Ett migreringsskript som redan körts ser ut som ett verktyg, både för en människa som listar katalogen och i en aggregerad kontextfil.
 - En redaktionell regel som bara finns i ett dokument fångar ingenting i det som redan är publicerat. Regler som går att uttrycka som mönster hör hemma i innehållsvalideringen, annars gäller de bara för den som råkar läsa dokumentet.
 - En kalender eller modell som beskriver säsong ska inte tala om var arten finns. Det är två olika påståenden, och att blanda dem ger ett toppläge för fiske som inte existerar på platsen.
+- Betyg måste hänga ihop inbördes inom en kategori. Härled regeln ur befintliga sidor i stället för att gissa per produkt, och var vaken på om betyget bara upprepar priset.
+- Storleksvarianter av utrustning får egna sidor, färgvarianter av beten inte. Gränsen går vid om varianten byter målart eller teknik.
 - Matchningslogik som delas av flera skript måste hållas i takt. Vid införandet glömdes ett av tre skript och rapporterade tyst noll träffar, vilket såg ut som att allt stämde.
 
 Följande är **lokalt** och måste byggas om:
