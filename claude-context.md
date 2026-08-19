@@ -40545,6 +40545,272 @@ Löptext i markdown utan rubriker. Längd: 150–250 ord. Tre stycken:
 
 # Verktyg och drift
 
+## add-cupa-sku.mjs
+```
+#!/usr/bin/env node
+/**
+ * add-cupa-sku.mjs
+ *
+ * Lägger till cupa_sku i affiliateUrl för produkter som finns i Adtractions
+ * feeds. Parametern gör att konverteringar kan följas per produkt i stället
+ * för bara per kanal.
+ *
+ * BAKGRUND
+ *
+ * Feedens egna länkar bär cupa_sku, våra egenbyggda gjorde inte det. Adtraction
+ * bekräftade 2026-08-14 att parametern fungerar på egenbyggda länkar med det
+ * vanliga annons-ID:t, alltså 1954031990 för FiskeOnline och 1728546059 för
+ * Outl1. Feedens ID är en systemgenererad intern annons som inte ska användas.
+ * Värdet får vara högst 128 tecken.
+ *
+ * PLACERING I LÄNKEN
+ *
+ * Parametern måste ligga före &url=. Adtraction URL-kodar inte målet, så allt
+ * efter &url= tolkas som produktens adress. En parameter placerad efter skulle
+ * hamna i mål-URL:en i stället för i spårningen.
+ *
+ * VILKA SOM BERÖRS
+ *
+ * Bara produkter som finns i en feed får parametern. Slutsålda produkter saknas
+ * i feeden och Fritid och Vildmark har ingen feed alls. Deras länkar lämnas
+ * orörda och fungerar som förut.
+ *
+ * Skriptet är idempotent. En länk som redan har rätt cupa_sku lämnas i fred.
+ *
+ * Körning:
+ *   node --env-file=.env add-cupa-sku.mjs            torrkörning
+ *   node --env-file=.env add-cupa-sku.mjs --apply    skriver filerna
+ */
+
+import { readFile, writeFile, readdir } from 'node:fs/promises';
+import { join } from 'node:path';
+
+const SOURCES = [
+  { name: 'FiskeOnline', env: 'ADTRACTION_FEED_URL_FISKEONLINE' },
+  { name: 'Outl1', env: 'ADTRACTION_FEED_URL_OUTL1' },
+];
+
+const GEAR_DIR = 'src/content/gear-reviews';
+
+/** Adtractions gräns för egna parametervärden. */
+const MAX_SKU_LENGTH = 128;
+
+/** Tecken som är säkra i en querystring utan kodning. */
+const SAFE_SKU = /^[A-Za-z0-9._-]+$/;
+
+const args = process.argv.slice(2);
+const APPLY = args.includes('--apply');
+const opt = (n) => {
+  const i = args.indexOf(`--${n}`);
+  return i !== -1 ? args[i + 1] : null;
+};
+
+/* ---------- feed, speglar feed.ts ---------- */
+
+const ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
+
+function decode(s) {
+  if (!s) return '';
+  return s
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)))
+    .replace(/&([a-z]+);/gi, (m, name) => ENTITIES[name.toLowerCase()] ?? m);
+}
+
+function tag(block, name) {
+  const m = block.match(new RegExp(`<${name}(?:\\s[^>]*)?>([\\s\\S]*?)</${name}>`, 'i'));
+  if (!m) return '';
+  const cdata = m[1].match(/^\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*$/);
+  return cdata ? cdata[1].trim() : decode(m[1]).trim();
+}
+
+function normalise(url) {
+  return url ? url.trim().toLowerCase().split('#')[0].split('?')[0].replace(/\/+$/, '') : null;
+}
+
+function productUrlFrom(trackingUrl) {
+  const i = (trackingUrl || '').indexOf('&url=');
+  return i === -1 ? null : normalise(decode(trackingUrl.slice(i + 5)));
+}
+
+async function loadFeeds() {
+  const index = new Map();
+  console.log('\nFeeds');
+
+  for (const source of SOURCES) {
+    const url = process.env[source.env];
+    if (!url) {
+      console.log(`  ${source.name}: ${source.env} saknas, butiken hoppas över`);
+      continue;
+    }
+
+    let xml;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) {
+        console.log(`  ${source.name}: Adtraction svarade ${res.status}`);
+        continue;
+      }
+      xml = await res.text();
+    } catch (err) {
+      console.log(`  ${source.name}: hämtning misslyckades (${err.message})`);
+      continue;
+    }
+
+    let added = 0;
+    const re = /<item[\s>][\s\S]*?<\/item>/gi;
+    let m;
+    while ((m = re.exec(xml)) !== null) {
+      const key = productUrlFrom(tag(m[0], 'link'));
+      const sku = tag(m[0], 'g:id');
+      if (key && sku && !index.has(key)) {
+        index.set(key, sku);
+        added++;
+      }
+    }
+    console.log(`  ${source.name}: ${added} produkter`);
+  }
+
+  return index;
+}
+
+/* ---------- filer ---------- */
+
+function frontmatterBlock(text) {
+  const m = text.match(/^---\n([\s\S]*?)\n---/);
+  return m ? m[1] : null;
+}
+
+function readField(fm, name) {
+  const m = fm.match(new RegExp(`^${name}:\\s*(.*)$`, 'm'));
+  return m ? m[1].trim().replace(/^["']|["']$/g, '') : null;
+}
+
+/** Sätter in cupa_sku före &url=, eller ersätter ett befintligt värde. */
+function withCupaSku(affiliateUrl, sku) {
+  const i = affiliateUrl.indexOf('&url=');
+  if (i === -1) return null;
+
+  const tracking = affiliateUrl.slice(0, i);
+  const target = affiliateUrl.slice(i);
+
+  const stripped = tracking.replace(/&cupa_sku=[^&]*/g, '');
+  return `${stripped}&cupa_sku=${sku}${target}`;
+}
+
+function currentCupaSku(affiliateUrl) {
+  const i = affiliateUrl.indexOf('&url=');
+  const tracking = i === -1 ? affiliateUrl : affiliateUrl.slice(0, i);
+  return tracking.match(/[?&]cupa_sku=([^&]*)/)?.[1] ?? null;
+}
+
+/* ---------- main ---------- */
+
+const feed = await loadFeeds();
+if (feed.size === 0) {
+  console.error('\nInga produkter kunde läsas ur någon feed.');
+  process.exit(2);
+}
+
+const dir = opt('dir') || GEAR_DIR;
+let files;
+try {
+  files = await readdir(dir);
+} catch {
+  console.error(`Hittar inte ${dir}. Kör skriptet från projektroten.`);
+  process.exit(2);
+}
+
+const changed = [];
+const skipped = [];
+let alreadyOk = 0;
+let noFeed = 0;
+
+for (const f of files) {
+  if (!/\.mdx?$/.test(f)) continue;
+
+  const path = join(dir, f);
+  const text = await readFile(path, 'utf8');
+  const fm = frontmatterBlock(text);
+  if (!fm) continue;
+
+  const slug = readField(fm, 'slug') || f;
+  const affiliateUrl = readField(fm, 'affiliateUrl');
+  if (!affiliateUrl) continue;
+
+  const target = productUrlFrom(affiliateUrl);
+  const sku = target ? feed.get(target) : undefined;
+
+  if (!sku) {
+    noFeed++;
+    continue;
+  }
+
+  if (sku.length > MAX_SKU_LENGTH) {
+    skipped.push({ slug, reason: `SKU är ${sku.length} tecken, gränsen är ${MAX_SKU_LENGTH}` });
+    continue;
+  }
+  if (!SAFE_SKU.test(sku)) {
+    skipped.push({ slug, reason: `SKU "${sku}" innehåller tecken som kräver kodning` });
+    continue;
+  }
+
+  const current = currentCupaSku(affiliateUrl);
+  if (current === sku) {
+    alreadyOk++;
+    continue;
+  }
+
+  const updated = withCupaSku(affiliateUrl, sku);
+  if (!updated || updated === affiliateUrl) {
+    skipped.push({ slug, reason: 'kunde inte bygga om länken' });
+    continue;
+  }
+
+  // Byt bara ut den exakta raden, och bara när den förekommer en gång.
+  const line = fm.match(new RegExp(`^affiliateUrl:.*$`, 'gm'));
+  if (!line || line.length !== 1) {
+    skipped.push({ slug, reason: `affiliateUrl förekommer ${line ? line.length : 0} gånger` });
+    continue;
+  }
+
+  const newText = text.replace(affiliateUrl, updated);
+  if (newText === text) {
+    skipped.push({ slug, reason: 'länken kunde inte bytas ut i filen' });
+    continue;
+  }
+
+  changed.push({ slug, sku, replacing: current });
+  if (APPLY) await writeFile(path, newText, 'utf8');
+}
+
+console.log(`\ncupa_sku i affiliateUrl${APPLY ? '' : ' (torrkörning)'}\n`);
+
+if (changed.length === 0) {
+  console.log('Inget att ändra.');
+} else {
+  for (const c of changed.sort((a, b) => a.slug.localeCompare(b.slug, 'sv'))) {
+    const note = c.replacing ? ` (ersätter ${c.replacing})` : '';
+    console.log(`  ${c.slug.padEnd(38)} cupa_sku=${c.sku}${note}`);
+  }
+  console.log(`\n${changed.length} filer ${APPLY ? 'uppdaterade' : 'skulle uppdateras'}`);
+}
+
+if (alreadyOk > 0) console.log(`${alreadyOk} hade redan rätt cupa_sku`);
+if (noFeed > 0) console.log(`${noFeed} saknas i feeden eller tillhör butik utan feed, lämnas orörda`);
+
+if (skipped.length > 0) {
+  console.log('\nHOPPADE ÖVER');
+  for (const s of skipped) console.log(`  ${s.slug.padEnd(38)} ${s.reason}`);
+}
+
+if (!APPLY && changed.length > 0) {
+  console.log('\nKör om med --apply för att skriva filerna.');
+}
+
+console.log('');
+```
+
 ## check-content.mjs
 ```
 #!/usr/bin/env node
@@ -40942,6 +41208,636 @@ if (errors.length) {
 console.log(warnings.length ? 'Inga strukturfel. Se varningar ovan.' : 'Allt rent. Inga fel eller varningar.');
 process.exit(0);```
 
+## feed-sok.mjs
+```
+#!/usr/bin/env node
+/**
+ * feed-sok.mjs
+ *
+ * Slår upp produkter i Adtractions feeds och skriver ut en kompakt post per
+ * träff, avsedd att klistras in i en chatt eller ett dokument som underlag för
+ * att skriva produktsidor.
+ *
+ * VARFÖR
+ *
+ * Innehållet skrivs inte i terminalen utan i chatt eller editor. Det som ändå
+ * måste komma ur feeden är exakt titel, ordinarie pris, produktens URL, bild
+ * och EAN, plus en färdigbyggd affiliatelänk. Skriptet hämtar just det och
+ * inget mer, så att skrivandet kan ske någon annanstans.
+ *
+ * Ordinarie pris (g:price) skrivs ut som det värde som ska in i frontmatter.
+ * Kampanjpris (g:sale_price) visas separat och ska aldrig hamna där, eftersom
+ * sajten hämtar det visade priset vid byggtid via src/lib/feed.ts.
+ *
+ * Varje träff märks NY eller FINNS, utifrån om produktens URL redan används av
+ * en fil i gear-reviews. Det förhindrar att samma produkt skrivs två gånger.
+ *
+ * Normaliseringen speglar src/lib/feed.ts. Ändras den ena måste den andra
+ * följa med.
+ *
+ * ANVÄNDNING
+ *
+ *   node --env-file=.env feed-sok.mjs <sökord...>
+ *   node --env-file=.env feed-sok.mjs <produkt-URL...>
+ *
+ * Flaggor:
+ *   --butik <namn>      begränsa till FiskeOnline eller Outl1
+ *   --pris 500-1500     prisintervall i kr, "-1500" och "500-" fungerar
+ *   --typ <text>        filtrera på produktkategori i feeden
+ *   --antal <n>         antal träffar, standard 15
+ *   --ny                visa bara produkter som inte redan har en sida
+ *   --kort              en rad per träff, för att skanna av ett sortiment
+ *   --bild slug=SKU     ladda ner bilder till public/images/gear/<slug>.jpg
+ *
+ * Exempel:
+ *   node --env-file=.env feed-sok.mjs shimano haspelrulle --pris 800-2000 --ny
+ *   node --env-file=.env feed-sok.mjs --butik Outl1 --typ marint --kort
+ *   node --env-file=.env feed-sok.mjs --bild shimano-miravel-2500=109272
+ */
+
+import { readFile, readdir, writeFile, mkdir } from 'node:fs/promises';
+import { join } from 'node:path';
+
+const SOURCES = [
+  {
+    name: 'FiskeOnline',
+    env: 'ADTRACTION_FEED_URL_FISKEONLINE',
+    base: 'https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1',
+  },
+  {
+    name: 'Outl1',
+    env: 'ADTRACTION_FEED_URL_OUTL1',
+    base: 'https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1',
+  },
+];
+
+const GEAR_DIR = 'src/content/gear-reviews';
+const IMAGES_DIR = 'public/images/gear';
+
+/** Adtractions gräns för egna parametervärden. */
+const MAX_SKU_LENGTH = 128;
+
+/** Tecken som är säkra i en querystring utan kodning. */
+const SAFE_SKU = /^[A-Za-z0-9._-]+$/;
+
+/* ---------- argument ---------- */
+
+const argv = process.argv.slice(2);
+const flags = new Map();
+const terms = [];
+
+for (let i = 0; i < argv.length; i++) {
+  const a = argv[i];
+  if (a.startsWith('--')) {
+    const name = a.slice(2);
+    const takesValue = ['butik', 'pris', 'typ', 'antal', 'bild'].includes(name);
+    if (name === 'bild') {
+      // Kan upprepas: --bild slug=SKU --bild slug2=SKU2
+      const list = flags.get('bild') ?? [];
+      list.push(argv[++i]);
+      flags.set('bild', list);
+    } else if (takesValue) {
+      flags.set(name, argv[++i]);
+    } else {
+      flags.set(name, true);
+    }
+  } else {
+    terms.push(a);
+  }
+}
+
+const LIMIT = Number(flags.get('antal') ?? 15);
+
+function parsePriceRange(raw) {
+  if (!raw) return null;
+  const m = raw.match(/^(\d*)\s*-\s*(\d*)$/);
+  if (!m) {
+    const one = Number(raw);
+    return Number.isFinite(one) ? { min: 0, max: one } : null;
+  }
+  return {
+    min: m[1] ? Number(m[1]) : 0,
+    max: m[2] ? Number(m[2]) : Infinity,
+  };
+}
+
+const priceRange = parsePriceRange(flags.get('pris'));
+
+/* ---------- XML, speglar feed.ts ---------- */
+
+const ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
+
+function decode(s) {
+  if (!s) return '';
+  return s
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)))
+    .replace(/&([a-z]+);/gi, (m, name) => ENTITIES[name.toLowerCase()] ?? m);
+}
+
+function tag(block, name) {
+  const m = block.match(new RegExp(`<${name}(?:\\s[^>]*)?>([\\s\\S]*?)</${name}>`, 'i'));
+  if (!m) return '';
+  const cdata = m[1].match(/^\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*$/);
+  return cdata ? cdata[1].trim() : decode(m[1]).trim();
+}
+
+function money(raw) {
+  if (!raw) return null;
+  const m = raw.replace(/\u00a0/g, ' ').match(/([\d\s.,]+)/);
+  if (!m) return null;
+  const n = Number(m[1].replace(/\s/g, '').replace(',', '.'));
+  return Number.isFinite(n) ? n : null;
+}
+
+/** Gemener, utan querystring, fragment eller avslutande slash. */
+function normalise(url) {
+  return url ? url.trim().toLowerCase().split('#')[0].split('?')[0].replace(/\/+$/, '') : null;
+}
+
+/** Produktens rena URL, med querystring kvar. Behövs för publicerade länkar. */
+function rawProductUrlFrom(trackingUrl) {
+  const i = (trackingUrl || '').indexOf('&url=');
+  return i === -1 ? null : decode(trackingUrl.slice(i + 5));
+}
+
+/* ---------- hämtning ---------- */
+
+async function loadFeeds() {
+  const items = [];
+  const only = flags.get('butik');
+
+  for (const source of SOURCES) {
+    if (only && source.name.toLowerCase() !== String(only).toLowerCase()) continue;
+
+    const url = process.env[source.env];
+    if (!url) {
+      console.error(`  ${source.name}: ${source.env} saknas, hoppas över`);
+      continue;
+    }
+
+    let xml;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) {
+        console.error(`  ${source.name}: Adtraction svarade ${res.status}`);
+        continue;
+      }
+      xml = await res.text();
+    } catch (err) {
+      console.error(`  ${source.name}: hämtning misslyckades (${err.message})`);
+      continue;
+    }
+
+    const seen = new Set();
+    const re = /<item[\s>][\s\S]*?<\/item>/gi;
+    let m;
+    while ((m = re.exec(xml)) !== null) {
+      const b = m[0];
+      const raw = rawProductUrlFrom(tag(b, 'link'));
+      const key = normalise(raw);
+      const price = money(tag(b, 'g:price'));
+      if (!key || price === null || seen.has(key)) continue;
+      seen.add(key);
+
+      items.push({
+        merchant: source.name,
+        base: source.base,
+        sku: tag(b, 'g:id'),
+        title: tag(b, 'title'),
+        brand: tag(b, 'g:brand'),
+        type: tag(b, 'g:product_type'),
+        price,
+        salePrice: money(tag(b, 'g:sale_price')),
+        label: tag(b, 'g:custom_label_1'),
+        image: tag(b, 'g:image_link'),
+        gtin: tag(b, 'g:gtin'),
+        rawUrl: raw,
+        key,
+      });
+    }
+  }
+  return items;
+}
+
+/** Produkt-URL:er som redan har en sida, för att inte skriva samma två gånger. */
+async function loadExisting() {
+  const map = new Map();
+  let files;
+  try {
+    files = await readdir(GEAR_DIR);
+  } catch {
+    return map;
+  }
+  for (const f of files) {
+    if (!/\.mdx?$/.test(f)) continue;
+    const text = await readFile(join(GEAR_DIR, f), 'utf8');
+    const fm = text.match(/^---\n([\s\S]*?)\n---/);
+    if (!fm) continue;
+    const url = fm[1].match(/^affiliateUrl:\s*["']?(.*?)["']?\s*$/m)?.[1];
+    const slug = fm[1].match(/^slug:\s*["']?(.*?)["']?\s*$/m)?.[1] ?? f;
+    const key = normalise(rawProductUrlFrom(url));
+    if (key) map.set(key, slug);
+  }
+  return map;
+}
+
+/* ---------- filtrering ---------- */
+
+function matches(item) {
+  if (priceRange && (item.price < priceRange.min || item.price > priceRange.max)) return false;
+
+  const typ = flags.get('typ');
+  if (typ && !item.type.toLowerCase().includes(String(typ).toLowerCase())) return false;
+
+  if (terms.length === 0) return true;
+
+  // URL-sökning: exakt uppslag
+  if (terms.some((t) => t.startsWith('http'))) {
+    return terms.some((t) => normalise(t) === item.key);
+  }
+
+  // Fritext: alla ord måste finnas i titel eller varumärke
+  const hay = `${item.title} ${item.brand} ${item.type}`.toLowerCase();
+  return terms.every((t) => hay.includes(t.toLowerCase()));
+}
+
+/* ---------- bildnedladdning ---------- */
+
+async function downloadImages(items) {
+  const specs = flags.get('bild');
+  await mkdir(IMAGES_DIR, { recursive: true });
+
+  for (const spec of specs) {
+    const [slug, sku] = String(spec).split('=');
+    if (!slug || !sku) {
+      console.error(`Ogiltigt format: ${spec}. Använd slug=SKU.`);
+      continue;
+    }
+    const item = items.find((i) => i.sku === sku);
+    if (!item) {
+      console.error(`${slug}: hittar ingen produkt med SKU ${sku}`);
+      continue;
+    }
+    if (!item.image) {
+      console.error(`${slug}: produkten saknar bild i feeden`);
+      continue;
+    }
+    try {
+      const res = await fetch(item.image);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const buf = Buffer.from(await res.arrayBuffer());
+      if (buf.length < 1000) throw new Error('bilden verkar tom');
+      const dest = join(IMAGES_DIR, `${slug}.jpg`);
+      await writeFile(dest, buf);
+      console.log(`${dest}  (${Math.round(buf.length / 1024)} kB)`);
+    } catch (err) {
+      console.error(`${slug}: kunde inte hämta bilden (${err.message})`);
+    }
+  }
+}
+
+/* ---------- utskrift ---------- */
+
+const kr = (v) => `${v.toLocaleString('sv-SE')} kr`;
+
+function printItem(item, status) {
+  console.log(`SKU ${item.sku} | ${item.title}`);
+  console.log(`  Butik:       ${item.merchant}`);
+  if (item.brand) console.log(`  Varumärke:   ${item.brand}`);
+  console.log(`  Ordinarie:   ${kr(item.price)}   <- detta värde ska in i price`);
+  if (item.salePrice !== null && item.salePrice < item.price) {
+    const label = item.label ? ` (${item.label})` : '';
+    console.log(`  Kampanj nu:  ${kr(item.salePrice)}${label}   visas automatiskt, skrivs inte in`);
+  }
+  if (item.type) console.log(`  Kategori:    ${item.type}`);
+  if (item.gtin) console.log(`  EAN:         ${item.gtin}`);
+  console.log(`  Produkt:     ${item.rawUrl}`);
+  if (item.image) console.log(`  Bild:        ${item.image}`);
+
+  // Affiliatelänken byggs utan querystring, som de befintliga länkarna.
+  // Feedens interna ID (?var= hos Outl1) behövs inte för att landa rätt och
+  // Adtraction URL-kodar inte målet, så färre parametrar är säkrare.
+  //
+  // cupa_sku måste ligga före &url=, eftersom allt efter &url= tolkas som
+  // produktens adress. Parametern ger konverteringsrapportering per produkt.
+  const target = item.rawUrl.split('?')[0];
+  const sku = SAFE_SKU.test(item.sku) && item.sku.length <= MAX_SKU_LENGTH ? item.sku : null;
+  const tracking = sku ? `${item.base}&cupa_sku=${sku}` : item.base;
+  console.log(`  affiliateUrl: ${tracking}&url=${target}`);
+  if (!sku) {
+    console.log(`               (cupa_sku utelämnad, SKU "${item.sku}" kräver kodning eller är för långt)`);
+  }
+  if (target !== item.rawUrl) {
+    console.log(`               (${item.rawUrl.slice(target.length)} borttaget, som i befintliga länkar)`);
+  }
+  console.log(`  Status:      ${status}`);
+  console.log('');
+}
+
+function printShort(item, status) {
+  const sale = item.salePrice !== null && item.salePrice < item.price ? ` (nu ${item.salePrice})` : '';
+  const flagg = status.startsWith('FINNS') ? ' [har sida]' : '';
+  console.log(`${item.sku.padEnd(12)} ${kr(item.price).padStart(10)}${sale.padEnd(12)} ${item.title.slice(0, 60)}${flagg}`);
+}
+
+/* ---------- main ---------- */
+
+const items = await loadFeeds();
+if (items.length === 0) {
+  console.error('Inga produkter kunde läsas. Kontrollera miljövariablerna.');
+  process.exit(2);
+}
+
+if (flags.has('bild')) {
+  await downloadImages(items);
+  process.exit(0);
+}
+
+const existing = await loadExisting();
+let hits = items.filter(matches);
+
+if (flags.has('ny')) {
+  hits = hits.filter((i) => !existing.has(i.key));
+}
+
+hits.sort((a, b) => a.price - b.price);
+
+const total = hits.length;
+const shown = hits.slice(0, LIMIT);
+
+console.log('');
+if (total === 0) {
+  console.log('Inga träffar.');
+  if (terms.length > 0) console.log('Pröva färre eller bredare sökord.');
+  console.log('');
+  process.exit(0);
+}
+
+for (const item of shown) {
+  const slug = existing.get(item.key);
+  const status = slug ? `FINNS redan som ${slug}` : 'NY, ingen sida';
+  if (flags.has('kort')) printShort(item, status);
+  else printItem(item, status);
+}
+
+console.log(`${shown.length} av ${total} träffar visas.`);
+if (total > shown.length) console.log(`Kör med --antal ${Math.min(total, 50)} för fler.`);
+console.log('');
+```
+
+## fix-fallback-prices.mjs
+```
+#!/usr/bin/env node
+/**
+ * fix-fallback-prices.mjs
+ *
+ * Engångsrättning av price i src/content/gear-reviews/ till ordinarie pris
+ * enligt Adtractions produktfeed.
+ *
+ * BAKGRUND
+ *
+ * price i frontmatter är sedan src/lib/feed.ts infördes ett reservvärde som
+ * visas när feeden inte svarar eller saknar produkten. Vid genomgången
+ * 2026-08-13 låg 37 av 51 matchade priser på en reanivå i stället för
+ * ordinarie, eftersom de matats in under pågående kampanj. Ett reservvärde på
+ * gammal reanivå är sämre än ett på ordinarie, och priceRange räknas dessutom
+ * på ordinarie pris.
+ *
+ * SÄKERHET
+ *
+ * Skriptet skriver ingenting utan --apply. Raden byts bara när det nuvarande
+ * värdet är exakt det som valideringen läste, och bara när price förekommer
+ * precis en gång i frontmatterblocket. Allt annat lämnas orört och rapporteras.
+ *
+ * Detta är en engångsåtgärd. Löpande avvikelser rapporteras av
+ * validate-feed.mjs och ska bedömas redaktionellt, inte skrivas automatiskt.
+ *
+ * Körning:
+ *   node --env-file=.env fix-fallback-prices.mjs            torrkörning
+ *   node --env-file=.env fix-fallback-prices.mjs --apply    skriver filer
+ *
+ * Enskild feed från fil, för felsökning utan nätverk:
+ *   node fix-fallback-prices.mjs --file /tmp/feed.xml
+ *
+ * Matchning och normalisering speglar src/lib/feed.ts. Ändras den ena måste
+ * detta skript och validate-feed.mjs följa med, annars rättar skriptet mot
+ * andra produkter än de sajten faktiskt visar.
+ */
+
+import { readFile, writeFile, readdir } from 'node:fs/promises';
+import { join } from 'node:path';
+
+const GEAR_DIR = 'src/content/gear-reviews';
+/**
+ * Butiker med feed. Speglar SOURCES i src/lib/feed.ts och validate-feed.mjs.
+ * Butiker som saknas här hoppas över, eftersom det inte finns något att
+ * jämföra mot.
+ */
+const SOURCES = [
+  { name: 'FiskeOnline', env: 'ADTRACTION_FEED_URL_FISKEONLINE' },
+  { name: 'Outl1', env: 'ADTRACTION_FEED_URL_OUTL1' },
+];
+const MERCHANTS = new Set(SOURCES.map((s) => s.name));
+
+const args = process.argv.slice(2);
+const flag = (n) => args.includes(`--${n}`);
+const opt = (n) => {
+  const i = args.indexOf(`--${n}`);
+  return i !== -1 ? args[i + 1] : null;
+};
+
+const APPLY = flag('apply');
+
+/* ---------- feed ---------- */
+
+const ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
+
+function decode(s) {
+  if (!s) return '';
+  return s
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)))
+    .replace(/&([a-z]+);/gi, (m, name) => ENTITIES[name.toLowerCase()] ?? m);
+}
+
+function tag(block, name) {
+  const m = block.match(new RegExp(`<${name}(?:\\s[^>]*)?>([\\s\\S]*?)</${name}>`, 'i'));
+  if (!m) return '';
+  const cdata = m[1].match(/^\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*$/);
+  return cdata ? cdata[1].trim() : decode(m[1]).trim();
+}
+
+function money(raw) {
+  if (!raw) return null;
+  const m = raw.replace(/\u00a0/g, ' ').match(/([\d\s.,]+)/);
+  if (!m) return null;
+  const n = Number(m[1].replace(/\s/g, '').replace(',', '.'));
+  return Number.isFinite(n) ? n : null;
+}
+
+function productUrlFrom(trackingUrl) {
+  if (!trackingUrl) return null;
+  const i = trackingUrl.indexOf('&url=');
+  return i === -1 ? null : decode(trackingUrl.slice(i + 5));
+}
+
+/** Gemener, utan querystring, fragment eller avslutande slash. Speglar feed.ts. */
+const normUrl = (u) =>
+  u ? u.trim().toLowerCase().split('#')[0].split('?')[0].replace(/\/+$/, '') : null;
+
+function parseInto(xml, index) {
+  let added = 0;
+  const re = /<item[\s>][\s\S]*?<\/item>/gi;
+  let m;
+  while ((m = re.exec(xml)) !== null) {
+    const key = normUrl(productUrlFrom(tag(m[0], 'link')));
+    const price = money(tag(m[0], 'g:price'));
+    // Första posten vinner, som i feed.ts.
+    if (key && price !== null && !index.has(key)) {
+      index.set(key, price);
+      added++;
+    }
+  }
+  return added;
+}
+
+async function loadFeed() {
+  const index = new Map();
+
+  const file = opt('file');
+  if (file) {
+    const added = parseInto(await readFile(file, 'utf8'), index);
+    console.log(`  ${file}: ${added} produkter`);
+    return index;
+  }
+
+  for (const source of SOURCES) {
+    const url = process.env[source.env];
+
+    if (!url) {
+      console.log(`  ${source.name}: ${source.env} saknas, butiken hoppas över`);
+      continue;
+    }
+
+    let res;
+    try {
+      res = await fetch(url);
+    } catch (err) {
+      console.log(`  ${source.name}: hämtning misslyckades (${err.message})`);
+      continue;
+    }
+    if (!res.ok) {
+      console.log(`  ${source.name}: Adtraction svarade ${res.status}`);
+      continue;
+    }
+
+    const added = parseInto(await res.text(), index);
+    console.log(`  ${source.name}: ${added} produkter`);
+  }
+
+  return index;
+}
+
+/* ---------- filer ---------- */
+
+function frontmatterBlock(text) {
+  const m = text.match(/^---\n([\s\S]*?)\n---/);
+  return m ? m[1] : null;
+}
+
+function readField(fm, name) {
+  const m = fm.match(new RegExp(`^${name}:\\s*(.*)$`, 'm'));
+  return m ? m[1].trim().replace(/^["']|["']$/g, '') : null;
+}
+
+/* ---------- main ---------- */
+
+console.log('\nFeeds');
+const feed = await loadFeed();
+if (feed.size === 0) {
+  console.error('Inga produkter lästes ur feeden. Kontrollera filen.');
+  process.exit(2);
+}
+
+const dir = opt('dir') || GEAR_DIR;
+let files;
+try {
+  files = await readdir(dir);
+} catch {
+  console.error(`Hittar inte ${dir}. Kör skriptet från projektroten.`);
+  process.exit(2);
+}
+
+const changed = [];
+const skipped = [];
+
+for (const f of files) {
+  if (!/\.mdx?$/.test(f)) continue;
+
+  const path = join(dir, f);
+  const text = await readFile(path, 'utf8');
+  const fm = frontmatterBlock(text);
+  if (!fm) continue;
+
+  const merchant = readField(fm, 'merchant');
+  if (!merchant || !MERCHANTS.has(merchant)) continue;
+
+  const slug = readField(fm, 'slug') || f;
+  const affiliateUrl = readField(fm, 'affiliateUrl');
+  if (!affiliateUrl) continue;
+
+  const target = normUrl(productUrlFrom(affiliateUrl));
+  const ordinarie = target ? feed.get(target) : undefined;
+  if (ordinarie === undefined) continue;
+
+  const current = Number(readField(fm, 'price'));
+  if (!Number.isFinite(current) || current === ordinarie) continue;
+
+  // Raden måste finnas exakt en gång i frontmatterblocket.
+  const lineRe = new RegExp(`^price:\\s*${current}\\s*$`, 'gm');
+  const hits = fm.match(lineRe);
+  if (!hits || hits.length !== 1) {
+    skipped.push({ slug, reason: `price: ${current} förekommer ${hits ? hits.length : 0} gånger i frontmatter` });
+    continue;
+  }
+
+  const newFm = fm.replace(new RegExp(`^price:\\s*${current}\\s*$`, 'm'), `price: ${ordinarie}`);
+  const newText = text.replace(`---\n${fm}\n---`, `---\n${newFm}\n---`);
+
+  if (newText === text) {
+    skipped.push({ slug, reason: 'kunde inte byta ut raden, frontmatter oväntat formaterad' });
+    continue;
+  }
+
+  changed.push({ slug, file: f, from: current, to: ordinarie });
+  if (APPLY) await writeFile(path, newText, 'utf8');
+}
+
+console.log(`\nReservpriser mot ordinarie pris i feeden${APPLY ? '' : ' (torrkörning)'}\n`);
+
+if (changed.length === 0) {
+  console.log('Inget att rätta.\n');
+} else {
+  for (const c of changed.sort((a, b) => a.slug.localeCompare(b.slug, 'sv'))) {
+    const diff = Math.round(((c.to - c.from) / c.from) * 100);
+    console.log(`  ${c.slug.padEnd(34)} ${c.from} -> ${c.to} kr (${diff > 0 ? '+' : ''}${diff} %)`);
+  }
+  console.log(`\n${changed.length} filer ${APPLY ? 'rättade' : 'skulle rättas'}`);
+}
+
+if (skipped.length > 0) {
+  console.log('\nHOPPADE ÖVER');
+  for (const s of skipped) console.log(`  ${s.slug.padEnd(34)} ${s.reason}`);
+}
+
+if (!APPLY && changed.length > 0) {
+  console.log('\nKör om med --apply för att skriva filerna.');
+}
+
+console.log('');
+```
+
 ## validate-feed.mjs
 ```
 #!/usr/bin/env node
@@ -41331,902 +42227,6 @@ const res = validate(reviews, index, only);
 report(res, { reviews: reviews.length, counts, warnings });
 
 if (flag('strict') && res.findings.some((f) => f.level === 'fel')) process.exit(1);
-```
-
-## fix-fallback-prices.mjs
-```
-#!/usr/bin/env node
-/**
- * fix-fallback-prices.mjs
- *
- * Engångsrättning av price i src/content/gear-reviews/ till ordinarie pris
- * enligt Adtractions produktfeed.
- *
- * BAKGRUND
- *
- * price i frontmatter är sedan src/lib/feed.ts infördes ett reservvärde som
- * visas när feeden inte svarar eller saknar produkten. Vid genomgången
- * 2026-08-13 låg 37 av 51 matchade priser på en reanivå i stället för
- * ordinarie, eftersom de matats in under pågående kampanj. Ett reservvärde på
- * gammal reanivå är sämre än ett på ordinarie, och priceRange räknas dessutom
- * på ordinarie pris.
- *
- * SÄKERHET
- *
- * Skriptet skriver ingenting utan --apply. Raden byts bara när det nuvarande
- * värdet är exakt det som valideringen läste, och bara när price förekommer
- * precis en gång i frontmatterblocket. Allt annat lämnas orört och rapporteras.
- *
- * Detta är en engångsåtgärd. Löpande avvikelser rapporteras av
- * validate-feed.mjs och ska bedömas redaktionellt, inte skrivas automatiskt.
- *
- * Körning:
- *   node --env-file=.env fix-fallback-prices.mjs            torrkörning
- *   node --env-file=.env fix-fallback-prices.mjs --apply    skriver filer
- *
- * Enskild feed från fil, för felsökning utan nätverk:
- *   node fix-fallback-prices.mjs --file /tmp/feed.xml
- *
- * Matchning och normalisering speglar src/lib/feed.ts. Ändras den ena måste
- * detta skript och validate-feed.mjs följa med, annars rättar skriptet mot
- * andra produkter än de sajten faktiskt visar.
- */
-
-import { readFile, writeFile, readdir } from 'node:fs/promises';
-import { join } from 'node:path';
-
-const GEAR_DIR = 'src/content/gear-reviews';
-/**
- * Butiker med feed. Speglar SOURCES i src/lib/feed.ts och validate-feed.mjs.
- * Butiker som saknas här hoppas över, eftersom det inte finns något att
- * jämföra mot.
- */
-const SOURCES = [
-  { name: 'FiskeOnline', env: 'ADTRACTION_FEED_URL_FISKEONLINE' },
-  { name: 'Outl1', env: 'ADTRACTION_FEED_URL_OUTL1' },
-];
-const MERCHANTS = new Set(SOURCES.map((s) => s.name));
-
-const args = process.argv.slice(2);
-const flag = (n) => args.includes(`--${n}`);
-const opt = (n) => {
-  const i = args.indexOf(`--${n}`);
-  return i !== -1 ? args[i + 1] : null;
-};
-
-const APPLY = flag('apply');
-
-/* ---------- feed ---------- */
-
-const ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
-
-function decode(s) {
-  if (!s) return '';
-  return s
-    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
-    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)))
-    .replace(/&([a-z]+);/gi, (m, name) => ENTITIES[name.toLowerCase()] ?? m);
-}
-
-function tag(block, name) {
-  const m = block.match(new RegExp(`<${name}(?:\\s[^>]*)?>([\\s\\S]*?)</${name}>`, 'i'));
-  if (!m) return '';
-  const cdata = m[1].match(/^\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*$/);
-  return cdata ? cdata[1].trim() : decode(m[1]).trim();
-}
-
-function money(raw) {
-  if (!raw) return null;
-  const m = raw.replace(/\u00a0/g, ' ').match(/([\d\s.,]+)/);
-  if (!m) return null;
-  const n = Number(m[1].replace(/\s/g, '').replace(',', '.'));
-  return Number.isFinite(n) ? n : null;
-}
-
-function productUrlFrom(trackingUrl) {
-  if (!trackingUrl) return null;
-  const i = trackingUrl.indexOf('&url=');
-  return i === -1 ? null : decode(trackingUrl.slice(i + 5));
-}
-
-/** Gemener, utan querystring, fragment eller avslutande slash. Speglar feed.ts. */
-const normUrl = (u) =>
-  u ? u.trim().toLowerCase().split('#')[0].split('?')[0].replace(/\/+$/, '') : null;
-
-function parseInto(xml, index) {
-  let added = 0;
-  const re = /<item[\s>][\s\S]*?<\/item>/gi;
-  let m;
-  while ((m = re.exec(xml)) !== null) {
-    const key = normUrl(productUrlFrom(tag(m[0], 'link')));
-    const price = money(tag(m[0], 'g:price'));
-    // Första posten vinner, som i feed.ts.
-    if (key && price !== null && !index.has(key)) {
-      index.set(key, price);
-      added++;
-    }
-  }
-  return added;
-}
-
-async function loadFeed() {
-  const index = new Map();
-
-  const file = opt('file');
-  if (file) {
-    const added = parseInto(await readFile(file, 'utf8'), index);
-    console.log(`  ${file}: ${added} produkter`);
-    return index;
-  }
-
-  for (const source of SOURCES) {
-    const url = process.env[source.env];
-
-    if (!url) {
-      console.log(`  ${source.name}: ${source.env} saknas, butiken hoppas över`);
-      continue;
-    }
-
-    let res;
-    try {
-      res = await fetch(url);
-    } catch (err) {
-      console.log(`  ${source.name}: hämtning misslyckades (${err.message})`);
-      continue;
-    }
-    if (!res.ok) {
-      console.log(`  ${source.name}: Adtraction svarade ${res.status}`);
-      continue;
-    }
-
-    const added = parseInto(await res.text(), index);
-    console.log(`  ${source.name}: ${added} produkter`);
-  }
-
-  return index;
-}
-
-/* ---------- filer ---------- */
-
-function frontmatterBlock(text) {
-  const m = text.match(/^---\n([\s\S]*?)\n---/);
-  return m ? m[1] : null;
-}
-
-function readField(fm, name) {
-  const m = fm.match(new RegExp(`^${name}:\\s*(.*)$`, 'm'));
-  return m ? m[1].trim().replace(/^["']|["']$/g, '') : null;
-}
-
-/* ---------- main ---------- */
-
-console.log('\nFeeds');
-const feed = await loadFeed();
-if (feed.size === 0) {
-  console.error('Inga produkter lästes ur feeden. Kontrollera filen.');
-  process.exit(2);
-}
-
-const dir = opt('dir') || GEAR_DIR;
-let files;
-try {
-  files = await readdir(dir);
-} catch {
-  console.error(`Hittar inte ${dir}. Kör skriptet från projektroten.`);
-  process.exit(2);
-}
-
-const changed = [];
-const skipped = [];
-
-for (const f of files) {
-  if (!/\.mdx?$/.test(f)) continue;
-
-  const path = join(dir, f);
-  const text = await readFile(path, 'utf8');
-  const fm = frontmatterBlock(text);
-  if (!fm) continue;
-
-  const merchant = readField(fm, 'merchant');
-  if (!merchant || !MERCHANTS.has(merchant)) continue;
-
-  const slug = readField(fm, 'slug') || f;
-  const affiliateUrl = readField(fm, 'affiliateUrl');
-  if (!affiliateUrl) continue;
-
-  const target = normUrl(productUrlFrom(affiliateUrl));
-  const ordinarie = target ? feed.get(target) : undefined;
-  if (ordinarie === undefined) continue;
-
-  const current = Number(readField(fm, 'price'));
-  if (!Number.isFinite(current) || current === ordinarie) continue;
-
-  // Raden måste finnas exakt en gång i frontmatterblocket.
-  const lineRe = new RegExp(`^price:\\s*${current}\\s*$`, 'gm');
-  const hits = fm.match(lineRe);
-  if (!hits || hits.length !== 1) {
-    skipped.push({ slug, reason: `price: ${current} förekommer ${hits ? hits.length : 0} gånger i frontmatter` });
-    continue;
-  }
-
-  const newFm = fm.replace(new RegExp(`^price:\\s*${current}\\s*$`, 'm'), `price: ${ordinarie}`);
-  const newText = text.replace(`---\n${fm}\n---`, `---\n${newFm}\n---`);
-
-  if (newText === text) {
-    skipped.push({ slug, reason: 'kunde inte byta ut raden, frontmatter oväntat formaterad' });
-    continue;
-  }
-
-  changed.push({ slug, file: f, from: current, to: ordinarie });
-  if (APPLY) await writeFile(path, newText, 'utf8');
-}
-
-console.log(`\nReservpriser mot ordinarie pris i feeden${APPLY ? '' : ' (torrkörning)'}\n`);
-
-if (changed.length === 0) {
-  console.log('Inget att rätta.\n');
-} else {
-  for (const c of changed.sort((a, b) => a.slug.localeCompare(b.slug, 'sv'))) {
-    const diff = Math.round(((c.to - c.from) / c.from) * 100);
-    console.log(`  ${c.slug.padEnd(34)} ${c.from} -> ${c.to} kr (${diff > 0 ? '+' : ''}${diff} %)`);
-  }
-  console.log(`\n${changed.length} filer ${APPLY ? 'rättade' : 'skulle rättas'}`);
-}
-
-if (skipped.length > 0) {
-  console.log('\nHOPPADE ÖVER');
-  for (const s of skipped) console.log(`  ${s.slug.padEnd(34)} ${s.reason}`);
-}
-
-if (!APPLY && changed.length > 0) {
-  console.log('\nKör om med --apply för att skriva filerna.');
-}
-
-console.log('');
-```
-
-## feed-sok.mjs
-```
-#!/usr/bin/env node
-/**
- * feed-sok.mjs
- *
- * Slår upp produkter i Adtractions feeds och skriver ut en kompakt post per
- * träff, avsedd att klistras in i en chatt eller ett dokument som underlag för
- * att skriva produktsidor.
- *
- * VARFÖR
- *
- * Innehållet skrivs inte i terminalen utan i chatt eller editor. Det som ändå
- * måste komma ur feeden är exakt titel, ordinarie pris, produktens URL, bild
- * och EAN, plus en färdigbyggd affiliatelänk. Skriptet hämtar just det och
- * inget mer, så att skrivandet kan ske någon annanstans.
- *
- * Ordinarie pris (g:price) skrivs ut som det värde som ska in i frontmatter.
- * Kampanjpris (g:sale_price) visas separat och ska aldrig hamna där, eftersom
- * sajten hämtar det visade priset vid byggtid via src/lib/feed.ts.
- *
- * Varje träff märks NY eller FINNS, utifrån om produktens URL redan används av
- * en fil i gear-reviews. Det förhindrar att samma produkt skrivs två gånger.
- *
- * Normaliseringen speglar src/lib/feed.ts. Ändras den ena måste den andra
- * följa med.
- *
- * ANVÄNDNING
- *
- *   node --env-file=.env feed-sok.mjs <sökord...>
- *   node --env-file=.env feed-sok.mjs <produkt-URL...>
- *
- * Flaggor:
- *   --butik <namn>      begränsa till FiskeOnline eller Outl1
- *   --pris 500-1500     prisintervall i kr, "-1500" och "500-" fungerar
- *   --typ <text>        filtrera på produktkategori i feeden
- *   --antal <n>         antal träffar, standard 15
- *   --ny                visa bara produkter som inte redan har en sida
- *   --kort              en rad per träff, för att skanna av ett sortiment
- *   --bild slug=SKU     ladda ner bilder till public/images/gear/<slug>.jpg
- *
- * Exempel:
- *   node --env-file=.env feed-sok.mjs shimano haspelrulle --pris 800-2000 --ny
- *   node --env-file=.env feed-sok.mjs --butik Outl1 --typ marint --kort
- *   node --env-file=.env feed-sok.mjs --bild shimano-miravel-2500=109272
- */
-
-import { readFile, readdir, writeFile, mkdir } from 'node:fs/promises';
-import { join } from 'node:path';
-
-const SOURCES = [
-  {
-    name: 'FiskeOnline',
-    env: 'ADTRACTION_FEED_URL_FISKEONLINE',
-    base: 'https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1',
-  },
-  {
-    name: 'Outl1',
-    env: 'ADTRACTION_FEED_URL_OUTL1',
-    base: 'https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1',
-  },
-];
-
-const GEAR_DIR = 'src/content/gear-reviews';
-const IMAGES_DIR = 'public/images/gear';
-
-/** Adtractions gräns för egna parametervärden. */
-const MAX_SKU_LENGTH = 128;
-
-/** Tecken som är säkra i en querystring utan kodning. */
-const SAFE_SKU = /^[A-Za-z0-9._-]+$/;
-
-/* ---------- argument ---------- */
-
-const argv = process.argv.slice(2);
-const flags = new Map();
-const terms = [];
-
-for (let i = 0; i < argv.length; i++) {
-  const a = argv[i];
-  if (a.startsWith('--')) {
-    const name = a.slice(2);
-    const takesValue = ['butik', 'pris', 'typ', 'antal', 'bild'].includes(name);
-    if (name === 'bild') {
-      // Kan upprepas: --bild slug=SKU --bild slug2=SKU2
-      const list = flags.get('bild') ?? [];
-      list.push(argv[++i]);
-      flags.set('bild', list);
-    } else if (takesValue) {
-      flags.set(name, argv[++i]);
-    } else {
-      flags.set(name, true);
-    }
-  } else {
-    terms.push(a);
-  }
-}
-
-const LIMIT = Number(flags.get('antal') ?? 15);
-
-function parsePriceRange(raw) {
-  if (!raw) return null;
-  const m = raw.match(/^(\d*)\s*-\s*(\d*)$/);
-  if (!m) {
-    const one = Number(raw);
-    return Number.isFinite(one) ? { min: 0, max: one } : null;
-  }
-  return {
-    min: m[1] ? Number(m[1]) : 0,
-    max: m[2] ? Number(m[2]) : Infinity,
-  };
-}
-
-const priceRange = parsePriceRange(flags.get('pris'));
-
-/* ---------- XML, speglar feed.ts ---------- */
-
-const ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
-
-function decode(s) {
-  if (!s) return '';
-  return s
-    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
-    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)))
-    .replace(/&([a-z]+);/gi, (m, name) => ENTITIES[name.toLowerCase()] ?? m);
-}
-
-function tag(block, name) {
-  const m = block.match(new RegExp(`<${name}(?:\\s[^>]*)?>([\\s\\S]*?)</${name}>`, 'i'));
-  if (!m) return '';
-  const cdata = m[1].match(/^\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*$/);
-  return cdata ? cdata[1].trim() : decode(m[1]).trim();
-}
-
-function money(raw) {
-  if (!raw) return null;
-  const m = raw.replace(/\u00a0/g, ' ').match(/([\d\s.,]+)/);
-  if (!m) return null;
-  const n = Number(m[1].replace(/\s/g, '').replace(',', '.'));
-  return Number.isFinite(n) ? n : null;
-}
-
-/** Gemener, utan querystring, fragment eller avslutande slash. */
-function normalise(url) {
-  return url ? url.trim().toLowerCase().split('#')[0].split('?')[0].replace(/\/+$/, '') : null;
-}
-
-/** Produktens rena URL, med querystring kvar. Behövs för publicerade länkar. */
-function rawProductUrlFrom(trackingUrl) {
-  const i = (trackingUrl || '').indexOf('&url=');
-  return i === -1 ? null : decode(trackingUrl.slice(i + 5));
-}
-
-/* ---------- hämtning ---------- */
-
-async function loadFeeds() {
-  const items = [];
-  const only = flags.get('butik');
-
-  for (const source of SOURCES) {
-    if (only && source.name.toLowerCase() !== String(only).toLowerCase()) continue;
-
-    const url = process.env[source.env];
-    if (!url) {
-      console.error(`  ${source.name}: ${source.env} saknas, hoppas över`);
-      continue;
-    }
-
-    let xml;
-    try {
-      const res = await fetch(url);
-      if (!res.ok) {
-        console.error(`  ${source.name}: Adtraction svarade ${res.status}`);
-        continue;
-      }
-      xml = await res.text();
-    } catch (err) {
-      console.error(`  ${source.name}: hämtning misslyckades (${err.message})`);
-      continue;
-    }
-
-    const seen = new Set();
-    const re = /<item[\s>][\s\S]*?<\/item>/gi;
-    let m;
-    while ((m = re.exec(xml)) !== null) {
-      const b = m[0];
-      const raw = rawProductUrlFrom(tag(b, 'link'));
-      const key = normalise(raw);
-      const price = money(tag(b, 'g:price'));
-      if (!key || price === null || seen.has(key)) continue;
-      seen.add(key);
-
-      items.push({
-        merchant: source.name,
-        base: source.base,
-        sku: tag(b, 'g:id'),
-        title: tag(b, 'title'),
-        brand: tag(b, 'g:brand'),
-        type: tag(b, 'g:product_type'),
-        price,
-        salePrice: money(tag(b, 'g:sale_price')),
-        label: tag(b, 'g:custom_label_1'),
-        image: tag(b, 'g:image_link'),
-        gtin: tag(b, 'g:gtin'),
-        rawUrl: raw,
-        key,
-      });
-    }
-  }
-  return items;
-}
-
-/** Produkt-URL:er som redan har en sida, för att inte skriva samma två gånger. */
-async function loadExisting() {
-  const map = new Map();
-  let files;
-  try {
-    files = await readdir(GEAR_DIR);
-  } catch {
-    return map;
-  }
-  for (const f of files) {
-    if (!/\.mdx?$/.test(f)) continue;
-    const text = await readFile(join(GEAR_DIR, f), 'utf8');
-    const fm = text.match(/^---\n([\s\S]*?)\n---/);
-    if (!fm) continue;
-    const url = fm[1].match(/^affiliateUrl:\s*["']?(.*?)["']?\s*$/m)?.[1];
-    const slug = fm[1].match(/^slug:\s*["']?(.*?)["']?\s*$/m)?.[1] ?? f;
-    const key = normalise(rawProductUrlFrom(url));
-    if (key) map.set(key, slug);
-  }
-  return map;
-}
-
-/* ---------- filtrering ---------- */
-
-function matches(item) {
-  if (priceRange && (item.price < priceRange.min || item.price > priceRange.max)) return false;
-
-  const typ = flags.get('typ');
-  if (typ && !item.type.toLowerCase().includes(String(typ).toLowerCase())) return false;
-
-  if (terms.length === 0) return true;
-
-  // URL-sökning: exakt uppslag
-  if (terms.some((t) => t.startsWith('http'))) {
-    return terms.some((t) => normalise(t) === item.key);
-  }
-
-  // Fritext: alla ord måste finnas i titel eller varumärke
-  const hay = `${item.title} ${item.brand} ${item.type}`.toLowerCase();
-  return terms.every((t) => hay.includes(t.toLowerCase()));
-}
-
-/* ---------- bildnedladdning ---------- */
-
-async function downloadImages(items) {
-  const specs = flags.get('bild');
-  await mkdir(IMAGES_DIR, { recursive: true });
-
-  for (const spec of specs) {
-    const [slug, sku] = String(spec).split('=');
-    if (!slug || !sku) {
-      console.error(`Ogiltigt format: ${spec}. Använd slug=SKU.`);
-      continue;
-    }
-    const item = items.find((i) => i.sku === sku);
-    if (!item) {
-      console.error(`${slug}: hittar ingen produkt med SKU ${sku}`);
-      continue;
-    }
-    if (!item.image) {
-      console.error(`${slug}: produkten saknar bild i feeden`);
-      continue;
-    }
-    try {
-      const res = await fetch(item.image);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const buf = Buffer.from(await res.arrayBuffer());
-      if (buf.length < 1000) throw new Error('bilden verkar tom');
-      const dest = join(IMAGES_DIR, `${slug}.jpg`);
-      await writeFile(dest, buf);
-      console.log(`${dest}  (${Math.round(buf.length / 1024)} kB)`);
-    } catch (err) {
-      console.error(`${slug}: kunde inte hämta bilden (${err.message})`);
-    }
-  }
-}
-
-/* ---------- utskrift ---------- */
-
-const kr = (v) => `${v.toLocaleString('sv-SE')} kr`;
-
-function printItem(item, status) {
-  console.log(`SKU ${item.sku} | ${item.title}`);
-  console.log(`  Butik:       ${item.merchant}`);
-  if (item.brand) console.log(`  Varumärke:   ${item.brand}`);
-  console.log(`  Ordinarie:   ${kr(item.price)}   <- detta värde ska in i price`);
-  if (item.salePrice !== null && item.salePrice < item.price) {
-    const label = item.label ? ` (${item.label})` : '';
-    console.log(`  Kampanj nu:  ${kr(item.salePrice)}${label}   visas automatiskt, skrivs inte in`);
-  }
-  if (item.type) console.log(`  Kategori:    ${item.type}`);
-  if (item.gtin) console.log(`  EAN:         ${item.gtin}`);
-  console.log(`  Produkt:     ${item.rawUrl}`);
-  if (item.image) console.log(`  Bild:        ${item.image}`);
-
-  // Affiliatelänken byggs utan querystring, som de befintliga länkarna.
-  // Feedens interna ID (?var= hos Outl1) behövs inte för att landa rätt och
-  // Adtraction URL-kodar inte målet, så färre parametrar är säkrare.
-  //
-  // cupa_sku måste ligga före &url=, eftersom allt efter &url= tolkas som
-  // produktens adress. Parametern ger konverteringsrapportering per produkt.
-  const target = item.rawUrl.split('?')[0];
-  const sku = SAFE_SKU.test(item.sku) && item.sku.length <= MAX_SKU_LENGTH ? item.sku : null;
-  const tracking = sku ? `${item.base}&cupa_sku=${sku}` : item.base;
-  console.log(`  affiliateUrl: ${tracking}&url=${target}`);
-  if (!sku) {
-    console.log(`               (cupa_sku utelämnad, SKU "${item.sku}" kräver kodning eller är för långt)`);
-  }
-  if (target !== item.rawUrl) {
-    console.log(`               (${item.rawUrl.slice(target.length)} borttaget, som i befintliga länkar)`);
-  }
-  console.log(`  Status:      ${status}`);
-  console.log('');
-}
-
-function printShort(item, status) {
-  const sale = item.salePrice !== null && item.salePrice < item.price ? ` (nu ${item.salePrice})` : '';
-  const flagg = status.startsWith('FINNS') ? ' [har sida]' : '';
-  console.log(`${item.sku.padEnd(12)} ${kr(item.price).padStart(10)}${sale.padEnd(12)} ${item.title.slice(0, 60)}${flagg}`);
-}
-
-/* ---------- main ---------- */
-
-const items = await loadFeeds();
-if (items.length === 0) {
-  console.error('Inga produkter kunde läsas. Kontrollera miljövariablerna.');
-  process.exit(2);
-}
-
-if (flags.has('bild')) {
-  await downloadImages(items);
-  process.exit(0);
-}
-
-const existing = await loadExisting();
-let hits = items.filter(matches);
-
-if (flags.has('ny')) {
-  hits = hits.filter((i) => !existing.has(i.key));
-}
-
-hits.sort((a, b) => a.price - b.price);
-
-const total = hits.length;
-const shown = hits.slice(0, LIMIT);
-
-console.log('');
-if (total === 0) {
-  console.log('Inga träffar.');
-  if (terms.length > 0) console.log('Pröva färre eller bredare sökord.');
-  console.log('');
-  process.exit(0);
-}
-
-for (const item of shown) {
-  const slug = existing.get(item.key);
-  const status = slug ? `FINNS redan som ${slug}` : 'NY, ingen sida';
-  if (flags.has('kort')) printShort(item, status);
-  else printItem(item, status);
-}
-
-console.log(`${shown.length} av ${total} träffar visas.`);
-if (total > shown.length) console.log(`Kör med --antal ${Math.min(total, 50)} för fler.`);
-console.log('');
-```
-
-## add-cupa-sku.mjs
-```
-#!/usr/bin/env node
-/**
- * add-cupa-sku.mjs
- *
- * Lägger till cupa_sku i affiliateUrl för produkter som finns i Adtractions
- * feeds. Parametern gör att konverteringar kan följas per produkt i stället
- * för bara per kanal.
- *
- * BAKGRUND
- *
- * Feedens egna länkar bär cupa_sku, våra egenbyggda gjorde inte det. Adtraction
- * bekräftade 2026-08-14 att parametern fungerar på egenbyggda länkar med det
- * vanliga annons-ID:t, alltså 1954031990 för FiskeOnline och 1728546059 för
- * Outl1. Feedens ID är en systemgenererad intern annons som inte ska användas.
- * Värdet får vara högst 128 tecken.
- *
- * PLACERING I LÄNKEN
- *
- * Parametern måste ligga före &url=. Adtraction URL-kodar inte målet, så allt
- * efter &url= tolkas som produktens adress. En parameter placerad efter skulle
- * hamna i mål-URL:en i stället för i spårningen.
- *
- * VILKA SOM BERÖRS
- *
- * Bara produkter som finns i en feed får parametern. Slutsålda produkter saknas
- * i feeden och Fritid och Vildmark har ingen feed alls. Deras länkar lämnas
- * orörda och fungerar som förut.
- *
- * Skriptet är idempotent. En länk som redan har rätt cupa_sku lämnas i fred.
- *
- * Körning:
- *   node --env-file=.env add-cupa-sku.mjs            torrkörning
- *   node --env-file=.env add-cupa-sku.mjs --apply    skriver filerna
- */
-
-import { readFile, writeFile, readdir } from 'node:fs/promises';
-import { join } from 'node:path';
-
-const SOURCES = [
-  { name: 'FiskeOnline', env: 'ADTRACTION_FEED_URL_FISKEONLINE' },
-  { name: 'Outl1', env: 'ADTRACTION_FEED_URL_OUTL1' },
-];
-
-const GEAR_DIR = 'src/content/gear-reviews';
-
-/** Adtractions gräns för egna parametervärden. */
-const MAX_SKU_LENGTH = 128;
-
-/** Tecken som är säkra i en querystring utan kodning. */
-const SAFE_SKU = /^[A-Za-z0-9._-]+$/;
-
-const args = process.argv.slice(2);
-const APPLY = args.includes('--apply');
-const opt = (n) => {
-  const i = args.indexOf(`--${n}`);
-  return i !== -1 ? args[i + 1] : null;
-};
-
-/* ---------- feed, speglar feed.ts ---------- */
-
-const ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
-
-function decode(s) {
-  if (!s) return '';
-  return s
-    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
-    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)))
-    .replace(/&([a-z]+);/gi, (m, name) => ENTITIES[name.toLowerCase()] ?? m);
-}
-
-function tag(block, name) {
-  const m = block.match(new RegExp(`<${name}(?:\\s[^>]*)?>([\\s\\S]*?)</${name}>`, 'i'));
-  if (!m) return '';
-  const cdata = m[1].match(/^\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*$/);
-  return cdata ? cdata[1].trim() : decode(m[1]).trim();
-}
-
-function normalise(url) {
-  return url ? url.trim().toLowerCase().split('#')[0].split('?')[0].replace(/\/+$/, '') : null;
-}
-
-function productUrlFrom(trackingUrl) {
-  const i = (trackingUrl || '').indexOf('&url=');
-  return i === -1 ? null : normalise(decode(trackingUrl.slice(i + 5)));
-}
-
-async function loadFeeds() {
-  const index = new Map();
-  console.log('\nFeeds');
-
-  for (const source of SOURCES) {
-    const url = process.env[source.env];
-    if (!url) {
-      console.log(`  ${source.name}: ${source.env} saknas, butiken hoppas över`);
-      continue;
-    }
-
-    let xml;
-    try {
-      const res = await fetch(url);
-      if (!res.ok) {
-        console.log(`  ${source.name}: Adtraction svarade ${res.status}`);
-        continue;
-      }
-      xml = await res.text();
-    } catch (err) {
-      console.log(`  ${source.name}: hämtning misslyckades (${err.message})`);
-      continue;
-    }
-
-    let added = 0;
-    const re = /<item[\s>][\s\S]*?<\/item>/gi;
-    let m;
-    while ((m = re.exec(xml)) !== null) {
-      const key = productUrlFrom(tag(m[0], 'link'));
-      const sku = tag(m[0], 'g:id');
-      if (key && sku && !index.has(key)) {
-        index.set(key, sku);
-        added++;
-      }
-    }
-    console.log(`  ${source.name}: ${added} produkter`);
-  }
-
-  return index;
-}
-
-/* ---------- filer ---------- */
-
-function frontmatterBlock(text) {
-  const m = text.match(/^---\n([\s\S]*?)\n---/);
-  return m ? m[1] : null;
-}
-
-function readField(fm, name) {
-  const m = fm.match(new RegExp(`^${name}:\\s*(.*)$`, 'm'));
-  return m ? m[1].trim().replace(/^["']|["']$/g, '') : null;
-}
-
-/** Sätter in cupa_sku före &url=, eller ersätter ett befintligt värde. */
-function withCupaSku(affiliateUrl, sku) {
-  const i = affiliateUrl.indexOf('&url=');
-  if (i === -1) return null;
-
-  const tracking = affiliateUrl.slice(0, i);
-  const target = affiliateUrl.slice(i);
-
-  const stripped = tracking.replace(/&cupa_sku=[^&]*/g, '');
-  return `${stripped}&cupa_sku=${sku}${target}`;
-}
-
-function currentCupaSku(affiliateUrl) {
-  const i = affiliateUrl.indexOf('&url=');
-  const tracking = i === -1 ? affiliateUrl : affiliateUrl.slice(0, i);
-  return tracking.match(/[?&]cupa_sku=([^&]*)/)?.[1] ?? null;
-}
-
-/* ---------- main ---------- */
-
-const feed = await loadFeeds();
-if (feed.size === 0) {
-  console.error('\nInga produkter kunde läsas ur någon feed.');
-  process.exit(2);
-}
-
-const dir = opt('dir') || GEAR_DIR;
-let files;
-try {
-  files = await readdir(dir);
-} catch {
-  console.error(`Hittar inte ${dir}. Kör skriptet från projektroten.`);
-  process.exit(2);
-}
-
-const changed = [];
-const skipped = [];
-let alreadyOk = 0;
-let noFeed = 0;
-
-for (const f of files) {
-  if (!/\.mdx?$/.test(f)) continue;
-
-  const path = join(dir, f);
-  const text = await readFile(path, 'utf8');
-  const fm = frontmatterBlock(text);
-  if (!fm) continue;
-
-  const slug = readField(fm, 'slug') || f;
-  const affiliateUrl = readField(fm, 'affiliateUrl');
-  if (!affiliateUrl) continue;
-
-  const target = productUrlFrom(affiliateUrl);
-  const sku = target ? feed.get(target) : undefined;
-
-  if (!sku) {
-    noFeed++;
-    continue;
-  }
-
-  if (sku.length > MAX_SKU_LENGTH) {
-    skipped.push({ slug, reason: `SKU är ${sku.length} tecken, gränsen är ${MAX_SKU_LENGTH}` });
-    continue;
-  }
-  if (!SAFE_SKU.test(sku)) {
-    skipped.push({ slug, reason: `SKU "${sku}" innehåller tecken som kräver kodning` });
-    continue;
-  }
-
-  const current = currentCupaSku(affiliateUrl);
-  if (current === sku) {
-    alreadyOk++;
-    continue;
-  }
-
-  const updated = withCupaSku(affiliateUrl, sku);
-  if (!updated || updated === affiliateUrl) {
-    skipped.push({ slug, reason: 'kunde inte bygga om länken' });
-    continue;
-  }
-
-  // Byt bara ut den exakta raden, och bara när den förekommer en gång.
-  const line = fm.match(new RegExp(`^affiliateUrl:.*$`, 'gm'));
-  if (!line || line.length !== 1) {
-    skipped.push({ slug, reason: `affiliateUrl förekommer ${line ? line.length : 0} gånger` });
-    continue;
-  }
-
-  const newText = text.replace(affiliateUrl, updated);
-  if (newText === text) {
-    skipped.push({ slug, reason: 'länken kunde inte bytas ut i filen' });
-    continue;
-  }
-
-  changed.push({ slug, sku, replacing: current });
-  if (APPLY) await writeFile(path, newText, 'utf8');
-}
-
-console.log(`\ncupa_sku i affiliateUrl${APPLY ? '' : ' (torrkörning)'}\n`);
-
-if (changed.length === 0) {
-  console.log('Inget att ändra.');
-} else {
-  for (const c of changed.sort((a, b) => a.slug.localeCompare(b.slug, 'sv'))) {
-    const note = c.replacing ? ` (ersätter ${c.replacing})` : '';
-    console.log(`  ${c.slug.padEnd(38)} cupa_sku=${c.sku}${note}`);
-  }
-  console.log(`\n${changed.length} filer ${APPLY ? 'uppdaterade' : 'skulle uppdateras'}`);
-}
-
-if (alreadyOk > 0) console.log(`${alreadyOk} hade redan rätt cupa_sku`);
-if (noFeed > 0) console.log(`${noFeed} saknas i feeden eller tillhör butik utan feed, lämnas orörda`);
-
-if (skipped.length > 0) {
-  console.log('\nHOPPADE ÖVER');
-  for (const s of skipped) console.log(`  ${s.slug.padEnd(38)} ${s.reason}`);
-}
-
-if (!APPLY && changed.length > 0) {
-  console.log('\nKör om med --apply för att skriva filerna.');
-}
-
-console.log('');
 ```
 
 ## add-product.py

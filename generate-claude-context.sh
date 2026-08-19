@@ -203,13 +203,29 @@ done
 echo "" >> "$OUT"
 echo "# Verktyg och drift" >> "$OUT"
 
-# Innehållsvalidering (npm run check)
-section "check-content.mjs" "check-content.mjs"
-section "validate-feed.mjs" "validate-feed.mjs"
-section "fix-fallback-prices.mjs" "fix-fallback-prices.mjs"
-section "feed-sok.mjs" "feed-sok.mjs"
-section "add-cupa-sku.mjs" "add-cupa-sku.mjs"
-section "add-product.py" "add-product.py"
+# Verktygsskript i projektroten.
+#
+# Hittas automatiskt i stället för att räknas upp. Den explicita listan glömdes
+# bort två gånger på två dagar när nya skript tillkom, och ett skript som
+# saknas i ögonblicksbilden blir osynligt för nästa session utan att något går
+# sönder. I projektroten ligger bara verktyg, så en genomsökning är säker.
+#
+# Utförda engångsskript ligger i scripts/utford/ och kommer därför inte med.
+# Ett migreringsskript som redan körts ser ut som ett aktuellt verktyg i
+# ögonblicksbilden, vilket är sämre än att det saknas.
+#
+# Uteslutna här: skriptet självt, och astro.config.mjs som redan finns under
+# Konfiguration.
+SKIP_ROOT_SCRIPTS="
+generate-claude-context.sh
+astro.config.mjs
+"
+
+for f in *.mjs *.py *.sh; do
+  [ -f "$f" ] || continue
+  case " $(echo $SKIP_ROOT_SCRIPTS) " in *" $f "*) continue;; esac
+  section "$f" "$f"
+done
 
 # GitHub Actions-workflows (t.ex. daglig ombyggnad för SMHI-data)
 for f in .github/workflows/*.yml .github/workflows/*.yaml; do
