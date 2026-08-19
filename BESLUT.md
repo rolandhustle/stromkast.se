@@ -190,6 +190,34 @@ Rättningen: Ätran har "västkustens starkaste bestånd av vild atlantlax" (SLU
 
 ---
 
+### Utbredningsnotisen beskriver arten, inte regionen
+
+**Beslut.** Nappkalendern visar en rad med `forekomst` för arter med begränsad utbredning, exempelvis "Kustart på väst- och sydkusten, saknas i insjöar". Texten beskriver artens utbredning i sig och inte förhållandet till den valda regionen. Åtta arter fick texter i augusti 2026, grundade på HaV, Länsstyrelsen och SLU. Arter som finns i stort sett överallt saknar fältet och får ingen notis.
+
+**Skäl.** Poängen i kalendern beskriver säsong och månfas, inte om arten finns i vattnet framför läsaren. Makrill i Mellansverige fick 95 i månadssnitt för augusti trots att arten i praktiken inte fiskas där. Det är falsk precision av samma slag som en påhittad flödessiffra: siffran ser ut som kunskap.
+
+Texten kunde inte formuleras per region, eftersom regionerna är fyra etiketter utan geografisk definition. Var Mellansverige slutar och Norra Sverige börjar finns inte i koden. En text om artens utbredning är sann oavsett var gränsen går, och läsaren gör själv kopplingen till sitt vatten.
+
+`absentRegions` täcker bara de uppenbara fallen, alltså makrill och horngädda i Norrland och fjällen. Att fylla i fältet för alla arter och regioner skulle kräva sjuttiotvå bedömningar där många är gränsfall. Notisen löser det utan att kräva den matrisen.
+
+**Vad som skulle ändra det.** Att regionerna får en geografisk definition. Då blir det möjligt att säga något om artens förekomst i just den valda regionen, vilket vore mer användbart. Definitionen behöver inte ligga i koden, en rad i CLAUDE.md räcker.
+
+---
+
+### Vattenspecifika fiskeregler ligger på destinationssidorna, inte i kalendern
+
+**Beslut.** Kalendern och artsidorna beskriver säsong och utbredning. Regler som gäller enskilda vatten, som totalförbudet mot harrfiske i Vättern sedan 15 mars 2025 och fredningsområdena för gädda längs ostkusten, ligger på respektive destinationssida.
+
+**Skäl.** Ett eget fält i `calendar.ts` övervägdes men förkastades. Harr i Vättern är en enda tydlig regel, men gäddans fredningsområden är dussintals områden med olika datum från Uppsala till Kalmar, plus Gotland, Kalmarsund, Öland och Stockholms skärgård. Ett fält som rymmer det första men inte det andra blir halvfyllt och ser heltäckande ut, alltså samma problem som `absentRegions` med två arter av sjutton.
+
+Reglerna är dessutom vattenspecifika i grunden. Ett fredningsområde gäller en plats, inte en art. Den som planerar fiske gör det för ett vatten, och det är på destinationssidan regeln blir konkret och möjlig att hålla aktuell. Vätternsidan beskriver redan förbudet på sju ställen, inklusive att det omfattar tillrinnande vattendrag upp till första vandringshinder, vilket en notis i kalendern inte hade fångat.
+
+`closedMonths` fungerar inte heller tekniskt: det är månadsbaserat och skulle freda harren i alla regioner alla månader, vilket vore fel för Norrland där fisket pågår som vanligt.
+
+**Vad som skulle ändra det.** Att ett regelverk blir så enhetligt att det går att uttrycka per art i stället för per vatten.
+
+---
+
 ## Metod
 
 ### Massändringar av innehåll verifieras mot git, aldrig mot egna mönster
@@ -221,6 +249,20 @@ Genomsökningen drog först in fem utförda migreringar. Det är sämre än att 
 Den genomgående principen bakom flera av besluten ovan. Dammån saknar vattenföring. Tio älvar saknar den. "Jämnt läge" visas hellre än en påhittad bästa dag.
 
 Falsk precision är svårare att upptäcka än ett tomt fält, eftersom den ser ut som kunskap.
+
+---
+
+### En regel i ett dokument gäller inte retroaktivt, en regel i kod gör det
+
+**Beslut.** `check-content.mjs` varnar för prisrelativa jämförelser i kronor, uppfunnen precision av typen "90 procent av prestandan", superlativ om marknaden, sammanskrivet "i dag", "gratis" i stället för "kostnadsfri", dubbla och spatierade bindestreck som tankstreck, samt filer helt utan svenska tecken. Elva mönster, alla som varningar.
+
+**Skäl.** Genomgången i augusti 2026 av 30 produktsidor hittade prisjämförelser, superlativ och uppfunnen precision i sidor skapade maj till juni. `BESLUT.md` skapades 12 juli, alltså efter att texterna skrevs. Reglerna fanns inte nedskrivna då, och texterna bröt inte mot något när de skrevs.
+
+Det är själva poängen. En regel som bara finns i ett dokument gäller framåt för den som läser dokumentet, och fångar ingenting i det som redan är publicerat. Efter att kontrollen infördes gav den 24 träffar i innehåll som inte ingick i genomgången, fördelat på destinationer, tekniker och produktsidor. Femton av dem var bindestreck som tankstreck, alltså samma konverteringsartefakt som fanns i `calendar.ts`.
+
+Mönstren är heuristiska och därför varningar, inte fel. Prismönstret kräver ett jämförande ord direkt efter beloppet, så "kostar 29 995 kr" passerar medan "800 kr mindre" fångas. Testat mot 31 rättade filer och mot artiklar med prisuppgifter utan falsklarm.
+
+**Vad som skulle ändra det.** Att falsklarmen blir fler än träffarna. Då ska mönstret snävas in, inte tas bort, eftersom en varning som ignoreras är värre än ingen varning.
 
 ---
 
@@ -413,6 +455,8 @@ Följande är **portabelt** och gäller oavsett land:
 - Affiliatelänkar bär produktens ID när nätverket stöder det. Utan det syns bara att kanalen levererade en order, inte vilken produkt som sålde, och då går det inte att veta vilka sidor som är värda att utveckla. Parametern måste ligga före den parameter som bär mål-URL:en när nätverket inte URL-kodar målet.
 - Filer som ska med i en aggregerad kontextfil hittas genom genomsökning, inte genom uppräkning. En uppräkning glöms, och det som saknas märks aldrig eftersom ingenting går sönder.
 - Utförda engångsskript flyttas ur projektroten. Ett migreringsskript som redan körts ser ut som ett verktyg, både för en människa som listar katalogen och i en aggregerad kontextfil.
+- En redaktionell regel som bara finns i ett dokument fångar ingenting i det som redan är publicerat. Regler som går att uttrycka som mönster hör hemma i innehållsvalideringen, annars gäller de bara för den som råkar läsa dokumentet.
+- En kalender eller modell som beskriver säsong ska inte tala om var arten finns. Det är två olika påståenden, och att blanda dem ger ett toppläge för fiske som inte existerar på platsen.
 - Matchningslogik som delas av flera skript måste hållas i takt. Vid införandet glömdes ett av tre skript och rapporterade tyst noll träffar, vilket såg ut som att allt stämde.
 
 Följande är **lokalt** och måste byggas om:
