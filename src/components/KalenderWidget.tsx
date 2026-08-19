@@ -615,6 +615,34 @@ export default function KalenderWidget({
         </div>
       </div>
 
+      {/* Utbredningsnotis.
+          Visas när arten har begränsad utbredning, alltså när forekomst är satt.
+          Poängen beskriver säsong och månfas, inte om arten finns i vattnet
+          framför läsaren. Ett toppläge för makrill i en region där arten knappt
+          förekommer är falsk precision av samma slag som en påhittad
+          flödessiffra: den ser ut som kunskap.
+
+          Texten beskriver artens utbredning i sig och inte per region, eftersom
+          regionerna saknar geografisk definition. Arter som finns i stort sett
+          överallt saknar fältet och får ingen notis. */}
+      {!isAbsentHere && selectedSpeciesData?.forekomst && (
+        <div style={{
+          background: '#f9fafb',
+          border: '1px solid #e5e7eb',
+          borderRadius: '10px',
+          padding: '10px 14px',
+          marginBottom: '1rem',
+          display: 'flex',
+          gap: '8px',
+          alignItems: 'flex-start',
+        }}>
+          <span aria-hidden="true" style={{ fontSize: '13px', lineHeight: 1.5, flexShrink: 0 }}>📍</span>
+          <p style={{ fontSize: '13px', color: '#4b5563', lineHeight: 1.5, margin: 0 }}>
+            <strong style={{ color: '#374151' }}>Utbredning:</strong> {selectedSpeciesData.forekomst}
+          </p>
+        </div>
+      )}
+
       {/* Huvud-layout */}
       {isAbsentHere ? (
         <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '2.5rem 1.5rem', textAlign: 'center' as const }}>
