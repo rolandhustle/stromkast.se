@@ -207,6 +207,9 @@ echo "# Verktyg och drift" >> "$OUT"
 section "check-content.mjs" "check-content.mjs"
 section "validate-feed.mjs" "validate-feed.mjs"
 section "fix-fallback-prices.mjs" "fix-fallback-prices.mjs"
+section "feed-sok.mjs" "feed-sok.mjs"
+section "add-cupa-sku.mjs" "add-cupa-sku.mjs"
+section "add-product.py" "add-product.py"
 
 # GitHub Actions-workflows (t.ex. daglig ombyggnad för SMHI-data)
 for f in .github/workflows/*.yml .github/workflows/*.yaml; do

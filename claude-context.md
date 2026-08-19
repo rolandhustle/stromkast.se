@@ -74,6 +74,8 @@ src/content/destinations/dalalven.mdx
 src/content/destinations/damman.mdx
 src/content/destinations/delsjoarna.mdx
 src/content/destinations/eman.mdx
+src/content/destinations/foxen-stora-le.mdx
+src/content/destinations/funasfjallen.mdx
 src/content/destinations/giman.mdx
 src/content/destinations/gota-alv.mdx
 src/content/destinations/gotland.mdx
@@ -100,6 +102,7 @@ src/content/destinations/ostergotlands-skargard.mdx
 src/content/destinations/ovre-fryken.mdx
 src/content/destinations/pitealven.mdx
 src/content/destinations/ringsjon.mdx
+src/content/destinations/rogen.mdx
 src/content/destinations/ronne-a.mdx
 src/content/destinations/roxen.mdx
 src/content/destinations/siljan.mdx
@@ -5225,6 +5228,26 @@ const heroAriaLabel = heroIsPhoto
   ? `${d.title}, foto`
   : `Illustrerad miljöbild av ${d.title}`;
 
+// Kortförsäljaren härleds ur länkens värdnamn i stället för att hårdkodas.
+// Ny butik läggs till här, inte i varje innehållsfil.
+const KORT_SALJARE: Record<string, string> = {
+  'ifiske.se': 'iFiske',
+  'fiskekort.se': 'fiskekort.se',
+  'natureit.se': 'NatureIT',
+  'laxportalen.se': 'Laxportalen',
+};
+
+const kortSaljare = (() => {
+  try {
+    const host = new URL(d.iFiskeUrl).hostname.replace(/^www\./, '');
+    return KORT_SALJARE[host]
+      ?? Object.entries(KORT_SALJARE).find(([k]) => host.endsWith(`.${k}`))?.[1]
+      ?? host;
+  } catch {
+    return 'fiskekortsförsäljaren';
+  }
+})();
+
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
@@ -5269,7 +5292,7 @@ const faqSchema = {
       name: `Var kan man köpa fiskekort till ${d.title}?`,
       acceptedAnswer: {
         '@type': 'Answer',
-        text: `Fiskekort till ${d.title} köps via iFiske. Följ länken på sidan för aktuella priser och regler.`,
+        text: `Fiskekort till ${d.title} köps via ${kortSaljare}. Följ länken på sidan för aktuella priser och regler.`,
       },
     },
     {
@@ -5617,14 +5640,14 @@ const faqSchema = {
         <!-- Buy fishing license CTA -->
         <div class="bg-pine text-white rounded-2xl p-6 mb-6">
           <h3 class="font-display font-bold text-xl mb-2">Köp fiskekort</h3>
-          <p class="text-white/70 text-sm mb-5 leading-relaxed">Fiskekort till {d.title} köps via iFiske. Smidigt, digitalt och giltigt direkt.</p>
+          <p class="text-white/70 text-sm mb-5 leading-relaxed">Fiskekort till {d.title} köps via {kortSaljare}. Smidigt, digitalt och giltigt direkt.</p>
           <a
             href={d.iFiskeUrl}
             target="_blank"
             rel="noopener noreferrer"
             class="inline-flex items-center justify-center gap-2 w-full bg-white text-pine font-bold text-sm px-5 py-3 rounded-full hover:bg-mist transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
           >
-            Köp via iFiske
+            Köp via {kortSaljare}
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
               <path d="M2 12L12 2M12 2H6M12 2v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -10158,7 +10181,7 @@ pros:
 cons:
   - Högt pris
   - Begränsat lager
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/bft-lizzard-x-stefan-trumstedt-710-mh-130g-2pcs-multi/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=29176&url=https://fiskeonline.com/sv/produkt/bft-lizzard-x-stefan-trumstedt-710-mh-130g-2pcs-multi/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -10198,7 +10221,7 @@ pros:
 cons:
   - "Specialiserat för hårdbeten - inte för jigg eller dropshot"
   - "Begränsat lagersaldo"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/bft-ninety-two-mimic-stick-multi-71-7-21g-2pcs/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=35077&url=https://fiskeonline.com/sv/produkt/bft-ninety-two-mimic-stick-multi-71-7-21g-2pcs/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -10277,7 +10300,7 @@ cons:
   - "12 cm är i minsta laget för renodlat storgäddfiske"
   - "Flytande modell når inte djupare hålor utan hjälp"
   - "Enskilda färger tar slut i perioder"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/bomber-b15a-long-a-13g-12cm-210/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=8086&url=https://fiskeonline.com/sv/produkt/bomber-b15a-long-a-13g-12cm-210/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -10534,7 +10557,7 @@ cons:
   - "Mjukt gummi slits av gäddans tänder efter några fiskar"
   - "Säljs i enpack, dyrare per bete än flerpack"
   - "Populära färger tar slut i perioder"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/ej-lures-flatnose-shad-coregonus-19cm-50gr/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=7292&url=https://fiskeonline.com/sv/produkt/ej-lures-flatnose-shad-coregonus-19cm-50gr/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -10934,7 +10957,7 @@ pros:
 cons:
   - "Kortare spole pa 135m"
   - "Fluo Yellow syns i klart vatten"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/hurricane-x8-braid-fluo-yellow-012mm-10kg-135m/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=17040&url=https://fiskeonline.com/sv/produkt/hurricane-x8-braid-fluo-yellow-012mm-10kg-135m/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: true
@@ -10976,7 +10999,7 @@ pros:
 cons:
   - "4-tradig ger inte lika rund profil som 8-tradig"
   - "Begransad kastlangd jamfort med tunnare 8-tradiga alternativ"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/kinetic-4-braid-150m-012mm-103kg-dusty-green/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=22812&url=https://fiskeonline.com/sv/produkt/kinetic-4-braid-150m-012mm-103kg-dusty-green/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: true
@@ -11060,7 +11083,7 @@ pros:
 cons:
   - "Grafitkropp ar tyngre an aluminium"
   - "Begransat lagersaldo"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/kinetic-brutalis-haspelrulle-5000-fd/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=30708&url=https://fiskeonline.com/sv/produkt/kinetic-brutalis-haspelrulle-5000-fd/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -11142,7 +11165,7 @@ pros:
 cons:
   - Tyngre än dyrare alternativ
   - Begränsad känslighet
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/kinetic-xarann-predator-trigger-ct-multi-86-259cm-3xh-kastvikt-40-120g/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=36709&url=https://fiskeonline.com/sv/produkt/kinetic-xarann-predator-trigger-ct-multi-86-259cm-3xh-kastvikt-40-120g/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: true
@@ -11183,7 +11206,7 @@ cons:
   - "Maxlast 200 kg begränsar till en person med full utrustning"
   - "Max 6 hk räcker inte för längre transportsträckor"
   - "Litet fribord för öppna vatten"
-affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/aluminiumbat-3m-old"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&cupa_sku=212-1-8&url=https://outl1.se/aluminiumbat-3m-old"
 merchant: "Outl1"
 featured: false
 budgetPick: false
@@ -11219,7 +11242,7 @@ pros:
 cons:
   - "Maxlast 350 kg gör fyra personer med utrustning orealistiskt"
   - "1,5 mm skrov är tunnare än systermodellen med 2 mm"
-affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/aluminiumbat-380cm-old"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&cupa_sku=212-1-3&url=https://outl1.se/aluminiumbat-380cm-old"
 merchant: "Outl1"
 featured: false
 budgetPick: false
@@ -11255,7 +11278,7 @@ pros:
 cons:
   - "CE-kategori D begränsar till skyddade vatten"
   - "Dyrare än 1,5 mm-versionen i samma längd"
-affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/stor-aluminiumbat-380cm-4-personer"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&cupa_sku=212-4-2&url=https://outl1.se/stor-aluminiumbat-380cm-4-personer"
 merchant: "Outl1"
 featured: false
 budgetPick: false
@@ -11291,7 +11314,7 @@ pros:
 cons:
   - "116 kg kräver båtkärra och två personer vid hantering"
   - "Tung leverans där urlastning inte ingår"
-affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/aluminiumbat-420cm"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&cupa_sku=212-1-4&url=https://outl1.se/aluminiumbat-420cm"
 merchant: "Outl1"
 featured: true
 budgetPick: false
@@ -11327,7 +11350,7 @@ pros:
 cons:
   - "CE-kategori D begränsar till skyddade vatten"
   - "Dyrast i serien trots lägre sjövärdighetsklass än kategori C-modellen"
-affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/aluminiumbat-420cm-5-pers"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&cupa_sku=212-4-3&url=https://outl1.se/aluminiumbat-420cm-5-pers"
 merchant: "Outl1"
 featured: false
 budgetPick: false
@@ -11364,7 +11387,7 @@ cons:
   - "0,9 mm PVC kräver varsamhet mot krokar och vassa stenar"
   - "Ingen CE-kategori angiven av tillverkaren"
   - "Kräver montering och pumpning vid varje användning"
-affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/katamaran-300-cm-for-4-personer-lyfco"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&cupa_sku=212-1-33&url=https://outl1.se/katamaran-300-cm-for-4-personer-lyfco"
 merchant: "Outl1"
 featured: false
 budgetPick: true
@@ -11401,7 +11424,7 @@ cons:
   - "0,9 mm PVC kräver varsamhet mot krokar och vassa stenar"
   - "Ingen CE-kategori angiven av tillverkaren"
   - "Oklart vilka tillbehör som ingår, kontrollera före köp"
-affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/katamaran-gummibat-420-cm-for-8-personer-lyfco"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&cupa_sku=212-1-34&url=https://outl1.se/katamaran-gummibat-420-cm-for-8-personer-lyfco"
 merchant: "Outl1"
 featured: false
 budgetPick: false
@@ -11438,7 +11461,7 @@ cons:
   - "36 lbs är känsligt för vind och ström, marginalerna är små"
   - "Finns endast med lång rigg"
   - "Handtaget kan inte vinklas i höjdled som på X-serien"
-affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/billig-elektrisk-batmotor"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&cupa_sku=108-1-1&url=https://outl1.se/billig-elektrisk-batmotor"
 merchant: "Outl1"
 featured: false
 budgetPick: true
@@ -11475,7 +11498,7 @@ cons:
   - "Finns endast med lång rigg"
   - "Handtaget kan inte vinklas i höjdled som på X-serien"
   - "Batteri ingår inte"
-affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/billig-elektrisk-utombordsmotor"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&cupa_sku=108-1-2&url=https://outl1.se/billig-elektrisk-utombordsmotor"
 merchant: "Outl1"
 featured: false
 budgetPick: false
@@ -11511,7 +11534,7 @@ pros:
 cons:
   - "Lägst dragkraft i serien, känslig för hård vind och ström"
   - "Batteri ingår inte och tillkommer i både kostnad och vikt"
-affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/billig-eldriven-utombordsmotor"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&cupa_sku=108-1-3&url=https://outl1.se/billig-eldriven-utombordsmotor"
 merchant: "Outl1"
 featured: false
 budgetPick: false
@@ -11547,7 +11570,7 @@ pros:
 cons:
   - "Batteri ingår inte och tillkommer i både kostnad och vikt"
   - "Kort rigg passar inte båtar med hög akterspegel"
-affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/billig-eldriven-batmotor"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&cupa_sku=108-1-4&url=https://outl1.se/billig-eldriven-batmotor"
 merchant: "Outl1"
 featured: true
 budgetPick: false
@@ -11583,7 +11606,7 @@ pros:
 cons:
   - "Kräver två 12-voltsbatterier, dubbel batterikostnad och batterivikt"
   - "Batterier ingår inte"
-affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/elektrisk-batmotor-kort-rigg"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&cupa_sku=108-1-8&url=https://outl1.se/elektrisk-batmotor-kort-rigg"
 merchant: "Outl1"
 featured: false
 budgetPick: false
@@ -11620,7 +11643,7 @@ cons:
   - "Kräver två 12-voltsbatterier, dubbel batterikostnad och batterivikt"
   - "Batterier ingår inte"
   - "Onödigt lång rigg för gummibåtar och låga ekor"
-affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/billig-el-utombordare"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&cupa_sku=108-1-5&url=https://outl1.se/billig-el-utombordare"
 merchant: "Outl1"
 featured: false
 budgetPick: false
@@ -11656,7 +11679,7 @@ pros:
 cons:
   - Begränsad lagerstatus
   - Inte lika finkänsligt som dyrare alternativ
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/mikado-rod-inazuma-pro-zander-214cm-kastvikt-22g-2-delat/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=100240&url=https://fiskeonline.com/sv/produkt/mikado-rod-inazuma-pro-zander-214cm-kastvikt-22g-2-delat/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: true
@@ -11696,7 +11719,7 @@ pros:
 cons:
   - "Grafitkropp tyngre an aluminium"
   - "Inte lika lattviktig som Shimano-alternativ"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/okuma-ceymar-hd-chd-2500a-haspelrulle-utvaxling-5-31/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=17320&url=https://fiskeonline.com/sv/produkt/okuma-ceymar-hd-chd-2500a-haspelrulle-utvaxling-5-31/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -11737,7 +11760,7 @@ pros:
 cons:
   - "Lite tyngre an Shimano-alternativ i samma prisklass"
   - "Begransat lagersaldo"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/okuma-inspira-2500a-haspelrulle-utvaxling-5-31/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=28486&url=https://fiskeonline.com/sv/produkt/okuma-inspira-2500a-haspelrulle-utvaxling-5-31/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -11820,7 +11843,7 @@ pros:
 cons:
   - "Kortare spo pa 210cm an de flesta trollingspoon"
   - "Komboprodukter ar saellan optimala for bada delarna"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/okuma-magda-finn-trolling-combo-7-210cm-classic-clx-300la/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=101953&url=https://fiskeonline.com/sv/produkt/okuma-magda-finn-trolling-combo-7-210cm-classic-clx-300la/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -11860,7 +11883,7 @@ pros:
 cons:
   - "Begransad produktinfo"
   - "Begransat lagersaldo"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/okuma-magda-finn-trollingspo-80-15-30lbs-2-delat/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=102401&url=https://fiskeonline.com/sv/produkt/okuma-magda-finn-trollingspo-80-15-30lbs-2-delat/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: true
@@ -11901,7 +11924,7 @@ cons:
   - "Kan inte registreras för allmän väg, max 30 km/h"
   - "Endast två kölrullar mot tre på de större modellerna"
   - "Levereras omonterad"
-affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/battrailer"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&cupa_sku=179-1-4&url=https://outl1.se/battrailer"
 merchant: "Outl1"
 featured: false
 budgetPick: true
@@ -11938,7 +11961,7 @@ cons:
   - "Kan inte registreras för allmän väg, max 30 km/h"
   - "Saknar lysen och stödhjul som 600-kilosmodellen har"
   - "Levereras omonterad"
-affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/batvagn"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&cupa_sku=179-1-5&url=https://outl1.se/batvagn"
 merchant: "Outl1"
 featured: false
 budgetPick: false
@@ -11975,7 +11998,7 @@ cons:
   - "Kan inte registreras för allmän väg, max 30 km/h"
   - "Kortare justeromfång än 540-kilosmodellen"
   - "Lamporna tål inte att sänkas i vatten och måste skruvas bort vid dränkning"
-affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/batkarra"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&cupa_sku=179-1-6&url=https://outl1.se/batkarra"
 merchant: "Outl1"
 featured: true
 budgetPick: false
@@ -12011,7 +12034,7 @@ pros:
 cons:
   - "53 kg kräver två personer eller lyfthjälp vid montering"
   - "Service och reservdelar hanteras via butiken, inte via ett märkesverkstadsnät"
-affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/batmotor-15-h-2-cylindrig-4-takt-kraftfull-effektiv-24-l-bransletank"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&cupa_sku=212-1-103&url=https://outl1.se/batmotor-15-h-2-cylindrig-4-takt-kraftfull-effektiv-24-l-bransletank"
 merchant: "Outl1"
 featured: true
 budgetPick: false
@@ -12047,7 +12070,7 @@ cons:
   - "Fel val för båtar med låg akterspegel, som sortimentets aluminiumbåtar"
   - "Ingen viktuppgift angiven av butiken"
   - "Service och reservdelar hanteras via butiken, inte via ett märkesverkstadsnät"
-affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/batmotor-15-hk-2-cylindrig-4-takt-branslesnal-kraftfull-24-l-tank-lang-rigg"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&cupa_sku=212-1-105&url=https://outl1.se/batmotor-15-hk-2-cylindrig-4-takt-branslesnal-kraftfull-24-l-tank-lang-rigg"
 merchant: "Outl1"
 featured: false
 budgetPick: false
@@ -12083,7 +12106,7 @@ cons:
   - "63 kg kräver två personer eller lyfthjälp vid montering"
   - "Överdimensionerad för båtar med lägre maxgräns än 25 hk"
   - "Service och reservdelar hanteras via butiken, inte via ett märkesverkstadsnät"
-affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/batmotor-25-hk-2-cylindrig-4-takt-24-l-bransletank"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&cupa_sku=212-1-104&url=https://outl1.se/batmotor-25-hk-2-cylindrig-4-takt-24-l-bransletank"
 merchant: "Outl1"
 featured: false
 budgetPick: false
@@ -12119,7 +12142,7 @@ cons:
   - "Fel val för båtar med låg akterspegel, som sortimentets aluminiumbåtar"
   - "Ingen viktuppgift angiven av butiken"
   - "Service och reservdelar hanteras via butiken, inte via ett märkesverkstadsnät"
-affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/batmotor-25-hk-2-cylindrig-4-takt-kraftfull-branslesnal-24-l-bransletank-lang-rigg"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&cupa_sku=212-1-106&url=https://outl1.se/batmotor-25-hk-2-cylindrig-4-takt-kraftfull-branslesnal-24-l-bransletank-lang-rigg"
 merchant: "Outl1"
 featured: false
 budgetPick: false
@@ -12155,7 +12178,7 @@ pros:
 cons:
   - "Intern tank på 1,1 liter kräver påfyllning på längre pass"
   - "Service och reservdelar hanteras via butiken, inte via ett märkesverkstadsnät"
-affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/batmotor-6-h-1-cylindrig-4-takts-manuell-start-tillerhandtag-lattviktsdesign"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&cupa_sku=212-1-100&url=https://outl1.se/batmotor-6-h-1-cylindrig-4-takts-manuell-start-tillerhandtag-lattviktsdesign"
 merchant: "Outl1"
 featured: false
 budgetPick: true
@@ -12191,7 +12214,7 @@ pros:
 cons:
   - "Extern tank tar plats i en liten båt"
   - "Service och reservdelar hanteras via butiken, inte via ett märkesverkstadsnät"
-affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&url=https://outl1.se/batmotor-9-8-h-2-cylindrig-4-takt-24-l-bransletank-tillerhandtag"
+affiliateUrl: "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1&cupa_sku=212-1-102&url=https://outl1.se/batmotor-9-8-h-2-cylindrig-4-takt-24-l-bransletank-tillerhandtag"
 merchant: "Outl1"
 featured: false
 budgetPick: false
@@ -12228,7 +12251,7 @@ cons:
   - "Tung, kräver ett spö med rejäl kastvikt"
   - "Stort bete som sorterar bort mindre gädda"
   - "Enkelkrok kräver god kontakt vid mothugget"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/the-pig-chopper-xl-spinnerbait-50g-dirty-roach/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=105871&url=https://fiskeonline.com/sv/produkt/the-pig-chopper-xl-spinnerbait-50g-dirty-roach/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -12265,7 +12288,7 @@ cons:
   - "För stor för normalfiske efter medelgädda"
   - "Mjukt gummi slits av gäddans tänder"
   - "Populära färger tar slut i perioder"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/pig-shad-jr-20cm-50g-arkansas-shiner-2pcs/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=15162&url=https://fiskeonline.com/sv/produkt/pig-shad-jr-20cm-50g-arkansas-shiner-2pcs/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -12302,7 +12325,7 @@ cons:
   - "9 cm är i minsta laget för gädda"
   - "Kräver aktiv spöföring, inte bara rak invevning"
   - "Enskilda färger tar slut i perioder"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/rapala-shadow-rap-shad-9cm-live-smelt/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=27384&url=https://fiskeonline.com/sv/produkt/rapala-shadow-rap-shad-9cm-live-smelt/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -12339,7 +12362,7 @@ pros:
 cons:
   - "Högt pris för kastviktsrangen"
   - "Specialiserat för finesse och jigg, inte för tyngre beten"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/shimano-26-zodias-haspelspo-m-fast-213m-70-7-21g-2-delat/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=105027&url=https://fiskeonline.com/sv/produkt/shimano-26-zodias-haspelspo-m-fast-213m-70-7-21g-2-delat/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -12380,7 +12403,7 @@ pros:
 cons:
   - Högt pris
   - Smal kastviktsrange
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/shimano-expride-haspelspo-198m-66-3-10g-2-delat/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=33764&url=https://fiskeonline.com/sv/produkt/shimano-expride-haspelspo-198m-66-3-10g-2-delat/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -12419,7 +12442,7 @@ pros:
 cons:
   - "Hogre pris an Hurricane och Kinetic"
   - "Grey ar diskret men svarare att se vid linobservation"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/shimano-line-kairiki-8-150m-0-13mm-8-3kg-grey/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=104908&url=https://fiskeonline.com/sv/produkt/shimano-line-kairiki-8-150m-0-13mm-8-3kg-grey/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -12462,7 +12485,7 @@ pros:
 cons:
   - "Bara 5 kullager"
   - "Inte lika lattviktig som Vanford"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/shimano-haspelrulle-miravel-2500/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=27523&url=https://fiskeonline.com/sv/produkt/shimano-haspelrulle-miravel-2500/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -12544,7 +12567,7 @@ pros:
 cons:
   - Smal kastviktsrange
   - Begränsat lagersaldo
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/shimano-nexave-haspelspo-fast-191m-63-3-14g-2-delat/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=33861&url=https://fiskeonline.com/sv/produkt/shimano-nexave-haspelspo-fast-191m-63-3-14g-2-delat/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: true
@@ -12627,7 +12650,7 @@ pros:
 cons:
   - "Hogt pris for mellanklass"
   - "HG-utaxling passar inte alla tekniker"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/shimano-haspelrulle-stradic-fm-c3000-hg/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=24728&url=https://fiskeonline.com/sv/produkt/shimano-haspelrulle-stradic-fm-c3000-hg/"
 merchant: "FiskeOnline"
 featured: true
 budgetPick: false
@@ -12670,7 +12693,7 @@ pros:
 cons:
   - "Hogt pris"
   - "Specialiserad for finesse - inte for tyngre beten"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/shimano-reel-vanford-fa-2500/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=30297&url=https://fiskeonline.com/sv/produkt/shimano-reel-vanford-fa-2500/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -12711,7 +12734,7 @@ pros:
 cons:
   - "Hogt pris"
   - "Storlek 4000 passar inte finessefiske"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/shimano-reel-vanford-fa-4000/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=30308&url=https://fiskeonline.com/sv/produkt/shimano-reel-vanford-fa-4000/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -12754,7 +12777,7 @@ pros:
 cons:
   - XH kan vara hård för nybörjare
   - Lite tyngre än Westin-alternativen
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/shimano-yasei-bb-pike-xh-multi-230m-30-90g-2-delat/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=33924&url=https://fiskeonline.com/sv/produkt/shimano-yasei-bb-pike-xh-multi-230m-30-90g-2-delat/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -12794,7 +12817,7 @@ cons:
   - "Kräver kraftigt spö och rejäl tafs"
   - "Tungt att fiska under längre pass"
   - "Enskilda färger tar slut i perioder"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/strike-pro-buster-jerk-sinking-15cm-75g-python/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=15912&url=https://fiskeonline.com/sv/produkt/strike-pro-buster-jerk-sinking-15cm-75g-python/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -12830,7 +12853,7 @@ pros:
 cons:
   - "Kortare spole pa 135m"
   - "Hogre pris an Westin W3"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/strike-wire-extreme-015mm-11kg-135m-h-v-yellow/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=14587&url=https://fiskeonline.com/sv/produkt/strike-wire-extreme-015mm-11kg-135m-h-v-yellow/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -12909,7 +12932,7 @@ cons:
   - "Styv och kräver rätt knut"
   - "Onödigt grov för vanligt gäddfiske"
   - "Högst pris i kategorin"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/strike-wire-fluorocarbon-shockleader-090mm-80lb-25m/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=15536&url=https://fiskeonline.com/sv/produkt/strike-wire-fluorocarbon-shockleader-090mm-80lb-25m/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -12944,7 +12967,7 @@ pros:
 cons:
   - "Stretchen ger mindre direktkänsla än fläta"
   - "För klen för laxfiske i älv"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/stroft-abr-200m-028mm-730kg/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=15842&url=https://fiskeonline.com/sv/produkt/stroft-abr-200m-028mm-730kg/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: true
@@ -12979,7 +13002,7 @@ pros:
 cons:
   - "Mindre direktkänsla än flätlina"
   - "Tunnare diameter krävs för riktigt djup trolling"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/stroft-abr-200m-030mm-810kg/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=15854&url=https://fiskeonline.com/sv/produkt/stroft-abr-200m-030mm-810kg/"
 merchant: "FiskeOnline"
 featured: true
 budgetPick: false
@@ -13014,7 +13037,7 @@ pros:
 cons:
   - "För grov för vanligt spinnfiske"
   - "Stretchen ger mindre direktkänsla"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/stroft-abr-200m-040mm-140kg/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=15848&url=https://fiskeonline.com/sv/produkt/stroft-abr-200m-040mm-140kg/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -13050,7 +13073,7 @@ cons:
   - "En enda vikt täcker inte alla djup och strömmar"
   - "Enskilda färger tar slut i perioder"
   - "Kräver sköljning efter fiske för att inte fastna i rörliga delar"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-salty-18g-green-sardine-9cm/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=9881&url=https://fiskeonline.com/sv/produkt/westin-salty-18g-green-sardine-9cm/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: true
@@ -13087,7 +13110,7 @@ cons:
   - "Enskilda färger tar slut i perioder"
   - "53 gram kräver ett spö med tillräcklig kastvikt"
   - "Mindre effektivt i mycket grunt eller igenväxt vatten"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-swim-glidebait-12cm-53g-suspending-firetiger/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=13059&url=https://fiskeonline.com/sv/produkt/westin-swim-glidebait-12cm-53g-suspending-firetiger/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -13123,7 +13146,7 @@ pros:
 cons:
   - "Mycket hogt pris"
   - "Svart att motivera for sotvattensfiske"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w10-13-braid-coastal-morning-mist-0-148mm-150m-8-7kg/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=16475&url=https://fiskeonline.com/sv/produkt/westin-w10-13-braid-coastal-morning-mist-0-148mm-150m-8-7kg/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -13166,7 +13189,7 @@ pros:
 cons:
   - Inte lika lätt som W3/W6
   - XH-aktion kan vara hård för nybörjare
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w2-powercast-t-spinnspo-till-multirulle-83-248cm-xh-kastvikt-20-80g/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=23704&url=https://fiskeonline.com/sv/produkt/westin-w2-powercast-t-spinnspo-till-multirulle-83-248cm-xh-kastvikt-20-80g/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -13206,7 +13229,7 @@ pros:
 cons:
   - "Inte lika avancerad som W3-serien"
   - "H-aktion kraver erfarenhet"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w2-predator-trolling-86-255cm-h-60-180g-2-delat/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=103503&url=https://fiskeonline.com/sv/produkt/westin-w2-predator-trolling-86-255cm-h-60-180g-2-delat/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -13246,7 +13269,7 @@ pros:
 cons:
   - "Tyngre an Shimano-alternativ i samma prisklass"
   - "Storlek 4000 passar inte finessefiske"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w3-haspelrulle-4000-fd-71-kullager/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=102754&url=https://fiskeonline.com/sv/produkt/westin-w3-haspelrulle-4000-fd-71-kullager/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -13288,7 +13311,7 @@ pros:
 cons:
   - "Hogre pris an Kinetic och Hurricane"
   - "Smokey Grey svarare att se vid linobservation"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w3-8-braid-smokey-grey-150m-0148mm-61kg/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=29918&url=https://fiskeonline.com/sv/produkt/westin-w3-8-braid-smokey-grey-150m-0148mm-61kg/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -13330,7 +13353,7 @@ pros:
 cons:
   - Inte lika känsligt som rena finessespön
   - Lite längre än idealiskt för smala platser
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w3-finesse-jig-3rd-haspelspo-73-221cm-l-kastvikt-5-20g/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=103840&url=https://fiskeonline.com/sv/produkt/westin-w3-finesse-jig-3rd-haspelspo-73-221cm-l-kastvikt-5-20g/"
 merchant: "FiskeOnline"
 featured: true
 budgetPick: false
@@ -13409,7 +13432,7 @@ pros:
 cons:
   - Kompromiss. Inte specialiserat för varken teknik
   - MH-aktion kan kännas lite mjuk för stora wobblers
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w3-hybridcast-t-3rd-multi-73-221cm-mh-kastvikt-30-90g/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=103910&url=https://fiskeonline.com/sv/produkt/westin-w3-hybridcast-t-3rd-multi-73-221cm-mh-kastvikt-30-90g/"
 merchant: "FiskeOnline"
 featured: true
 budgetPick: false
@@ -13450,7 +13473,7 @@ pros:
 cons:
   - Lång. Inte idealisk från kajak eller liten båt
   - M-aktion kan kännas mjuk vid kraftig huggtagning
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w3-powerteez-3rd-haspelspo-84-254cm-m-kastvikt-14-49g/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=104432&url=https://fiskeonline.com/sv/produkt/westin-w3-powerteez-3rd-haspelspo-84-254cm-m-kastvikt-14-49g/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -13489,7 +13512,7 @@ pros:
 cons:
   - "H-aktion kan vara haard for nyborrjare"
   - "Specialiserat for trolling - inte for spinnfiske"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w3-predator-trolling-3rd-86-259cm-h-60-180g-2-delat/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=104453&url=https://fiskeonline.com/sv/produkt/westin-w3-predator-trolling-3rd-86-259cm-h-60-180g-2-delat/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -13529,7 +13552,7 @@ pros:
 cons:
   - "Betydligt hogre pris an W3"
   - "Kortare spole pa 135m"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w6-8-braid-lime-punch-0-148mm-135m-6-8kg/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=16481&url=https://fiskeonline.com/sv/produkt/westin-w6-8-braid-lime-punch-0-148mm-135m-6-8kg/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -13571,7 +13594,7 @@ pros:
 cons:
   - Specialiserat. Inte för andra tekniker
   - Högt pris
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w6-dropshot-haspelspo-7-210cm-ml-kastvikt-4-21g/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=25791&url=https://fiskeonline.com/sv/produkt/westin-w6-dropshot-haspelspo-7-210cm-ml-kastvikt-4-21g/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -13609,7 +13632,7 @@ pros:
 cons:
   - Högt pris
   - Specialiserat. Inte för allmänt gäddspinnfiske
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w6-jerk-swimbait-t-2nd-multi-73-221cm-h-kastvikt-30-80g/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=104591&url=https://fiskeonline.com/sv/produkt/westin-w6-jerk-swimbait-t-2nd-multi-73-221cm-h-kastvikt-30-80g/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -13647,7 +13670,7 @@ pros:
 cons:
   - Dyrt
   - Överdrivet kraftfullt för genomsnittlig gäddfiskare
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w6-powercast-t-spinnspo-79-233cm-xxh-kastvikt-40-130g/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=16283&url=https://fiskeonline.com/sv/produkt/westin-w6-powercast-t-spinnspo-79-233cm-xxh-kastvikt-40-130g/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -13686,7 +13709,7 @@ pros:
 cons:
   - Högt pris
   - Specialiserat för jigg. Inte mångsidigt
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w6-powerteez-haspelspo-84-250cm-mh-kastvikt-21-70g/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=25847&url=https://fiskeonline.com/sv/produkt/westin-w6-powerteez-haspelspo-84-250cm-mh-kastvikt-21-70g/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -13725,7 +13748,7 @@ pros:
 cons:
   - "Styvheten gör knytning svårare"
   - "Ger inte samma säkerhet mot avbett som wire"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w6-st3-hard-fluorocarbon-35m-062mm-261kg-clear/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=19779&url=https://fiskeonline.com/sv/produkt/westin-w6-st3-hard-fluorocarbon-35m-062mm-261kg-clear/"
 merchant: "FiskeOnline"
 featured: true
 budgetPick: false
@@ -13760,7 +13783,7 @@ pros:
 cons:
   - "För klen för gädda"
   - "Lägre brottstyrka, inte för grovt fiske"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w6-st5-soft-fluorocarbon-50m-030mm-59kg-clear/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=19781&url=https://fiskeonline.com/sv/produkt/westin-w6-st5-soft-fluorocarbon-50m-030mm-59kg-clear/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: false
@@ -13795,7 +13818,7 @@ pros:
 cons:
   - "30-metersspole, kortare än vissa konkurrenter"
   - "Mjukheten gör den mindre nötningstålig än en hård tafs"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/westin-w6-st5-soft-fluorocarbon-30m-038mm-92kg-clear/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=19787&url=https://fiskeonline.com/sv/produkt/westin-w6-st5-soft-fluorocarbon-30m-038mm-92kg-clear/"
 merchant: "FiskeOnline"
 featured: true
 budgetPick: false
@@ -13831,7 +13854,7 @@ cons:
   - "Enkel gång utan extra action vid stopp"
   - "Enskilda färger tar slut i perioder"
   - "13 gram räcker inte till riktigt långa kast i hård vind"
-affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/wiggler-viking-herring-gul-svart-13g/"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=14726&url=https://fiskeonline.com/sv/produkt/wiggler-viking-herring-gul-svart-13g/"
 merchant: "FiskeOnline"
 featured: false
 budgetPick: true
@@ -23888,6 +23911,715 @@ Emån är Nordeuropas viktigaste lokal för mal. Malen etablerade sig i ån och 
 
 ```
 
+## src/content/destinations/foxen-stora-le.mdx
+```
+---
+title: "Foxen och Stora Le"
+slug: "foxen-stora-le"
+description: "Fiska gädda, abborre och gös i Foxen och Stora Le. Guide till fiskekort, maxmått, fredning, hotspots och båtramper i Årjäng och Dalsland."
+heroImage: "/images/destinations/foxen-stora-le.jpg"
+heroSource: illustration
+lat: 59.42
+lng: 11.87
+län: "Värmlands län, Västra Götalands län"
+primarySpecies: ["Gädda", "Abborre", "Gös", "Öring", "Lake", "Sik"]
+waterType: "lake"
+iFiskeUrl: "https://www.ifiske.se/fiske-foxen-stora-le.htm"
+excerpt: "Storgädda och storabborre i Dalslands djupa gränssjö."
+recommendedGear: []
+publishedAt: "2026-08-14"
+updatedAt: "2026-08-14"
+kostrad: ["kvicksilver"]
+intro: >-
+  Foxen och Stora Le bildar ett sammanhängande sprickdalssjösystem på omkring 131
+  kvadratkilometer som sträcker sig 66 kilometer från Töcksfors i Värmland ned genom
+  Dalsland och in i Norge, där sjön heter Store Le. Största djup är 99 meter, söder om
+  Västra Fågelvik. Vattnet är näringsfattigt och klart, med över 300 öar och branta
+  skogsstränder. Fisket domineras av storvuxen gädda och abborre, och gädda över 15 kilo
+  förekommer. Foxen har dessutom en egen stam av storöring med både uppströmslekande och
+  nedströmslekande form. Gädda över 80 centimeter ska återutsättas.
+---
+
+## Fiskekort och regler
+
+Handredskapsfiske är inte fritt i Foxen och Stora Le. Allt fiske kräver fiskekort. Den svenska delen förvaltas av två fiskevårdsområdesföreningar, Foxens FVOF i Årjängs kommun och Struven-Stora Le FVOF som sträcker sig ned mot Dalsland. Båda bildades 1991. Sedan 2020 finns ett gemensamt sportfiskekort som gäller inom båda föreningarnas ursprungliga områden, med vissa undantag som beskrivs nedan.
+
+Endast handredskap är tillåtet. Fiskekortet är personligt och får inte överlåtas. Kan giltigt kort inte visas upp vid tillsyn kan en kontrollavgift på 1 000 kr tas ut.
+
+Riksgränsen mot Norge går genom Stora Le. Den norska delen har egen förvaltning och egna regler, se avsnittet om fiske på norska sidan.
+
+### Vad är fritt och vad kräver tillstånd?
+
+Inget fiske är fritt. Barn och ungdomar till och med 16 års ålder fiskar utan kostnad. Fiskerättsägare fiskar på sin egen rätt och kan ta med gäster. Boende inom området utan egen fiskerätt kan köpa ortskort till lägre pris.
+
+Kontrollera kortets giltighetsområde innan du fiskar. De två föreningarnas kort täcker Foxen och de delar av Stora Le som ligger inom respektive område. Längre söderut i Stora Le, mot Dals-Ed, ligger vatten som inte omfattas av dessa kort.
+
+### Var köper du fiskekort?
+
+Foxens FVOF säljer kort via [iFiske](https://www.ifiske.se/fiske-foxen-stora-le.htm). Kort för Struven-Stora Le-delen säljs via fiskekort.se och genom Årjängs turistbyrå. Köp kortet innan du lägger i båten, inte efter.
+
+### Priser Foxens FVOF
+
+Priserna nedan är hämtade från iFiske i augusti 2026. Föreningen anger inte uttryckligen vilket kalenderår de gäller, så kontrollera aktuellt pris vid köp.
+
+| Kort | Pris |
+|---|---|
+| Dygnskort | 125 kr |
+| Veckokort | 625 kr |
+| Årskort | 1 125 kr |
+| Dygnskort trolling | 375 kr |
+| Årskort trolling | 1 875 kr |
+| Årskort ortsbo | 250 kr |
+
+För Struven-Stora Le-delen förekommer separata och lägre priser i turistinformation, i storleksordningen 50 kr för dagkort och 500 kr för årskort. De uppgifterna saknar årtal och har inte kunnat verifieras mot föreningen. Utgå från priset som visas vid köptillfället på fiskekort.se.
+
+### Minimimått, maxmått och fångstbegränsning
+
+| Art | Regel |
+|---|---|
+| Gädda | Maxmått 80 cm. Fisk över måttet ska återutsättas. Högst 2 gäddor per fiskare och dygn |
+| Gös | Minimimått 45 cm. Högst 2 gösar per fiskare och dygn |
+| Öring och lax | Minimimått 60 cm |
+| Övriga arter | Inga särskilda mått anges i föreningarnas regler |
+
+Maxmåttet på gädda är en regel, inte en rekommendation. Fisk över 80 cm ska tillbaka i vattnet. Det skyddar de stora lekfärdiga honorna i ett vatten där rovfisken växer sig stor men aldrig blir talrik.
+
+### Fredningstider och områdesbegränsningar
+
+Gösen är fredad 1 maj till 15 juni. Under den perioden är gösfiske förbjudet.
+
+I norra delen av Foxen vid Töcksfors, samt i området kring fiskodlingen i Västra Fågelvik, är fiske inte tillåtet 1 maj till 31 oktober. Undantaget gäller fiskerättsägare och innehavare av ortskort.
+
+Allt fiske i rinnande vatten är förbjudet inom fiskevårdsområdena. Det gäller tillflöden, sund med strömmande vatten och partierna vid kanalens slussar. I Holmerudsälven krävs fiskerätt inom Struven-Stora Le FVOF, och all öring som fångas där ska återutsättas.
+
+### Antal spön och trolling
+
+Vid trolling får högst fyra spön användas per löst fiskekort. Trollingkort är ett eget kort och krävs för allt fiske med utsatta spön från båt i rörelse. Vid annat fiske gäller högst två spön. Djupriggar och paravaner är inte tillåtna.
+
+### Fiske på den norska sidan
+
+Den norska delen av Store Le förvaltas av Stora Lee Innsjølag och ligger i kommunerna Aremark och Marker. Kort köps via inatur.no. Barn under 16 år fiskar utan kostnad. Endast stångfiske är tillåtet, garnfiske är det inte.
+
+De norska måtten skiljer sig från de svenska. Gädda över 80 cm återutsätts, öring och lax under 50 cm återutsätts och gös under 42 cm återutsätts, med högst två fiskar per art och dygn. Ett svenskt gösmått på 45 cm och ett norskt på 42 cm gäller alltså i samma sjö, på var sin sida om gränsen.
+
+Det förekommer uppgifter om att kort köpt via fiskekort.se numera gäller hela sjön, även den norska delen. Uppgiften kommer från föreningshåll men har inte gått att bekräfta mot båda parter. Utgå inte från den. Kontrollera med respektive förening innan du fiskar över gränsen.
+
+### Kräftfiske
+
+Kräftfiske är förbjudet sedan 1 januari 2020 enligt beslut av länsstyrelsen. Före det bedrevs hemmansvis fiske på signalkräfta med minimimått 10 cm under sensommaren. Det fisket finns inte längre att köpa in sig i.
+
+> Aktuella regler finns alltid på [HaV:s webbplats](https://www.havochvatten.se) och via [Länsstyrelsens sidor](https://www.lansstyrelsen.se). Fiskevårdsområdets egna regler kan avvika och gäller alltid vid sidan av det nationella regelverket.
+
+## Fiskarter
+
+### Gädda
+
+Gäddan är den art de flesta åker hit för. Stora Lee Innsjølag uppger att gäddor på klart över 15 kilo tagits i sjön, och lokala guideföretag rapporterar fiskar i samma storleksklass. Samtidigt är beståndet inte tätt. Sjön är näringsfattig och artrik, vilket ger stark konkurrens om rom och yngel. Resultatet är få men storvuxna individer, och ett fiske som kräver att man täcker mycket vatten. Gäddan följer siklöja, nors och abborre längs djupkanterna och står grundare under vår och höst. Maxmåttet på 80 cm gäller, och högst två gäddor per fiskare och dygn får behållas.
+
+[Läs mer om gädda](/arter/gadda/)
+
+### Abborre
+
+Abborren blir storvuxen i systemet av samma skäl som gäddan. Det klara, näringsfattiga vattnet ger långsam tillväxt men höga slutstorlekar. Abborren tar bättre när vattnet värmts upp, alltså från försommar till tidig höst. Sök den över sten- och grusbottnar, vid uddar och på de grundplatåer som ligger intill djupkanterna. Runt öarna finns gott om sådana strukturer.
+
+[Läs mer om abborre](/arter/abborre/)
+
+### Gös
+
+Gös finns i systemet och har satts ut i Struven-Stora Le-delen. Den fångas sedan några år tillbaka och är i dag en realistisk art att rikta sig mot, framför allt under sommaren och tidig höst i skymning och gryning. Gösen är fredad 1 maj till 15 juni. Minimimåttet är 45 cm på svensk sida och 42 cm på norsk. Fiska den över djupkanter och på övergångarna mellan grundplatå och djupare vatten.
+
+[Läs mer om gös](/arter/gos/)
+
+### Öring
+
+Foxen och Stora Le hyser storvuxna sjölevande öringstammar som Länsstyrelsen Värmland pekar ut som riksintresse för naturvård. Den uppströmslekande stammen har en medelvikt på 1 till 2 kilo och en största känd vikt på 4 kilo. Reproduktionen sker i Tarmsälven, Torpedalsälven och Römsälven. Foxen har dessutom en nedströmslekande form av storöring, vilket är ovanligt. Fisktrappor har byggts förbi kraftstationerna i Töcksfors för att öppna vandringsvägarna. Minimimåttet är 60 cm, och i Holmerudsälven ska all öring återutsättas.
+
+[Läs mer om öring](/arter/oring/)
+
+### Lake
+
+Lake förekommer i systemet och är ett utpräglat vinterfiske. Arten är aktiv under den kalla årstiden och fiskas på djupt vatten eller vid tydliga djupkanter, bäst i februari och mars. Det är ett helt annat fiske än sommarens rovfiske, både i tid, djup och metod.
+
+[Läs mer om lake](/arter/lake/)
+
+### Sik
+
+Sik finns i sjön, liksom siklöja och nors. För sportfiskaren är siklöjan och norsen framför allt viktiga som bytesfisk. De styr var gäddan, öringen och den stora abborren håller till över säsongen. Siken själv fångas mer sporadiskt och är inte den art sjön är känd för.
+
+[Läs mer om sik](/arter/sik/)
+
+**Övriga arter:** Mört, braxen, sarv, sutare, id, ruda, benlöja, elritsa, gärs, siklöja, nors, stensimpa, småspigg, ål, flodnejonöga och regnbåge. Sammanlagt är 26 arter registrerade i systemet på den norska sidan, vilket gör det till ett av de artrikaste vattnen i regionen. Flera av arterna är sällsynta.
+
+**En vanlig förväxling:** Röding förknippas ofta med det här hörnet av Dalsland, men den kända sydsvenska storrödingstammen finns i Lilla Le, inte i Stora Le eller Foxen. Röding anges som sällsynt på artlistan för Store Le, och sjön bör inte betraktas som ett rödingvatten.
+
+## Sjöns karaktär
+
+### Grundfakta
+
+| | |
+|---|---|
+| Yta | ca 131 km² för Foxen och Stora Le tillsammans |
+| Areal inom Värmlands län | ca 59 km² |
+| Maxdjup | 99 m, söder om Västra Fågelvik |
+| Höjd över havet | ca 102 m |
+| Maxlängd | 66 km |
+| Maxbredd | 5,2 km |
+| Antal öar | över 300 |
+| Siktdjup | ca 4 m |
+| Län | Värmlands län och Västra Götalands län |
+| Kommuner | Årjäng, Dals-Ed och Bengtsfors |
+| Utflöde | Lennartsfors mot Lelång |
+| Huvudavrinningsområde | 108 Göta älv |
+
+### Topografi och delbassänger
+
+Foxen och Stora Le ligger på samma nivå och är förbundna med varandra. De fungerar i praktiken som en sjö med två namn. Systemet är en sprickdalssjö, urgröpt längs svaghetszoner i urberget och fördjupad av inlandsisen. Formen är därefter, alltså lång, smal och djup. Sjön är sällan mer än två till tre kilometer bred, utom i Foxendelen där den vidgar sig mot fem kilometer.
+
+Stränderna är branta och skogklädda, och landskapet har utpräglad vildmarkskaraktär. Över 300 öar och holmar skapar sund, uddar och grundplatåer som bryter av mot djupvattnet. Det djupaste partiet på 99 meter ligger söder om Västra Fågelvik i Foxendelen.
+
+### Vattenkvalitet och skiktning
+
+Vattnet är näringsfattigt och klart med ett siktdjup runt fyra meter. I de inre delarna av Struven-Stora Le är vattnet något mer humusfärgat, vilket kommer av tillflödena Holmerudsälven och Lianeälven. Sjön är djup nog att skikta tydligt under sommaren, vilket driver rovfisken att följa bytesfisken på olika djup över säsongen.
+
+Systemet är historiskt försurningspåverkat och kalkas. Det är i dag välbuffrat med pH ned mot 6,6 enligt SLU:s miljödata. Den ekologiska statusen klassas som måttlig enligt vattenförvaltningens bedömning, med målet god status. Den kemiska statusen uppnår inte god på grund av kvicksilver och bromerade flamskyddsmedel, vilket är ett nationellt utfall som gäller i stort sett alla svenska ytvatten och inte något som utmärker just den här sjön.
+
+### Reglering
+
+Sjön regleras av Lennartsfors kraftverk med en amplitud på 2,84 meter, och det finns även kraftstation i Töcksfors. Vattennivån höjdes med sex decimeter 1945. Regleringen påverkar hur grundområden och vassbälten ser ut över säsongen, vilket är värt att ha med i planeringen av vårfisket.
+
+### Isläggning
+
+Sjön lägger sig normalt vintertid, men den är både djup och reglerad. Det gör isen ojämn mellan delområden och år. Några officiella normaltider för isläggning och islossning har inte gått att belägga. Kontrollera alltid isen lokalt och gå inte ut på is i närheten av sund, tillflöden eller regleringspåverkade partier.
+
+### Tillflöden och utflöde
+
+Tillflödena Tarmsälven, Torpedalsälven och Römsälven är öringens reproduktionsområden. Holmerudsälven och Lianeälven rinner till i Struven-Stora Le-delen. Utloppet ligger vid Lennartsfors i Foxens södra ände och går vidare via Lelång och Upperudsälven till Vänern och därifrån genom Göta älv till Kattegatt. Systemet tillhör alltså Göta älvs huvudavrinningsområde, inte det norska Haldenvassdraget som ligger väster om vattendelaren.
+
+### Naturreservat och skyddade områden
+
+Tresticklans nationalpark ligger vid Stora Les västra strand i Dals-Eds kommun, mot norska gränsen. Den inrättades 1996 och omfattar 28,97 kvadratkilometer. Högsta punkt är Orshöjden på 276 meter över havet. Det är Dalslands enda nationalpark och en av södra Sveriges största väglösa och obebyggda skogstrakter, med ett nittiotal sjöar och tjärnar. Huvudentrén Råbocken nås via grusväg från vägen mellan Dals-Ed och Nössemark.
+
+Intill parken ligger naturreservaten Rävmarken, Boksjön och Heråmaden, som tillsammans med norska skyddade områden bildar ett stort sammanhängande naturskogsområde. Flera av öarna i sjöarna är fågelskyddsområden med tillträdesförbud under häckningstid. Storlom och fiskgjuse är karaktärsfåglar i systemet. Kontrollera skyltning innan du lägger till vid en ö under våren och försommaren.
+
+## Fiskemetoder
+
+Detaljerade teknikanvisningar finns på respektive tekniksida. Nedan beskrivs vad som fungerar specifikt i Foxen och Stora Le.
+
+### Trolling
+
+Trolling är den metod som passar sjöns karaktär bäst, eftersom fisken är storvuxen men gles och man behöver täcka stora ytor. Efter gädda fungerar trolling längs djupkanter och utanför öarnas grundplatåer från maj till november. Efter öring är vår och höst starkast, när fisken jagar siklöja och nors högre upp i vattenmassan. Trollingkort är ett eget kort och tillåter högst fyra spön per löst kort. Djupriggar och paravaner är inte tillåtna, vilket påverkar hur du kan sprida betena.
+
+[Läs mer om trolling](/teknik/trolling/)
+
+### Spinnfiske
+
+Spinnfiske efter gädda och abborre fungerar bäst under vår och höst, när fisken står grundare. Kasta mot uddar, sund mellan öar och övergångar mot djupare vatten. Under sommaren får du oftast söka fisken djupare eller fiska de svalare timmarna. Tänk på att fisket i rinnande vatten är förbjudet, alltså i sund med tydlig ström och i tillflödenas mynningsområden.
+
+[Läs mer om spinnfiske](/teknik/spinnfiske/)
+
+### Jiggfiske
+
+Jiggfiske ger bra resultat på abborre, gädda och gös längs de branta kanterna som präglar hela systemet. Övergången mellan grundplatå och djuphåla är den naturliga startpunkten. Runt öarna finns hundratals sådana kanter, vilket gör ekolod till en verklig fördel här. Arbeta av kanten på flera djup innan du flyttar.
+
+[Läs mer om jiggfiske](/teknik/jiggfiske/)
+
+### Vertikalfiske
+
+Vertikalfiske passar de djupare partierna, särskilt kring djuphålan söder om Västra Fågelvik. Metoden är effektiv på gös och stor abborre när fisken står samlad på djupkanten. Sjöns djup gör att det finns gott om vatten att söka av vertikalt, men det kräver att du först lokaliserat fisken med ekolod.
+
+[Läs mer om vertikalfiske](/teknik/vertikalfiske/)
+
+### Drop-shot
+
+Drop-shot fungerar på abborre och gös när fisken är passiv, vilket är vanligt i klart och näringsfattigt vatten. Tekniken håller betet stilla strax över botten och passar de tydliga kanterna och grundplatåerna runt öarna. Ett bra val under högsommaren när fisken står djupt och tar försiktigt.
+
+[Läs mer om drop-shot](/teknik/dropshot/)
+
+### Isfiske
+
+Isfisket riktar sig mot abborre och lake. Abborren söks över sten- och grusbottnar och vid djupkanter, medan lakefisket är bäst i februari och mars. Sjön är djup och reglerad, vilket gör isen opålitlig och ojämn mellan år. Bedöm isen lokalt varje gång.
+
+[Läs mer om isfiske](/teknik/isfiske/)
+
+### Mete
+
+Mete efter vitfisk fungerar i de grundare vikarna och från bryggor vid campingar och gästhamnar. Mört, braxen, sarv och sutare finns i systemet. Det är det mest tillgängliga fisket för den som saknar båt, eftersom stora delar av strandlinjen annars är brant och svårtillgänglig.
+
+[Läs mer om mete](/teknik/mete/)
+
+## Hotspots och lokaler
+
+### Lennartsfors
+
+Sjöns utlopp i söder, med tre slussar insprängda i berget och en nivåskillnad på 7,5 meter. Här finns ramp och gästhamn, vilket gör platsen till en naturlig utgångspunkt för båtfiske i södra Foxen. Fisket i det strömmande vattnet vid slussarna och kraftverket är förbjudet, och strömmen ovanför kraftverket är stark vid högt vattenstånd. Håll avstånd till slussområdet och fiska i stället de närliggande djupkanterna i sjön.
+
+### Sandviken och norra Foxen vid Töcksfors
+
+Ramp och tillgång till sjön från Töcksfors, som ligger vid E18. Observera att fiske i norra delen av Foxen inte är tillåtet 1 maj till 31 oktober för den som fiskar på fiskekort. Under den öppna delen av året fungerar området för gädda och abborre i de grundare partierna. Platsen är främst intressant som iläggningsplats och för fiske utanför den begränsade zonen.
+
+### Djuphålan söder om Västra Fågelvik
+
+Systemets djupaste parti med 99 meter. Här arbetar trollingfiskaren över öppet vatten efter öring, och djupkanterna in mot grundområdena håller gös och stor abborre. En lokal där ekolod gör hela skillnaden. Notera att fiske inte är tillåtet kring fiskodlingen i Västra Fågelvik 1 maj till 31 oktober.
+
+### Fölsbyviken och Gördsbysand
+
+Grundare vikområden i Foxendelen med en naturlig ramp vid Gördsbysand mellan Selen och Fölsbyn. Vikarna värms tidigare på våren än de öppna partierna, vilket drar gädda och abborre. Bra utgångspunkt för vårfiske med spinn och jigg.
+
+### Holmerudsfors och Holmerudsälvens mynningsområde
+
+Hamn med iläggningsmöjlighet i Stora Le-delen. Här krävs fiskerätt inom Struven-Stora Le FVOF för fiske i själva Holmerudsälven, och all öring som fångas där ska återutsättas. Fiske i rinnande vatten är förbjudet, så håll dig till sjövattnet utanför mynningen där fisk samlas i transit.
+
+### Nössemark och Stora Les västra strand
+
+Den västra stranden längs Tresticklan är sjöns mest orörda parti. Branta bergssidor faller rakt ned i vattnet, och strukturen är sammanhängande djupkant över långa sträckor. Fisket sker från båt. Här finns ingen infrastruktur att tala om, vilket är hela poängen med lokalen. STF:s anläggning vid Nössemark fungerar som bas.
+
+### Sunden och öområdena i mellersta Stora Le
+
+Systemets över 300 öar samlas i partier som skapar sund, grundryggar och skyddade lägen. Öområdena är den bästa startpunkten för den som fiskar abborre, eftersom kanterna är många och kortare drag räcker för att hitta fisk. Kontrollera skyltning för fågelskyddsområden med tillträdesförbud under häckningstid.
+
+### Norska sidan vid Kornsjøbukta
+
+I Store Les norska del finns naturlig ramp vid Kornsjøbukta. Fisket är detsamma som på svensk sida, men reglerna skiljer sig, och du behöver kort från Stora Lee Innsjølag via inatur.no. Gösmåttet är 42 cm och öring och lax under 50 cm ska återutsättas.
+
+## Säsongsöversikt
+
+| Månad | Bästa art | Bästa metod |
+|-------|-----------|-------------|
+| Januari | Abborre, lake | Isfiske vid säker is |
+| Februari | Lake, abborre | Isfiske vid säker is |
+| Mars | Lake, abborre | Isfiske vid säker is |
+| April | Gädda | Spinnfiske, jiggfiske |
+| Maj | Gädda, öring | Trolling, spinnfiske |
+| Juni | Abborre, gädda | Jiggfiske, spinnfiske |
+| Juli | Abborre, gös | Drop-shot, vertikalfiske |
+| Augusti | Gös, abborre | Vertikalfiske, jiggfiske |
+| September | Gädda, öring | Trolling, jiggfiske |
+| Oktober | Gädda, öring | Trolling, spinnfiske |
+| November | Gädda | Trolling, jiggfiske |
+| December | Lake, abborre | Isfiske vid säker is |
+
+Gösen är fredad 1 maj till 15 juni. Norra delen av Foxen vid Töcksfors och området kring fiskodlingen i Västra Fågelvik är stängda för kortfiske 1 maj till 31 oktober. Gädda över 80 cm ska återutsättas hela året, och högst två gäddor respektive två gösar per fiskare och dygn får behållas.
+
+## Kostråd och miljögifter
+
+Livsmedelsverkets nationella kostråd gäller för abborre, gädda, gös och lake från Foxen och Stora Le. Dessa arter kan innehålla höga halter kvicksilver, och halten stiger med fiskens ålder och storlek.
+
+**Vuxna** bör inte äta abborre, gädda, gös eller lake från insjövatten oftare än en gång per vecka.
+
+**Barn upp till 18 år** samt de som planerar att bli gravida, är gravida eller ammar rekommenderas att inte äta dessa arter oftare än 2 till 3 gånger per år.
+
+Inga lokalt specifika kostråd eller kvicksilvermätningar för just Foxen och Stora Le har publicerats av Länsstyrelsen Värmland, Länsstyrelsen Västra Götaland eller kommunerna Årjäng, Dals-Ed och Bengtsfors. Att sjön kalkas höjer pH men påverkar inte kvicksilverrådet. Kontrollera alltid aktuella råd på [livsmedelsverket.se](https://www.livsmedelsverket.se) innan du planerar att ta hem fångst.
+
+## Infrastruktur och praktisk information
+
+### Fiskeguider
+
+Guideverksamhet finns i Dalsland med trollingturer i regionens vildmarkssjöar, bland annat Stora Le, efter gädda, öring och abborre. Utbudet är begränsat och säsongsstyrt. Kontakta guiden i god tid, särskilt inför vår och höst.
+
+### Båtramper
+
+| Plats | Notering |
+|---|---|
+| Sandviken, Töcksfors | Ramp i norra Foxen, nära E18 |
+| Lennartsfors | Ramp och gästhamn vid slussarna i södra Foxen |
+| Gördsbysand | Naturlig ramp mellan Selen och Fölsbyn |
+| Holmerudsfors | Hamn med iläggningsmöjlighet i Stora Le |
+| Kornsjøbukta, Norge | Naturlig ramp på norska sidan av Store Le |
+
+Eventuella rampavgifter framgår inte av föreningarnas och kommunernas publicerade uppgifter. Räkna med att kontrollera på plats.
+
+### Landfiske
+
+Landfisket är begränsat. Stränderna är i stora delar branta och skogklädda utan vägar ned till vattnet. De praktiska landfiskelägena finns vid campingar, gästhamnar och ramper, alltså i Töcksfors, Lennartsfors, Gördsbysand och Holmerudsfors. Det här är i grunden ett båtvatten, och den som kommer utan båt bör räkna med att hyra en.
+
+### Boende
+
+- **Töcksfors Camping och Fritid** vid norra Foxen: husvagnsplatser med och utan el, campingstugor, självhushållsstugor, gästhamn samt uthyrning av båt, kanot och SUP.
+- **Lennartsfors** vid södra Foxen: gästhamn med omkring 15 platser och ställplats för husbil.
+- **Elovsbyn Camping och Kanot** i Årjängs kommun.
+- **STF:s anläggning vid Nössemark** på Stora Les västra sida, granne med Tresticklans nationalpark.
+- **Stugor vid Östra Viker** med inriktning på fiskegäster vid Foxen.
+- **Stora Lee Camping** och **Rørvik Camping** på den norska sidan.
+
+### Kommunikationer
+
+E18 passerar Töcksfors i norra änden av Foxen, vilket gör sjön ovanligt lättillgänglig för att vara ett vildmarksvatten. Årjäng ligger 25 till 28 kilometer bort, Arvika omkring 65 kilometer, Karlstad omkring 130 kilometer och Oslo 100 till 120 kilometer. Stora Les södra delar nås via Dals-Ed och vägen mot Nössemark. Närmaste tågstationer finns i Årjäng-området och i Ed. Dalslands kanal binder samman sjöarna med slussar i Lennartsfors och Töcksfors.
+
+### Sjösäkerhet
+
+Foxen är som bredast drygt fem kilometer, och de långa öppna fjärdarna gör att vinden får rejält med anlopp. Vågbildningen kan bli kraftig snabbt. De branta stränderna ger dessutom få naturliga nödhamnar, och avståndet mellan iläggningsplatser är stort. Ta med flytväst, kontrollera prognosen innan du lägger ut och håll dig nära lä-sidan vid osäkert väder. Strömmen ovanför kraftverket vid Lennartsfors är stark vid högt vattenstånd.
+
+## Historik och bakgrund
+
+Dalslands kanal byggdes 1864 till 1868 under ledning av Nils Ericson och invigdes av Carl XV den 18 till 20 september 1868. Systemet är omkring 250 kilometer långt, varav bara ungefär 12 kilometer är grävd eller sprängd kanal. Resten är sjöar. Kanalen har 31 slussar fördelade på 17 slusstationer och en total fallhöjd på 66 meter. Kontraktet omfattade sträckan från Köpmannebro vid Vänern upp till Foxen vid Lennartsfors. Bikanalen mot Årjäng via Västra och Östra Silen invigdes 1870.
+
+Slussarna i Lennartsfors är tre till antalet med en sammanlagd nivåskillnad på 7,5 meter, insprängda i berget. De räknas som kanalens mest imponerande efter akvedukten i Håverud, som ligger i den nedre delen av systemet närmare Vänern och alltså inte vid Foxen eller Stora Le.
+
+Kanalen byggdes för att få ut järn och trävaror från bruken i Dalsland och sydvästra Värmland. Lennartsfors bruk grundades 1839 och fick namn efter ägaren Lennart Uggla. Bruket lades ned 1877 och ersattes av träsliperi och senare mekanisk verkstad. Timmerflottning präglade systemet under lång tid.
+
+Riksgränsen mot Norge går genom Stora Le, vilket format både bygderna och fisket. Töcksfors i norra änden av Foxen är i dag ett centrum för gränshandel, med köpcentrum nära gränsen och ungefär en och en halv timmes resa från Oslo.
+
+Fiskevårdsområdesföreningarna bildades 1991 och slog 2020 ihop sina kort till ett gemensamt sportfiskekort. Kräftfisket, som tidigare bedrevs hemmansvis på signalkräfta, stängdes samma år genom länsstyrelsebeslut. Fisktrapporna förbi kraftstationerna i Töcksfors har byggts för att öppna vandringsvägar för storöringen, vars stammar utretts genetiskt för att klarlägga släktskapet mellan sjöarnas olika former.
+
+## Snabbfakta
+
+| | |
+|---|---|
+| Fritt handredskapsfiske | Nej. Fiskekort krävs för allt fiske |
+| Förvaltas av | Foxens FVOF och Struven-Stora Le FVOF |
+| Var köps kortet | iFiske.se, fiskekort.se och Årjängs turistbyrå |
+| Dygnskort | 125 kr, Foxens FVOF, pris hämtat augusti 2026 |
+| Trollingkort | Eget kort. Högst 4 spön per löst kort |
+| Barn och ungdom | Fritt fiske till och med 16 års ålder |
+| Maxmått gädda | 80 cm. Högst 2 gäddor per fiskare och dygn |
+| Minimimått gös | 45 cm på svensk sida, 42 cm på norsk. Högst 2 gösar per dygn |
+| Minimimått öring och lax | 60 cm |
+| Fredningstid gös | 1 maj till 15 juni |
+| Områdesbegränsning | Norra Foxen och Västra Fågelvik stängda 1 maj till 31 oktober |
+| Kräftfiske | Förbjudet sedan 2020 |
+| Sjöyta | ca 131 km² |
+| Maxdjup | 99 m |
+| Närmaste tätorter | Töcksfors och Årjäng i norr, Dals-Ed i söder |
+
+*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
+```
+
+## src/content/destinations/funasfjallen.mdx
+```
+---
+title: "Funäsfjällen"
+slug: "funasfjallen"
+description: "Fiske i Funäsfjällen i Härjedalen. Över 200 fjällsjöar på ett fiskepass. Harr, öring och röding, regler, fredningstider och hotspots."
+heroImage: "/images/destinations/funasfjallen.jpg"
+heroSource: "illustration"
+lat: 62.549
+lng: 12.552
+län: "Jämtlands län"
+primarySpecies: ["Harr", "Öring", "Röding", "Abborre", "Gädda", "Sik", "Lake"]
+waterType: "lake"
+iFiskeUrl: "https://www.ifiske.se/fiskekort-funasfjallen-fiskepasset.htm"
+excerpt: "Över 200 fjällsjöar och 30 mil strömvatten på ett kort."
+recommendedGear: []
+publishedAt: "2026-08-15"
+updatedAt: "2026-08-15"
+kostrad: ["kvicksilver"]
+intro: >-
+  Funäsfjällen är ett sammanhängande fiskeområde i västra Härjedalen som omfattar
+  över 200 fjällsjöar och mer än 30 mil strömmande vatten. Sju fiskeområden kring
+  Funäsdalen, Tänndalen, Bruksvallarna, Ljusnedal, Messlingen och Tännäs har slagit
+  ihop sina vatten till ett gemensamt fiskepass på nästan 15 000 hektar. Harr,
+  öring och röding är huvudarterna, och till dem kommer abborre, gädda, sik och
+  lake i de lägre liggande sjöarna. Minimimåttet är 30 centimeter för öring och
+  röding och 35 för harr, med en fångstbegränsning på fyra fiskar per dygn.
+---
+
+## Fiskekort och regler
+
+Allt fiske i Funäsfjällen kräver fiskekort. Området har inget fritt handredskapsfiske. Det som skiljer Funäsfjällen från de flesta andra fjällområden är att sju fiskeområden har lagt sina vatten i ett gemensamt kort, Fiskepasset, som administreras av Tännäs Fiskecentrum AB. iFiske beskriver det som ett av landets största sammanhängande kortfiskeområden, med nästan 15 000 hektar vatten.
+
+De ingående områdena är Bruksvallarnas, Funäsdalens, Ljusnedals, Messlingens, Tänndalens och Tännäs fiskevårdsområden, samt statens vatten via Mittådalens sameby. Varje område säljer även egna lokala kort. Ska du fiska en enstaka dag på ett ställe kan det lokala kortet vara billigare. Ska du röra dig mellan vatten under flera dagar är Fiskepasset det som håller ihop.
+
+### Vad ingår och vad gör det inte
+
+Fiskepasset gäller de upplåtna vattnen. Två avgränsningar är värda att känna till i förväg, eftersom de är lätta att missa på karta.
+
+Sjön Rogen ingår inte. Rogen ligger på statens vatten på renbetesfjällen och kräver ett annat kort. Däremot ingår ett stort antal småsjöar och tjärnar i Rogenområdet i Tännäs och Funäsdalens fiskevårdsområde, alltså i Fiskepasset. Gränsen går mellan vattnen, inte vid reservatsgränsen. Se [Rogen](/destinationer/rogen/) för vad som gäller där.
+
+Nedre delen av Mysklan ingår inte heller. Sträckan mellan Valmen och Västra Vattnan och utloppet i Tännån är privat eller arrenderad.
+
+Kvoterade sträckor och put-and-take-vatten ligger utanför Fiskepasset och kräver egna kort.
+
+### Var köper du fiskekort?
+
+Fiskepasset köps digitalt via [iFiske](https://www.ifiske.se/fiskekort-funasfjallen-fiskepasset.htm) och levereras till mobil och dator. Kortet säljs också på plats hos Tännäs Fiskecentrum, som är områdets fiske- och fritidsbutik och även hyr ut båtar och elmotorer.
+
+Endagskort finns hos lokala återförsäljare, bland annat ICA Stigmyhrs i Bruksvallarna och turistbyrån i Funäsdalen. Funäsfjällens fiskeguide, en handbok med kartor och vatteninformation, följer med vid köp av Fiskepasset och går även att köpa separat i tryckt form och digitalt. Med över 200 sjöar att välja mellan gör den märkbar nytta.
+
+### Priser
+
+| Korttyp | Pris |
+|---|---|
+| 1 dygn | 190 kr |
+| 3 dygn | 390 kr |
+| 7 dygn | 700 kr |
+| Årspass | 2 200 kr |
+
+Priserna gäller Fiskepasset och är hämtade i augusti 2026. Lokala kort för enskilda fiskevårdsområden ligger lägre, i storleksordningen 130 till 160 kronor för ett dygn. Kvoterade sträckor i Tännån och ädelfiskevattnet Frösjön prissätts separat och betydligt högre.
+
+Barn och ungdomar till och med 15 år fiskar avgiftsfritt i sällskap med en vuxen som har giltigt kort. Fångsten räknas då på den vuxnes kvot.
+
+### Minimimått och fångstbegränsning
+
+| Art | Minimimått |
+|---|---|
+| Öring | 30 cm |
+| Röding | 30 cm |
+| Harr | 35 cm |
+
+Fångstbegränsningen är fyra fiskar per dygn och gäller öring, röding och harr sammanlagt. Fisk under måttet ska återutsättas.
+
+### Redskap
+
+Med sportfiske avses krokfiske med spö samt släplina, med högst ett bete som får bära tre krokar eller upphängare. Flytring räknas som båt och får bara användas i vatten där båtfiske är tillåtet.
+
+### Fredningstider
+
+Höstfredningen är den regel som oftast ställer till det för besökare, eftersom den gäller vattentyp och inte enskilda sjöar.
+
+Fiske efter öring och röding är förbjudet 1 september till 31 oktober i strömmande vatten, samt i sjöar och sel inom 200 meter från till- och utlopp. Räkna alltså med att en sjö kan vara öppen i mitten men fredad i båda ändarna.
+
+Utöver det gäller:
+
+- Ljusnan och Mittån har totalt fiskeförbud 1 september till 31 oktober.
+- Funån har fiskeförbud 1 september till 31 oktober.
+- Tännån i Tännäs har tidigare start på förbudet, redan 1 augusti.
+- I Tännån är harrfiske tillåtet även efter 1 september, men öring ska återutsättas.
+- Trollingförbud gäller från 30 september fram till isläggningen.
+- Tännäs har även ett vårfiskeförbud, kopplat till harrbeståndet.
+
+Vatten som normalt håller öppet under hösten är Messlingssjön, Tänndalssjön, Östersjön och Funäsdalssjön, samt sträckan i Tännån från väster om Tänndalssjön till första bron. Malmagen kräver eget kort som säljs på Göransgården.
+
+Reglerna ändras mellan säsonger. Kontrollera Fiskepassets aktuella villkor och områdeskartan innan du åker.
+
+> Aktuella regler finns alltid på [HaV:s webbplats](https://www.havochvatten.se) och via [Länsstyrelsens sidor](https://www.lansstyrelsen.se). Fiskevårdsområdets egna regler kan avvika och gäller alltid vid sidan av det nationella regelverket.
+
+## Fiskarter
+
+Harr, öring och röding är de arter området byggt sitt rykte på. I de lägre liggande och näringsrikare sjöarna kommer abborre, gädda, sik och lake till. En egenhet i Funäsfjällen är att artsammansättningen skiljer sig mellan nästan varje vatten, eftersom fjäll och skog möts här och sjöarna ligger på vitt skilda höjder.
+
+### Harr
+
+Harren är områdets mest utmärkande art, och harrfisket i sjöarna är ovanligt även med fjällmått. De flesta förknippar harr med strömmande vatten, men här går den att fiska stationärt i sjöar, vilket öppnar för både flugfiske från strand och pimpel på is. Tännäsharren har egen status lokalt och är skälet till att Tännäs har både vår- och höstfredning. I Tännån står storharren bakom de stora stenarna i strömmen. Minimimåttet är 35 centimeter, alltså högre än för öring och röding.
+
+[Läs mer om harr](/arter/harr/)
+
+### Öring
+
+Öringen finns i praktiskt taget hela området, från Ljusnans övre lopp till de högst belägna tjärnarna. Beståndet i Ljusnan vid Bruksvallarna är naturligt reproducerande och har varken påverkats av flottning eller av industriell verksamhet, vilket är ovanligt för en älvsträcka i den här storleken. Tänndalssjön är sedan lång tid känt som storöringvatten. Enligt Destination Funäsfjällen togs här en öring på 11,7 kilo 1985. Messlingssjön har grov men svårfångad öring och håller öppet hela hösten.
+
+[Läs mer om öring](/arter/oring/)
+
+### Röding
+
+Rödingen förekommer i de högre liggande sjöarna och är tillsammans med öringen huvudart i Bruksvallarnas område, från kalfjäll ner till fjällnära skog. Tänndalssjön och Östersjön har vilda stammar som reproducerar sig i sjöarna. Rödingen står djupare under sommaren och blir mest tillgänglig under isen, vilket gör den till en vinterart för de flesta som fiskar här.
+
+[Läs mer om röding](/arter/roding/)
+
+### Abborre
+
+Abborren dominerar i flera av de lägre sjöarna och tjärnarna och är den art som ger flest napp. Ljusnedalssjön är ett bra abborrvatten, och i Rogenområdets tjärnar står abborren tät. Det är fisket att ta med barn på, och det fungerar från strand utan båt.
+
+[Läs mer om abborre](/arter/abborre/)
+
+### Gädda
+
+Gädda finns i Ljusnedalssjön och Lossen och kan vara talrik. I Ljusnedalssjön är den så vanlig att tafs är nödvändig även när du siktar på abborre. Det är lätt att glömma på en resa som packats för harr och öring.
+
+[Läs mer om gädda](/arter/gadda/)
+
+### Sik
+
+Sik förekommer framför allt i Lossen och de större sjöarna. Den står ofta högre i vattenpelaren än laxfiskarna och tas på små flugor, liten spinnare och pimpel.
+
+[Läs mer om sik](/arter/sik/)
+
+### Lake
+
+Laken finns i bland annat Lossen samt i Tänndalssjön och Östersjön. Den är en djupvattenart som leker mitt i vintern och som oftast tas vid pimpelfiske nära botten. Laken omfattas av Livsmedelsverkets kostråd om kvicksilver.
+
+[Läs mer om lake](/arter/lake/)
+
+Mört och stensimpa förekommer också, men är inga sportfiskearter.
+
+## Vattnens karaktär
+
+### Grundfakta
+
+- **Antal sjöar:** över 200 upplåtna fjällsjöar
+- **Strömmande vatten:** mer än 30 mil
+- **Total vattenareal i Fiskepasset:** nästan 15 000 hektar
+- **Antal ingående fiskeområden:** sju
+- **Kommun:** Härjedalen
+- **Fjälltoppar:** flera över 1 000 meter
+
+### Höjdspann och artfördelning
+
+Området sträcker sig från högalpint kalfjäll ner till fjällnära skog, och det höjdspannet förklarar det mesta av hur fisket ser ut. Högt upp dominerar röding och öring i klara, näringsfattiga tjärnar. Längre ner tillkommer harr i sjöarna, och i de lägsta och varmare sjöarna som Ljusnedalssjön och Lossen finns abborre, gädda, sik och lake.
+
+Praktiskt betyder det att du kan byta fisketyp helt genom att köra tjugo minuter. Det är också skälet till att fiskeguiden är värd att ha med. Två sjöar som ser likadana ut på karta kan hysa helt olika arter.
+
+### Ljusnan
+
+Ljusnan är områdets viktigaste strömmande vatten och rinner genom dalgången från fjällen ovanför Ramundberget. Sträckan vid Bruksvallarna är opåverkad av flottning, vilket har lämnat en naturlig bottenstruktur med sten och block kvar i fåran. Vattnet är lättillgängligt från Ramundberget och nedströms. Ljusnan är helt fredad 1 september till 31 oktober.
+
+### Tännån och Mittån
+
+Tännån rinner från Tänndalsområdet ner mot Tännäs och är det andra stora strömvattnet. Övre och nedre Tännån har kvoterade sträckor som säljs separat från Fiskepasset och som begränsar antalet fiskare per dygn. Mittån mynnar i Messlingssjöns västra ände och har både strömfiske och ett välkänt inloppsområde.
+
+### Isläggning och säsong
+
+Barmarkssäsongen är kort och styrs av höjden över havet. Sjöarna på högre nivå ligger under is långt in på våren, medan de lägre sjöarna öppnar tidigare. Isfisket är en fullvärdig säsong här och inte en eftersäsong, med Tänndalssjön och Östersjön som de mest omtalade pimpelvattnen.
+
+## Fiskemetoder
+
+Detaljerade teknikanvisningar finns på respektive tekniksida. Här beskrivs vad som är specifikt för Funäsfjällen.
+
+### Flugfiske
+
+Flugfisket har sin tyngdpunkt i Ljusnan, Tännån och Mittån, samt i sjöfisket efter harr. Inloppsområdet där Mittån möter Messlingssjöns västra ände är ett av områdets bäst ansedda flugfiskelägen. I det klara fjällvattnet ser fisken mycket, så avstånd och tafslängd betyder mer än flugvalet. Höstfredningen slår hårdast mot just strömvattnet, så planera säsongen därefter.
+
+[Läs mer om flugfiske](/teknik/flugfiske/)
+
+### Spinnfiske
+
+Spinnfiske täcker flest arter och flest vatten. I fjälltjärnarna räcker lätt utrustning för harr, abborre och mindre öring, medan Tänndalssjön och Lossen motiverar grövre grejer. Regeln om högst ett bete med tre krokar utesluter upphängarsystem med flera beten. Ta med tafs om du fiskar i de lägre sjöarna.
+
+[Läs mer om spinnfiske](/teknik/spinnfiske/)
+
+### Isfiske
+
+Pimpelfisket är en huvudsäsong och inte ett tillägg. Tänndalssjön och Östersjön är de mest omtalade vattnen, med öring, röding, harr och lake. Harr på pimpel är ovanligt i Sverige och en av anledningarna att åka hit på vintern. Flera sjöar går att nå både till fots och med skoter, vilket gör att fisket fungerar utan lång inledande transport.
+
+[Läs mer om isfiske](/teknik/isfiske/)
+
+### Dragrodd och trolling
+
+Släplina med ett bete ingår i Fiskepassets definition av sportfiske. Långdrag efter roddbåt är en etablerad metod i Messlingssjön, och båtfiske fungerar även i Lossen och Funäsdalssjön. Trollingförbud gäller från 30 september fram till isläggningen. Kontrollera vad som gäller i det enskilda vattnet, eftersom båtregler skiljer sig mellan områdena.
+
+[Läs mer om trolling](/teknik/trolling/)
+
+### Mete
+
+Mete fungerar efter abborre i de grundare sjöarna och tjärnarna och är ett rimligt val med barn. Kastmete med naturligt bete används också efter öring i de större sjöarna. Kontrollera om det enskilda vattnet har begränsningar för naturliga beten.
+
+[Läs mer om mete](/teknik/mete/)
+
+## Hotspots och lokaler
+
+### Tänndalssjön och Östersjön
+
+Två av områdets mest omtalade vatten, och de starkaste pimpelvattnen. Här finns öring, röding, harr och lake med vilda stammar som reproducerar sig i sjöarna. Tänndalssjön har lång historia som storöringvatten. Båda håller öppet under höstfredningen, vilket gör dem till förstahandsval i september och oktober.
+
+### Ljusnan vid Bruksvallarna och Ramundberget
+
+Områdets bästa strömfiske efter öring, med naturligt bestånd i en fåra som aldrig flottats. Vattnet är lättillgängligt från Ramundberget och nedströms, alltså inget som kräver lång inmarsch. Totalfredat 1 september till 31 oktober.
+
+### Messlingssjön
+
+Sjöfiske mitt i byn med båtuthyrning på plats. Långdrag efter roddbåt är den etablerade metoden. Grov men svårfångad öring, och sjön håller öppet hela hösten. Mittåns inlopp i västra änden är ett flugfiskeläge i egen rätt.
+
+### Ljusnedalssjön och Tevsjön
+
+Lättillgängliga familjevatten med båtuthyrning i båda. Ljusnedalssjön är ett bra abborrvatten och har gott om gädda, så tafs behövs. Ljusnedalsområdet är byggt för den som inte vill eller kan gå långt. Du parkerar vid vattnet och börjar fiska.
+
+### Häckelsjön, Rörtjärn och Östra Lossentjärn
+
+Tre vatten i Ljusnedalsområdet med vindskydd och ved på plats. De fungerar för dagsturer med matlagning och är ett bra val i dåligt väder. Släck alltid elden innan du lämnar platsen.
+
+### Tännån vid Tännäs
+
+Mitt emot Tännäs Fiskecentrum går en väg ner till ån, där det finns ett vindskydd att utgå från. Sträckan nedströms vindskyddet och bron är ett känt harrfiske, med storharren stående bakom de stora stenarna i strömmen. Observera att Tännåns höstförbud startar redan 1 augusti.
+
+### Lossen
+
+Större sjö med båtfiske och den bredaste artlistan i området, med sik, abborre, gädda, lake och harr. Kombinationen gör den till ett bra val när fjällvattnen är fredade eller när vädret gör högre lägen otrevliga.
+
+### Tjärnarna i Rogenområdet
+
+Flera av småsjöarna och tjärnarna längs vägen mot Käringsjövallen ingår i Fiskepasset och har täta abborrbestånd. Ormabborrtjärn ligger direkt vid vägen och går att fiska antingen från bilen eller genom en runda runt tjärnen. Det ger Rogenlandskapets karaktär utan att kräva det andra kortet, eftersom sjön Rogen själv ligger utanför Fiskepasset.
+
+## Säsongsöversikt
+
+| Månad | Bästa art | Bästa metod |
+|-------|-----------|-------------|
+| Januari–mars | Röding, harr, öring, lake | Pimpel |
+| April | Röding, harr | Pimpel på vårisen |
+| Maj | Islossning, sen start | Kontrollera isläget |
+| Juni | Öring, harr | Flugfiske, spinn |
+| Juli | Harr, öring, röding | Fluga, spinn, långdrag |
+| Augusti | Harr, öring, abborre | Fluga, spinn |
+| September | Öring i öppna sjöar, abborre | Spinn, långdrag |
+| Oktober | Sik, abborre, gädda | Spinn, mete |
+| November–december | Röding, harr | Förstais när den bär |
+
+Öring och röding är fredade 1 september till 31 oktober i strömmande vatten och inom 200 meter från till- och utlopp. Ljusnan, Mittån och Funån är helt stängda under samma period, och Tännån redan från 1 augusti. Trollingförbud gäller från 30 september till isläggningen.
+
+## Kostråd och miljögifter
+
+Det finns inga lokala kostråd specifikt för Funäsfjällen. Livsmedelsverkets nationella råd om kvicksilver gäller däremot abborre, gädda och lake, arter som alla förekommer i områdets lägre sjöar. Halterna varierar kraftigt mellan sjöar, och näringsfattiga skogs- och fjällsjöar ligger ofta högre än genomsnittet.
+
+- Den som är gravid, ammar eller försöker bli gravid bör inte äta abborre, gädda eller lake oftare än två till tre gånger per år.
+- Övriga vuxna bör inte äta dessa arter oftare än en gång per vecka.
+
+Harr, öring, röding och sik omfattas inte av dessa råd. Aktuell information finns på livsmedelsverket.se.
+
+## Infrastruktur och praktisk information
+
+### Fiskeguider och butik
+
+Tännäs Fiskecentrum är områdets nav med fullsorterad fiske- och fritidsbutik, guidade fisketurer, kurser samt uthyrning av båtar och elmotorer. Destination Funäsfjällen förmedlar också fiskeguider. Bruksvallarnas Sportcenter hyr ut och säljer utrustning och har en damm för att prova på flugfiske under sommaren.
+
+### Båtuthyrning
+
+Tännäs och Funäsdalens fiskevårdsområde hyr ut båtar i sju sjöar, bland annat Funäsdalssjön där båtarna ligger nära byn. Bokning sker via iFiske och nyckel hämtas hos Tännäs Fiskecentrum. Båtar finns även i Messlingssjön, Ljusnedalssjön och Tevsjön.
+
+### Tillgänglighet
+
+Området har flera tillgänglighetsanpassade fiskeplatser, utmärkta på fiskeområdets karta. Funäsfjällens tio Guldvatten är utvalda, skyltade och lätta att nå, och flera av dem är anpassade för funktionshindrade. Ljusnedalsområdet är genomgående byggt för korta avstånd mellan parkering och vatten.
+
+### Boende
+
+- **Funäsdalen** med hotell, stugbyar och camping, områdets största ort.
+- **Tänndalen och Tänndalsvallen** nära storöringvattnen.
+- **Bruksvallarna och Ramundberget** närmast Ljusnans övre lopp.
+- **Tännäs** med vandrarhem och restaurang, närmast Tännån och Rogenområdet.
+- **Ljusnedal och Messlingen** för den som vill ha kortast väg till familjevattnen.
+
+### Kommunikationer
+
+Funäsdalen nås på väg 84 från Sveg, cirka 137 kilometer. Från Östersund är det ungefär 211 kilometer. Söderifrån går väg 311 via Mora och Särna till Tännäs, cirka 224 kilometer, och därifrån ytterligare 15 kilometer på väg 84 till Funäsdalen. Vägen via Mora och Sveg till Tännäs är cirka 263 kilometer.
+
+Närmaste tågstationer är Sveg, Ljusdal och Östersund, samt Røros på norska sidan. Direktbussen Härjedalingen trafikerar sträckan Stockholm till Funäsdalen och Ramundberget.
+
+### Fjällsäkerhet
+
+Väderomslagen går fort på fjället och vattnet är kallt även på sommaren. Bär flytväst i båt och flytring. Mobiltäckningen är svag i delar av området, så spara fiskekortet i mobilen och gärna på papper. Kontrollera isen innan du går ut och räkna med att bärigheten skiljer sig mellan sjöar på olika höjd.
+
+## Historik och bakgrund
+
+### Ljusnedals bruk
+
+Ljusnedal är Härjedalens enda historiska bruksort. Verksamheten startade kring 1686 efter kopparfynd vid Ramundberget och gick under 1700-talet över till järnframställning. Norska ägare tog över från 1855 och lade om driften mot storjordbruk. Bruksdriften upphörde 1877. Herrgården från 1858 brann 1937.
+
+### Fiskevård och Fiskepasset
+
+Områdena har länge bedrivit egen fiskevård, och flera av dem ingår i Drömfiske Jämtland Härjedalen, en märkning som ställer krav på aktiv bestånds- och fiskevård. Tännäs och Funäsdalens fiskevårdsområde har omkring 400 fiskerättsägare och över 70 upplåtna vatten. Sammanslagningen till ett gemensamt fiskepass är den mest påtagliga förändringen på senare år och har gjort området tillgängligt på ett annat sätt än när varje förening sålde sitt eget kort.
+
+### Samisk närvaro och renskötsel
+
+Området är renbetesland och nyttjas av Mittådalens sameby och Ruvhten Sijte. Statens vatten inom Fiskepasset ligger på renbetesfjäll. Håll avstånd till renar och stör inte arbetande renskötare. Renarna är särskilt känsliga under kalvningen i maj.
+
+## Snabbfakta
+
+| | |
+|---|---|
+| Fritt handredskapsfiske | Nej, fiskekort krävs alltid |
+| Antal vatten | Över 200 fjällsjöar och mer än 30 mil strömvatten |
+| Ingående områden | Sju, samordnade i Fiskepasset |
+| Var köps kortet | iFiske, Tännäs Fiskecentrum, lokala återförsäljare |
+| Dygnskort 2026 | 190 kr |
+| Årspass 2026 | 2 200 kr |
+| Minimimått öring och röding | 30 cm |
+| Minimimått harr | 35 cm |
+| Fångstbegränsning | 4 fiskar per dygn av öring, röding och harr |
+| Höstfredning | 1 september–31 oktober i strömvatten och 200 m från till- och utlopp |
+| Barn och ungdom | Avgiftsfritt till och med 15 år med vuxen kortinnehavare |
+| Rogen ingår | Nej, sjön Rogen kräver eget kort |
+| Närmaste tätort | Funäsdalen |
+
+*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
+```
+
 ## src/content/destinations/giman.mdx
 ```
 ---
@@ -31500,6 +32232,335 @@ Yrkesfisket har lång tradition i Ringsjön och fångar i dag främst gös, abbo
 
 *Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 
+```
+
+## src/content/destinations/rogen.mdx
+```
+---
+title: "Rogen"
+slug: "rogen"
+description: "Fiske i Rogen i Härjedalen. Harr, öring, röding, abborre, gädda och lake. Fjällfiskekort för renbetesfjällen, reservatsregler och säsong."
+heroImage: "/images/destinations/rogen.jpg"
+heroSource: "illustration"
+lat: 62.3345
+lng: 12.2501
+län: "Jämtlands län"
+primarySpecies: ["Harr", "Öring", "Röding", "Abborre", "Gädda", "Lake"]
+waterType: "lake"
+iFiskeUrl: "https://www.natureit.se/sv/area/ruvhten-sijte-sameby"
+excerpt: "Sjölabyrint i naturreservat och Klarälvens källa."
+recommendedGear: []
+publishedAt: "2026-08-15"
+updatedAt: "2026-08-15"
+kostrad: ["kvicksilver"]
+intro: >-
+  Rogen är en 35 kvadratkilometer stor fjällsjö på 758 meters höjd i sydvästra
+  Härjedalen, delad av riksgränsen mot Norge. Sjön är Klarälvens källa och därmed
+  utgångspunkt för Sveriges längsta vattendrag, som via Femund, Vänern och Göta älv
+  når havet vid Göteborg. Runt sjön ligger Rogens naturreservat, bildat 1976 och
+  500 kvadratkilometer stort, med bågformade moränryggar och en labyrint av
+  sammanflätade sjöar. Formen är så ovanlig att den fått ge namn åt begreppet
+  rogenmorän. Fisket omfattar harr, öring, röding, abborre, gädda och lake, och
+  bedrivs på Länsstyrelsens fisketillstånd för renbetesfjällen.
+---
+
+## Fiskekort och regler
+
+Allt fiske i Rogen kräver fisketillstånd. Sjön ligger på statens vatten på renbetesfjällen och förvaltas av Länsstyrelsen i Jämtlands län tillsammans med Ruvhten Sijte sameby. Rogen ingår inte i [Funäsfjällens fiskepass](/destinationer/funasfjallen/), som säljs via iFiske och gäller de föreningsägda vattnen längre norrut. Den som kommer från Funäsdalen eller Tänndalen behöver alltså ett annat kort för Rogen än för vattnen kring bygden.
+
+Gränsen går mellan vattnen och inte vid reservatsgränsen. Flera av småsjöarna och tjärnarna i Rogenområdet ligger i Tännäs och Funäsdalens fiskevårdsområde och täcks alltså av Fiskepasset, medan sjön Rogen själv gör det inte. Har du redan ett fiskepass kan du fiska en del av området utan att lösa något ytterligare.
+
+### Vad är fritt och vad kräver tillstånd?
+
+Inget fiske i Rogen är fritt. Det fria handredskapsfisket gäller de fem stora sjöarna och kusten, inte fjällvatten. Fisketillståndet är personligt och får inte överlåtas. Det ska medföras vid fisket och visas upp på begäran. Tillståndet gäller även medföljande ungdom under 16 år.
+
+Ett viktigt förbehåll: tillståndet gäller de vatten som Länsstyrelsen faktiskt har upplåtit. Långt ifrån alla sjöar och tjärnar inom reservatet är upplåtna, eftersom en del är undantagna för samebymedlemmarnas eget fiske. Vilka vatten som ingår framgår av kartapplikationen i NatureIT och av Fjällfiskeguiden. Kontrollera det innan du går ut, inte efteråt.
+
+### Var köper du fiskekort?
+
+Fisketillstånd för renbetesfjällen köps digitalt i [NatureIT](https://www.natureit.se/sv/area/ruvhten-sijte-sameby), Länsstyrelsens förvaltningssystem. Du anger vilket vatten du preliminärt tänker fiska i, men tillståndet gäller alla upplåtna vatten där fiske är tillåtet just då. Vattenvalet används för att fördela intäkterna till berörda samebyar och för att följa fisketrycket.
+
+Kort löses även på plats hos Tännäs Fiskecentrum, Topsport i Funäsdalen och vid Käringsjön. Där får du också en tryckt karta över de upplåtna vattnen, vilket är värt en del i ett område med svag mobiltäckning. Spara kortet i mobilen och på papper.
+
+Fångstrapportering sker i NatureIT och används som underlag när reglerna anpassas efter beståndens läge.
+
+### Priser
+
+| Korttyp | Pris |
+|---|---|
+| 1 dygn | 80 kr |
+| 3 dygn | 160 kr |
+| 4 dygn | 240 kr |
+| 5 till 7 dygn | 320 kr |
+| Årstillstånd | 450 kr |
+| Årstillstånd med en medföljande | 600 kr |
+
+Priserna gäller Renbetesfjäll-tillståndet och är hämtade från NatureIT i augusti 2026. Årstillståndet måste aktiveras med plats och datum innan fisket för att vara giltigt.
+
+### Minimimått och fångstbegränsning
+
+Minimimått och eventuell fångstbegränsning sätts per vatten och redovisas i Fjällfiskeguiden och i NatureIT:s kartapplikation. Vi anger inga siffror här, eftersom de skiljer sig mellan vatten inom samma område och ändras mellan säsonger. Fisk under minimimått ska släppas tillbaka omgående, oavsett om den är levande eller död.
+
+Att släppa tillbaka storvuxen fisk utöver måtten är en rekommendation i fjällförvaltningen, inte en regel i Rogen. Stora individer bär en oproportionerligt stor del av reproduktionen i långsamväxande fjällbestånd.
+
+### Fredningstid
+
+Fiske i Rogen är tillåtet 1 januari till 15 september och 1 november till 31 december. Sjön är alltså fredad 16 september till 31 oktober, vilket täcker öringens och rödingens lek. Andra vatten inom området har egna tider, så kontrollera per vatten.
+
+### Redskap och metoder
+
+Med sportfiske avses krokfiske med ett spö fört från hand eller fiske med ett drag efter båt. Trollingfiske med flera spön eller utriggare ryms inte i det.
+
+Under isfri tid får fiske i renbetesfjällen bedrivas endast från strand, om inget annat anges för det enskilda vattnet. För Rogen anges båtfiske som tillåtet. Eftersom båtmotor är förbjuden i hela sjön handlar det i praktiken om rodd eller paddling.
+
+Rom och levande fisk får inte användas som bete, vare sig vid fiske eller i något annat sammanhang.
+
+### Reservatets föreskrifter
+
+Rogens naturreservat har föreskrifter som gäller vid sidan av fiskereglerna och som påverkar hur fisket faktiskt går till. Inom reservatet är det bland annat förbjudet att
+
+- framföra motorbåt eller annat motordrivet fartyg,
+- framföra motordrivet fordon i terräng,
+- använda motordriven borr vid vinterfiske,
+- införa levande fisk som bete vid fiske eller i annat sammanhang,
+- framföra kanot eller båt i Myskelsjön och Övre Mysklan samt i Övre och Nedre Muggsjön och Urgtjärnarna,
+- göra upp eld inom särskilt angivna områden kring bland annat Bredåsjön, Rogen, Tandsjön, Abborrvikarna och Vingarna, med undantag för iordningställda platser,
+- medvetet uppehålla sig närmare myskoxar än 100 meter,
+- medföra hund 20 april till 31 maj, med undantag för vinterled och upplåtna fiskevatten samt närmaste lämpliga färdväg dit.
+
+Bärbara lättviktstält för tillfällig övernattning är tillåtna. Skoterförbud gäller på den del av sjön som ligger väster om skoterleden. Fullständiga föreskrifter finns i reservatsbeslutet hos Länsstyrelsen.
+
+### Den norska delen
+
+En mindre del av sjön ligger på norsk sida, i Røros och Engerdal kommuner. Svenskt fisketillstånd gäller inte där. Den som fiskar över gränsen behöver norskt fiskekort, som säljs via Inatur. Gränsen är inte utmärkt ute på vattnet, så ha koll på positionen om du paddlar västerut.
+
+> Aktuella regler finns alltid på [HaV:s webbplats](https://www.havochvatten.se) och via [Länsstyrelsens sidor](https://www.lansstyrelsen.se). Fiskevårdsområdets egna regler kan avvika och gäller alltid vid sidan av det nationella regelverket.
+
+## Fiskarter
+
+Rogen och de omgivande småsjöarna hyser harr, öring, röding, abborre, gädda och lake. Fördelningen varierar kraftigt mellan vatten som ligger nära varandra, vilket hänger ihop med sjöarnas skilda vattenkemi.
+
+### Harr
+
+Harren är den art Rogenområdet är mest känt för. Käringsjön har ett rykte om grov harr och fiskas framför allt under sommar och höst. Harren står på strömdrag och över grusbottnar där insektsproduktionen är hög, och den tar kläckande dagsländor och nattsländor under de ljusa sommarveckorna. I klart fjällvatten är den skygg, vilket gör presentation och avstånd viktigare än betesval.
+
+[Läs mer om harr](/arter/harr/)
+
+### Öring
+
+Öringen finns i både Rogen och de omgivande småsjöarna. Bestånden är naturligt reproducerande och långsamväxande, som i de flesta näringsfattiga fjällvatten. Öringen står ofta längs stenstränder och vid inlopp där moränryggarna möter vattnet, och den tar insekter, bottendjur och småfisk. Fisket är som bäst tidigt på sommaren och sedan igen i augusti, innan fredningen tar vid i mitten av september.
+
+[Läs mer om öring](/arter/oring/)
+
+### Röding
+
+Rödingen är områdets vinterart framför allt. Pimpelfisket i Rogen och Bredåsjön är den etablerade anledningen att ta sig hit på is. Rödingen söker svalare och djupare vatten under sommaren och blir då svårare att nå från strand, medan isen gör hela sjöytan tillgänglig. Den lever av djurplankton, bottendjur och insekter, och större individer tar även småfisk.
+
+[Läs mer om röding](/arter/roding/)
+
+### Abborre
+
+Abborren är den vanligaste fisken i många av småsjöarna och den art de flesta möter först. Den står i grunda vikar och kring uddar och stenrev, och tar allt från små jiggar och spinnare till fluga. I vatten där abborren är talrik blir den ofta småvuxen, medan enstaka sjöar med tunnare bestånd ger grövre fisk. Det är ett bra fiske att ta med barn på, eftersom det ger napp.
+
+[Läs mer om abborre](/arter/abborre/)
+
+### Gädda
+
+Gädda finns i flera av områdets sjöar och kan bli grov. Den står i vassruggar och vid grundare vikar och följer ofta abborrstimmen. Fiske efter gädda kräver stållina eller grov fluorocarbontafs, vilket är lätt att glömma på en fjälltur packad för harr och öring.
+
+[Läs mer om gädda](/arter/gadda/)
+
+### Lake
+
+Laken finns i sjösystemet men fiskas sällan riktat i Rogen. Den är en djupvattenart som är aktiv i mörker och kallt vatten och leker mitt i vintern. Den fastnar ibland vid pimpelfiske nära botten. Laken omfattas av Livsmedelsverkets kostråd om kvicksilver.
+
+[Läs mer om lake](/arter/lake/)
+
+Sik förekommer i vissa av områdets vatten men är inte en art man reser hit för.
+
+## Sjöns karaktär
+
+### Grundfakta
+
+- **Yta:** 35,12 km² enligt NVE
+- **Höjd över havet:** 758 meter
+- **Största längd:** cirka 16 kilometer
+- **Största bredd:** cirka 3,5 kilometer
+- **Utflöde:** Klarälven, via Femund och vidare mot Vänern
+- **Kommun:** Härjedalen, med en mindre del i Røros och Engerdal i Norge
+- **Skydd:** Rogens naturreservat, 500 km², bildat 1976, även Natura 2000-område
+
+Djupuppgifter för Rogen går inte att verifiera mot en primärkälla, och vi anger därför inget maxdjup. Siffror som cirkulerar på nätet ser ut att avse hela avrinningsområdet snarare än själva sjön.
+
+### Rogenmorän och bottentopografi
+
+Landskapet består av långa, bågformade åsar av morän med sjöar emellan. Mönstret bildades under inlandsisen och är så ovanligt att formtypen internationellt kallas rogenmorän efter just den här platsen. För fiskaren betyder det en botten med kraftig relief. Grynnor, sund, uddar och djuphålor ligger tätt och byter av varandra på korta avstånd, vilket ger många kanter att söka av men också gör navigering med båt eller kanot krävande.
+
+Stenblocken på land är av samma ursprung och kan vara i storlek med en bil eller ett hus. Terrängen är därför besvärlig att vandra i, och de flesta som fiskar området på sommaren tar sig fram på vattnet i stället.
+
+### Vattenkemi som varierar mellan sjöar
+
+En egenhet värd att känna till är att sjöar som ligger bara några hundra meter från varandra kan ha helt olika pH-värden och därmed skild flora och fauna. Det påverkar vilka arter som dominerar och hur fisken beter sig. Praktiskt innebär det att det som fungerade i en tjärn inte nödvändigtvis fungerar i nästa. Räkna med att byta ansats mellan vatten i stället för att söka en metod som håller hela turen.
+
+### Fjäll och omgivning
+
+Fjällen runt reservatet är rundade och avlånga och ligger mestadels omkring 1 000 meter över havet. Brattriet är det högsta. Skogen kring sjöarna är gles tallskog med mycket gamla, lavbehängda träd.
+
+### Isläggning och säsong
+
+På 758 meters höjd är barmarkssäsongen kort. Paddelsäsongen brukar börja veckan före midsommar och pågå till mitten av september. Sommartemperaturen ligger ofta mellan 10 och 20 grader dagtid, med betydligt kallare nätter och frost redan sent i september. Höstfärgerna kommer normalt i slutet av augusti. Mygg och knott är påtagliga från midsommar och några veckor framåt.
+
+Isfiskesäsongen är lång, men isen ska alltid kontrolleras och motordriven isborr är förbjuden i hela reservatet.
+
+## Fiskemetoder
+
+Detaljerade teknikanvisningar finns på respektive tekniksida. Här beskrivs vad som är specifikt för Rogen.
+
+### Spinnfiske
+
+Spinnfiske fungerar hela barmarkssäsongen och är den metod som täcker flest arter i området. Moränryggarnas kanter, sunden mellan sjöarna och uddarna är de självklara platserna att söka av. Lätt utrustning räcker för abborre och harr, medan gäddan kräver tafs. Eftersom fisket ofta sker från kanot eller roddbåt vinner du på ett kort spö som går att hantera sittande.
+
+[Läs mer om spinnfiske](/teknik/spinnfiske/)
+
+### Flugfiske
+
+Flugfisket har sin höjdpunkt under sommarens kläckningar, och harren är den art som gör metoden mest given. Käringsjön och småvattnen kring Käringsjövallen är de vanligaste valen. Klart vatten och långa ljusa kvällar gör att fisken ser mycket, så längre tafs och försiktig framryckning betalar sig. Torrfluga och nymf täcker det mesta.
+
+[Läs mer om flugfiske](/teknik/flugfiske/)
+
+### Isfiske
+
+Pimpelfiske efter röding i Rogen och Bredåsjön är områdets mest etablerade vinterfiske. Isen ger tillgång till lägen som är svåra att nå från strand under sommaren, vilket är särskilt värdefullt i ett vatten där båtmotor är förbjuden. Motordriven isborr är förbjuden i hela reservatet, så handborr gäller och det sätter en gräns för hur många hål man orkar. Planera därför utifrån ett fåtal genomtänkta lägen snarare än att söka brett.
+
+[Läs mer om isfiske](/teknik/isfiske/)
+
+### Mete
+
+Mete efter abborre fungerar bra i de grundare vikarna och är ett rimligt val för den som har barn med. Rom och levande fisk är förbjudna som bete. Kontrollera dessutom om det enskilda vattnet har begränsningar för naturliga beten innan du sätter igång.
+
+[Läs mer om mete](/teknik/mete/)
+
+## Hotspots och lokaler
+
+### Käringsjön
+
+Käringsjön är områdets naturliga utgångspunkt. Hit går bilväg, och här finns parkering, båt- och kanotuthyrning samt försäljning av fisketillstånd. Sjön har ett rykte om grov harr och fiskas framför allt sommar och höst. Landfiske fungerar längs stränderna, men de bästa lägena nås med kanot.
+
+### Småvattnen kring Käringsjövallen
+
+Runt Käringsjövallen och Käringsjön ligger ett stort antal småsjöar och tjärnar med goda möjligheter till stor harr. De ligger nära vägen och fungerar för dagsturer utan övernattning. Kontrollera vilka som är upplåtna, eftersom långt ifrån alla ingår.
+
+### Rogens östra del och Rödviken
+
+Rogens östra del nås från Käringsjön, antingen via stigen till Rogenstugan eller via stigen söderut mot Rödviken. Här är sjön öppen och vindkänslig. Fisket sker längs stränder och kring uddar och holmar, och sikten över de stora stenblocken under ytan är ett skäl i sig att fiska från kanot.
+
+### Bredåsjön
+
+Bredåsjön är tillsammans med Rogen den etablerade adressen för rödingfiske på is. Vid utloppet finns en raststuga. Sjön ligger inom det område där eldning bara är tillåten på iordningställda platser.
+
+### Skedbrosjöområdet
+
+Sjösystemet norr om Rogen, kring Skedbrostugan, är den del av reservatet som ligger längst från väg. Här är fisketrycket lägre och tillgängligheten sämre. Terrängen är blockig och besvärlig att vandra i, så kanot är i praktiken förutsättningen för att fiska området på ett rimligt sätt.
+
+### Vatten med paddlingsförbud
+
+Myskelsjön och Övre Mysklan samt Övre och Nedre Muggsjön och Urgtjärnarna får inte trafikeras med kanot eller båt. Fiske där sker från strand. Förbudet gäller oavsett fisketillstånd och är lätt att missa när man planerar en paddlingsrunda på karta.
+
+## Säsongsöversikt
+
+| Månad | Bästa art | Bästa metod |
+|-------|-----------|-------------|
+| Januari–mars | Röding, abborre | Pimpel |
+| April | Röding | Pimpel på vårisen |
+| Maj | Islossning, osäker tillgänglighet | Kontrollera isläget |
+| Juni | Harr, öring | Flugfiske, spinn |
+| Juli | Harr, abborre, gädda | Fluga, spinn från kanot |
+| Augusti | Harr, öring, gädda | Fluga, spinn |
+| 1–15 september | Harr, öring | Fluga, spinn |
+| 16 september–31 oktober | Fredat | Inget fiske |
+| November–december | Röding | Förstais när den bär |
+
+Rogen är fredat 16 september till 31 oktober. Andra vatten inom området har egna upplåtelsetider, som framgår per vatten i NatureIT. Barmarkssäsongen är kort och vägen till Käringsjön är en sommarväg.
+
+## Kostråd och miljögifter
+
+Det finns inga lokala kostråd specifikt för Rogen. Livsmedelsverkets nationella råd om kvicksilver gäller däremot för abborre, gädda och lake, arter som alla förekommer här. Halterna varierar kraftigt mellan sjöar, och näringsfattiga skogs- och fjällsjöar ligger ofta högre än genomsnittet.
+
+- Den som är gravid, ammar eller försöker bli gravid bör inte äta abborre, gädda eller lake oftare än två till tre gånger per år.
+- Övriga vuxna bör inte äta dessa arter oftare än en gång per vecka.
+
+Råden gäller per art, inte per måltid av blandad fisk. Harr, öring och röding omfattas inte av dessa råd. Aktuell information finns på livsmedelsverket.se.
+
+## Infrastruktur och praktisk information
+
+### Båt och kanot
+
+Roddbåt och kanot hyrs vid Käringsjön och vid Rogenstugan. Topsport i Funäsdalen hyr ut kanot, utrustning och ordnar transport. Båtmotor är förbjuden i hela sjön, så räkna med paddel eller åror.
+
+Sjöarna hänger inte ihop, så paddling i området innebär bärningar. De flesta är korta, men de längsta går upp mot 800 meter över blockig mark. Det påverkar hur mycket utrustning det är rimligt att ta med.
+
+### Boende
+
+- **STF Rogen fjällstuga** vid sjön, öppen delar av året med stugvärd och enklare kiosk.
+- **STF Skedbro fjällstuga** i sjösystemet norr om Rogen.
+- **STF Storrödtjärn fjällstuga** söder om Rogen.
+- **Stugor vid Käringsjön** för den som vill ha bilnära bas.
+- **Tännäs** med vandrarhem och restaurang, cirka två mil norrut.
+
+Tältning med lättviktstält är tillåten enligt allemansrätten. Husvagnar, kojor och liknande får inte ställas upp inom reservatet, inte heller tillfälligt på is.
+
+### Kommunikationer
+
+Från Tännäs tar du väg 311 söderut. Efter cirka två kilometer viker en mindre väg av åt sydväst mot Käringsjön. Från Käringsjövallen är det ytterligare cirka åtta kilometer bilväg fram till Käringsjön. Vägen är avgiftsbelagd och avgiften betalas på plats, kontant eller med Swish. Från Käringsjön är det cirka fem kilometer märkt led till Rogenstugan.
+
+Reservatet nås också via leder från Tänndalen i norr, från Norge i väster och från Dalarna i söder. Närmaste tågstationer är Östersund och Røros, och bussen Härjedalingen stannar vid Tännäsvägen. Närmaste ort med livsmedel och friluftsbutik är Funäsdalen.
+
+### Fjällsäkerhet
+
+Rogen är en stor och öppen sjö som kan gå från spegelblank till hög sjö på några minuter. Håll dig nära land, bär flytväst och paddla inte över de öppna partierna vid osäker väderprognos. Mobiltäckningen är svag i stora delar av reservatet, så spara kort och kartor för användning utan nät.
+
+Det finns ingen läkare i området. Närmaste vårdinrättning finns i Funäsdalen och nödnumret är 112. Länsstyrelsens naturbevakare arbetar i området och kan kontaktas via Länsstyrelsen.
+
+Allt du bär in ska bäras ut igen. Reservatet saknar sophantering.
+
+## Historik och bakgrund
+
+### Reservatet och Gränslandet
+
+Rogens naturreservat bildades 1976 och omfattar cirka 500 kvadratkilometer, varav ungefär 85 kvadratkilometer är vatten. Området är också Natura 2000-område och förvaltas av Länsstyrelsen i Jämtlands län. Rogen ingår i Gränslandet, ett sammanhängande skyddat område som knyter ihop svenska och norska reservat och nationalparker, däribland Femundsmarka på norska sidan och Långfjället i söder.
+
+### Myskoxar
+
+Sveriges enda grupp av myskoxar har sitt vinterrevir i Rogenområdet. Djuren har ett särskilt skydd som innebär att du inte medvetet får uppehålla dig närmare än 100 meter. Fodertillgången är knapp, och de behöver beta ostört. Sannolikheten att stöta på dem under en fisketur är liten, men regeln gäller ändå.
+
+### Samisk närvaro och renskötsel
+
+Hela området är renbetesland och nyttjas av Ruvhten Sijte. Det sydsamiska namnet på sjön är Rovje. Intäkterna från fisketillstånden fördelas till berörda samebyar, vilket är skälet till att du anger vilket vatten du tänker fiska i vid köpet.
+
+Håll avstånd till renar och stör inte arbetande renskötare. Renarna är särskilt känsliga under kalvningen i maj, vilket också är skälet till hundförbudet 20 april till 31 maj.
+
+### Spår av äldre bruk
+
+Området har använts av människor sedan stenåldern. Fångstgropssystem, boplatser och samevisten finns kvar i landskapet, ofta just på de platser där dagens besökare rastar och tältar. Lämningarna är skyddade och ska lämnas orörda.
+
+## Snabbfakta
+
+| | |
+|---|---|
+| Fritt handredskapsfiske | Nej, fisketillstånd krävs alltid |
+| Förvaltas av | Länsstyrelsen Jämtland och Ruvhten Sijte sameby |
+| Var köps kortet | NatureIT, Tännäs Fiskecentrum, Topsport i Funäsdalen, Käringsjön |
+| Dygnskort 2026 | 80 kr |
+| Årstillstånd 2026 | 450 kr |
+| Fiskesäsong | 1 januari–15 september och 1 november–31 december |
+| Minimimått | Sätts per vatten, se Fjällfiskeguiden |
+| Båtmotor | Förbjuden i hela sjön |
+| Motordriven isborr | Förbjuden i hela reservatet |
+| Levande fisk som bete | Förbjudet |
+| Närmaste tätort | Tännäs, cirka två mil |
+| Vattentyp | Oreglerad fjällsjö i naturreservat |
+
+*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/ronne-a.mdx
@@ -40522,6 +41583,1247 @@ if (!APPLY && changed.length > 0) {
 }
 
 console.log('');
+```
+
+## feed-sok.mjs
+```
+#!/usr/bin/env node
+/**
+ * feed-sok.mjs
+ *
+ * Slår upp produkter i Adtractions feeds och skriver ut en kompakt post per
+ * träff, avsedd att klistras in i en chatt eller ett dokument som underlag för
+ * att skriva produktsidor.
+ *
+ * VARFÖR
+ *
+ * Innehållet skrivs inte i terminalen utan i chatt eller editor. Det som ändå
+ * måste komma ur feeden är exakt titel, ordinarie pris, produktens URL, bild
+ * och EAN, plus en färdigbyggd affiliatelänk. Skriptet hämtar just det och
+ * inget mer, så att skrivandet kan ske någon annanstans.
+ *
+ * Ordinarie pris (g:price) skrivs ut som det värde som ska in i frontmatter.
+ * Kampanjpris (g:sale_price) visas separat och ska aldrig hamna där, eftersom
+ * sajten hämtar det visade priset vid byggtid via src/lib/feed.ts.
+ *
+ * Varje träff märks NY eller FINNS, utifrån om produktens URL redan används av
+ * en fil i gear-reviews. Det förhindrar att samma produkt skrivs två gånger.
+ *
+ * Normaliseringen speglar src/lib/feed.ts. Ändras den ena måste den andra
+ * följa med.
+ *
+ * ANVÄNDNING
+ *
+ *   node --env-file=.env feed-sok.mjs <sökord...>
+ *   node --env-file=.env feed-sok.mjs <produkt-URL...>
+ *
+ * Flaggor:
+ *   --butik <namn>      begränsa till FiskeOnline eller Outl1
+ *   --pris 500-1500     prisintervall i kr, "-1500" och "500-" fungerar
+ *   --typ <text>        filtrera på produktkategori i feeden
+ *   --antal <n>         antal träffar, standard 15
+ *   --ny                visa bara produkter som inte redan har en sida
+ *   --kort              en rad per träff, för att skanna av ett sortiment
+ *   --bild slug=SKU     ladda ner bilder till public/images/gear/<slug>.jpg
+ *
+ * Exempel:
+ *   node --env-file=.env feed-sok.mjs shimano haspelrulle --pris 800-2000 --ny
+ *   node --env-file=.env feed-sok.mjs --butik Outl1 --typ marint --kort
+ *   node --env-file=.env feed-sok.mjs --bild shimano-miravel-2500=109272
+ */
+
+import { readFile, readdir, writeFile, mkdir } from 'node:fs/promises';
+import { join } from 'node:path';
+
+const SOURCES = [
+  {
+    name: 'FiskeOnline',
+    env: 'ADTRACTION_FEED_URL_FISKEONLINE',
+    base: 'https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1',
+  },
+  {
+    name: 'Outl1',
+    env: 'ADTRACTION_FEED_URL_OUTL1',
+    base: 'https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1',
+  },
+];
+
+const GEAR_DIR = 'src/content/gear-reviews';
+const IMAGES_DIR = 'public/images/gear';
+
+/** Adtractions gräns för egna parametervärden. */
+const MAX_SKU_LENGTH = 128;
+
+/** Tecken som är säkra i en querystring utan kodning. */
+const SAFE_SKU = /^[A-Za-z0-9._-]+$/;
+
+/* ---------- argument ---------- */
+
+const argv = process.argv.slice(2);
+const flags = new Map();
+const terms = [];
+
+for (let i = 0; i < argv.length; i++) {
+  const a = argv[i];
+  if (a.startsWith('--')) {
+    const name = a.slice(2);
+    const takesValue = ['butik', 'pris', 'typ', 'antal', 'bild'].includes(name);
+    if (name === 'bild') {
+      // Kan upprepas: --bild slug=SKU --bild slug2=SKU2
+      const list = flags.get('bild') ?? [];
+      list.push(argv[++i]);
+      flags.set('bild', list);
+    } else if (takesValue) {
+      flags.set(name, argv[++i]);
+    } else {
+      flags.set(name, true);
+    }
+  } else {
+    terms.push(a);
+  }
+}
+
+const LIMIT = Number(flags.get('antal') ?? 15);
+
+function parsePriceRange(raw) {
+  if (!raw) return null;
+  const m = raw.match(/^(\d*)\s*-\s*(\d*)$/);
+  if (!m) {
+    const one = Number(raw);
+    return Number.isFinite(one) ? { min: 0, max: one } : null;
+  }
+  return {
+    min: m[1] ? Number(m[1]) : 0,
+    max: m[2] ? Number(m[2]) : Infinity,
+  };
+}
+
+const priceRange = parsePriceRange(flags.get('pris'));
+
+/* ---------- XML, speglar feed.ts ---------- */
+
+const ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
+
+function decode(s) {
+  if (!s) return '';
+  return s
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)))
+    .replace(/&([a-z]+);/gi, (m, name) => ENTITIES[name.toLowerCase()] ?? m);
+}
+
+function tag(block, name) {
+  const m = block.match(new RegExp(`<${name}(?:\\s[^>]*)?>([\\s\\S]*?)</${name}>`, 'i'));
+  if (!m) return '';
+  const cdata = m[1].match(/^\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*$/);
+  return cdata ? cdata[1].trim() : decode(m[1]).trim();
+}
+
+function money(raw) {
+  if (!raw) return null;
+  const m = raw.replace(/\u00a0/g, ' ').match(/([\d\s.,]+)/);
+  if (!m) return null;
+  const n = Number(m[1].replace(/\s/g, '').replace(',', '.'));
+  return Number.isFinite(n) ? n : null;
+}
+
+/** Gemener, utan querystring, fragment eller avslutande slash. */
+function normalise(url) {
+  return url ? url.trim().toLowerCase().split('#')[0].split('?')[0].replace(/\/+$/, '') : null;
+}
+
+/** Produktens rena URL, med querystring kvar. Behövs för publicerade länkar. */
+function rawProductUrlFrom(trackingUrl) {
+  const i = (trackingUrl || '').indexOf('&url=');
+  return i === -1 ? null : decode(trackingUrl.slice(i + 5));
+}
+
+/* ---------- hämtning ---------- */
+
+async function loadFeeds() {
+  const items = [];
+  const only = flags.get('butik');
+
+  for (const source of SOURCES) {
+    if (only && source.name.toLowerCase() !== String(only).toLowerCase()) continue;
+
+    const url = process.env[source.env];
+    if (!url) {
+      console.error(`  ${source.name}: ${source.env} saknas, hoppas över`);
+      continue;
+    }
+
+    let xml;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) {
+        console.error(`  ${source.name}: Adtraction svarade ${res.status}`);
+        continue;
+      }
+      xml = await res.text();
+    } catch (err) {
+      console.error(`  ${source.name}: hämtning misslyckades (${err.message})`);
+      continue;
+    }
+
+    const seen = new Set();
+    const re = /<item[\s>][\s\S]*?<\/item>/gi;
+    let m;
+    while ((m = re.exec(xml)) !== null) {
+      const b = m[0];
+      const raw = rawProductUrlFrom(tag(b, 'link'));
+      const key = normalise(raw);
+      const price = money(tag(b, 'g:price'));
+      if (!key || price === null || seen.has(key)) continue;
+      seen.add(key);
+
+      items.push({
+        merchant: source.name,
+        base: source.base,
+        sku: tag(b, 'g:id'),
+        title: tag(b, 'title'),
+        brand: tag(b, 'g:brand'),
+        type: tag(b, 'g:product_type'),
+        price,
+        salePrice: money(tag(b, 'g:sale_price')),
+        label: tag(b, 'g:custom_label_1'),
+        image: tag(b, 'g:image_link'),
+        gtin: tag(b, 'g:gtin'),
+        rawUrl: raw,
+        key,
+      });
+    }
+  }
+  return items;
+}
+
+/** Produkt-URL:er som redan har en sida, för att inte skriva samma två gånger. */
+async function loadExisting() {
+  const map = new Map();
+  let files;
+  try {
+    files = await readdir(GEAR_DIR);
+  } catch {
+    return map;
+  }
+  for (const f of files) {
+    if (!/\.mdx?$/.test(f)) continue;
+    const text = await readFile(join(GEAR_DIR, f), 'utf8');
+    const fm = text.match(/^---\n([\s\S]*?)\n---/);
+    if (!fm) continue;
+    const url = fm[1].match(/^affiliateUrl:\s*["']?(.*?)["']?\s*$/m)?.[1];
+    const slug = fm[1].match(/^slug:\s*["']?(.*?)["']?\s*$/m)?.[1] ?? f;
+    const key = normalise(rawProductUrlFrom(url));
+    if (key) map.set(key, slug);
+  }
+  return map;
+}
+
+/* ---------- filtrering ---------- */
+
+function matches(item) {
+  if (priceRange && (item.price < priceRange.min || item.price > priceRange.max)) return false;
+
+  const typ = flags.get('typ');
+  if (typ && !item.type.toLowerCase().includes(String(typ).toLowerCase())) return false;
+
+  if (terms.length === 0) return true;
+
+  // URL-sökning: exakt uppslag
+  if (terms.some((t) => t.startsWith('http'))) {
+    return terms.some((t) => normalise(t) === item.key);
+  }
+
+  // Fritext: alla ord måste finnas i titel eller varumärke
+  const hay = `${item.title} ${item.brand} ${item.type}`.toLowerCase();
+  return terms.every((t) => hay.includes(t.toLowerCase()));
+}
+
+/* ---------- bildnedladdning ---------- */
+
+async function downloadImages(items) {
+  const specs = flags.get('bild');
+  await mkdir(IMAGES_DIR, { recursive: true });
+
+  for (const spec of specs) {
+    const [slug, sku] = String(spec).split('=');
+    if (!slug || !sku) {
+      console.error(`Ogiltigt format: ${spec}. Använd slug=SKU.`);
+      continue;
+    }
+    const item = items.find((i) => i.sku === sku);
+    if (!item) {
+      console.error(`${slug}: hittar ingen produkt med SKU ${sku}`);
+      continue;
+    }
+    if (!item.image) {
+      console.error(`${slug}: produkten saknar bild i feeden`);
+      continue;
+    }
+    try {
+      const res = await fetch(item.image);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const buf = Buffer.from(await res.arrayBuffer());
+      if (buf.length < 1000) throw new Error('bilden verkar tom');
+      const dest = join(IMAGES_DIR, `${slug}.jpg`);
+      await writeFile(dest, buf);
+      console.log(`${dest}  (${Math.round(buf.length / 1024)} kB)`);
+    } catch (err) {
+      console.error(`${slug}: kunde inte hämta bilden (${err.message})`);
+    }
+  }
+}
+
+/* ---------- utskrift ---------- */
+
+const kr = (v) => `${v.toLocaleString('sv-SE')} kr`;
+
+function printItem(item, status) {
+  console.log(`SKU ${item.sku} | ${item.title}`);
+  console.log(`  Butik:       ${item.merchant}`);
+  if (item.brand) console.log(`  Varumärke:   ${item.brand}`);
+  console.log(`  Ordinarie:   ${kr(item.price)}   <- detta värde ska in i price`);
+  if (item.salePrice !== null && item.salePrice < item.price) {
+    const label = item.label ? ` (${item.label})` : '';
+    console.log(`  Kampanj nu:  ${kr(item.salePrice)}${label}   visas automatiskt, skrivs inte in`);
+  }
+  if (item.type) console.log(`  Kategori:    ${item.type}`);
+  if (item.gtin) console.log(`  EAN:         ${item.gtin}`);
+  console.log(`  Produkt:     ${item.rawUrl}`);
+  if (item.image) console.log(`  Bild:        ${item.image}`);
+
+  // Affiliatelänken byggs utan querystring, som de befintliga länkarna.
+  // Feedens interna ID (?var= hos Outl1) behövs inte för att landa rätt och
+  // Adtraction URL-kodar inte målet, så färre parametrar är säkrare.
+  //
+  // cupa_sku måste ligga före &url=, eftersom allt efter &url= tolkas som
+  // produktens adress. Parametern ger konverteringsrapportering per produkt.
+  const target = item.rawUrl.split('?')[0];
+  const sku = SAFE_SKU.test(item.sku) && item.sku.length <= MAX_SKU_LENGTH ? item.sku : null;
+  const tracking = sku ? `${item.base}&cupa_sku=${sku}` : item.base;
+  console.log(`  affiliateUrl: ${tracking}&url=${target}`);
+  if (!sku) {
+    console.log(`               (cupa_sku utelämnad, SKU "${item.sku}" kräver kodning eller är för långt)`);
+  }
+  if (target !== item.rawUrl) {
+    console.log(`               (${item.rawUrl.slice(target.length)} borttaget, som i befintliga länkar)`);
+  }
+  console.log(`  Status:      ${status}`);
+  console.log('');
+}
+
+function printShort(item, status) {
+  const sale = item.salePrice !== null && item.salePrice < item.price ? ` (nu ${item.salePrice})` : '';
+  const flagg = status.startsWith('FINNS') ? ' [har sida]' : '';
+  console.log(`${item.sku.padEnd(12)} ${kr(item.price).padStart(10)}${sale.padEnd(12)} ${item.title.slice(0, 60)}${flagg}`);
+}
+
+/* ---------- main ---------- */
+
+const items = await loadFeeds();
+if (items.length === 0) {
+  console.error('Inga produkter kunde läsas. Kontrollera miljövariablerna.');
+  process.exit(2);
+}
+
+if (flags.has('bild')) {
+  await downloadImages(items);
+  process.exit(0);
+}
+
+const existing = await loadExisting();
+let hits = items.filter(matches);
+
+if (flags.has('ny')) {
+  hits = hits.filter((i) => !existing.has(i.key));
+}
+
+hits.sort((a, b) => a.price - b.price);
+
+const total = hits.length;
+const shown = hits.slice(0, LIMIT);
+
+console.log('');
+if (total === 0) {
+  console.log('Inga träffar.');
+  if (terms.length > 0) console.log('Pröva färre eller bredare sökord.');
+  console.log('');
+  process.exit(0);
+}
+
+for (const item of shown) {
+  const slug = existing.get(item.key);
+  const status = slug ? `FINNS redan som ${slug}` : 'NY, ingen sida';
+  if (flags.has('kort')) printShort(item, status);
+  else printItem(item, status);
+}
+
+console.log(`${shown.length} av ${total} träffar visas.`);
+if (total > shown.length) console.log(`Kör med --antal ${Math.min(total, 50)} för fler.`);
+console.log('');
+```
+
+## add-cupa-sku.mjs
+```
+#!/usr/bin/env node
+/**
+ * add-cupa-sku.mjs
+ *
+ * Lägger till cupa_sku i affiliateUrl för produkter som finns i Adtractions
+ * feeds. Parametern gör att konverteringar kan följas per produkt i stället
+ * för bara per kanal.
+ *
+ * BAKGRUND
+ *
+ * Feedens egna länkar bär cupa_sku, våra egenbyggda gjorde inte det. Adtraction
+ * bekräftade 2026-08-14 att parametern fungerar på egenbyggda länkar med det
+ * vanliga annons-ID:t, alltså 1954031990 för FiskeOnline och 1728546059 för
+ * Outl1. Feedens ID är en systemgenererad intern annons som inte ska användas.
+ * Värdet får vara högst 128 tecken.
+ *
+ * PLACERING I LÄNKEN
+ *
+ * Parametern måste ligga före &url=. Adtraction URL-kodar inte målet, så allt
+ * efter &url= tolkas som produktens adress. En parameter placerad efter skulle
+ * hamna i mål-URL:en i stället för i spårningen.
+ *
+ * VILKA SOM BERÖRS
+ *
+ * Bara produkter som finns i en feed får parametern. Slutsålda produkter saknas
+ * i feeden och Fritid och Vildmark har ingen feed alls. Deras länkar lämnas
+ * orörda och fungerar som förut.
+ *
+ * Skriptet är idempotent. En länk som redan har rätt cupa_sku lämnas i fred.
+ *
+ * Körning:
+ *   node --env-file=.env add-cupa-sku.mjs            torrkörning
+ *   node --env-file=.env add-cupa-sku.mjs --apply    skriver filerna
+ */
+
+import { readFile, writeFile, readdir } from 'node:fs/promises';
+import { join } from 'node:path';
+
+const SOURCES = [
+  { name: 'FiskeOnline', env: 'ADTRACTION_FEED_URL_FISKEONLINE' },
+  { name: 'Outl1', env: 'ADTRACTION_FEED_URL_OUTL1' },
+];
+
+const GEAR_DIR = 'src/content/gear-reviews';
+
+/** Adtractions gräns för egna parametervärden. */
+const MAX_SKU_LENGTH = 128;
+
+/** Tecken som är säkra i en querystring utan kodning. */
+const SAFE_SKU = /^[A-Za-z0-9._-]+$/;
+
+const args = process.argv.slice(2);
+const APPLY = args.includes('--apply');
+const opt = (n) => {
+  const i = args.indexOf(`--${n}`);
+  return i !== -1 ? args[i + 1] : null;
+};
+
+/* ---------- feed, speglar feed.ts ---------- */
+
+const ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
+
+function decode(s) {
+  if (!s) return '';
+  return s
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)))
+    .replace(/&([a-z]+);/gi, (m, name) => ENTITIES[name.toLowerCase()] ?? m);
+}
+
+function tag(block, name) {
+  const m = block.match(new RegExp(`<${name}(?:\\s[^>]*)?>([\\s\\S]*?)</${name}>`, 'i'));
+  if (!m) return '';
+  const cdata = m[1].match(/^\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*$/);
+  return cdata ? cdata[1].trim() : decode(m[1]).trim();
+}
+
+function normalise(url) {
+  return url ? url.trim().toLowerCase().split('#')[0].split('?')[0].replace(/\/+$/, '') : null;
+}
+
+function productUrlFrom(trackingUrl) {
+  const i = (trackingUrl || '').indexOf('&url=');
+  return i === -1 ? null : normalise(decode(trackingUrl.slice(i + 5)));
+}
+
+async function loadFeeds() {
+  const index = new Map();
+  console.log('\nFeeds');
+
+  for (const source of SOURCES) {
+    const url = process.env[source.env];
+    if (!url) {
+      console.log(`  ${source.name}: ${source.env} saknas, butiken hoppas över`);
+      continue;
+    }
+
+    let xml;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) {
+        console.log(`  ${source.name}: Adtraction svarade ${res.status}`);
+        continue;
+      }
+      xml = await res.text();
+    } catch (err) {
+      console.log(`  ${source.name}: hämtning misslyckades (${err.message})`);
+      continue;
+    }
+
+    let added = 0;
+    const re = /<item[\s>][\s\S]*?<\/item>/gi;
+    let m;
+    while ((m = re.exec(xml)) !== null) {
+      const key = productUrlFrom(tag(m[0], 'link'));
+      const sku = tag(m[0], 'g:id');
+      if (key && sku && !index.has(key)) {
+        index.set(key, sku);
+        added++;
+      }
+    }
+    console.log(`  ${source.name}: ${added} produkter`);
+  }
+
+  return index;
+}
+
+/* ---------- filer ---------- */
+
+function frontmatterBlock(text) {
+  const m = text.match(/^---\n([\s\S]*?)\n---/);
+  return m ? m[1] : null;
+}
+
+function readField(fm, name) {
+  const m = fm.match(new RegExp(`^${name}:\\s*(.*)$`, 'm'));
+  return m ? m[1].trim().replace(/^["']|["']$/g, '') : null;
+}
+
+/** Sätter in cupa_sku före &url=, eller ersätter ett befintligt värde. */
+function withCupaSku(affiliateUrl, sku) {
+  const i = affiliateUrl.indexOf('&url=');
+  if (i === -1) return null;
+
+  const tracking = affiliateUrl.slice(0, i);
+  const target = affiliateUrl.slice(i);
+
+  const stripped = tracking.replace(/&cupa_sku=[^&]*/g, '');
+  return `${stripped}&cupa_sku=${sku}${target}`;
+}
+
+function currentCupaSku(affiliateUrl) {
+  const i = affiliateUrl.indexOf('&url=');
+  const tracking = i === -1 ? affiliateUrl : affiliateUrl.slice(0, i);
+  return tracking.match(/[?&]cupa_sku=([^&]*)/)?.[1] ?? null;
+}
+
+/* ---------- main ---------- */
+
+const feed = await loadFeeds();
+if (feed.size === 0) {
+  console.error('\nInga produkter kunde läsas ur någon feed.');
+  process.exit(2);
+}
+
+const dir = opt('dir') || GEAR_DIR;
+let files;
+try {
+  files = await readdir(dir);
+} catch {
+  console.error(`Hittar inte ${dir}. Kör skriptet från projektroten.`);
+  process.exit(2);
+}
+
+const changed = [];
+const skipped = [];
+let alreadyOk = 0;
+let noFeed = 0;
+
+for (const f of files) {
+  if (!/\.mdx?$/.test(f)) continue;
+
+  const path = join(dir, f);
+  const text = await readFile(path, 'utf8');
+  const fm = frontmatterBlock(text);
+  if (!fm) continue;
+
+  const slug = readField(fm, 'slug') || f;
+  const affiliateUrl = readField(fm, 'affiliateUrl');
+  if (!affiliateUrl) continue;
+
+  const target = productUrlFrom(affiliateUrl);
+  const sku = target ? feed.get(target) : undefined;
+
+  if (!sku) {
+    noFeed++;
+    continue;
+  }
+
+  if (sku.length > MAX_SKU_LENGTH) {
+    skipped.push({ slug, reason: `SKU är ${sku.length} tecken, gränsen är ${MAX_SKU_LENGTH}` });
+    continue;
+  }
+  if (!SAFE_SKU.test(sku)) {
+    skipped.push({ slug, reason: `SKU "${sku}" innehåller tecken som kräver kodning` });
+    continue;
+  }
+
+  const current = currentCupaSku(affiliateUrl);
+  if (current === sku) {
+    alreadyOk++;
+    continue;
+  }
+
+  const updated = withCupaSku(affiliateUrl, sku);
+  if (!updated || updated === affiliateUrl) {
+    skipped.push({ slug, reason: 'kunde inte bygga om länken' });
+    continue;
+  }
+
+  // Byt bara ut den exakta raden, och bara när den förekommer en gång.
+  const line = fm.match(new RegExp(`^affiliateUrl:.*$`, 'gm'));
+  if (!line || line.length !== 1) {
+    skipped.push({ slug, reason: `affiliateUrl förekommer ${line ? line.length : 0} gånger` });
+    continue;
+  }
+
+  const newText = text.replace(affiliateUrl, updated);
+  if (newText === text) {
+    skipped.push({ slug, reason: 'länken kunde inte bytas ut i filen' });
+    continue;
+  }
+
+  changed.push({ slug, sku, replacing: current });
+  if (APPLY) await writeFile(path, newText, 'utf8');
+}
+
+console.log(`\ncupa_sku i affiliateUrl${APPLY ? '' : ' (torrkörning)'}\n`);
+
+if (changed.length === 0) {
+  console.log('Inget att ändra.');
+} else {
+  for (const c of changed.sort((a, b) => a.slug.localeCompare(b.slug, 'sv'))) {
+    const note = c.replacing ? ` (ersätter ${c.replacing})` : '';
+    console.log(`  ${c.slug.padEnd(38)} cupa_sku=${c.sku}${note}`);
+  }
+  console.log(`\n${changed.length} filer ${APPLY ? 'uppdaterade' : 'skulle uppdateras'}`);
+}
+
+if (alreadyOk > 0) console.log(`${alreadyOk} hade redan rätt cupa_sku`);
+if (noFeed > 0) console.log(`${noFeed} saknas i feeden eller tillhör butik utan feed, lämnas orörda`);
+
+if (skipped.length > 0) {
+  console.log('\nHOPPADE ÖVER');
+  for (const s of skipped) console.log(`  ${s.slug.padEnd(38)} ${s.reason}`);
+}
+
+if (!APPLY && changed.length > 0) {
+  console.log('\nKör om med --apply för att skriva filerna.');
+}
+
+console.log('');
+```
+
+## add-product.py
+```
+#!/usr/bin/env python3
+"""
+add-product.py, lägg till en ny produkt i Strömkast
+
+Användning:
+  python3 add-product.py
+
+Skriptet guidar dig igenom processen och skapar en MDX-fil med korrekt
+frontmatter och affiliate-länk.
+
+PRODUKTDATA HÄMTAS UR ADTRACTIONS FEED
+
+Tidigare skrapades priset ur produktsidans HTML. Det fältet innehåller butikens
+aktuella pris, alltså reapriset under kampanj, och eftersom ungefär hälften av
+FiskeOnlines sortiment är nedsatt vid varje given tidpunkt matades reapriser
+systematiskt in i ett fält som ska hålla ordinarie pris. Vid genomgången
+2026-08-13 låg 37 av 51 matchade priser fel av den anledningen.
+
+Feeden skiljer på g:price (ordinarie) och g:sale_price (kampanj). Skriptet
+använder ordinarie, vilket är vad price i frontmatter ska innehålla. Det är
+numera ett reservvärde, eftersom src/lib/feed.ts hämtar det visade priset vid
+byggtid.
+
+Kräver ADTRACTION_FEED_URL_FISKEONLINE och ADTRACTION_FEED_URL_OUTL1. Läses ur
+.env om filen finns. Saknas feeden fungerar skriptet ändå, men utan förifyllda
+värden.
+
+Normaliseringen speglar src/lib/feed.ts. Ändras den ena måste den andra följa
+med, annars matchar skriptet mot andra produkter än de sajten visar.
+"""
+
+import os
+import re
+import sys
+import json
+import urllib.request
+from urllib.parse import urlsplit, parse_qsl, urlencode, urlunsplit
+
+MERCHANTS = {
+    "1": {
+        "name": "FiskeOnline",
+        "base": "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1",
+        "domain": "fiskeonline.com",
+        "env": "ADTRACTION_FEED_URL_FISKEONLINE",
+    },
+    "2": {
+        "name": "Frilufts och Vildmark",
+        "base": "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1",
+        "domain": "fritidvildmark.se",
+        "env": None,  # Ingen feed uppsatt i Adtraction, kontrollerat 2026-08-13
+    },
+    "3": {
+        "name": "Outl1",
+        "base": "https://do.outl1.se/t/t?a=1728546059&as=2072765905&t=2&tk=1",
+        "domain": "outl1.se",
+        "env": "ADTRACTION_FEED_URL_OUTL1",
+    },
+}
+
+GEAR_REVIEWS_DIR = "src/content/gear-reviews"
+GEAR_CATEGORIES_DIR = "src/content/gear-categories"
+IMAGES_DIR = "public/images/gear"
+
+SPECIES_OPTIONS = ["abborre", "gadda", "gos", "oring", "lax", "harr", "havsoring"]
+TECHNIQUE_OPTIONS = ["jigg", "dropshot", "spinn", "wobbler", "jerkbait", "flugfiske", "mete", "trolling", "isfiske"]
+PRICE_RANGES = {"1": "budget", "2": "mellanklass", "3": "premium"}
+
+# Trösklar ur CLAUDE.md. Räknas på ordinarie pris, aldrig på kampanjpris.
+# Kategorier som saknas här får inget förslag.
+PRICE_THRESHOLDS = {
+    "spon": (800, 1800),
+    "haspelrullar": (600, 1500),
+}
+
+TRACKING_PARAMS = ("gclid", "gbraid", "wbraid", "gad_source", "fbclid", "msclkid")
+
+# Adtractions gräns för egna parametervärden, plus tecken som är säkra i en
+# querystring utan kodning.
+MAX_SKU_LENGTH = 128
+SAFE_SKU = re.compile(r'^[A-Za-z0-9._-]+$')
+
+
+def load_env(path=".env"):
+    """Läser .env utan att skriva över variabler som redan är satta."""
+    if not os.path.exists(path):
+        return
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            key = key.strip()
+            if key and key not in os.environ:
+                os.environ[key] = value.strip().strip('"').strip("'")
+
+
+def load_categories():
+    """Läser giltiga kategori-sluggar direkt från gear-categories-mappen."""
+    slugs = []
+    for name in sorted(os.listdir(GEAR_CATEGORIES_DIR)):
+        if not name.endswith(".json"):
+            continue
+        path = os.path.join(GEAR_CATEGORIES_DIR, name)
+        try:
+            with open(path, encoding="utf-8") as f:
+                data = json.load(f)
+            slugs.append(data.get("slug", name[:-5]))
+        except (json.JSONDecodeError, OSError):
+            slugs.append(name[:-5])
+    return slugs
+
+
+def clean_product_url(url):
+    """Tar bort utm- och annonsspårning från produkt-URL:en."""
+    parts = urlsplit(url)
+    kept = [
+        (k, v) for k, v in parse_qsl(parts.query, keep_blank_values=True)
+        if not k.startswith("utm_") and k not in TRACKING_PARAMS
+    ]
+    query = urlencode(kept)
+    return urlunsplit((parts.scheme, parts.netloc, parts.path, query, ""))
+
+
+def slugify(text):
+    text = text.lower()
+    text = re.sub(r'[åä]', 'a', text)
+    text = re.sub(r'[ö]', 'o', text)
+    text = re.sub(r'[^a-z0-9]+', '-', text)
+    text = re.sub(r'-+', '-', text)
+    return text.strip('-')
+
+
+def smart_slug(title):
+    """Kort slug från varumärke + modellnamn, utan mått och specifikationer."""
+    title = re.split(r'\s+\d+[\',″"/]', title)[0]
+    title = re.sub(r'\s*(Multi|2-delat|2pcs)\s*', ' ', title, flags=re.IGNORECASE)
+    return slugify(title.strip())[:50].rstrip('-')
+
+
+# ---------------------------------------------------------------------------
+# Produktfeed
+# ---------------------------------------------------------------------------
+
+ENTITIES = {"amp": "&", "lt": "<", "gt": ">", "quot": '"', "apos": "'", "nbsp": " "}
+
+
+def decode(s):
+    s = re.sub(r'&#x([0-9a-fA-F]+);', lambda m: chr(int(m.group(1), 16)), s)
+    s = re.sub(r'&#(\d+);', lambda m: chr(int(m.group(1))), s)
+    return re.sub(r'&([a-zA-Z]+);', lambda m: ENTITIES.get(m.group(1).lower(), m.group(0)), s)
+
+
+def tag(block, name):
+    m = re.search(rf'<{name}(?:\s[^>]*)?>(.*?)</{name}>', block, re.S | re.I)
+    if not m:
+        return ""
+    cdata = re.match(r'\s*<!\[CDATA\[(.*?)\]\]>\s*$', m.group(1), re.S)
+    return cdata.group(1).strip() if cdata else decode(m.group(1)).strip()
+
+
+def money(raw):
+    """'389 SEK' -> 389. None när fältet saknas, är tomt eller inte går att tolka."""
+    if not raw:
+        return None
+    m = re.search(r'([\d\s.,]+)', raw.replace("\u00a0", " "))
+    if not m:
+        return None
+    try:
+        return int(float(m.group(1).replace(" ", "").replace(",", ".")))
+    except ValueError:
+        return None
+
+
+def normalise(url):
+    """Gemener, utan querystring, fragment eller avslutande slash. Speglar feed.ts."""
+    if not url:
+        return None
+    return url.strip().lower().split("#")[0].split("?")[0].rstrip("/")
+
+
+def product_url_from(tracking_url):
+    """Produktens rena URL ur en Adtraction-länk. Allt efter url= är målet."""
+    i = tracking_url.find("&url=")
+    if i == -1:
+        return None
+    return normalise(decode(tracking_url[i + 5:]))
+
+
+def fetch_feed(env_name):
+    """Läser feeden och returnerar en karta från normaliserad URL till fält."""
+    url = os.environ.get(env_name)
+    if not url:
+        print(f"  {env_name} saknas, hoppar över feeduppslag.")
+        return {}
+
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            xml = resp.read().decode("utf-8", errors="ignore")
+    except Exception as err:
+        print(f"  Kunde inte hämta feeden ({err}). Fortsätter utan förifyllda värden.")
+        return {}
+
+    index = {}
+    for m in re.finditer(r'<item[\s>].*?</item>', xml, re.S | re.I):
+        block = m.group(0)
+        key = product_url_from(tag(block, "link"))
+        price = money(tag(block, "g:price"))
+        if not key or price is None or key in index:
+            continue
+        index[key] = {
+            "sku": tag(block, "g:id"),
+            "title": tag(block, "title"),
+            "brand": tag(block, "g:brand"),
+            "price": price,
+            "sale_price": money(tag(block, "g:sale_price")),
+            "image": tag(block, "g:image_link"),
+            "gtin": tag(block, "g:gtin"),
+            "availability": tag(block, "g:availability"),
+        }
+    print(f"  {len(index)} produkter inlästa.")
+    return index
+
+
+def download_image(image_url, dest_path):
+    """Hämtar produktbilden till public/images/gear/."""
+    try:
+        os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+        req = urllib.request.Request(image_url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = resp.read()
+        if len(data) < 1000:
+            print("  Bilden verkar tom, hoppar över.")
+            return False
+        with open(dest_path, "wb") as f:
+            f.write(data)
+        print(f"  Bild sparad: {dest_path} ({len(data) // 1024} kB)")
+        return True
+    except Exception as err:
+        print(f"  Kunde inte hämta bilden ({err}). Spara den manuellt.")
+        return False
+
+
+# ---------------------------------------------------------------------------
+# Frågor
+# ---------------------------------------------------------------------------
+
+def ask(prompt, default=None, required=False):
+    """required=True frågar om tills något anges, i stället för att gå vidare tomt."""
+    while True:
+        if default:
+            result = input(f"{prompt} [{default}]: ").strip()
+            return result if result else default
+        result = input(f"{prompt}: ").strip()
+        if result or not required:
+            return result
+        print("  Fältet kan inte lämnas tomt.")
+
+
+def ask_int(prompt, default=None):
+    """Heltal. Frågar om vid tomt eller ogiltigt svar i stället för att krascha."""
+    while True:
+        raw = ask(prompt, default)
+        digits = re.sub(r'[^0-9]', '', raw)
+        if digits:
+            return int(digits)
+        print("  Ange ett tal, t.ex. 1299.")
+
+
+def ask_list(prompt, options):
+    print(f"\n{prompt}")
+    for i, opt in enumerate(options, 1):
+        print(f"  {i}. {opt}")
+    print("  (ange nummer separerade med komma, t.ex. 1,3)")
+    while True:
+        raw = input("> ").strip()
+        indices = [x.strip() for x in raw.split(",")]
+        try:
+            selected = [options[int(i) - 1] for i in indices if i]
+            if selected:
+                return selected
+        except (ValueError, IndexError):
+            pass
+        print("Ogiltigt val, försök igen.")
+
+
+def ask_single(prompt, options):
+    """Välj exakt ett alternativ ur en lista."""
+    print(f"\n{prompt}")
+    for i, opt in enumerate(options, 1):
+        print(f"  {i}. {opt}")
+    while True:
+        raw = input("> ").strip()
+        try:
+            idx = int(raw) - 1
+            if 0 <= idx < len(options):
+                return options[idx]
+        except ValueError:
+            pass
+        print("Ogiltigt val, försök igen.")
+
+
+def ask_choice(prompt, options, default=None):
+    print(f"\n{prompt}")
+    for key, val in options.items():
+        print(f"  {key}. {val}")
+    hint = f" [{default}]" if default else ""
+    while True:
+        raw = input(f">{hint} ").strip()
+        if not raw and default:
+            return default
+        if raw in options:
+            return options[raw]
+        print("Ogiltigt val, försök igen.")
+
+
+def suggest_price_range(category, price):
+    """Föreslår prisklass ur kategorins trösklar. None när kategorin saknar sådana."""
+    bounds = PRICE_THRESHOLDS.get(category)
+    if not bounds or price is None:
+        return None
+    low, high = bounds
+    if price < low:
+        return "budget"
+    return "mellanklass" if price < high else "premium"
+
+
+def yes(raw):
+    return raw.lower() in ("j", "ja", "y", "yes")
+
+
+def yaml_safe(value):
+    """Gör en sträng säker för YAML, tar bort tecken som kraschar parsern."""
+    safe = str(value)
+    # Ersätt fot- och tumtecken som förekommer i spönamn (7'0", 8'6")
+    safe = re.sub(r"(\d)'(\d)", r"\1.\2", safe)   # 7'0 blir 7.0
+    safe = re.sub(r'(\d)"', r'\1', safe)          # 7" blir 7
+    safe = safe.replace("'", " ").replace('"', " ").replace("\\", "")
+    safe = re.sub(r'\s+', ' ', safe).strip()
+    return f'"{safe}"'
+
+
+def build_mdx(data):
+    """Bygger MDX-innehåll med frontmatter."""
+    def fmt_list(items):
+        if not items:
+            return " []"
+        return "\n" + "\n".join(f"  - {yaml_safe(item)}" for item in items)
+
+    fm = f"""---
+title: {yaml_safe(data['title'])}
+slug: {yaml_safe(data['slug'])}
+description: {yaml_safe(data['description'])}
+heroImage: {yaml_safe(data['heroImage'])}
+brand: {yaml_safe(data['brand'])}
+category: {yaml_safe(data['category'])}
+price: {data['price']}
+rating: {data['rating']}
+pros:{fmt_list(data['pros'])}
+cons:{fmt_list(data['cons'])}
+affiliateUrl: {yaml_safe(data['affiliateUrl'])}
+merchant: {yaml_safe(data['merchant'])}
+featured: {str(data['featured']).lower()}
+budgetPick: {str(data['budgetPick']).lower()}
+targetSpecies:{fmt_list(data['targetSpecies'])}
+techniques:{fmt_list(data['techniques'])}
+priceRange: {yaml_safe(data['priceRange'])}
+quizEnabled: {str(data['quizEnabled']).lower()}
+---
+
+{{/* Redaktionellt innehåll läggs till här */}}
+"""
+    return fm
+
+
+# ---------------------------------------------------------------------------
+
+def main():
+    load_env()
+
+    print("\n" + "="*50)
+    print("  Strömkast, lägg till ny produkt")
+    print("="*50 + "\n")
+
+    print("Butik:")
+    for key, m in MERCHANTS.items():
+        print(f"  {key}. {m['name']}")
+    while True:
+        raw = input("> ").strip()
+        if raw in MERCHANTS:
+            merchant = MERCHANTS[raw]
+            break
+        print("Ogiltigt val, försök igen.")
+
+    url = ask(f"\nKlistra in produktens URL på {merchant['name']}").strip()
+    if not url.startswith("http"):
+        print("Ogiltig URL.")
+        sys.exit(1)
+
+    if merchant["domain"] not in url:
+        print(f"VARNING: URL:en innehåller inte {merchant['domain']}.")
+        if not yes(ask("Fortsätta ändå? (j/n)", "n")):
+            sys.exit(0)
+
+    cleaned = clean_product_url(url)
+    if cleaned != url:
+        print(f"Spårningsparametrar borttagna:\n  {cleaned}")
+        url = cleaned
+
+    if "&" in urlsplit(url).query:
+        print("VARNING: Produkt-URL:en har fler än en parameter.")
+        print("Adtraction-länken URL-kodas inte, allt efter andra & tappas.")
+        print("Korta ned till högst en parameter eller använd ren URL.")
+        if not yes(ask("Fortsätta ändå? (j/n)", "n")):
+            sys.exit(0)
+
+    # --- feeduppslag -------------------------------------------------------
+
+    print(f"\nHämtar produktfeed för {merchant['name']}...")
+    feed = fetch_feed(merchant["env"]) if merchant["env"] else {}
+    if not merchant["env"]:
+        print(f"  {merchant['name']} har ingen feed i Adtraction, fyll i värdena för hand.")
+
+    product = feed.get(normalise(url))
+
+    if feed and not product:
+        print("\nVARNING: produkten finns inte i feeden.")
+        print("Feeden innehåller bara produkter i lager, så den är troligen")
+        print("tillfälligt slut. Kontrollera också att URL:en är rätt.")
+        if not yes(ask("Fortsätta ändå? (j/n)", "j")):
+            sys.exit(0)
+
+    if product:
+        print(f"\n  Träff i feeden (SKU {product['sku']}):")
+        print(f"    {product['title']}")
+        print(f"    Ordinarie pris: {product['price']} kr")
+        if product["sale_price"] and product["sale_price"] < product["price"]:
+            print(f"    Kampanjpris just nu: {product['sale_price']} kr")
+            print("    price i frontmatter ska vara ordinarie. Sajten visar")
+            print("    kampanjpriset automatiskt så länge det gäller.")
+        if product["gtin"]:
+            print(f"    EAN: {product['gtin']}")
+
+    # cupa_sku måste ligga före &url=, eftersom Adtraction inte URL-kodar målet
+    # och allt efter &url= tolkas som produktens adress. Parametern ger
+    # konverteringsrapportering per produkt och fungerar med det vanliga
+    # annons-ID:t, bekräftat av Adtraction 2026-08-14.
+    sku = product["sku"] if product else None
+    if sku and (len(sku) > MAX_SKU_LENGTH or not SAFE_SKU.match(sku)):
+        print(f"  SKU {sku} kräver kodning eller är för långt, cupa_sku utelämnas.")
+        sku = None
+
+    if sku:
+        affiliate_url = f"{merchant['base']}&cupa_sku={sku}&url={url}"
+    else:
+        affiliate_url = f"{merchant['base']}&url={url}"
+
+    categories = load_categories()
+    category = ask_single("Kategori:", categories)
+
+    title = ask(f"Produktnamn (exakt som på {merchant['name']})",
+                product["title"] if product else None, required=True)
+    brand = ask("Varumärke (t.ex. Westin, Shimano, Kinetic)",
+                product["brand"] if product and product["brand"] else None, required=True)
+
+    price = ask_int("Ordinarie pris i SEK",
+                    str(product["price"]) if product else None)
+
+    suggested_slug = smart_slug(title)
+    slug = ask("Slug (filnamn utan .mdx)", suggested_slug)
+
+    print("\nKort beskrivning (1-2 meningar, visas i produktkort och quiz):")
+    while True:
+        description = input("> ").strip()
+        if description:
+            break
+        print("  Beskrivningen kan inte lämnas tom.")
+
+    target_species = ask_list("Vilka arter passar produkten för?", SPECIES_OPTIONS)
+    techniques = ask_list("Vilka tekniker passar produkten för?", TECHNIQUE_OPTIONS)
+
+    suggested_range = suggest_price_range(category, price)
+    if suggested_range:
+        print(f"\n({price} kr i kategorin {category} ger {suggested_range})")
+    price_range = ask_choice("Prisklass?", PRICE_RANGES, suggested_range)
+
+    if category == "spon":
+        quiz_enabled = yes(ask("Ska spöet visas i Spöväljaren? (j/n)", "j"))
+    else:
+        quiz_enabled = False
+
+    featured = yes(ask("Markera som 'Bästa val'? (j/n)", "n"))
+    budget_pick = yes(ask("Markera som 'Bästa budget'? (j/n)", "n"))
+
+    while True:
+        try:
+            rating = round(float(ask("Redaktionellt betyg (1.0-5.0)", "4.2").replace(",", ".")), 1)
+            if 1.0 <= rating <= 5.0:
+                break
+        except ValueError:
+            pass
+        print("  Ange ett betyg mellan 1.0 och 5.0.")
+
+    # --- bild --------------------------------------------------------------
+
+    image_filename = f"{slug}.jpg"
+    image_path = f"/images/gear/{image_filename}"
+    dest = os.path.join(IMAGES_DIR, image_filename)
+    image_saved = False
+
+    if product and product["image"]:
+        print(f"\nProduktbild finns i feeden:\n  {product['image']}")
+        if yes(ask("Ladda ner den? (j/n)", "j")):
+            image_saved = download_image(product["image"], dest)
+    if not image_saved:
+        print(f"\nKom ihåg att spara produktbilden som:\n  {dest}")
+
+    # --- redaktionellt -----------------------------------------------------
+
+    print("\nFördelar (ange en per rad, tom rad för att avsluta):")
+    pros = []
+    while True:
+        line = input("  + ").strip()
+        if not line:
+            break
+        pros.append(line)
+
+    print("\nNackdelar (ange en per rad, tom rad för att avsluta):")
+    cons = []
+    while True:
+        line = input("  - ").strip()
+        if not line:
+            break
+        cons.append(line)
+
+    data = {
+        "title": title,
+        "slug": slug,
+        "description": description,
+        "heroImage": image_path,
+        "brand": brand,
+        "category": category,
+        "price": price,
+        "rating": rating,
+        "pros": pros if pros else ["Lägg till fördelar"],
+        "cons": cons if cons else ["Lägg till nackdelar"],
+        "affiliateUrl": affiliate_url,
+        "merchant": merchant["name"],
+        "featured": featured,
+        "budgetPick": budget_pick,
+        "targetSpecies": target_species,
+        "techniques": techniques,
+        "priceRange": price_range,
+        "quizEnabled": quiz_enabled,
+    }
+
+    output_path = os.path.join(GEAR_REVIEWS_DIR, f"{slug}.mdx")
+
+    if os.path.exists(output_path):
+        if not yes(ask(f"\n{output_path} finns redan. Skriva över? (j/n)", "n")):
+            print("Avbrutet.")
+            sys.exit(0)
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(build_mdx(data))
+
+    print("\n" + "="*50)
+    print("  Klar!")
+    print("="*50)
+    print(f"\nMDX-fil skapad: {output_path}")
+    print("Affiliate-länk inlagd automatiskt")
+    if image_saved:
+        print(f"Produktbild hämtad: {dest}")
+
+    print("\nÅterstår:")
+    step = 1
+    if not image_saved:
+        print(f"  {step}. Spara produktbild som: {dest}")
+        step += 1
+    print(f"  {step}. Lägg till redaktionellt innehåll i {output_path}")
+    step += 1
+    print(f"  {step}. node --env-file=.env validate-feed.mjs")
+    step += 1
+    print(f"  {step}. npm run check")
+    step += 1
+    print(f"  {step}. git add {output_path}" + (f" {dest}" if image_saved else ""))
+
+    print(f"\nAffiliate-länk:\n  {affiliate_url}\n")
+
+
+if __name__ == "__main__":
+    main()
 ```
 
 ## .github/workflows/daily-rebuild.yml
