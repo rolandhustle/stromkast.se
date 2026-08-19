@@ -10380,7 +10380,7 @@ cons:
   - "Högt pris för ett kastbart ekolod"
   - "Ingen AI-fiskidentifiering (finns i CHIRP+ 4)"
 affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
-merchant: "Frilufts och Vildmark"
+merchant: "Fritid och Vildmark"
 featured: true
 budgetPick: false
 targetSpecies:
@@ -10427,7 +10427,7 @@ cons:
   - "Högst pris bland kastbara ekolod"
   - "AI-funktionen kräver stabil Wi-Fi-signal"
 affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
-merchant: "Frilufts och Vildmark"
+merchant: "Fritid och Vildmark"
 featured: false
 budgetPick: false
 targetSpecies:
@@ -10473,7 +10473,7 @@ cons:
   - "Inte CHIRP, lägre upplösning än CHIRP+ 3"
   - "9 timmars batteritid"
 affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
-merchant: "Frilufts och Vildmark"
+merchant: "Fritid och Vildmark"
 featured: false
 budgetPick: false
 targetSpecies:
@@ -10520,7 +10520,7 @@ cons:
   - "Passar ej isfiske"
   - "Endast 50 meters rackvidd"
 affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
-merchant: "Frilufts och Vildmark"
+merchant: "Fritid och Vildmark"
 featured: false
 budgetPick: true
 targetSpecies:
@@ -10638,7 +10638,7 @@ cons:
   - "5 tums skärm, liten för delad vy"
   - "Navionics-sjökort köps separat"
 affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
-merchant: "Frilufts och Vildmark"
+merchant: "Fritid och Vildmark"
 featured: false
 budgetPick: false
 targetSpecies:
@@ -10685,7 +10685,7 @@ cons:
   - "LiveScope-givare kostar extra"
   - "Kräver 12 V strömförsörjning i båt"
 affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
-merchant: "Frilufts och Vildmark"
+merchant: "Fritid och Vildmark"
 featured: false
 budgetPick: false
 targetSpecies:
@@ -10733,7 +10733,7 @@ cons:
   - "260 och 455 kHz - inte CHIRP"
   - "60 meters rackvidd"
 affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
-merchant: "Frilufts och Vildmark"
+merchant: "Fritid och Vildmark"
 featured: false
 budgetPick: false
 targetSpecies:
@@ -10776,7 +10776,7 @@ cons:
   - "260 och 455 kHz, inte CHIRP"
   - "60 meters räckvidd"
 affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
-merchant: "Frilufts och Vildmark"
+merchant: "Fritid och Vildmark"
 featured: false
 budgetPick: false
 targetSpecies:
@@ -10820,7 +10820,7 @@ cons:
   - "Läser inga Navionics-sjökort"
   - "Knappstyrning, ingen pekskärm"
 affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
-merchant: "Frilufts och Vildmark"
+merchant: "Fritid och Vildmark"
 featured: false
 budgetPick: true
 targetSpecies:
@@ -10865,7 +10865,7 @@ cons:
   - "Läser inga Navionics-sjökort"
   - "Knappstyrning, ingen pekskärm"
 affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
-merchant: "Frilufts och Vildmark"
+merchant: "Fritid och Vildmark"
 featured: false
 budgetPick: false
 targetSpecies:
@@ -10910,7 +10910,7 @@ cons:
   - "Läser inga Navionics-sjökort"
   - "Knappstyrning, ingen pekskärm"
 affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
-merchant: "Frilufts och Vildmark"
+merchant: "Fritid och Vildmark"
 featured: false
 budgetPick: false
 targetSpecies:
@@ -10956,7 +10956,7 @@ cons:
   - "Knappstyrning, ingen pekskärm"
   - "Stor enhet, kräver mer monteringsutrymme"
 affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
-merchant: "Frilufts och Vildmark"
+merchant: "Fritid och Vildmark"
 featured: false
 budgetPick: false
 targetSpecies:
@@ -42443,7 +42443,7 @@ MERCHANTS = {
         "env": "ADTRACTION_FEED_URL_FISKEONLINE",
     },
     "2": {
-        "name": "Frilufts och Vildmark",
+        "name": "Fritid och Vildmark",
         "base": "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1",
         "domain": "fritidvildmark.se",
         "env": None,  # Ingen feed uppsatt i Adtraction, kontrollerat 2026-08-13
