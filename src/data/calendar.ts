@@ -182,6 +182,7 @@ export const SPECIES: SpeciesData[] = [
   {
     slug:        'gos',
     group:       'rovfisk',
+    forekomst:   'Främst i de stora sjösystemen och i näringsrika sjöar i söder, samt i Östersjöns innerskärgårdar. Saknas i fjällen och i större delen av Norrlands inland.',
     name:        'Gös',
     latin:       'Sander lucioperca',
     description: 'Gösen är en nattaktiv rovfisk som föredrar grumligt vatten och dyker upp i grupper längs kanter och strukturer. Leker i maj–juni.',
@@ -250,6 +251,7 @@ export const SPECIES: SpeciesData[] = [
   {
     slug:        'havsoring',
     group:       'laxfisk',
+    forekomst:   'Kustnära art längs hela svenska kusten som leker i vattendrag som mynnar i havet. I insjöar uppträder öring i stället som insjööring eller bäcköring.',
     name:        'Havsöring',
     latin:       'Salmo trutta trutta',
     description: 'Havsöringen vandrar mellan havet och sötvattnet för att leka. Eftertraktad längs hela svenska kusten och i de stora laxälvarna.',
@@ -284,6 +286,7 @@ export const SPECIES: SpeciesData[] = [
   {
     slug:        'lax',
     group:       'laxfisk',
+    forekomst:   'Finns i havet runt hela kusten men leker bara i vissa vattendrag. Sötvattenlevande bestånd finns i Vänern, med lek i Klarälven och Gullspångsälven.',
     name:        'Lax',
     latin:       'Salmo salar',
     description: 'Laxen är en ikonisk sportfisk som vandrar upp i svenska älvar för att leka. Mörrum och Torneälven är världskända laxvatten.',
@@ -318,6 +321,7 @@ export const SPECIES: SpeciesData[] = [
   {
     slug:        'harr',
     group:       'laxfisk',
+    forekomst:   'Främst en nordlig art. Finns i hela Norrland och längs kusten från Norrbotten ned till norra Gästrikland, samt söderut i Klarälvens vattensystem och i Vättern.',
     name:        'Harr',
     latin:       'Thymallus thymallus',
     description: 'Harren är en elegant sportfisk som lever i klara, syrerika strömmande vatten. Flugfiske efter harr i fjällälvar är en upplevelse utöver det vanliga.',
@@ -352,6 +356,7 @@ export const SPECIES: SpeciesData[] = [
   {
     slug:        'roding',
     group:       'laxfisk',
+    forekomst:   'Fjällröding finns från Värmland och norrut längs fjällkedjan. Storröding i ett fåtal sydligare sjöar, bland annat Vättern, Sommen och Unden. Bestånden söder om Dalälven har minskat kraftigt.',
     name:        'Röding',
     latin:       'Salvelinus alpinus',
     description: 'Rödingen är en kall vattenspecialist som lever i djupa klara sjöar i Norrland och fjällvärlden. En av Sveriges vackraste sportfiskar.',
@@ -420,6 +425,7 @@ export const SPECIES: SpeciesData[] = [
   {
     slug:        'regnbage',
     group:       'laxfisk',
+    forekomst:   'Främmande art som sällan reproducerar sig i svenska vatten. Förekomsten består i huvudsak av utsatt fisk i put and take-vatten och rymlingar från odlingar.',
     name:        'Regnbåge',
     latin:       'Oncorhynchus mykiss',
     description: 'Regnbågen sätts ut i put and take-vatten över hela landet och är en tacksam art för nybörjare. Den trivs i svalt vatten och fiskas bäst vår och höst.',
@@ -488,6 +494,7 @@ export const SPECIES: SpeciesData[] = [
   {
     slug:        'karp',
     group:       'vitfisk',
+    forekomst:   'Inplanterad art som främst finns i sydsvenska sjöar och anlagda karpvatten. Naturlig reproduktion lyckas bara i landets sydligaste delar.',
     name:        'Karp',
     latin:       'Cyprinus carpio',
     description: 'Karpen är en storväxt sommarart med en hängiven skara specialister. Den betar bara i varmt vatten och fiskas med mete från sen vår till tidig höst.',
@@ -556,6 +563,7 @@ export const SPECIES: SpeciesData[] = [
   {
     slug:        'asp',
     group:       'vitfisk',
+    forekomst:   'Huvudbestånden finns i Vänern, Mälaren och Hjälmaren med tillrinnande vattendrag. Mindre bestånd i bland annat Göta älv, Motala ström, Emån och Dalälven.',
     name:        'Asp',
     latin:       'Leuciscus aspius',
     description: 'Aspen är Sveriges största karpfisk och en rovlevande spinnfiskeart. Den är rödlistad och fredad under leken, men ett spännande sommarmål på öppet vatten.',
