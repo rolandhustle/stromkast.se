@@ -204,6 +204,18 @@ En kontroll som bara letar efter det man nyss ändrat är ingen kontroll. Det en
 
 ---
 
+### Ögonblicksbilden söker igenom projektroten i stället för att lista filer
+
+**Beslut.** `generate-claude-context.sh` hittar rotens `.mjs`, `.py` och `.sh` automatiskt, med en kort uteslutningslista för skriptet självt och `astro.config.mjs`. Utförda engångsskript flyttas till `scripts/utford/` och kommer därför inte med.
+
+**Skäl.** Den explicita listan missades två gånger på två dagar när nya verktyg tillkom. Ett skript som saknas i `claude-context.md` blir osynligt för nästa session utan att något går sönder, alltså exakt den sorts tyst fel som är svårast att upptäcka. En rad i CLAUDE.md hade inte hjälpt, eftersom den bygger på att någon minns att läsa den.
+
+Genomsökningen drog först in fem utförda migreringar. Det är sämre än att de saknas: ett migreringsskript i ögonblicksbilden ser ut som ett aktuellt verktyg, och `convert-gear-reviews.py` som konverterar JSON till MDX en andra gång är inte harmlöst. Flytten till `scripts/utford/` löser det vid källan i stället för via uteslutningslistan, som annars hade vuxit med varje migrering.
+
+**Vad som skulle ändra det.** Att projektroten börjar innehålla annat än verktyg. Då behövs urval igen, och urvalet bör i så fall vara en katalog och inte en lista.
+
+---
+
 ### Ett tomt fält är bättre än en gissad siffra
 
 Den genomgående principen bakom flera av besluten ovan. Dammån saknar vattenföring. Tio älvar saknar den. "Jämnt läge" visas hellre än en påhittad bästa dag.
@@ -399,6 +411,8 @@ Följande är **portabelt** och gäller oavsett land:
 - Antaganden om URL-normalisering byggs med automatisk upptäckt, inte med en anteckning. Om två produkter kan kollidera efter normalisering ska koden varna vid bygget.
 - Alla feeds slås ihop till ett uppslag när produkt-URL:erna skiljer sig åt på domännivå. Det gör att nya butiker kan läggas till utan att komponenter ändras.
 - Affiliatelänkar bär produktens ID när nätverket stöder det. Utan det syns bara att kanalen levererade en order, inte vilken produkt som sålde, och då går det inte att veta vilka sidor som är värda att utveckla. Parametern måste ligga före den parameter som bär mål-URL:en när nätverket inte URL-kodar målet.
+- Filer som ska med i en aggregerad kontextfil hittas genom genomsökning, inte genom uppräkning. En uppräkning glöms, och det som saknas märks aldrig eftersom ingenting går sönder.
+- Utförda engångsskript flyttas ur projektroten. Ett migreringsskript som redan körts ser ut som ett verktyg, både för en människa som listar katalogen och i en aggregerad kontextfil.
 - Matchningslogik som delas av flera skript måste hållas i takt. Vid införandet glömdes ett av tre skript och rapporterade tyst noll träffar, vilket såg ut som att allt stämde.
 
 Följande är **lokalt** och måste byggas om:

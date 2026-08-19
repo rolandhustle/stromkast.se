@@ -523,6 +523,17 @@ avvikelser bedöms redaktionellt utifrån `validate-feed.mjs`.
 följa med. När det missades en gång rapporterade skriptet tyst noll träffar,
 vilket såg ut som att allt stämde.
 
+### generate-claude-context.sh
+Bygger `claude-context.md`, den aggregerade ögonblicksbilden av projektet. Körs
+efter varje push, och filen laddas upp till Claude-projektet.
+
+Rotens `.mjs`, `.py` och `.sh` hittas automatiskt, så nya verktyg kommer med
+utan att någon behöver minnas att lägga till dem. `src/data/` är exkluderat.
+
+**Utförda engångsskript flyttas till `scripts/utford/`.** Ett migreringsskript
+som redan körts ser ut som ett aktuellt verktyg, både när du listar roten och i
+ögonblicksbilden, och alla är inte idempotenta.
+
 ### BESLUT.md
 Beslutsregister. Innehåller ingen kod och inget innehåll, bara de beslut som inte är
 självklara, skälet bakom dem, och vad som skulle få oss att ändra oss. `claude-context.md`
