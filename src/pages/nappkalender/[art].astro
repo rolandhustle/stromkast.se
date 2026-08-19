@@ -321,14 +321,13 @@ const BAR_CLASSES = {
         Betningsindikatorn är ett riktmärke baserat på biologiska säsongsmönster och månfasberäkningar. Lokal kunskap och dagsaktuella förhållanden påverkar alltid fisket mer. Källor: Havs- och vattenmyndigheten, SLU, Fiskbarometern.se. Månfaseffekt: Vinson &amp; Angradi (2014), PLOS ONE.
       </p>
     </div>
-  </section>
 
-  <!-- Artlänk.
-       Kalendersidorna beskriver säsong. Artsidan äger biologi, utrustning och
-       fiskeregler, inklusive vattenspecifika förbud som kalendern medvetet inte
-       hanterar. Samma block finns på månadssidan. -->
-  <section class="px-4 sm:px-6 max-w-[1280px] mx-auto pb-20">
-    <a href={`/arter/${art}/`} class="bg-mist/60 border border-mist rounded-2xl p-4 flex items-center justify-between hover:border-pine/20 transition-colors">
+    <!-- Artlänk.
+         Kalendersidorna beskriver säsong. Artsidan äger biologi, utrustning och
+         fiskeregler, inklusive vattenspecifika förbud som kalendern medvetet
+         inte hanterar. Samma block finns på månadssidan.
+         Samma max-w-2xl som källnotisen ovanför, annars spretar spaltbredden. -->
+    <a href={`/arter/${art}/`} class="mt-4 max-w-2xl bg-mist/60 border border-mist rounded-xl px-5 py-4 flex items-center justify-between hover:border-pine/20 transition-colors">
       <span class="text-sm font-semibold text-deep">Guide till {species.name}</span>
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
         <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
