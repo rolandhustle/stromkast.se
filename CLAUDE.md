@@ -425,8 +425,25 @@ Feed-URL:en kopieras från Adtraction under respektive annonsör.
 
 **Annons-ID skiljer sig mellan publicerade länkar och feedens länkar.** Feeden
 använder `1954031991` för FiskeOnline och `1728546061` för Outl1, medan vi
-publicerar `1954031990` respektive `1728546059`. Kopiera inte in feedens länkar
-rakt av. Frågan är obekräftad hos Adtraction, se BESLUT.md.
+publicerar `1954031990` respektive `1728546059`.
+
+Adtraction bekräftade 2026-08-14 att feedens ID är en systemgenererad, dold
+annons som bara används internt. **Använd alltid ID:t från gränssnittet**, alltså
+`1954031990` och `1728546059`. Kopiera aldrig in feedens länkar rakt av.
+
+Ekonomiskt spelar valet ingen roll: båda tillhör samma program, attributionen
+styrs av kanal-ID `2072765905`, och provisionen sätts på programnivå. Skillnaden
+syns bara som "Custom link" mot "Product feed" på annonsnivå i rapporten.
+
+**Alla länkar med feedträff bär `cupa_sku`**, alltså produktens `g:id`, placerad
+**före** `&url=`. Adtraction URL-kodar inte målet, så en parameter efter `&url=`
+hamnar i produktadressen i stället för i spårningen. Utan `cupa_sku` syns bara
+att kanalen levererade en order, inte vilken produkt som sålde.
+
+`add-product.py` och `feed-sok.mjs` bygger nya länkar med parametern.
+`add-cupa-sku.mjs` lägger till den på befintliga. Värdet får vara högst 128
+tecken. Produkter utan feedträff, alltså slutsålda och Fritid & Vildmark, får
+ingen parameter och behöver ingen.
 
 ID-mappning i Adtractions gränssnitt för FiskeOnline: Brand ID `1954031989`,
 Brand AD ID `1954031990`, Selected channel ID `2072765905`. Det är Brand AD ID
@@ -465,6 +482,33 @@ feed från fil.
 
 Körs även dagligen i `daily-rebuild.yml`.
 
+### feed-sok.mjs
+Söker i feedsen och skriver ut en kompakt post per produkt: titel, varumärke,
+ordinarie och eventuellt kampanjpris, produkt-URL, bild, EAN och en färdig
+affiliatelänk med `cupa_sku`. Varje träff märks NY eller FINNS utifrån om
+produkten redan har en sida.
+
+Avsett för att slå upp underlag som ska användas någon annanstans, exempelvis
+när innehållet skrivs i editor eller chatt i stället för i terminalen.
+
+```
+node --env-file=.env feed-sok.mjs shimano haspelrulle --pris 800-2000 --ny
+node --env-file=.env feed-sok.mjs --butik Outl1 --kort --antal 40
+node --env-file=.env feed-sok.mjs --bild shimano-miravel-2500=27523
+```
+
+Flaggor: `--butik`, `--pris 500-1500`, `--typ`, `--antal`, `--ny`, `--kort`,
+`--bild slug=SKU`.
+
+### add-cupa-sku.mjs
+Lägger till `cupa_sku` i befintliga `affiliateUrl` utifrån feedens `g:id`.
+Torrkörning som standard, `--apply` skriver filerna. Idempotent, och rör bara
+produkter med feedträff.
+
+Behövs normalt inte, eftersom nya produkter får parametern direkt. Kör den om
+länkar byggts för hand eller om en tidigare slutsåld produkt kommit tillbaka i
+feeden.
+
 ### fix-fallback-prices.mjs
 Engångsverktyg som skriver om `price` i frontmatter till feedens ordinarie pris.
 Torrkörning som standard, `--apply` skriver filerna. Byter bara ut raden när
@@ -473,8 +517,9 @@ nuvarande värde är exakt det förväntade.
 Används när reservvärdena hamnat på reanivå, inte som löpande underhåll. Löpande
 avvikelser bedöms redaktionellt utifrån `validate-feed.mjs`.
 
-**Matchningslogiken är kopierad mellan `feed.ts`, `validate-feed.mjs` och
-`fix-fallback-prices.mjs`.** Ändras normaliseringen i en av dem måste de andra
+**Matchningslogiken är kopierad mellan `feed.ts`, `validate-feed.mjs`,
+`fix-fallback-prices.mjs`, `feed-sok.mjs`, `add-cupa-sku.mjs` och
+`add-product.py`.** Ändras normaliseringen i en av dem måste de andra
 följa med. När det missades en gång rapporterade skriptet tyst noll träffar,
 vilket såg ut som att allt stämde.
 

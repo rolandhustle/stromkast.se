@@ -326,13 +326,27 @@ Falsk precision är svårare att upptäcka än ett tomt fält, eftersom den ser 
 
 ---
 
-### Publicerade annons-ID behålls i väntan på svar från Adtraction
+### Publicerade annons-ID är de i gränssnittet, inte feedens
 
-**Beslut.** `affiliateUrl` fortsätter använda `a=1954031990` för FiskeOnline och `a=1728546059` för Outl1. Feedernas egna länkar använder `1954031991` respektive `1728546061` och kopieras inte in.
+**Beslut.** `affiliateUrl` använder `a=1954031990` för FiskeOnline och `a=1728546059` för Outl1, alltså Brand AD ID i Adtractions gränssnitt. Feedernas egna länkar använder `1954031991` respektive `1728546061` och kopieras aldrig in.
 
-**Skäl.** Samma mönster i båda programmen tyder på separata annonsenheter snarare än fel i uppsättningen, men vilket ID som ska publiceras är obekräftat. Att blanda skulle splittra rapporteringen på två enheter. Feedlänkarna bär också `cupa_sku`, vilket ger konverteringsrapportering på produktnivå. Det är ett verkligt värde som ligger kvar outnyttjat tills frågan är besvarad. `validate-feed.mjs` kontrollerar förväntat ID per butik och fångar avvikelser.
+**Skäl.** Adtraction bekräftade 2026-08-14 att feedens ID är en systemgenererad, dold annons som bara används internt för att bygga länkarna i feeden. Den ska inte användas för egenbyggda länkar. Båda ID:na tillhör samma program, och attributionen styrs av kanal-ID `2072765905` tillsammans med programmet, inte av annons-ID. Provisionen sätts på programnivå och påverkas inte av vilket som används. Den enda skillnaden är att trafiken visas som antingen "Custom link" eller "Product feed" på annonsnivå i rapporten. Ingen migrering behövdes alltså, de 82 befintliga länkarna var redan rätt. `validate-feed.mjs` kontrollerar förväntat ID per butik och fångar avvikelser.
 
-**Vad som skulle ändra det.** Besked från Adtraction. Är feedens ID rätt ska samtliga `affiliateUrl` byggas om, och då bör `cupa_sku` införas samtidigt.
+**Vad som skulle ändra det.** Att Adtraction ändrar hur annonsenheter fungerar. Ekonomiskt spelar valet ingen roll, så frågan är avgjord av vilket ID som är avsett för publicering.
+
+---
+
+### `cupa_sku` läggs på alla länkar som har en feedträff
+
+**Beslut.** `affiliateUrl` bär `&cupa_sku=<g:id>` placerad före `&url=`. 73 av 94 produktsidor har den. `add-cupa-sku.mjs` gjorde tillägget på befintliga länkar, och `add-product.py` och `feed-sok.mjs` bygger nya länkar med den.
+
+**Skäl.** Utan parametern visar rapporteringen att en order kom från kanalen, men inte vilken produkt som sålde. Med 94 produktsidor är det skillnaden mellan att veta vad som konverterar och att gissa, vilket i sin tur avgör vilka sidor som är värda att utveckla. Adtraction bekräftade att parametern fungerar på egenbyggda länkar med det vanliga annons-ID:t och inte kräver feedens.
+
+Placeringen före `&url=` är inte kosmetisk. Adtraction URL-kodar inte målet, så allt efter `&url=` tolkas som produktens adress. En parameter placerad efter hamnar i mål-URL:en i stället för i spårningen.
+
+Värdet får vara högst 128 tecken. Skripten hoppar över parametern om ett SKU skulle överskrida det eller innehålla tecken som kräver kodning. FiskeOnline använder numeriska SKU, Outl1 formen `212-1-103`, båda säkra.
+
+**Vad som skulle ändra det.** De 21 produkter som saknas i feeden, alltså slutsålda varor och Fritid och Vildmark, får ingen parameter och kan inte få det. Blir andelen utan feedträff stor blir produktnivån i rapporten missvisande, eftersom den då bara täcker delar av sortimentet.
 
 ---
 
@@ -384,6 +398,7 @@ Följande är **portabelt** och gäller oavsett land:
 - Ett fält i strukturerad data utelämnas hellre än fylls med ett antagande. `availability` som alltid påstår `InStock` är ett tyst fel av samma slag som en påhittad flödessiffra.
 - Antaganden om URL-normalisering byggs med automatisk upptäckt, inte med en anteckning. Om två produkter kan kollidera efter normalisering ska koden varna vid bygget.
 - Alla feeds slås ihop till ett uppslag när produkt-URL:erna skiljer sig åt på domännivå. Det gör att nya butiker kan läggas till utan att komponenter ändras.
+- Affiliatelänkar bär produktens ID när nätverket stöder det. Utan det syns bara att kanalen levererade en order, inte vilken produkt som sålde, och då går det inte att veta vilka sidor som är värda att utveckla. Parametern måste ligga före den parameter som bär mål-URL:en när nätverket inte URL-kodar målet.
 - Matchningslogik som delas av flera skript måste hållas i takt. Vid införandet glömdes ett av tre skript och rapporterade tyst noll träffar, vilket såg ut som att allt stämde.
 
 Följande är **lokalt** och måste byggas om:
