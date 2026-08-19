@@ -464,9 +464,28 @@ Verifiera alltid att affiliate-URL:er returnerar 200 med URL-testskriptet nedan.
 ## Verktyg i projektroten
 
 ### check-content.mjs (`npm run check`)
-Validerar innehåll och körs som CI-kontroll. Regler: slug-korsreferenser, avslutande slash på
-interna länkar, kategori-/slug-skiftläge, samt att gear-review `category` matchar en
-gear-kategoris slug exakt. Stämmer även av språkregler (em-streck, en-streck före gemen, m.m.).
+Validerar innehåll och körs som CI-kontroll.
+
+**Strukturfel (exit 1):** slug-korsreferenser, avslutande slash på interna länkar,
+kategori- och slug-skiftläge, samt att gear-review `category` matchar en gear-kategoris
+slug exakt.
+
+**Språk och innehåll (varningar):** em-streck, en-streck före gemen, kampanjdatum och
+ProduktRuta. Sedan augusti 2026 även elva mönster som fångar redaktionella regelbrott:
+
+- Prisrelativa jämförelser i kronor, t.ex. "800 kr mindre". De åldras inom dagar.
+- Uppfunnen precision, t.ex. "90 procent av prestandan". Andelen går inte att mäta.
+- Superlativ om marknaden, "utan konkurrens", "inget jämförbart alternativ".
+- Sammanskrivet "i dag" och ordet "gratis".
+- Dubbla och spatierade bindestreck använda som tankstreck.
+- Filer helt utan svenska tecken, alltså sannolikt teckenkodningsfel.
+
+Mönstren är heuristiska och därför varningar, inte fel. Prismönstret kräver ett jämförande
+ord direkt efter beloppet, så "kostar 29 995 kr" passerar medan "800 kr mindre" fångas.
+
+**Varför i kod och inte bara i BESLUT.md.** Reglerna skrevs i juli 2026, men 30 produktsidor
+hade skapats i maj och juni och bröt mot dem utan att någon märkte det. En regel som bara
+finns i ett dokument fångar ingenting i det som redan är publicerat. Se BESLUT.md.
 
 ### validate-feed.mjs
 Kontrollerar `gear-reviews` mot Adtractions produktfeeds. Kräver miljövariablerna,
@@ -527,8 +546,9 @@ vilket såg ut som att allt stämde.
 Bygger `claude-context.md`, den aggregerade ögonblicksbilden av projektet. Körs
 efter varje push, och filen laddas upp till Claude-projektet.
 
-Rotens `.mjs`, `.py` och `.sh` hittas automatiskt, så nya verktyg kommer med
-utan att någon behöver minnas att lägga till dem. `src/data/` är exkluderat.
+Inkluderar src/, config, content, prompts och `.github/workflows/`. Rotens `.mjs`,
+`.py` och `.sh` hittas automatiskt, så nya verktyg kommer med utan att någon
+behöver minnas att lägga till dem. `src/data/` är exkluderat.
 
 **Utförda engångsskript flyttas till `scripts/utford/`.** Ett migreringsskript
 som redan körts ser ut som ett aktuellt verktyg, både när du listar roten och i
@@ -539,11 +559,6 @@ Beslutsregister. Innehåller ingen kod och inget innehåll, bara de beslut som i
 självklara, skälet bakom dem, och vad som skulle få oss att ändra oss. `claude-context.md`
 beskriver vad som finns, `BESLUT.md` beskriver varför. Det är den enda filen som är portabel
 till en ny marknad. Se workflow-avsnittet längre ned för när en ny post ska föreslås.
-
-### generate-claude-context.sh
-Aggregerar projektets faktiska filinnehåll till `claude-context.md`, som laddas upp till
-Claude-projektet och ersätter tidigare version. Inkluderar src/, config, content, prompts,
-`check-content.mjs` och `.github/workflows/`. Kör om och ladda upp på nytt när innehåll ändras.
 
 ### add-product.py
 CLI för nya produkter. Skapar MDX med korrekt frontmatter och affiliate-länk. Hanterar
@@ -669,7 +684,6 @@ portabel till en annan marknad även när talen är lokala.
 - check-content.mjs, generate-claude-context.sh, add-product.py, URL-testskript
 
 **Saknas / att göra:**
-- Nappkalender våg 2: kustarter (makrill, horngädda) kopplat till havsfiske
 - Artfiltrets gruppering (Rovfisk/Laxfisk/Vitfisk/Kust)
 - Programmatisk SEO: art × destination × tid, med kvalitetsgrind mot tunna sidor
 - Pagefind-baserad fulltextsök (nuvarande /sok/ söker bara titel och beskrivning)
