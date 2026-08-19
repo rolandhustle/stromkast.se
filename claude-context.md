@@ -197,6 +197,7 @@ src/content/gear-reviews/shimano-kairiki-8-013mm.mdx
 src/content/gear-reviews/shimano-miravel-2500.mdx
 src/content/gear-reviews/shimano-nexave-fi-2500.mdx
 src/content/gear-reviews/shimano-nexave-haspelspo-191m.mdx
+src/content/gear-reviews/shimano-sahara-fj-2500.mdx
 src/content/gear-reviews/shimano-stella-fk-2500.mdx
 src/content/gear-reviews/shimano-stradic-fm-c3000-hg.mdx
 src/content/gear-reviews/shimano-vanford-fa-2500.mdx
@@ -2774,6 +2775,34 @@ export default function KalenderWidget({
           </span>
         </div>
       </div>
+
+      {/* Utbredningsnotis.
+          Visas när arten har begränsad utbredning, alltså när forekomst är satt.
+          Poängen beskriver säsong och månfas, inte om arten finns i vattnet
+          framför läsaren. Ett toppläge för makrill i en region där arten knappt
+          förekommer är falsk precision av samma slag som en påhittad
+          flödessiffra: den ser ut som kunskap.
+
+          Texten beskriver artens utbredning i sig och inte per region, eftersom
+          regionerna saknar geografisk definition. Arter som finns i stort sett
+          överallt saknar fältet och får ingen notis. */}
+      {!isAbsentHere && selectedSpeciesData?.forekomst && (
+        <div style={{
+          background: '#f9fafb',
+          border: '1px solid #e5e7eb',
+          borderRadius: '10px',
+          padding: '10px 14px',
+          marginBottom: '1rem',
+          display: 'flex',
+          gap: '8px',
+          alignItems: 'flex-start',
+        }}>
+          <span aria-hidden="true" style={{ fontSize: '13px', lineHeight: 1.5, flexShrink: 0 }}>📍</span>
+          <p style={{ fontSize: '13px', color: '#4b5563', lineHeight: 1.5, margin: 0 }}>
+            <strong style={{ color: '#374151' }}>Utbredning:</strong> {selectedSpeciesData.forekomst}
+          </p>
+        </div>
+      )}
 
       {/* Huvud-layout */}
       {isAbsentHere ? (
@@ -7007,6 +7036,18 @@ const BAR_CLASSES = {
         Betningsindikatorn är ett riktmärke baserat på biologiska säsongsmönster och månfasberäkningar. Lokal kunskap och dagsaktuella förhållanden påverkar alltid fisket mer. Källor: Havs- och vattenmyndigheten, SLU, Fiskbarometern.se. Månfaseffekt: Vinson &amp; Angradi (2014), PLOS ONE.
       </p>
     </div>
+
+    <!-- Artlänk.
+         Kalendersidorna beskriver säsong. Artsidan äger biologi, utrustning och
+         fiskeregler, inklusive vattenspecifika förbud som kalendern medvetet
+         inte hanterar. Samma block finns på månadssidan.
+         Samma max-w-2xl som källnotisen ovanför, annars spretar spaltbredden. -->
+    <a href={`/arter/${art}/`} class="mt-4 max-w-2xl bg-mist/60 border border-mist rounded-xl px-5 py-4 flex items-center justify-between hover:border-pine/20 transition-colors">
+      <span class="text-sm font-semibold text-deep">Guide till {species.name}</span>
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
   </section>
 
 </BaseLayout>
@@ -7336,6 +7377,7 @@ const speciesForWidget = SPECIES.map(sp => ({
   closedMonths:   sp.closedMonths,
   group:          sp.group,
   absentRegions:  sp.absentRegions,
+  forekomst:      sp.forekomst,
 }));
 
 // Månadsöversikt för tabellen
@@ -10322,20 +10364,20 @@ Det här är en mångsidig wobbler för dig som fiskar gädda, gös och öring o
 ---
 title: "Deeper Smart Sonar CHIRP+ 3"
 slug: "deeper-smart-sonar-chirp-plus-3"
-description: "Kastbart CHIRP-ekolod fran Deeper med 3D-kartor i realtid, GPS och tre konvinklar. 1 cm malseaparation och 15 timmars batteritid for langre fiskepass."
+description: "Kastbart CHIRP-ekolod från Deeper med 3D-kartor i realtid, GPS och tre konvinklar. 1 cm målseparation och 15 timmars batteritid för längre fiskepass."
 heroImage: "/images/gear/deeper-smart-sonar-chirp-plus-3.jpg"
 brand: "Deeper"
 category: "ekolod"
 price: 3695
 rating: 4.7
 pros:
-  - "3-frekvens CHIRP for hog detaljrikedom"
+  - "3-frekvens CHIRP för hög detaljrikedom"
   - "3D-kartor i realtid via Fish Deeper-appen"
   - "GPS, GLONASS, Galileo, BeiDou och QZSS"
   - "15 timmars batteritid"
-  - "5 ars garanti"
+  - "5 års garanti"
 cons:
-  - "Hogt pris for ett kastbart ekolod"
+  - "Högt pris för ett kastbart ekolod"
   - "Ingen AI-fiskidentifiering (finns i CHIRP+ 4)"
 affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
 merchant: "Frilufts och Vildmark"
@@ -10356,11 +10398,11 @@ priceRange: "mellanklass"
 quizEnabled: false
 ---
 
-Deeper CHIRP+ 3 tar det kastbara ekolodet till nasta niva med kraftfull CHIRP-teknik pa tre frekvenser. 47 grader vid 100 kHz for bred skanning, 20 grader vid 240 kHz for detaljanalys och 7 grader vid 675 kHz for isfiske och vertikalfiske. Med 1 cm malseaparation kan du tydligt skilja mellan fiskar aven i stim eller nara botten - en precision som saknas i ekolod utan CHIRP.
+Deeper CHIRP+ 3 tar det kastbara ekolodet till nästa nivå med kraftfull CHIRP-teknik på tre frekvenser. 47 grader vid 100 kHz för bred skanning, 20 grader vid 240 kHz för detaljanalys och 7 grader vid 675 kHz för isfiske och vertikalfiske. Med 1 cm målseparation kan du tydligt skilja mellan fiskar även i stim eller nära botten, en precision som saknas i ekolod utan CHIRP.
 
-En av de mest praktiska nyheterna ar 3D-kartor i realtid direkt i Fish Deeper-appen. Kartorna byggs upp live medan du fiskar och visar bottentopografi, strukturer och fiskens rorelser pa ett satt som traditionella 2D-kartor inte kan. All data sparas automatiskt och kan nas fran valfri enhet.
+En av de mest praktiska nyheterna är 3D-kartor i realtid direkt i Fish Deeper-appen. Kartorna byggs upp live medan du fiskar och visar bottentopografi, strukturer och fiskens rörelser på ett sätt som traditionella 2D-kartor inte kan. All data sparas automatiskt och kan nås från valfri enhet.
 
-GPS med stod for GPS, GLONASS, Galileo, BeiDou och QZSS ger hog positionsnoggrannhet oavsett var du fiskar. 15 timmars batteritid med snabbladdning (80 procent pa 60 minuter) och 5 ars garanti gor det till ett langsiktigt kop. Den som vill ha AI-baserad fiskidentifiering i realtid bor titta pa CHIRP+ 4, men for de flesta sportfiskare levererar CHIRP+ 3 mer an tillrackligt.
+GPS med stöd för GPS, GLONASS, Galileo, BeiDou och QZSS ger hög positionsnoggrannhet oavsett var du fiskar. 15 timmars batteritid med snabbladdning (80 procent på 60 minuter) och 5 års garanti gör det till ett långsiktigt köp. Den som vill ha AI-baserad fiskidentifiering i realtid bör titta på CHIRP+ 4, men för de flesta sportfiskare levererar CHIRP+ 3 mer än tillräckligt.
 ```
 
 ## src/content/gear-reviews/deeper-smart-sonar-chirp-plus-4.mdx
@@ -10368,7 +10410,7 @@ GPS med stod for GPS, GLONASS, Galileo, BeiDou och QZSS ger hog positionsnoggran
 ---
 title: "Deeper Smart Sonar CHIRP+ 4"
 slug: "deeper-smart-sonar-chirp-plus-4"
-description: "Toppmodellen bland kastbara ekolod fran Deeper med AI-baserad fiskidentifiering i realtid, CHIRP-teknik och detaljerade 2D- och 3D-kartor."
+description: "Toppmodellen bland kastbara ekolod från Deeper med AI-baserad fiskidentifiering i realtid, CHIRP-teknik och detaljerade 2D- och 3D-kartor."
 heroImage: "/images/gear/deeper-smart-sonar-chirp-plus-4.jpg"
 brand: "Deeper"
 category: "ekolod"
@@ -10376,14 +10418,14 @@ price: 4495
 rating: 4.8
 pros:
   - "AI-baserad fiskidentifiering i realtid"
-  - "Fyra ganger hogre detaljrikedom i grunt vatten"
+  - "Fyra gånger högre detaljrikedom i grunt vatten"
   - "Triple beam CHIRP med tre skanningsvinklar"
   - "Skapar 2D- och 3D-kartor"
   - "USB-C laddning"
-  - "5 ars garanti"
+  - "5 års garanti"
 cons:
-  - "Hogst pris bland kastbara ekolod"
-  - "AI-funktionen krar stabilt Wi-Fi-signal"
+  - "Högst pris bland kastbara ekolod"
+  - "AI-funktionen kräver stabil Wi-Fi-signal"
 affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
 merchant: "Frilufts och Vildmark"
 featured: false
@@ -10403,11 +10445,11 @@ priceRange: "premium"
 quizEnabled: false
 ---
 
-Deeper CHIRP+ 4 ar toppmodellen i Deepersortimentet och for med sig AI-baserad fiskidentifiering som analyserar ekolodsdata i realtid och hjalper dig identifiera fisk direkt pa skramen. Det gor att du kan fokusera mer pa sjala fisket istallet for att tolka ekolodsbilder manuellt. AI-systemet forbattras dessutom via framtida uppdateringar.
+Deeper CHIRP+ 4 är toppmodellen i Deepers sortiment och för med sig AI-baserad fiskidentifiering som analyserar ekolodsdata i realtid och hjälper dig identifiera fisk direkt på skärmen. Det gör att du kan fokusera mer på själva fisket i stället för att tolka ekolodsbilder manuellt. AI-systemet förbättras dessutom via framtida uppdateringar.
 
-Triple beam CHIRP-tekniken med tre skanningsvinklar ger fyra ganger hogre detaljrikedom i grunt vatten jamfort med tidigare generationer, vilket gor fisk, kanter, vegetation och strukturer tydligare och enklare att skilja at aven pa djup ner till fem meter. Detaljerade 2D- och 3D-kartor visar djupkurvor, bottenhardhet, vegetation och markerade fiskpositioner.
+Triple beam CHIRP-tekniken med tre skanningsvinklar ger fyra gånger högre detaljrikedom i grunt vatten jämfört med tidigare generationer, vilket gör fisk, kanter, vegetation och strukturer tydligare och enklare att skilja åt även på djup ner till fem meter. Detaljerade 2D- och 3D-kartor visar djupkurvor, bottenhårdhet, vegetation och markerade fiskpositioner.
 
-Med 94 grams vikt, USB-C laddning och upp till 15 timmars batteritid ar CHIRP+ 4 praktisk att anvanda under langre fiskepass. For den som vill ha det absolut basta i kastbara ekolod och vill anvanda AI-funktionen for smidigare fiskidentifiering ar CHIRP+ 4 svaret. For de flesta sportfiskare levererar dock CHIRP+ 3 tillracklig prestanda till 800 kr lagre pris.
+Med 94 grams vikt, USB-C laddning och upp till 15 timmars batteritid är CHIRP+ 4 praktisk att använda under längre fiskepass. För den som vill ha det absolut bästa i kastbara ekolod och vill använda AI-funktionen för smidigare fiskidentifiering är CHIRP+ 4 svaret. För de flesta sportfiskare levererar dock CHIRP+ 3 tillräcklig prestanda till ett lägre pris.
 ```
 
 ## src/content/gear-reviews/deeper-smart-sonar-pro-plus-2.mdx
@@ -10415,7 +10457,7 @@ Med 94 grams vikt, USB-C laddning och upp till 15 timmars batteritid ar CHIRP+ 4
 ---
 title: "Deeper Smart Sonar PRO+ 2"
 slug: "deeper-smart-sonar-pro-plus-2"
-description: "Kastbart ekolod fran Deeper med tre konvinklar, inbyggd GPS och Wi-Fi. Skapar sjokort fran land, kajak eller bat och fungerar utmarkt vid isfiske."
+description: "Kastbart ekolod från Deeper med tre konvinklar, inbyggd GPS och Wi-Fi. Skapar sjökort från land, kajak eller båt och fungerar utmärkt vid isfiske."
 heroImage: "/images/gear/deeper-smart-sonar-pro-plus-2.jpg"
 brand: "Deeper"
 category: "ekolod"
@@ -10423,12 +10465,12 @@ price: 2595
 rating: 4.4
 pros:
   - "Tre konvinklar (47, 20 och 7 grader)"
-  - "Inbyggd GPS for kartlaggning fran land"
-  - "Utmarkt for isfiske"
-  - "1 cm malseaparation"
+  - "Inbyggd GPS för kartläggning från land"
+  - "Utmärkt för isfiske"
+  - "1 cm målseparation"
   - "Upp till 100 meters djup"
 cons:
-  - "Inte CHIRP - lagre upplostning an CHIRP+ 3"
+  - "Inte CHIRP, lägre upplösning än CHIRP+ 3"
   - "9 timmars batteritid"
 affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
 merchant: "Frilufts och Vildmark"
@@ -10449,11 +10491,11 @@ priceRange: "mellanklass"
 quizEnabled: false
 ---
 
-Deeper PRO+ 2 ar ett kraftfullt kastbart ekolod med tre konvinklar som ger full kontroll over hur du laser av vattnet. 47 graders bred vinkel for snabb skanning, 20 graders mellanvinklar for mer detaljerad analys och 7 graders smal strale for isfiske och vertikalfiske. Djupkapaciteten pa 100 meter och 1 cm malseaparation ger tydliga avlasningar aven pa djupare vatten.
+Deeper PRO+ 2 är ett kraftfullt kastbart ekolod med tre konvinklar som ger full kontroll över hur du läser av vattnet. 47 graders bred vinkel för snabb skanning, 20 graders mellanvinkel för mer detaljerad analys och 7 graders smal stråle för isfiske och vertikalfiske. Djupkapaciteten på 100 meter och 1 cm målseparation ger tydliga avläsningar även på djupare vatten.
 
-Den inbyggda GPS-funktionen gor att du kan skapa sjokort direkt fran land genom att kasta ut och veva in - utan bat. Kartorna sparas automatiskt i Fish Deeper-appen och kan nas fran valfri enhet. Det ar en av de storsta fordelarna jamfort med Garmin Striker Cast, dar GPS-varianten klarar samma sak men med lagre ekolodskvalitet.
+Den inbyggda GPS-funktionen gör att du kan skapa sjökort direkt från land genom att kasta ut och veva in, utan båt. Kartorna sparas automatiskt i Fish Deeper-appen och kan nås från valfri enhet. Det är en av de största fördelarna jämfört med Garmin Striker Cast, där GPS-varianten klarar samma sak men med lägre ekolodskvalitet.
 
-Deeper pryftar sarskilt fram PRO+ 2:s lampligehte for isfiske, och den 7 graders smala stralen och kyltoleransen ner till -20 grader gor den till ett solitt val for vinterfiske. Den som vill ha CHIRP-teknik for hogre upplostning och mer detaljerade avlasningar bor titta pa CHIRP+ 3.
+Deeper lyfter särskilt fram PRO+ 2:s lämplighet för isfiske, och den 7 grader smala strålen och kyltoleransen ner till minus 20 grader gör den till ett solitt val för vinterfiske. Den som vill ha CHIRP-teknik för högre upplösning och mer detaljerade avläsningar bör titta på CHIRP+ 3.
 ```
 
 ## src/content/gear-reviews/deeper-start-global.mdx
@@ -10579,22 +10621,22 @@ Det här är en jigg för dig som riktar in dig på gädda i vatten med mycket s
 ---
 title: "Garmin Echomap UHD2 52CV ink GT20"
 slug: "garmin-echomap-uhd2-52cv"
-description: "Kompakt kartplotter med ekolod fran Garmin med 5 tums skarm, CHIRP, ClearVu och stod for Garmin Navionics-sjokort. Perfekt for den som vill kombinera fiske och navigering."
+description: "Kompakt kartplotter med ekolod från Garmin med 5 tums skärm, CHIRP, ClearVu och stöd för Garmin Navionics-sjökort. Kombinerar fiske och navigering."
 heroImage: "/images/gear/garmin-echomap-uhd2-52cv.jpg"
 brand: "Garmin"
 category: "ekolod"
 price: 4195
 rating: 4.5
 pros:
-  - "Stod for Garmin Navionics-sjokort"
+  - "Stöd för Garmin Navionics-sjökort"
   - "Traditionellt CHIRP och ClearVu"
-  - "Wi-Fi och ActiveCaptain-stod"
+  - "Wi-Fi och ActiveCaptain-stöd"
   - "Inbyggd GPS med Galileo och WAAS"
-  - "Quickdraw Contours for egna kartor"
+  - "Quickdraw Contours för egna kartor"
 cons:
-  - "Knappstyrning - ingen pekskarm"
-  - "5 tums skarm - liten for splitview"
-  - "Navionics-sjokort koper separat"
+  - "Knappstyrning, ingen pekskärm"
+  - "5 tums skärm, liten för delad vy"
+  - "Navionics-sjökort köps separat"
 affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
 merchant: "Frilufts och Vildmark"
 featured: false
@@ -10613,11 +10655,11 @@ priceRange: "mellanklass"
 quizEnabled: false
 ---
 
-Garmin ECHOMAP UHD2 52cv ar det naturliga steget upp fran Striker Vivid-serien for den som vill ha fardiga sjokort. Med stod for Garmin Navionics+ och Navionics Vision+ kan du anvanda detaljerade sjokort for planering och navigering pa ett satt som Striker Vivid-modellerna inte klarar. Det ar den viktigaste skillnaden och det som motiverar prisskillnaden.
+Garmin ECHOMAP UHD2 52cv är det naturliga steget upp från Striker Vivid-serien för den som vill ha färdiga sjökort. Med stöd för Garmin Navionics+ och Navionics Vision+ kan du använda detaljerade sjökort för planering och navigering på ett sätt som Striker Vivid-modellerna inte klarar. Det är den viktigaste skillnaden och det som motiverar prisskillnaden.
 
-Den medfoljandeGT20-givaren ger traditionellt Garmin CHIRP-ekolod och ClearVu med tydliga fargpaletter. Den 5 tums WVGA IPS-skarm (800x480 pixlar) ar ljusstark och lattlast. Wi-Fi med ActiveCaptain-integration ger tillgang till OneChart, Garmin Quickdraw Community och programvaruuppdateringar. Inbyggd GPS med stod for Galileo och WAAS ger precis positionering.
+Den medföljande GT20-givaren ger traditionellt Garmin CHIRP-ekolod och ClearVu med tydliga färgpaletter. Den 5 tums WVGA IPS-skärmen (800x480 pixlar) är ljusstark och lättläst. Wi-Fi med ActiveCaptain-integration ger tillgång till OneChart, Garmin Quickdraw Community och programvaruuppdateringar. Inbyggd GPS med stöd för Galileo och WAAS ger precis positionering.
 
-Quickdraw Contours lat er komplettera med egna kartor pa vatten dar Navionics inte har tillracklig detalj. 5 000 waypoints och 50 sparade spor ger gott om utrymme for att markera och aterkomma till dina basta fiskeplatser. For den som vill ha en storre skarm, SideVu och mer avancerade funktioner ar ECHOMAP UHD2 92sv nasta steg.
+Quickdraw Contours låter dig komplettera med egna kartor på vatten där Navionics inte har tillräcklig detalj. 5 000 waypoints och 50 sparade spår ger gott om utrymme för att markera och återkomma till dina bästa fiskeplatser. För den som vill ha en större skärm, SideVu och mer avancerade funktioner är ECHOMAP UHD2 92sv nästa steg.
 ```
 
 ## src/content/gear-reviews/garmin-echomap-uhd2-92sv.mdx
@@ -10625,23 +10667,23 @@ Quickdraw Contours lat er komplettera med egna kartor pa vatten dar Navionics in
 ---
 title: "Garmin Echomap UHD2 92SV ink GT56"
 slug: "garmin-echomap-uhd2-92sv"
-description: "Avancerad kartplotter med ekolod fran Garmin med 9 tums pekskarm, CHIRP, ClearVu, SideVu och stod for LiveScope. Multi band GPS och Navionics-sjokort."
+description: "Avancerad kartplotter med ekolod från Garmin med 9 tums pekskärm, CHIRP, ClearVu, SideVu och stöd för LiveScope. Multiband-GPS och Navionics-sjökort."
 heroImage: "/images/gear/garmin-echomap-uhd2-92sv.jpg"
 brand: "Garmin"
 category: "ekolod"
 price: 11195
 rating: 4.8
 pros:
-  - "9 tums pekskarm med knappar"
-  - "SideVu for skanning at sidorna"
-  - "Stod for LiveScope och Panoptix"
-  - "Multi band GPS med GLONASS, Galileo och BeiDou"
+  - "9 tums pekskärm med knappar"
+  - "SideVu för skanning åt sidorna"
+  - "Stöd för LiveScope och Panoptix"
+  - "Multiband-GPS med GLONASS, Galileo och BeiDou"
   - "NMEA 2000 och Garmin Marine Network"
-  - "Navionics-sjokort och Quickdraw Contours"
+  - "Navionics-sjökort och Quickdraw Contours"
 cons:
-  - "Mycket hogt pris"
-  - "Livescope-givare koster extra"
-  - "Kraver 12V stromforsorrjning i bat"
+  - "Mycket högt pris"
+  - "LiveScope-givare kostar extra"
+  - "Kräver 12 V strömförsörjning i båt"
 affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
 merchant: "Frilufts och Vildmark"
 featured: false
@@ -10660,13 +10702,13 @@ priceRange: "premium"
 quizEnabled: false
 ---
 
-Garmin ECHOMAP UHD2 92sv ar den mest avancerade enheten i den har kategorin och representerar toppnivan for batmonterade kartplotters med ekolod. Den 9 tums pekskarm med knappar (1024x600 pixlar) ger utmarkt overblick, och med GT56-givaren far du traditionellt CHIRP-ekolod, ClearVu och SideVu i ett paket.
+Garmin ECHOMAP UHD2 92sv är den mest avancerade enheten i den här kategorin och representerar toppnivån för båtmonterade kartplottrar med ekolod. Den 9 tums pekskärmen med knappar (1024x600 pixlar) ger utmärkt överblick, och med GT56-givaren får du traditionellt CHIRP-ekolod, ClearVu och SideVu i ett paket.
 
-SideVu lat er skanna av storre omraden at sidorna, vilket ar sarskilt anvandbart nar du letar efter kanter, stenpartier, betesfisk och platser dar rovfisken garna star. Stod for LiveScope och Panoptix gor det dessutom mojligt att bygga vidare systemet med realtids ekolod om du vill ta fiskeupplevelsen till nasta niva.
+SideVu låter dig skanna av större områden åt sidorna, vilket är särskilt användbart när du letar efter kanter, stenpartier, betesfisk och platser där rovfisken gärna står. Stöd för LiveScope och Panoptix gör det dessutom möjligt att bygga vidare på systemet med realtidsekolod om du vill ta fiskeupplevelsen till nästa nivå.
 
-Multi band GPS med stod for GPS, GLONASS, Galileo och BeiDou ger hog positionsnoggrannhet. NMEA 2000-stod och Garmin Marine Network gor enheten till ett nav i batens elsystem. Navionics+ och Navionics Vision+-stod ger tillgang till detaljerade sjokort. Wi-Fi med ActiveCaptain, AIS-stod och mojlighet att ansluta Force trollingmotor kompletterar en imponerande funktionslista.
+Multiband-GPS med stöd för GPS, GLONASS, Galileo och BeiDou ger hög positionsnoggrannhet. NMEA 2000-stöd och Garmin Marine Network gör enheten till ett nav i båtens elsystem. Navionics+ och Navionics Vision+ ger tillgång till detaljerade sjökort. Wi-Fi med ActiveCaptain, AIS-stöd och möjlighet att ansluta Force trollingmotor kompletterar en omfattande funktionslista.
 
-ECHOMAP UHD2 92sv ar for den som fiskar mycket fran bat, vill ha det basta tillgangliga och ar beredd att investera darefter. For de flesta sportfiskare raecker ECHOMAP UHD2 52cv eller Striker Vivid 7cv gott.
+ECHOMAP UHD2 92sv är för den som fiskar mycket från båt, vill ha det bästa tillgängliga och är beredd att investera därefter. För de flesta sportfiskare räcker ECHOMAP UHD2 52cv eller Striker Vivid 7cv gott.
 ```
 
 ## src/content/gear-reviews/garmin-striker-cast-no-gps.mdx
@@ -10718,21 +10760,21 @@ Jamfort med Deeper START ger Striker Cast en tydligare app-upplevelse och funger
 ---
 title: "Garmin Striker Cast Worldwide"
 slug: "garmin-striker-cast-worldwide"
-description: "Kastbart ekolod fran Garmin med inbyggd GPS och Quickdraw Contours. Skapar egna djupkartor med 0,3 meters konturer direkt via mobilen."
+description: "Kastbart ekolod från Garmin med inbyggd GPS och Quickdraw Contours. Skapar egna djupkartor med 0,3 meters konturer direkt via mobilen."
 heroImage: "/images/gear/garmin-striker-cast-worldwide.jpg"
 brand: "Garmin"
 category: "ekolod"
 price: 1995
 rating: 4.3
 pros:
-  - "Inbyggd GPS for egna Quickdraw-kartor"
+  - "Inbyggd GPS för egna Quickdraw-kartor"
   - "0,3 meters konturintervall"
   - "Fungerar vid isfiske"
-  - "Over 10 timmars batteritid"
-  - "AutoGain for tydligare ekolodsbild"
+  - "Över 10 timmars batteritid"
+  - "AutoGain för tydligare ekolodsbild"
 cons:
-  - "260 och 455 kHz - inte CHIRP"
-  - "60 meters rackvidd"
+  - "260 och 455 kHz, inte CHIRP"
+  - "60 meters räckvidd"
 affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
 merchant: "Frilufts och Vildmark"
 featured: false
@@ -10749,11 +10791,11 @@ priceRange: "budget"
 quizEnabled: false
 ---
 
-Garmin Striker Cast Worldwide ar samma kastbara ekolod som no GPS-varianten men med inbyggd GPS och stod for Garmin Quickdraw Contours. Det innebar att du kan skapa egna djupkartor med 0,3 meters konturintervall direkt via enheten nar du fiskar - perfekt for att kartlagga mindre sjoar, lokala vatten och intressanta bottenformationer som du vill hitta tillbaka till.
+Garmin Striker Cast Worldwide är samma kastbara ekolod som varianten utan GPS, men med inbyggd GPS och stöd för Garmin Quickdraw Contours. Det innebär att du kan skapa egna djupkartor med 0,3 meters konturintervall direkt via enheten när du fiskar, vilket passar för att kartlägga mindre sjöar, lokala vatten och intressanta bottenformationer som du vill hitta tillbaka till.
 
-5 000 waypoints kan sparas och alla kartor lagras i appen och ar atkomliga fran valfri enhet. AutoGain justerar ekolodsbilden automatiskt, och traditionellt 2D ekolod kombinerat med realtidsvisning for isfiske ger flexibilitet for bade sommar och vinter.
+5 000 waypoints kan sparas, och alla kartor lagras i appen och är åtkomliga från valfri enhet. AutoGain justerar ekolodsbilden automatiskt, och traditionellt 2D-ekolod kombinerat med realtidsvisning för isfiske ger flexibilitet för både sommar och vinter.
 
-For 500 kr mer an no GPS-varianten far du GPS-kartlaggning som ar det mest praktiska tillskottet for den som fiskar samma vatten upprepade ganger och vill bygga upp detaljerad bottenkunskap. Den som vill ha CHIRP-teknik och djupare rackvidd bor titta pa Deeper PRO+ 2 eller CHIRP+ 3.
+GPS-kartläggningen är det mest praktiska tillskottet jämfört med varianten utan GPS, särskilt för den som fiskar samma vatten upprepade gånger och vill bygga upp detaljerad bottenkunskap. Den som vill ha CHIRP-teknik och djupare räckvidd bör titta på Deeper PRO+ 2 eller CHIRP+ 3.
 ```
 
 ## src/content/gear-reviews/garmin-striker-vivid-4cv.mdx
@@ -10761,7 +10803,7 @@ For 500 kr mer an no GPS-varianten far du GPS-kartlaggning som ar det mest prakt
 ---
 title: "Garmin Striker Vivid 4CV ink GT20"
 slug: "garmin-striker-vivid-4cv"
-description: "Kompakt fastmonterat ekolod fran Garmin med 4 tums fargskarm, CHIRP och ClearVu. Inbyggd GPS och Quickdraw Contours for egna kartor. Enkel att installera i baten."
+description: "Kompakt fastmonterat ekolod från Garmin med 4 tums färgskärm, CHIRP och ClearVu. Inbyggd GPS och Quickdraw Contours för egna kartor."
 heroImage: "/images/gear/garmin-striker-vivid-4cv.jpg"
 brand: "Garmin"
 category: "ekolod"
@@ -10770,13 +10812,13 @@ rating: 4.2
 pros:
   - "Traditionellt CHIRP och ClearVu"
   - "Inbyggd GPS med waypoints"
-  - "Quickdraw Contours for egna kartor"
-  - "Kompakt 4 tums skarm"
+  - "Quickdraw Contours för egna kartor"
+  - "Kompakt 4 tums skärm"
   - "IPX7 vattenklassad"
 cons:
-  - "4 tums skarm kan vara liten vid starka solljus"
-  - "Laser inga Navionics-sjokort"
-  - "Knappstyrning - ingen pekskarm"
+  - "4 tums skärm kan vara liten vid starkt solljus"
+  - "Läser inga Navionics-sjökort"
+  - "Knappstyrning, ingen pekskärm"
 affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
 merchant: "Frilufts och Vildmark"
 featured: false
@@ -10795,11 +10837,11 @@ priceRange: "budget"
 quizEnabled: false
 ---
 
-Garmin Striker Vivid 4cv ar ett kompakt fastmonterat ekolod for den som vill ha ett palitligt verktyg i baten utan att betala for en full kartplotter. Den medfoljandeGT20-givaren ger bade traditionellt Garmin CHIRP-ekolod och ClearVu, vilket ger en tydlig overblick over fisk och djup samt en mer detaljerad vy av struktur och botten.
+Garmin Striker Vivid 4cv är ett kompakt fastmonterat ekolod för den som vill ha ett pålitligt verktyg i båten utan att betala för en full kartplotter. Den medföljande GT20-givaren ger både traditionellt Garmin CHIRP-ekolod och ClearVu, vilket ger en tydlig överblick över fisk och djup samt en mer detaljerad vy av struktur och botten.
 
-Den 4 tums fargstarka skarm med QSVGA-panel (272x480 pixlar) ar latt att avlasa med tydliga kontraster mellan fisk, botten och vegetation. Inbyggd GPS med stod for WAAS ger precis positionering, och med Quickdraw Contours kan du skapa egna kartor over dina fiskevatten med 30 cm konturintervall. Enheten klarar kartor over upp till 80 000 hektar.
+Den 4 tums färgstarka skärmen med QSVGA-panel (272x480 pixlar) är lätt att avläsa med tydliga kontraster mellan fisk, botten och vegetation. Inbyggd GPS med stöd för WAAS ger precis positionering, och med Quickdraw Contours kan du skapa egna kartor över dina fiskevatten med 30 cm konturintervall. Enheten klarar kartor över upp till 80 000 hektar.
 
-Striker Vivid 4cv lasa inte Navionics- eller Garmin-sjokort, vilket skiljer den fran ECHOMAP-serien. For den som enbart vill ha GPS-markering, ekolod och egna kartor utan behov av fardiga sjokort ar Striker Vivid 4cv ett prisvaert och funktionellt val. Den som behoever fardiga sjokort bor titta pa Garmin ECHOMAP UHD2 52cv.
+Striker Vivid 4cv läser inte Navionics- eller Garmin-sjökort, vilket skiljer den från ECHOMAP-serien. För den som enbart vill ha GPS-markering, ekolod och egna kartor utan behov av färdiga sjökort är Striker Vivid 4cv ett funktionellt val. Den som behöver färdiga sjökort bör titta på Garmin ECHOMAP UHD2 52cv.
 ```
 
 ## src/content/gear-reviews/garmin-striker-vivid-5cv.mdx
@@ -10807,21 +10849,21 @@ Striker Vivid 4cv lasa inte Navionics- eller Garmin-sjokort, vilket skiljer den 
 ---
 title: "Garmin Striker Vivid 5CV ink GT20"
 slug: "garmin-striker-vivid-5cv"
-description: "Fastmonterat ekolod fran Garmin med 5 tums fargskarm, CHIRP och ClearVu. Inbyggd GPS, Quickdraw Contours och 500W uteffekt for tydliga avlasningar."
+description: "Fastmonterat ekolod från Garmin med 5 tums färgskärm, CHIRP och ClearVu. Inbyggd GPS, Quickdraw Contours och 500 W uteffekt för tydliga avläsningar."
 heroImage: "/images/gear/garmin-striker-vivid-5cv.jpg"
 brand: "Garmin"
 category: "ekolod"
 price: 3395
 rating: 4.4
 pros:
-  - "5 tums skarm - tydligare an 4cv"
-  - "500W uteffekt for djupare avlasningar"
+  - "5 tums skärm, tydligare än 4cv"
+  - "500 W uteffekt för djupare avläsningar"
   - "Traditionellt CHIRP och ClearVu"
   - "Inbyggd GPS med Quickdraw Contours"
   - "IPX7 vattenklassad"
 cons:
-  - "Laser inga Navionics-sjokort"
-  - "Knappstyrning - ingen pekskarm"
+  - "Läser inga Navionics-sjökort"
+  - "Knappstyrning, ingen pekskärm"
 affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
 merchant: "Frilufts och Vildmark"
 featured: false
@@ -10840,11 +10882,11 @@ priceRange: "mellanklass"
 quizEnabled: false
 ---
 
-Garmin Striker Vivid 5cv ger samma ekolodsteknik som 4cv-modellen men med en storre 5 tums WVGA-skarm (800x480 pixlar) som ger battre overblick och ar enklare att avlasa aven i starkt solljus. Den medfoljandeGT20-givaren ger traditionellt Garmin CHIRP-ekolod och ClearVu med 500W uteffekt, vilket ger tydligare avlasningar pa djupare vatten jamfort med 4cv:s 300W.
+Garmin Striker Vivid 5cv ger samma ekolodsteknik som 4cv-modellen men med en större 5 tums WVGA-skärm (800x480 pixlar) som ger bättre överblick och är enklare att avläsa även i starkt solljus. Den medföljande GT20-givaren ger traditionellt Garmin CHIRP-ekolod och ClearVu med 500 W uteffekt, vilket ger tydligare avläsningar på djupare vatten jämfört med 4cv:s 300 W.
 
-Inbyggd GPS med WAAS-stod ger precis positionering, och Quickdraw Contours lat er skapa egna djupkartor med 30 cm konturintervall over upp till 80 000 hektar. Enheten levereras med GT20-givare, lut ningsbart faste och allt monteringsmaterial for installation pa akterspegel eller trollingmotor.
+Inbyggd GPS med WAAS-stöd ger precis positionering, och Quickdraw Contours låter dig skapa egna djupkartor med 30 cm konturintervall över upp till 80 000 hektar. Enheten levereras med GT20-givare, lutningsbart fäste och allt monteringsmaterial för installation på akterspegel eller trollingmotor.
 
-Steget fran 4cv till 5cv ar framst i skarmstorlek och uteffekt. For den som fiskar mycket fran bat och vill ha en tydligare bild utan att betala for en kartplotter ar Striker Vivid 5cv ett naturligt val i mellanklass. Den som behoever fardiga Navionics-sjokort bor titta pa ECHOMAP UHD2 52cv.
+Steget från 4cv till 5cv ligger framför allt i skärmstorlek och uteffekt. För den som fiskar mycket från båt och vill ha en tydligare bild utan att betala för en kartplotter är Striker Vivid 5cv ett naturligt val i mellanklass. Den som behöver färdiga Navionics-sjökort bör titta på ECHOMAP UHD2 52cv.
 ```
 
 ## src/content/gear-reviews/garmin-striker-vivid-7cv.mdx
@@ -10852,21 +10894,21 @@ Steget fran 4cv till 5cv ar framst i skarmstorlek och uteffekt. For den som fisk
 ---
 title: "Garmin Striker Vivid 7CV ink GT20"
 slug: "garmin-striker-vivid-7cv"
-description: "Fastmonterat ekolod fran Garmin med 7 tums fargskarm, CHIRP, ClearVu och Wi-Fi. Inbyggd GPS, Quickdraw Contours och ActiveCaptain-stod."
+description: "Fastmonterat ekolod från Garmin med 7 tums färgskärm, CHIRP, ClearVu och Wi-Fi. Inbyggd GPS, Quickdraw Contours och ActiveCaptain-stöd."
 heroImage: "/images/gear/garmin-striker-vivid-7cv.jpg"
 brand: "Garmin"
 category: "ekolod"
 price: 4695
 rating: 4.5
 pros:
-  - "7 tums skarm for utmarkt overblick"
-  - "Wi-Fi och ActiveCaptain-stod"
+  - "7 tums skärm för utmärkt överblick"
+  - "Wi-Fi och ActiveCaptain-stöd"
   - "Traditionellt CHIRP och ClearVu"
   - "Inbyggd GPS med Quickdraw Contours"
   - "IPX7 vattenklassad"
 cons:
-  - "Laser inga Navionics-sjokort"
-  - "Knappstyrning - ingen pekskarm"
+  - "Läser inga Navionics-sjökort"
+  - "Knappstyrning, ingen pekskärm"
 affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
 merchant: "Frilufts och Vildmark"
 featured: false
@@ -10885,11 +10927,11 @@ priceRange: "mellanklass"
 quizEnabled: false
 ---
 
-Garmin Striker Vivid 7cv ger samma ekolodsprestanda som 5cv-modellen men pa en 7 tums WVGA-skarm som ger markbart battre overblick och ar enklare att avlasa i alla ljusforhallanden. Det storre formatet gor det praktiskt att kora delad skarm med bade traditionellt ekolod och ClearVu samtidigt utan att bilden blir svarlast.
+Garmin Striker Vivid 7cv ger samma ekolodsprestanda som 5cv-modellen men på en 7 tums WVGA-skärm som ger märkbart bättre överblick och är enklare att avläsa i alla ljusförhållanden. Det större formatet gör det praktiskt att köra delad skärm med både traditionellt ekolod och ClearVu samtidigt utan att bilden blir svårläst.
 
-Wi-Fi-anslutningen och ActiveCaptain-appen ar det storsta tillskottet jamfort med 5cv. Du kan fora over waypoints, fa smartaviseringar, laddanedprogramvaruuppdateringar och fa tillgang till Garmin Quickdraw Community dar andra anvandare delar sina kartor. Det gor det mojligt att fa tillgang till bottendata pa fiskevatten du aldrig kartlagt sjalv.
+Wi-Fi-anslutningen och ActiveCaptain-appen är det största tillskottet jämfört med 5cv. Du kan föra över waypoints, få smartaviseringar, ladda ned programvaruuppdateringar och få tillgång till Garmin Quickdraw Community där andra användare delar sina kartor. Det gör det möjligt att få tillgång till bottendata på fiskevatten du aldrig kartlagt själv.
 
-For den som fiskar mycket fran bat och vill ha en stor och lattlast skarm med Wi-Fi-funktionalitet ar Striker Vivid 7cv ett starkt mellanklass-alternativ. Den som dessutom vill ha fardiga Navionics-sjokort for navigering bor titta pa ECHOMAP UHD2 52cv eller 92sv.
+För den som fiskar mycket från båt och vill ha en stor och lättläst skärm med Wi-Fi-funktionalitet är Striker Vivid 7cv ett starkt mellanklassalternativ. Den som dessutom vill ha färdiga Navionics-sjökort för navigering bör titta på ECHOMAP UHD2 52cv eller 92sv.
 ```
 
 ## src/content/gear-reviews/garmin-striker-vivid-9sv.mdx
@@ -10897,22 +10939,22 @@ For den som fiskar mycket fran bat och vill ha en stor och lattlast skarm med Wi
 ---
 title: "Garmin Striker Vivid 9SV ink GT52"
 slug: "garmin-striker-vivid-9sv"
-description: "Komplett fastmonterat ekolod fran Garmin med 9 tums skarm, CHIRP, ClearVu och SideVu. Soker av omraden at sidorna och ger en komplett bild av undervattenmiljon."
+description: "Komplett fastmonterat ekolod från Garmin med 9 tums skärm, CHIRP, ClearVu och SideVu. Söker av områden åt sidorna och ger en bred bild av bottenmiljön."
 heroImage: "/images/gear/garmin-striker-vivid-9sv.jpg"
 brand: "Garmin"
 category: "ekolod"
 price: 6495
 rating: 4.6
 pros:
-  - "9 tums skarm for utmarkt overblick"
-  - "SideVu for skanning at sidorna"
+  - "9 tums skärm för utmärkt överblick"
+  - "SideVu för skanning åt sidorna"
   - "Traditionellt CHIRP, ClearVu och SideVu"
-  - "Tva 4-poliga givarportar"
-  - "Wi-Fi och ActiveCaptain-stod"
+  - "Två 4-poliga givarportar"
+  - "Wi-Fi och ActiveCaptain-stöd"
 cons:
-  - "Laser inga Navionics-sjokort"
-  - "Knappstyrning - ingen pekskarm"
-  - "Stor enhet - kraver mer monsteringsutrymme"
+  - "Läser inga Navionics-sjökort"
+  - "Knappstyrning, ingen pekskärm"
+  - "Stor enhet, kräver mer monteringsutrymme"
 affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
 merchant: "Frilufts och Vildmark"
 featured: false
@@ -10931,11 +10973,11 @@ priceRange: "premium"
 quizEnabled: false
 ---
 
-Garmin Striker Vivid 9sv ar toppmodellen i Striker Vivid-serien och tillfor SideVu till CHIRP och ClearVu. Med den medfoljandeGT52-givaren kan du skanna av storre omraden at sidorna om baten, vilket gor det markbart enklare att hitta kanter, stenpartier, vastlighet, betesfisk och platser dar rovfisken garna star - utan att behova kora over hela omradet.
+Garmin Striker Vivid 9sv är toppmodellen i Striker Vivid-serien och tillför SideVu till CHIRP och ClearVu. Med den medföljande GT52-givaren kan du skanna av större områden åt sidorna om båten, vilket gör det märkbart enklare att hitta kanter, stenpartier, växtlighet, betesfisk och platser där rovfisken gärna står, utan att behöva köra över hela området.
 
-Den 9 tums WVGA-skarmen (800x480 pixlar) ger generost med utrymme for delad skarm dar du kan kora traditionellt ekolod, ClearVu och SideVu samtidigt. Tva 4-poliga givarportar ger flexibilitet for den som vill koppla in ytterligare givare. Wi-Fi och ActiveCaptain-stod ger tillgang till Quickdraw Community och smartaviseringar.
+Den 9 tums WVGA-skärmen (800x480 pixlar) ger generöst med utrymme för delad skärm där du kan köra traditionellt ekolod, ClearVu och SideVu samtidigt. Två 4-poliga givarportar ger flexibilitet för den som vill koppla in ytterligare givare. Wi-Fi och ActiveCaptain-stöd ger tillgång till Quickdraw Community och smartaviseringar.
 
-Striker Vivid 9sv laser inte Navionics-sjokort, vilket ar den tydligaste begransningen jamfort med ECHOMAP UHD2 92sv. For den som enbart vill ha ekolod med SideVu och GPS utan behov av fardiga sjokort ar 9sv ett starkt val. Vill du ha fardiga sjokort for trygg navigering ar ECHOMAP UHD2 92sv raett svar.
+Striker Vivid 9sv läser inte Navionics-sjökort, vilket är den tydligaste begränsningen jämfört med ECHOMAP UHD2 92sv. För den som enbart vill ha ekolod med SideVu och GPS utan behov av färdiga sjökort är 9sv ett starkt val. Vill du ha färdiga sjökort för trygg navigering är ECHOMAP UHD2 92sv rätt svar.
 ```
 
 ## src/content/gear-reviews/hurricane-x8-braid-012mm.mdx
@@ -10943,19 +10985,19 @@ Striker Vivid 9sv laser inte Navionics-sjokort, vilket ar den tydligaste begrans
 ---
 title: "Hurricane X8 Braid Fluo Yellow 0,12mm 10kg 135m"
 slug: "hurricane-x8-braid-012mm"
-description: "8-tradig flatlinor fran Wiggler i signalgult. Hog brottstyrka, tyst gang och lang kastlangd till ett mycket prisvaert pris."
+description: "8-trådig flätlina från Wiggler i signalgult. Hög brottstyrka för diametern, tyst gång genom ringarna och lång kastlängd till lågt pris."
 heroImage: "/images/gear/hurricane-x8-braid-012mm.jpg"
 brand: "Hurricane"
 category: "flatlinor"
 price: 189
 rating: 4.6
 pros:
-  - "8-tradig for rundare profil och battre kastlangd"
-  - "Fluo Yellow for enkel linobservation"
-  - "Hog brottstyrka for diametern"
-  - "Tyst och mjuk gang genom ringarna"
+  - "8-trådig för rundare profil och bättre kastlängd"
+  - "Fluo Yellow för enkel linobservation"
+  - "Hög brottstyrka för diametern"
+  - "Tyst och mjuk gång genom ringarna"
 cons:
-  - "Kortare spole pa 135m"
+  - "Kortare spole på 135 m"
   - "Fluo Yellow syns i klart vatten"
 affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=17040&url=https://fiskeonline.com/sv/produkt/hurricane-x8-braid-fluo-yellow-012mm-10kg-135m/"
 merchant: "FiskeOnline"
@@ -10973,11 +11015,11 @@ priceRange: "budget"
 quizEnabled: false
 ---
 
-Hurricane X8 Braid ar en 8-tradig flatlinor fran Wiggler som testats harda under tva ars period tillsammans med flera fabrikat. Den 8-tradiga konstruktionen ger en rundare profil an 4-tradiga alternativ, vilket resulterar i lagre friktion genom ringarna och langre kast. 100 procent PE-fiber och hog knutstyrka gor den palitig i kritiska situationer.
+Hurricane X8 Braid är en 8-trådig flätlina från Wiggler som testats hårt under en tvåårsperiod tillsammans med flera fabrikat. Den 8-trådiga konstruktionen ger en rundare profil än 4-trådiga alternativ, vilket resulterar i lägre friktion genom ringarna och längre kast. 100 procent PE-fiber och hög knutstyrka gör den pålitlig i kritiska situationer.
 
-Fluo Yellow-fargen ger utmarkt linobservation vid spinnfiske och jiggfiske, dar det ar viktigt att se nar linan slappar vid ett hugg. Linan ar tyst, mjuk och langkastad, med hog brottstyrka i forhallande till diametern. 0,12mm med 10kg brottstyrka ar ett bra allround-val for predatorfiske i insjomiljon.
+Fluo Yellow-färgen ger utmärkt linobservation vid spinnfiske och jiggfiske, där det är viktigt att se när linan släpper vid ett hugg. Linan är tyst, mjuk och långkastad, med hög brottstyrka i förhållande till diametern. 0,12 mm med 10 kg brottstyrka är ett bra allroundval för predatorfiske i insjömiljö.
 
-Jamfort med Kinetic 4 Braid ger Hurricane X8 markbart battre kastprestanda och rundare profil tack vare 8 tradar. For den som vill ha en 8-tradig lina till budgetpris utan att kompromissa pa grundkvalitet ar Hurricane X8 ett av de basta alternativen pa marknaden.
+Jämfört med Kinetic 4 Braid ger Hurricane X8 märkbart bättre kastprestanda och rundare profil tack vare 8 trådar. För den som vill ha en 8-trådig lina till budgetpris utan att kompromissa på grundkvalitet är Hurricane X8 ett starkt alternativ.
 ```
 
 ## src/content/gear-reviews/kinetic-4-braid-012mm.mdx
@@ -10985,20 +11027,20 @@ Jamfort med Kinetic 4 Braid ger Hurricane X8 markbart battre kastprestanda och r
 ---
 title: "Kinetic 4 Braid 150m 0,12mm 10,3kg Dusty Green"
 slug: "kinetic-4-braid-012mm"
-description: "Prisvaerd 4-tradig flatlinor fran Kinetic i klassisk Dusty Green. Slat yta och hog kanslighet for abborre och gos till ett mycket fornuftigt pris."
+description: "Prisvärd 4-trådig flätlina från Kinetic i klassisk Dusty Green. Slät yta och hög känslighet för abborre och gös till ett lågt pris."
 heroImage: "/images/gear/kinetic-4-braid-012mm.jpg"
 brand: "Kinetic"
 category: "flatlinor"
 price: 79
 rating: 4.5
 pros:
-  - "Extremt prisvaerd"
-  - "Slat yta for lag friktion genom ringarna"
-  - "Ultrahog molekylar polyeten"
-  - "Taligtagen och notningsbestandig"
+  - "Extremt prisvärd"
+  - "Slät yta för låg friktion genom ringarna"
+  - "Ultrahögmolekylär polyeten"
+  - "Tålig och nötningsbeständig"
 cons:
-  - "4-tradig ger inte lika rund profil som 8-tradig"
-  - "Begransad kastlangd jamfort med tunnare 8-tradiga alternativ"
+  - "4-trådig ger inte lika rund profil som 8-trådig"
+  - "Begränsad kastlängd jämfört med tunnare 8-trådiga alternativ"
 affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=22812&url=https://fiskeonline.com/sv/produkt/kinetic-4-braid-150m-012mm-103kg-dusty-green/"
 merchant: "FiskeOnline"
 featured: false
@@ -11015,11 +11057,11 @@ priceRange: "budget"
 quizEnabled: false
 ---
 
-Kinetic 4 Braid ar en 4-tradig flatlinor i ultrahog molekylar polyeten med en slat yta som susar ljudlost genom spoets ringar. 0,12mm-varianten med 10,3kg brottstyrka passar de flesta abborrjiggar och gosriggar och ar tillrackligt stark for de flesta predatorfisksituationer i insjomiljon.
+Kinetic 4 Braid är en 4-trådig flätlina i ultrahögmolekylär polyeten med en slät yta som går tyst genom spöets ringar. 0,12 mm-varianten med 10,3 kg brottstyrka passar de flesta abborrjiggar och gösriggar och är tillräckligt stark för de flesta predatorfisksituationer i insjömiljö.
 
-4-tradig konstruktion ger en tillplattat profil jamfort med 8-tradiga alternativ, vilket kan ge nagot hogre friktion genom ringarna men kompenseras av den slata ytbehandlingen. Linans kanslighet ar god for prisnivan och ger direktkontakt med betet vid jigg och dropshot. Dusty Green-fargen ar diskret och syns inte lika tydligt i klart vatten som gula eller oranga alternativ.
+4-trådig konstruktion ger en tillplattad profil jämfört med 8-trådiga alternativ, vilket kan ge något högre friktion genom ringarna men kompenseras av den släta ytbehandlingen. Linans känslighet är god för prisnivån och ger direktkontakt med betet vid jigg och dropshot. Dusty Green-färgen är diskret och syns inte lika tydligt i klart vatten som gula eller orange alternativ.
 
-For den som vill komma igang med flatlinor utan att betala mycket ar Kinetic 4 Braid ett utmarkt forstaval. Den som fiskar ofta och vill ha battre kastlangd, rundare profil och hogre kanslighet bor titta pa en 8-tradig lina som Kinetic 8 Braid eller Westin W3.
+För den som vill komma igång med flätlina utan att betala mycket är Kinetic 4 Braid ett bra förstaval. Den som fiskar ofta och vill ha bättre kastlängd, rundare profil och högre känslighet bör titta på en 8-trådig lina som Kinetic 8 Braid eller Westin W3.
 ```
 
 ## src/content/gear-reviews/kinetic-8-braid-014mm.mdx
@@ -11069,20 +11111,20 @@ Till priset är Kinetic 8 Braid ett av de bästa alternativen for den som vill t
 ---
 title: "Kinetic Brutalis Haspelrulle 5000-FD"
 slug: "kinetic-brutalis-5000-fd"
-description: "Kraftfull budgetrulle fran Kinetic med forstarkt grafitkropp och CNC-bearbetad aluminiumspole. Passar gaddspinn och havsfiske."
+description: "Kraftfull budgetrulle från Kinetic med förstärkt grafitkropp och CNC-bearbetad aluminiumspole. Passar gäddspinn och havsfiske."
 heroImage: "/images/gear/kinetic-brutalis-5000-fd.jpg"
 brand: "Kinetic"
 category: "haspelrullar"
 price: 549
 rating: 3.8
 pros:
-  - "Kraftfull konstruktion for prisnivan"
+  - "Kraftfull konstruktion för prisnivån"
   - "CNC-bearbetad aluminiumspole"
   - "Ergonomisk EVA-vevknopp"
-  - "Japonska kullager i rostfritt stal"
+  - "Japanska kullager i rostfritt stål"
 cons:
-  - "Grafitkropp ar tyngre an aluminium"
-  - "Begransat lagersaldo"
+  - "Grafitkropp är tyngre än aluminium"
+  - "Begränsat lagersaldo"
 affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=30708&url=https://fiskeonline.com/sv/produkt/kinetic-brutalis-haspelrulle-5000-fd/"
 merchant: "FiskeOnline"
 featured: false
@@ -11098,32 +11140,32 @@ priceRange: "budget"
 quizEnabled: false
 ---
 
-Kinetic Brutalis 5000-FD ar en kraftfullare budgetrulle an Marshall-serien, med forstarkt grafitkropp och datorbalanserad grafitrotor. CNC-bearbetad aluminiumspole och japanska kullager i rostfritt stal ar ovanliga detaljer i den har prisklassen och bidrar till en jamnare gang an man kan forvanta sig.
+Kinetic Brutalis 5000-FD är en kraftfullare budgetrulle än Marshall-serien, med förstärkt grafitkropp och datorbalanserad grafitrotor. CNC-bearbetad aluminiumspole och japanska kullager i rostfritt stål är ovanliga detaljer i den här prisklassen och bidrar till en jämnare gång än man kan förvänta sig.
 
-Bromssystemet med filt- och kolfiberlameller ger mer kontrollerad kraft an enkla fjaderbromsystem, vilket ar en fordel vid drillning av storre gadda. Maskinskuret huvuddrev och rostfri overdimensionerad bygel och lintrissa bidrar till haltbarheten. EVA-knoppen ger ett bekvamat grepp aven vid langre fiskepass.
+Bromssystemet med filt- och kolfiberlameller ger mer kontrollerad kraft än enkla fjäderbromssystem, vilket är en fördel vid drillning av större gädda. Maskinskuret huvuddrev och rostfri överdimensionerad bygel och lintrissa bidrar till hållbarheten. EVA-knoppen ger ett bekvämt grepp även vid längre fiskepass.
 
-Storleken 5000 ar optimerad for gaddspinn och kaststyrka med tyngre beten. Det ar inte en rulle for finessefiske efter abborre. For den som vill ha en funktionell och taligtagen rulle till ett budgetgaddspinn ar Brutalis ett vettigt val, sarskilt for den som fiskar i tuffare miljoer dar man inte vill riskera dyrare utrustning.
+Storleken 5000 är optimerad för gäddspinn och kaststyrka med tyngre beten. Det är inte en rulle för finessfiske efter abborre. För den som vill ha en funktionell och tålig rulle till ett gäddspinn i budgetklass är Brutalis ett vettigt val, särskilt för den som fiskar i tuffare miljöer där man inte vill riskera dyrare utrustning.
 ```
 
 ## src/content/gear-reviews/kinetic-marshall-4000-fd.mdx
 ```
 ---
-title: "Kinetic Haspelrulle Marshall 4000-FD inkl. flatlinor"
+title: "Kinetic Haspelrulle Marshall 4000-FD inkl. flätlina"
 slug: "kinetic-marshall-4000-fd"
-description: "Prisvaerd budgetrulle fran Kinetic med grafitkomposit-stativ och rotor. Levereras med Kinetic 4-braid flatlina pa spolen."
+description: "Prisvärd budgetrulle från Kinetic med stativ och rotor i grafitkomposit. Levereras med Kinetic 4 Braid flätlina på spolen."
 heroImage: "/images/gear/kinetic-marshall-4000-fd.jpg"
 brand: "Kinetic"
 category: "haspelrullar"
 price: 399
 rating: 3.7
 pros:
-  - "Mycket prisvaerd"
-  - "Levereras med flatlina"
+  - "Mycket prisvärd"
+  - "Levereras med flätlina"
   - "Laminerat bromssystem"
-  - "Bra for nyborrjare"
+  - "Bra för nybörjare"
 cons:
-  - "Grafitkomposit-stativ ar tyngre an aluminium"
-  - "Begransad kanslighet"
+  - "Stativ i grafitkomposit är tyngre än aluminium"
+  - "Begränsad känslighet"
 affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/kinetic-haspelrulle-marshall-4000-fd-inkl-020mm-flatlina-dusty-green/"
 merchant: "FiskeOnline"
 featured: false
@@ -11139,11 +11181,11 @@ priceRange: "budget"
 quizEnabled: false
 ---
 
-Kinetic Marshall 4000-FD ar en budgetrulle i grafitkomposit med stativ och rotor i samma material. Det gor den lattare an manga rullar i samma prisklass med aluminiumkropp, men nagot kansligare for vridning under hoga laster. Bromssystemet med lameller ger jamn kraft och ar enkelt att justera for olika fiskesituationer.
+Kinetic Marshall 4000-FD är en budgetrulle i grafitkomposit med stativ och rotor i samma material. Det gör den lättare än många rullar i samma prisklass med aluminiumkropp, men något känsligare för vridning under höga laster. Bromssystemet med lameller ger jämn kraft och är enkelt att justera för olika fiskesituationer.
 
-En praktisk detalj ar att rullen levereras med Kinetic 4-braid flatlina pa spolen, vilket sparar in ett kop och gor den direkt klar att anvanda. Pressgjuten aluminiumspole, rostfri ovardimensionerad bygel och laminerat bromssystem ar de tekniska hojdpunkterna for prisnivan.
+En praktisk detalj är att rullen levereras med Kinetic 4 Braid flätlina på spolen, vilket sparar in ett köp och gör den direkt klar att använda. Pressgjuten aluminiumspole, rostfri överdimensionerad bygel och laminerat bromssystem är de tekniska höjdpunkterna för prisnivån.
 
-Storleken 4000 ar mer lamplig for gadda och gos an for abborrfiske med latta beten. For den som vill ha en enkel och billig rulle till ett gaddspinn eller ett grovre abborrspinn ar Marshall 4000 ett funktionellt forstaval. Den som vill ha bra kanslighet och lang livslangd bor titta pa nagot hogre upp i prisskalan.
+Storleken 4000 är mer lämplig för gädda och gös än för abborrfiske med lätta beten. För den som vill ha en enkel och billig rulle till ett gäddspinn eller ett grövre abborrspinn är Marshall 4000 ett funktionellt förstaval. Den som vill ha bättre känslighet och längre livslängd bör titta högre upp i prisskalan.
 ```
 
 ## src/content/gear-reviews/kinetic-xarann-predator-trigger-ct.mdx
@@ -11705,20 +11747,20 @@ Spöet är primärt riktat mot gös men fungerar lika bra för abborre, särskil
 ---
 title: "Okuma Ceymar HD CHD-2500A Haspelrulle"
 slug: "okuma-ceymar-hd-2500a"
-description: "Lat haspelrulle fran Okuma med grafitkropp och overdimensionerat drev. EFR II linspridare med DLC-belaggning ger lang livslangd."
+description: "Lätt haspelrulle från Okuma med grafitkropp och överdimensionerat drev. EFR II linspridare med DLC-beläggning ger lång livslängd."
 heroImage: "/images/gear/okuma-ceymar-hd-2500a.jpg"
 brand: "Okuma"
 category: "haspelrullar"
 price: 1199
 rating: 4.1
 pros:
-  - "EFR II linspridare med DLC-belaggning"
-  - "Overdimensionerat HD-drev"
+  - "EFR II linspridare med DLC-beläggning"
+  - "Överdimensionerat HD-drev"
   - "Progressiv multi-disc broms"
-  - "Bra pris for funktionsnivan"
+  - "Bra pris för funktionsnivån"
 cons:
-  - "Grafitkropp tyngre an aluminium"
-  - "Inte lika lattviktig som Shimano-alternativ"
+  - "Grafitkropp tyngre än aluminium"
+  - "Inte lika lättviktig som Shimano-alternativ"
 affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=17320&url=https://fiskeonline.com/sv/produkt/okuma-ceymar-hd-chd-2500a-haspelrulle-utvaxling-5-31/"
 merchant: "FiskeOnline"
 featured: false
@@ -11734,11 +11776,11 @@ priceRange: "mellanklass"
 quizEnabled: false
 ---
 
-Okuma Ceymar HD CHD-2500A kombinerar en grafitkropp i lattviksdesign med ett overdimensionerat HD-drev for jamn och kraftfull invevning. Droppstabiliserade pinjongdrev i bada andarna okar kraftoverforing och styrka, vilket ger en markbart jamnare invevning an vad grafitkroppen antyder.
+Okuma Ceymar HD CHD-2500A kombinerar en grafitkropp i lättviktsdesign med ett överdimensionerat HD-drev för jämn och kraftfull invevning. Pinjongdrevet är lagrat i båda ändarna, vilket ökar kraftöverföring och styrka och ger en märkbart jämnare invevning än vad grafitkroppen antyder.
 
-EFR II linspridaren med DLC-belaggning ar en av de mer haltbara lintrissorna i mellanklass och minskar slitaget pa barade flatlinor markbart over tid. Progressiv multi-disc broms med karbon- och rostfria brickor ger jamn och kontrollerbar kraft vid drillning. Quick-Set anti-reverse roller bearing sokerstar ett direktt mothugg utan glapp.
+EFR II linspridaren med DLC-beläggning är en av de mer hållbara lintrissorna i mellanklass och minskar slitaget på flätlinor märkbart över tid. Progressiv multi-disc broms med brickor i karbon och rostfritt stål ger jämn och kontrollerbar kraft vid drillning. Quick-Set anti-reverse säkerställer ett direkt mothugg utan glapp.
 
-Storleken 2500A passar abborrfiske med jigg och dropshot samt lattare gosriggar. Det ar inte en rulle for tyngre gaddspinn. For den som soker en funktionell mellanklass-rulle med lang livslangd och bra bromskontroll ar Ceymar HD ett alternativ som levererar mer an priset antyder.
+Storleken 2500A passar abborrfiske med jigg och dropshot samt lättare gösriggar. Det är inte en rulle för tyngre gäddspinn. För den som söker en funktionell mellanklassrulle med lång livslängd och bra bromskontroll är Ceymar HD ett alternativ som levererar mer än priset antyder.
 ```
 
 ## src/content/gear-reviews/okuma-inspira-2500a.mdx
@@ -11746,20 +11788,20 @@ Storleken 2500A passar abborrfiske med jigg och dropshot samt lattare gosriggar.
 ---
 title: "Okuma Inspira 2500A Haspelrulle"
 slug: "okuma-inspira-2500a"
-description: "Lat och smidig mellanklass-rulle fran Okuma med aluminium TCA-konstruktion och Flite Drive-system. Passar jigg och dropshot efter abborre."
+description: "Lätt och smidig mellanklassrulle från Okuma med aluminium TCA-konstruktion och Flite Drive-system. Passar jigg och dropshot efter abborre."
 heroImage: "/images/gear/okuma-inspira-2500a.jpg"
 brand: "Okuma"
 category: "haspelrullar"
 price: 1599
 rating: 4.2
 pros:
-  - "Aluminium TCA-konstruktion for styvhet och latthet"
-  - "Flite Drive-system for jamn gang"
+  - "Aluminium TCA-konstruktion för styvhet och låg vikt"
+  - "Flite Drive-system för jämn gång"
   - "8+1 kullager"
   - "Braid-ready spole"
 cons:
-  - "Lite tyngre an Shimano-alternativ i samma prisklass"
-  - "Begransat lagersaldo"
+  - "Lite tyngre än Shimano-alternativ i samma prisklass"
+  - "Begränsat lagersaldo"
 affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=28486&url=https://fiskeonline.com/sv/produkt/okuma-inspira-2500a-haspelrulle-utvaxling-5-31/"
 merchant: "FiskeOnline"
 featured: false
@@ -11775,11 +11817,11 @@ priceRange: "mellanklass"
 quizEnabled: false
 ---
 
-Okuma Inspira 2500A bygger pa aluminium TCA-konstruktion som ger hogre styvhet an grafitkomposit utan att vikten okar proportionellt. Flite Drive-systemet okar kugghjulens stabilitet och smidighet genom precisionsfrasade komponenter, vilket ger en markbart jamnare invevningskansla an rullar med enklare drev i samma prisklass.
+Okuma Inspira 2500A bygger på aluminium TCA-konstruktion som ger högre styvhet än grafitkomposit utan att vikten ökar proportionellt. Flite Drive-systemet ökar kugghjulens stabilitet och smidighet genom precisionsfrästa komponenter, vilket ger en märkbart jämnare invevningskänsla än rullar med enklare drev i samma prisklass.
 
-Overdimensionerat HDGII-drev med maskinskurna massingsdrev och 8+1 kullager bidrar till en invevning som kanner sig mer som en dyrare rulle. Den braid-ready aluminiumspolen ar forberedd for flatlina utan adapter, och Torsion Control Armor-designen minimerar vridningen av rullhuset under last.
+Överdimensionerat HDGII-drev med maskinskurna mässingsdrev och 8+1 kullager bidrar till en invevning som känns mer som en dyrare rulle. Den braid-ready aluminiumspolen är förberedd för flätlina utan adapter, och Torsion Control Armor-designen minimerar vridningen av rullhuset under last.
 
-Storleken 2500A passar abborr- och gosjigg samt dropshot pa meddjupt vatten. Med 8 kullager och aluminium TCA-kropp levererar Inspira mer kanslighet och precision an Ceymar HD till ett hogre men fortfarande rimligt pris. Det ar ett naturligt steg upp for den som vill ha battre invevningskvalitet utan att ga till Shimano Miravel-nivaen.
+Storleken 2500A passar abborr- och gösjigg samt dropshot på medeldjupt vatten. Med 8 kullager och aluminium TCA-kropp levererar Inspira mer känslighet och precision än Ceymar HD. Det är ett naturligt steg upp för den som vill ha bättre invevningskvalitet utan att gå till Shimano Miravel-nivån.
 ```
 
 ## src/content/gear-reviews/okuma-itx-cb-2500h.mdx
@@ -11787,19 +11829,19 @@ Storleken 2500A passar abborr- och gosjigg samt dropshot pa meddjupt vatten. Med
 ---
 title: "Okuma ITX CB 2500H Haspelrulle High Speed"
 slug: "okuma-itx-cb-2500h"
-description: "Lat premium-inspirerad rulle fran Okuma med hel kolfiberkropp och 6.0:1 utaxling. Byggd for bade sot- och saltvattenfiske."
+description: "Lätt premiuminspirerad rulle från Okuma med hel kolfiberkropp och 6,0:1 utväxling. Byggd för både sötvattens- och saltvattensfiske."
 heroImage: "/images/gear/okuma-itx-cb-2500h.jpg"
 brand: "Okuma"
 category: "haspelrullar"
 price: 1669
 rating: 4.3
 pros:
-  - "Hel kolfiberkropp for minimal vikt"
-  - "6.0:1 High Speed-utaxling"
-  - "CFR Cyclonic Flow Rotor-teknologi"
+  - "Hel kolfiberkropp för minimal vikt"
+  - "6,0:1 High Speed-utväxling"
+  - "CFR Cyclonic Flow Rotor-teknik"
   - "7+1 kullager"
 cons:
-  - "Kolfiberkropp kan vara kansligare for stot an aluminium"
+  - "Kolfiberkropp kan vara känsligare för stötar än aluminium"
   - "High Speed passar inte alla tekniker"
 affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/okuma-itx-cb-2500h-haspelrulle-utvaxling-6-01-high-speed/"
 merchant: "FiskeOnline"
@@ -11817,11 +11859,11 @@ priceRange: "mellanklass"
 quizEnabled: false
 ---
 
-Okuma ITX CB 2500H bygger pa ett helt kolfiber-koncept dar bade kropp och rotor ar tillverkade i kolfibermaterial, vilket ger en markbart lagre totalvikt an traditionella aluminiumkonstruktioner. CFR Cyclonic Flow Rotor-teknologin optimerar rotorns aerodynamik for snabbare och jamnare invevning, vilket syns tydligast vid snabb betesinvevning.
+Okuma ITX CB 2500H bygger på ett helt kolfiberkoncept där både kropp och rotor är tillverkade i kolfibermaterial, vilket ger en märkbart lägre totalvikt än traditionella aluminiumkonstruktioner. CFR Cyclonic Flow Rotor-tekniken optimerar rotorns aerodynamik för snabbare och jämnare invevning, vilket syns tydligast vid snabb betesinvevning.
 
-6.0:1 High Speed-utaxlingen ger 85 cm lintag per vev, vilket passar tekniker som krav snabb betesaterhemtning eller snabb linupptagning efter kast. Multi-disk Carbon Drag-bromsen med Hydro Block-packning talar vatten utan att bromskraften paverkas. Vandardbar knopp i kolfiberhandtag och maskinbearbetade aluminiumspoletter kompimerer konstruktionen.
+6,0:1 High Speed-utväxlingen ger 85 cm lintag per vev, vilket passar tekniker som kräver snabb betesåterhämtning eller snabb linupptagning efter kast. Multi-disc Carbon Drag-bromsen med Hydro Block-packning tål vatten utan att bromskraften påverkas. Vändbar knopp på kolfiberhandtaget och maskinbearbetade aluminiumdelar kompletterar konstruktionen.
 
-Storleken 2500H passar abborrjigg, gosjigg och lattare gaddteknik. High Speed-utaxlingen ar en fordel for jiggfiske och snabb spinnfiske men kanner sig overdriven vid slow-roll-tekniker eller dropshot. For den som vill ha en lattare rulle med mer japansk premiumkansla an Okumas standardsortiment ar ITX CB ett intressant alternativ i oveganget mellan mellanklass och premium.
+Storleken 2500H passar abborrjigg, gösjigg och lättare gäddteknik. High Speed-utväxlingen är en fördel för jiggfiske och snabbt spinnfiske men känns överdriven vid slow roll-tekniker eller dropshot. För den som vill ha en lättare rulle med mer japansk premiumkänsla än Okumas standardsortiment är ITX CB ett intressant alternativ i övergången mellan mellanklass och premium.
 ```
 
 ## src/content/gear-reviews/okuma-magda-finn-trolling-combo.mdx
@@ -11829,20 +11871,20 @@ Storleken 2500H passar abborrjigg, gosjigg och lattare gaddteknik. High Speed-ut
 ---
 title: "Okuma Magda Finn Trolling Combo 7 210cm Classic CLX-300La"
 slug: "okuma-magda-finn-trolling-combo"
-description: "Komplett trollingkombo fran Okuma med spo och Classic CLX-300La-rulle. Bra startpaket for den som vill komma igang med trollingfiske direkt."
+description: "Komplett trollingkombo från Okuma med spö och Classic CLX-300La-rulle. Bra startpaket för den som vill komma igång med trollingfiske direkt."
 heroImage: "/images/gear/okuma-magda-finn-trolling-combo.jpg"
 brand: "Okuma"
 category: "trollingspon"
 price: 1399
 rating: 4.0
 pros:
-  - "Komplett kombo - bada spo och rulle ingaar"
-  - "Classic CLX-300La ar en slitstark trollingrulle"
-  - "Bra pris for ett komplett startpaket"
-  - "Leveransklart direkt"
+  - "Komplett kombo, både spö och rulle ingår"
+  - "Classic CLX-300La är en slitstark trollingrulle"
+  - "Bra pris för ett komplett startpaket"
+  - "Klar att använda direkt"
 cons:
-  - "Kortare spo pa 210cm an de flesta trollingspoon"
-  - "Komboprodukter ar saellan optimala for bada delarna"
+  - "Kortare spö på 210 cm än de flesta trollingspön"
+  - "Komboprodukter är sällan optimala för båda delarna"
 affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=101953&url=https://fiskeonline.com/sv/produkt/okuma-magda-finn-trolling-combo-7-210cm-classic-clx-300la/"
 merchant: "FiskeOnline"
 featured: false
@@ -11857,11 +11899,11 @@ priceRange: "mellanklass"
 quizEnabled: false
 ---
 
-Okuma Magda Finn Trolling Combo bestar av Magda Finn Trollingspoet i 210 cm kombinerat med Classic CLX-300La, en slitstark trollingrulle fran Okuma. CLX-300La ar en konventionell multiplikatorrulle som taal harda tag och fungerar bra aven under transport till och fran vattnet, vilket ar ett praktiskt attribut for trollingfiske.
+Okuma Magda Finn Trolling Combo består av Magda Finn-trollingspöet i 210 cm kombinerat med Classic CLX-300La, en slitstark trollingrulle från Okuma. CLX-300La är en konventionell multiplikatorrulle som tål hårda tag och fungerar bra även under transport till och från vattnet, vilket är ett praktiskt attribut för trollingfiske.
 
-Kombon ger allt som behovs for att komma igang med trollingfiske direkt utan att kopa spo och rulle separat. Spoet pa 15-30lbs klarar de flesta trollingriggar for lax och gadda, och rulle och spo ar vaelbalanserade for varandra. Startkitet passar den som vill prova trolling for forsta gangen eller som soker en enkel reservutrustning.
+Kombon ger allt som behövs för att komma igång med trollingfiske direkt utan att köpa spö och rulle separat. Spöet på 15-30 lbs klarar de flesta trollingriggar för lax och gädda, och rulle och spö är välbalanserade för varandra. Startpaketet passar den som vill prova trolling för första gången eller som söker en enkel reservutrustning.
 
-Den som fiskar trolling mer seriost och vill ha basta mojliga kanslighet och komponentkvalitet far mer varde av att valja spo och rulle separat. Men for enkelheten och prisvaerdigheten ar Magda Finn Combo ett genomtankt alternativ i mellanklass.
+Den som fiskar trolling mer seriöst och vill ha bästa möjliga känslighet och komponentkvalitet får mer värde av att välja spö och rulle separat. Men för enkelheten och prisvärdheten är Magda Finn Combo ett genomtänkt alternativ i mellanklass.
 ```
 
 ## src/content/gear-reviews/okuma-magda-finn-trollingspo.mdx
@@ -11869,20 +11911,20 @@ Den som fiskar trolling mer seriost och vill ha basta mojliga kanslighet och kom
 ---
 title: "Okuma Magda Finn Trollingspo 8.0 15-30lbs 2-delat"
 slug: "okuma-magda-finn-trollingspo"
-description: "Robust och prisvaerd trollingspo fran Okuma med styrka pa 15-30lb. Passar trolling efter lax, gadda och storre rovfiskar."
+description: "Robust och prisvärt trollingspö från Okuma med styrka på 15-30 lbs. Passar trolling efter lax, gädda och större rovfiskar."
 heroImage: "/images/gear/okuma-magda-finn-trollingspo.jpg"
 brand: "Okuma"
 category: "trollingspon"
 price: 649
 rating: 3.8
 pros:
-  - "Mycket prisvaert"
-  - "15-30lb styrka for storre rovfiskar"
-  - "2-delat for enkel transport"
-  - "Kraftfull klinga for tunga beten"
+  - "Mycket prisvärt"
+  - "15-30 lbs styrka för större rovfiskar"
+  - "2-delat för enkel transport"
+  - "Kraftfull klinga för tunga beten"
 cons:
-  - "Begransad produktinfo"
-  - "Begransat lagersaldo"
+  - "Begränsad produktinformation"
+  - "Begränsat lagersaldo"
 affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=102401&url=https://fiskeonline.com/sv/produkt/okuma-magda-finn-trollingspo-80-15-30lbs-2-delat/"
 merchant: "FiskeOnline"
 featured: false
@@ -11897,11 +11939,11 @@ priceRange: "budget"
 quizEnabled: false
 ---
 
-Okuma Magda Finn Trollingspo ar ett 2-delat spoo pa 244 cm med en styrka pa 15-30lb, dimensionerat for trolling efter storre rovfiskar som lax, gadda och gos. Den kraftfulla klingan ger stabilitet och kontroll vid trollingfiske och klarar harda belastningar fran tunga sidoparavaner och djuplodsbeten.
+Okuma Magda Finn Trollingspö är ett 2-delat spö på 244 cm med en styrka på 15-30 lbs, dimensionerat för trolling efter större rovfiskar som lax, gädda och gös. Den kraftfulla klingan ger stabilitet och kontroll vid trollingfiske och klarar hårda belastningar från tunga sidoparavaner och djupriggar.
 
-Det tvadelade utforandet gor spoet smidigt att transportera och forvarar utan att kompromissa med klingans styrka. Konstruktionen ar optimerad for att hantera beten och riggar i tyngre klass, vilket gor det lampligt for sportfiskare som vill prova trolling utan att investera i ett dyrt spoo.
+Det tvådelade utförandet gör spöet smidigt att transportera och förvara utan att kompromissa med klingans styrka. Konstruktionen är optimerad för att hantera beten och riggar i tyngre klass, vilket gör det lämpligt för sportfiskare som vill prova trolling utan att investera i ett dyrt spö.
 
-Magda Finn ar det naturliga borjanspoet for trollingfiske. Det levererar funktionell prestanda till ett pris som gor det tillgangligt for den som vill testa tekniken. Den som fiskar trolling regelbudet och vill ha hogre komponentkvalitet och battre kanslighet bor titta pa Westin W2 eller W3 Predator Trolling.
+Magda Finn är ett naturligt nybörjarspö för trollingfiske. Det levererar funktionell prestanda till ett pris som gör det tillgängligt för den som vill testa tekniken. Den som fiskar trolling regelbundet och vill ha högre komponentkvalitet och bättre känslighet bör titta på Westin W2 eller W3 Predator Trolling.
 ```
 
 ## src/content/gear-reviews/outl1-batvagn-380.mdx
@@ -12428,20 +12470,20 @@ Kastvikten 3–10 g gör det till ett utpräglat finessespö för abborre med l�
 ---
 title: "Shimano Line Kairiki 8+ 150m 0,13mm 8,3kg Grey"
 slug: "shimano-kairiki-8-013mm"
-description: "Premium 8-tradig flatlinor fran Shimano med VT Method-konstruktion och 3-lagers silikonbaserad ytbehandling. Extremt mjuk, tyst och langkastad."
+description: "8-trådig flätlina från Shimano med VT Method-konstruktion och silikonbaserad ytbehandling i tre lager. Mjuk, tyst och långkastad."
 heroImage: "/images/gear/shimano-kairiki-8-013mm.jpg"
 brand: "Shimano"
 category: "flatlinor"
 price: 289
 rating: 4.6
 pros:
-  - "VT Method ger tatare och rundare profil"
-  - "3-lagers silikonbaserad ytbehandling"
-  - "Extremt mjuk och tyst gang"
-  - "Fungerar i sot- och saltvatten"
+  - "VT Method ger tätare och rundare profil"
+  - "Silikonbaserad ytbehandling i tre lager"
+  - "Mjuk och tyst gång"
+  - "Fungerar i sötvatten och saltvatten"
 cons:
-  - "Hogre pris an Hurricane och Kinetic"
-  - "Grey ar diskret men svarare att se vid linobservation"
+  - "Högre pris än Hurricane och Kinetic"
+  - "Grey är diskret men svårare att se vid linobservation"
 affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=104908&url=https://fiskeonline.com/sv/produkt/shimano-line-kairiki-8-150m-0-13mm-8-3kg-grey/"
 merchant: "FiskeOnline"
 featured: false
@@ -12459,11 +12501,11 @@ priceRange: "mellanklass"
 quizEnabled: false
 ---
 
-Shimano Kairiki 8+ anvander VT Method-konstruktionen dar fibrerna sammanfogas under konstant och jamn flervinklad spanning. Varje fiber komprimeras optimalt och skapar en tatare, rundare och mer kompakt flatlinor med markbart battre profil an konventionella 8-tradiga linor. Resultatet ar minskad diameter, okad kastlangd, battre precision och hogre kanslighet.
+Shimano Kairiki 8+ använder VT Method-konstruktionen där fibrerna sammanfogas under konstant och jämn flervinklad spänning. Varje fiber komprimeras optimalt och skapar en tätare, rundare och mer kompakt flätlina med märkbart bättre profil än konventionella 8-trådiga linor. Resultatet är minskad diameter, ökad kastlängd, bättre precision och högre känslighet.
 
-Den 3-lagers silikonbaserade ytbehandlingen ar det som skiljer Kairiki 8+ fran manga andra flatlinor. Belaggningen stoter bort vatten och smuts och minskar friktionen for annu battre linfloede genom ringarna. Linan fungerar i bade sotvatten och saltvatten och ar speciellt lamplig for forsiktiga presentationer dar lag ljudniva och hog kanslighet ar avgorande.
+Den silikonbaserade ytbehandlingen i tre lager är det som skiljer Kairiki 8+ från många andra flätlinor. Beläggningen stöter bort vatten och smuts och minskar friktionen för bättre linflöde genom ringarna. Linan fungerar i både sötvatten och saltvatten och är särskilt lämplig för försiktiga presentationer där låg ljudnivå och hög känslighet är avgörande.
 
-0,13mm med 8,3kg brottstyrka passar abborrjiggar och gosrigg. Den diskreta Grey-fargen syns inte i vattnet men kraver mer uppmarksamhet vid linobservation. For den som vill ha Shimanos toppkvalitet i en flatlina utan att ga till Kairiki 8 SX-nivaen ar Kairiki 8+ det naturliga valet.
+0,13 mm med 8,3 kg brottstyrka passar abborrjiggar och gösriggar. Den diskreta Grey-färgen syns inte i vattnet men kräver mer uppmärksamhet vid linobservation. För den som vill ha Shimanos kvalitet i en flätlina utan att gå till Kairiki 8 SX-nivån är Kairiki 8+ ett naturligt val.
 ```
 
 ## src/content/gear-reviews/shimano-miravel-2500.mdx
@@ -12587,12 +12629,53 @@ Spöringar från Seaguide XOG håller linhanteringen problemfri och materialkval
 Kastvikten 3–14 g passar lätta abborrjiggar, små wobblers och light spinn. Det är inte ett spö för tyngre gäddriggar eller djupjigg, men för strandfiske och jiggfiske efter abborre från brygga eller båt fungerar det mycket bra. Ett rimligt första spö för den som vill prova på predatorfiske utan att investera mer än nödvändigt.
 ```
 
+## src/content/gear-reviews/shimano-sahara-fj-2500.mdx
+```
+---
+title: "Shimano Haspelrulle Sahara FJ 2500"
+slug: "shimano-sahara-fj-2500"
+description: "Mellanklassrulle med HAGANE Gear, X-SHIP och Silent Drive från Shimanos dyrare serier. XT-7-kropp, aluminiumspole och 9 kg maxbroms."
+heroImage: "/images/gear/shimano-sahara-fj-2500.jpg"
+brand: "Shimano"
+category: "haspelrullar"
+price: 1199
+rating: 4.2
+pros:
+  - "HAGANE Gear och X-SHIP från dyrare Shimano-serier"
+  - "Silent Drive ger tyst och jämn gång"
+  - "9 kg maxbroms är gott om marginal i storleken"
+  - "AR-C-spole och skruvat handtag"
+cons:
+  - "4+1 kullager är få för prisklassen"
+  - "XT-7-kropp i stället för CI4+"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=30626&url=https://fiskeonline.com/sv/produkt/shimano-haspelrulle-sahara-fj-2500/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies:
+  - "abborre"
+  - "gos"
+techniques:
+  - "jigg"
+  - "dropshot"
+  - "spinn"
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Sahara FJ kom 2022 och är Shimanos insteg till den teknik som annars sitter i dyrare serier. HAGANE Gear, X-SHIP och Silent Drive återfinns alla här, vilket är ovanligt i prisklassen. HAGANE Gear är en kallpressad drivväxel som tål belastning över tid, X-SHIP lagrar pinjongen i båda ändar så att kuggarna behåller sitt läge under tryck, och Silent Drive minskar glapp mellan rörliga delar för tystare gång.
+
+Kroppen är av XT-7 i stället för CI4+ som Miravel använder, vilket är ett steg ner i materialväg. Spolen och det skruvade handtaget är av aluminium. Vikten ligger på 240 gram, utväxlingen på 5,0:1 och linintaget på 73 cm per vev. Maxbromsen anges till 9 kg, vilket är rikligt för en 2500:a och gör att bromsen sällan arbetar nära sin gräns. Linkapaciteten är 160 meter av 0,25 mm.
+
+Fyra kullager plus rullager är få för priset, och det är den tydligaste kompromissen. I praktiken bär gångkvaliteten mer av växelkonstruktionen än av antalet lager, men den som jämför specifikationer kommer att notera det. Storleken 2500 passar abborrjigg, dropshot och lätt gösfiske. Sahara är valet för den som vill ha Shimanos växelteknik utan att gå upp till Miravel eller Stradic.
+```
+
 ## src/content/gear-reviews/shimano-stella-fk-2500.mdx
 ```
 ---
 title: "Shimano Haspelrulle Stella FK 2500"
 slug: "shimano-stella-fk-2500"
-description: "Shimanos flaggskepp bland haspelrullar med Infinity Evolution, InfinityXross och 12 kullager. For den som vill ha det absolut basta utan kompromiss."
+description: "Shimanos flaggskepp bland haspelrullar med Infinity Evolution, InfinityXross och 12 kullager. För den som vill ha det bästa utan kompromiss."
 heroImage: "/images/gear/shimano-stella-fk-2500.jpg"
 brand: "Shimano"
 category: "haspelrullar"
@@ -12601,12 +12684,12 @@ rating: 5.0
 pros:
   - "Shimanos absoluta toppmodell"
   - "Infinity Evolution-konstruktion"
-  - "InfinityXross Gears for extrem vaxelstyrka"
+  - "InfinityXross Gears för hög växelstyrka"
   - "12 kullager"
-  - "InfinityLoop for optimal linlaggning"
+  - "InfinityLoop för optimal linläggning"
 cons:
-  - "Extremt hogt pris"
-  - "Svart att motivera for de flesta fiskare"
+  - "Extremt högt pris"
+  - "Svårt att motivera för de flesta fiskare"
 affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/shimano-haspelrulle-stella-fk-2500/"
 merchant: "FiskeOnline"
 featured: false
@@ -12623,11 +12706,11 @@ priceRange: "premium"
 quizEnabled: false
 ---
 
-Shimano Stella FK ar flaggskeppet i Shimanos haspelrullsortiment och representerar det basta den japanska tillverkaren kan producera. Infinity Evolution-konstruktionen ar en genomgripande omdesign av hela rullen dar varje komponent omdefinieras for maximal prestanda och hallbarhet. InfinityXross Gears ger en vaxelstyrka som overtraffar konventionella HAGANE-vaxlar, vilket syns som en direktare och jamnare invevningskansla aven under extrem belastning.
+Shimano Stella FK är flaggskeppet i Shimanos haspelrullssortiment och representerar det bästa den japanska tillverkaren kan producera. Infinity Evolution-konstruktionen är en genomgripande omdesign av hela rullen där varje komponent omdefinieras för maximal prestanda och hållbarhet. InfinityXross Gears ger en växelstyrka som överträffar konventionella HAGANE-växlar, vilket syns som en direktare och jämnare invevningskänsla även under hög belastning.
 
-InfinityDrive och InfinityLoop ger kraftfull och lat rotation med ultralangsam spolvibration som forbattrar linlaggningen och minskar friktionen for langre och mer precisa kast. Anti-Twist Fin och Duracross-bromssystemet kompletterar en teknisk utrustningslista dar ingenting ar kompromissat. Med 12 kullager och ett totalvikt pa 210 gram levererar Stella FK en kombination av latthet, styrka och gangkvalitet som inte har nagot direkt jamforbart alternativ pa marknaden.
+InfinityDrive och InfinityLoop ger kraftfull och lätt rotation med ultralångsam spoloscillation som förbättrar linläggningen och minskar friktionen för längre och mer precisa kast. Anti-Twist Fin och Duracross-bromssystemet kompletterar en teknisk utrustningslista där ingenting är kompromissat. Med 12 kullager och en totalvikt på 210 gram levererar Stella FK en kombination av låg vikt, styrka och gångkvalitet som få rullar kommer i närheten av.
 
-Storleken 2500 passar finessefiske och jiggfiske efter abborre och gos. Priset pa nara 8 000 kr ar svart att motivera for de flesta sportfiskare, och Vanford FA eller Stradic FM levererar 90 procent av prestandan till en brakdel av kostnaden. For den professionella fiskaren eller den som enkelt vill ha det basta oavsett pris ar Stella FK det enda svaret.
+Storleken 2500 passar finessfiske och jiggfiske efter abborre och gös. Priset på nära 8 000 kr är svårt att motivera för de flesta sportfiskare, och Vanford FA eller Stradic FM levererar merparten av prestandan till en bråkdel av kostnaden. För den professionella fiskaren eller den som helt enkelt vill ha det bästa oavsett pris är Stella FK det enda svaret.
 ```
 
 ## src/content/gear-reviews/shimano-stradic-fm-c3000-hg.mdx
@@ -12635,21 +12718,21 @@ Storleken 2500 passar finessefiske och jiggfiske efter abborre och gos. Priset p
 ---
 title: "Shimano Haspelrulle Stradic FM C3000 HG"
 slug: "shimano-stradic-fm-c3000-hg"
-description: "Premiuminspirerad mellanklass-rulle fran Shimano med HAGANE-vaxel, Infinity Drive och Long Stroke Spool. Vattenresistent och byggd for langvarig anvandning."
+description: "Premiuminspirerad mellanklassrulle från Shimano med HAGANE-växel, Infinity Drive och Long Stroke Spool. Vattenresistent och byggd för lång användning."
 heroImage: "/images/gear/shimano-stradic-fm-c3000-hg.jpg"
 brand: "Shimano"
 category: "haspelrullar"
 price: 2799
 rating: 4.6
 pros:
-  - "HAGANE Gear, X-Ship och MicroModule II"
-  - "Infinity Drive for kraftfull och lat rotation"
-  - "Long Stroke Spool for langre kast"
+  - "HAGANE Gear, X-SHIP och MicroModule II"
+  - "Infinity Drive för kraftfull och lätt rotation"
+  - "Long Stroke Spool för längre kast"
   - "X-Protect vattenresistens"
   - "Anti-Twist Fin"
 cons:
-  - "Hogt pris for mellanklass"
-  - "HG-utaxling passar inte alla tekniker"
+  - "Högt pris för mellanklass"
+  - "HG-utväxling passar inte alla tekniker"
 affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=24728&url=https://fiskeonline.com/sv/produkt/shimano-haspelrulle-stradic-fm-c3000-hg/"
 merchant: "FiskeOnline"
 featured: true
@@ -12666,11 +12749,11 @@ priceRange: "mellanklass"
 quizEnabled: false
 ---
 
-Shimano Stradic FM C3000 HG ar i praktiken en premiuminspirerad rulle till mellanklasspris och anvander flera teknologier som tidigare bara fans i Shimanos dyraste modeller. HAGANE Gear-vaxeln kombineras med MicroModule II och X-SHIP for en extremt tyst och smidig invevning. Infinity Drive minskar motstandet vid invevning och ger kraftfull och lat rotation aven under last, vilket markas tydligt vid jiggfiske pa djupare vatten.
+Shimano Stradic FM C3000 HG är i praktiken en premiuminspirerad rulle till mellanklasspris och använder flera tekniker som tidigare bara fanns i Shimanos dyraste modeller. HAGANE Gear-växeln kombineras med MicroModule II och X-SHIP för en tyst och smidig invevning. Infinity Drive minskar motståndet vid invevning och ger kraftfull och lätt rotation även under last, vilket märks tydligt vid jiggfiske på djupare vatten.
 
-Long Stroke Spool ger upp till 10 procent langre kast an konventionella spolar, och X-Protect-vattenresistensen ger en hog skyddsniva for en rulle utan fullstandig tating. Anti-Twist Fin och avancerad oscillation for jamn linlaggning kompletterar en teknisk utrustningslista som imponerar for prisnivan. Duracross-draget ger exakt kontroll vid kamp med storre fiskar.
+Long Stroke Spool ger upp till 10 procent längre kast än konventionella spolar, och X-Protect-vattenresistensen ger en hög skyddsnivå för en rulle utan fullständig tätning. Anti-Twist Fin och avancerad oscillation för jämn linläggning kompletterar en teknisk utrustningslista som imponerar för prisnivån. Duracross-draget ger exakt kontroll vid kamp med större fiskar.
 
-C3000 HG-varianten med High Gear-utaxling passar jigg- och dropshotfiske samt spinnfiske dar snabb betesaterhemtning ar en fordel. Den som fiskar slow-roll eller behover extra kraft vid invevning av tunga beten bor titta pa en variant med lagre utaxling. Stradic FM satter standarden for vad som ar mojligt att fa i mellanklass fran Shimano.
+C3000 HG-varianten med High Gear-utväxling passar jigg- och dropshotfiske samt spinnfiske där snabb betesåterhämtning är en fördel. Den som fiskar slow roll eller behöver extra kraft vid invevning av tunga beten bör titta på en variant med lägre utväxling. Stradic FM sätter standarden för vad som går att få i mellanklass från Shimano.
 ```
 
 ## src/content/gear-reviews/shimano-vanford-fa-2500.mdx
@@ -12678,21 +12761,21 @@ C3000 HG-varianten med High Gear-utaxling passar jigg- och dropshotfiske samt sp
 ---
 title: "Shimano Haspelrulle Vanford FA 2500"
 slug: "shimano-vanford-fa-2500"
-description: "Lat premiumrulle fran Shimanos Magnumlite-serie med CI4+ kropp och HAGANE Gear. Byggd for finessefiske dar varje gram raknas."
+description: "Lätt premiumrulle från Shimanos Magnumlite-serie med CI4+ kropp och HAGANE Gear. Byggd för finessfiske där varje gram räknas."
 heroImage: "/images/gear/shimano-vanford-fa-2500.jpg"
 brand: "Shimano"
 category: "haspelrullar"
 price: 3199
 rating: 4.7
 pros:
-  - "Extremt lat CI4+ kompositkropp"
+  - "Extremt lätt CI4+ kompositkropp"
   - "HAGANE Gear, X-SHIP och MicroModule II"
-  - "InfinityDrive for kraftfull lat rotation"
-  - "X-Protect vattentatlighet"
+  - "InfinityDrive för kraftfull och lätt rotation"
+  - "X-Protect vattenresistens"
   - "Long Stroke Spool"
 cons:
-  - "Hogt pris"
-  - "Specialiserad for finesse - inte for tyngre beten"
+  - "Högt pris"
+  - "Specialiserad för finessfiske, inte för tyngre beten"
 affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=30297&url=https://fiskeonline.com/sv/produkt/shimano-reel-vanford-fa-2500/"
 merchant: "FiskeOnline"
 featured: false
@@ -12708,11 +12791,11 @@ priceRange: "premium"
 quizEnabled: false
 ---
 
-Shimano Vanford FA 2500 tillhor Magnumlite-serien och ar en av Shimanos lattaste haspelrullar med sin CI4+ Magnumlite-kropp och Magnumlite Rotor. Vikt runt 175 gram gor den patagligt lattare an de flesta konkurrenter i samma prestandaklass, vilket syns direkt i balansen mot ett finessespo och minskar tratthet vid langre fiskepass.
+Shimano Vanford FA 2500 tillhör Magnumlite-serien och är en av Shimanos lättaste haspelrullar med sin CI4+ Magnumlite-kropp och Magnumlite Rotor. En vikt runt 175 gram gör den påtagligt lättare än de flesta konkurrenter i samma prestandaklass, vilket syns direkt i balansen mot ett finesspö och minskar trötthet vid längre fiskepass.
 
-HAGANE Gear, MicroModule II, X-SHIP, InfinityDrive och Silent Drive samverkar for att leverera en tyst, smidig och kraftfull invevningskansla som kanner sig mer som en rulle i hogre prisklassen. Duracross-draget ger exakt bromskontroll, och Anti-Twist Fin kontrollerar linhanteringen vid kastning med latta beten. X-Protect vattenresistens ger skydd mot stank och regn.
+HAGANE Gear, MicroModule II, X-SHIP, InfinityDrive och Silent Drive samverkar för att leverera en tyst, smidig och kraftfull invevningskänsla som känns mer som en rulle i högre prisklass. Duracross-draget ger exakt bromskontroll, och Anti-Twist Fin kontrollerar linhanteringen vid kastning med lätta beten. X-Protect vattenresistens ger skydd mot stänk och regn.
 
-Storleken 2500 med standard-utaxling passar finessefiske med jigg och dropshot efter abborre och gos. Det ar inte en rulle for tyngre gaddfiske. For den som fiskar abborre regelbudet och vill ha Shimanos basta teknik utan att betala for Vanquish eller Stella ar Vanford FA det naturliga valet.
+Storleken 2500 med standardutväxling passar finessfiske med jigg och dropshot efter abborre och gös. Det är inte en rulle för tyngre gäddfiske. För den som fiskar abborre regelbundet och vill ha Shimanos bästa teknik utan att betala för Vanquish eller Stella är Vanford FA det naturliga valet.
 ```
 
 ## src/content/gear-reviews/shimano-vanford-fa-4000.mdx
@@ -12839,20 +12922,20 @@ Det här är ett bete för dig som fiskar gädda med kraftigt spö och rejäl ta
 ---
 title: "Strike Wire Extreme 0,15mm 11kg 135m H-V Yellow"
 slug: "strike-wire-extreme-015mm"
-description: "Premiumlina fran CWC med tatt flatsad Micro-fiber-konstruktion och rund linprofil. Superkompakt och vattentatlstande for predatorfiske i alla miljoer."
+description: "Premiumlina från CWC med tätt flätad mikrofiberkonstruktion och rund linprofil. Kompakt och vattenavvisande för predatorfiske i alla miljöer."
 heroImage: "/images/gear/strike-wire-extreme-015mm.jpg"
 brand: "Strike Wire"
 category: "flatlinor"
 price: 359
 rating: 4.5
 pros:
-  - "Tatt flatsad Micro-fiber ger superkompakt profil"
-  - "Nastan intill rund linprofil"
-  - "Vattentatlstande konstruktion"
-  - "Passar haard kraevande havsfiske och jerkfiske"
+  - "Tätt flätad mikrofiber ger kompakt profil"
+  - "Nästan helt rund linprofil"
+  - "Vattenavvisande konstruktion"
+  - "Passar krävande havsfiske och jerkfiske"
 cons:
-  - "Kortare spole pa 135m"
-  - "Hogre pris an Westin W3"
+  - "Kortare spole på 135 m"
+  - "Högre pris än Westin W3"
 affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=14587&url=https://fiskeonline.com/sv/produkt/strike-wire-extreme-015mm-11kg-135m-h-v-yellow/"
 merchant: "FiskeOnline"
 featured: false
@@ -12870,11 +12953,11 @@ priceRange: "mellanklass"
 quizEnabled: false
 ---
 
-Strike Wire Extreme ar en premiumlina fran CWC tillverkad av tatt flatsade Micro-fibrer som ger en nastan intill rund linprofil. Det ar en av fa flatlinor pa marknaden som verkligen kan sta for en rund profil, vilket ger superb linfloede genom ringarna, extremt langa kastlangder och minimal risk for trassel. Konstruktionen ar superkompakt och vattentatlstande, som i sin tur ger perfekt linupplagning.
+Strike Wire Extreme är en premiumlina från CWC tillverkad av tätt flätade mikrofibrer som ger en nästan helt rund linprofil. Rundheten ger utmärkt linflöde genom ringarna, långa kastlängder och minskad risk för trassel. Konstruktionen är kompakt och vattenavvisande, vilket i sin tur ger jämn linläggning på spolen.
 
-Lamps speciellt val for kraevande fiske dar linans prestanda ar avgorande, som haard havsfiske, jerkfiske och vertikalfiske. 0,15mm med 11kg brottstyrka ger tillracklig styrka for de flesta predatorfisksituationer. H-V Yellow-fargen ger utmarkt linobservation vid spinnfiske och jiggfiske.
+Linan lämpar sig särskilt väl för krävande fiske där linans prestanda är avgörande, som hårt havsfiske, jerkfiske och vertikalfiske. 0,15 mm med 11 kg brottstyrka ger tillräcklig styrka för de flesta predatorfisksituationer. H-V Yellow-färgen ger utmärkt linobservation vid spinnfiske och jiggfiske.
 
-Jamfort med Westin W3 8 Braid ar Strike Wire Extreme mer specialiserad for kraevande miljoer och tekniker dar linans rundhet och kompakthet ar extra viktigt. For allround predatorfiske i sotvatten ar Westin W3 ett mer kostnadseffektivt alternativ. Strike Wire Extreme ar valet for den som inte vill kompromissa pa linans prestanda.
+Jämfört med Westin W3 8 Braid är Strike Wire Extreme mer specialiserad för krävande miljöer och tekniker där linans rundhet och kompakthet är extra viktig. För allround predatorfiske i sötvatten är Westin W3 ett mer kostnadseffektivt alternativ. Strike Wire Extreme är valet för den som inte vill kompromissa på linans prestanda.
 ```
 
 ## src/content/gear-reviews/strike-wire-fluorocarbon-022mm-invisible.mdx
@@ -13132,20 +13215,20 @@ Swim passar dig som vill ha ett lättfiskat gäddbete som fungerar direkt, oavse
 ---
 title: "Westin W10 13 Braid Coastal Morning Mist 0,148mm 150m 8,7kg"
 slug: "westin-w10-13-braid-coastal"
-description: "Westins absoluta toppmodell i flatlinor med 13-tradig CORE-konstruktion och Advanced Ultra High PIC med 56 vavningar per tum. Byggd for havsfiske i tuffa forhallanden."
+description: "Westins toppmodell i flätlinor med 13-trådig CORE-konstruktion och 56 vävningar per tum. Byggd för havsfiske i tuffa förhållanden."
 heroImage: "/images/gear/westin-w10-13-braid-coastal.jpg"
 brand: "Westin"
 category: "flatlinor"
 price: 699
 rating: 4.9
 pros:
-  - "13-tradig CORE-konstruktion for maximal styrka"
-  - "Advanced Ultra High PIC med 56 vavningar per tum"
-  - "Dubbel Dura-Coating for maximal vattenavstotning"
+  - "13-trådig CORE-konstruktion för hög styrka"
+  - "Advanced Ultra High PIC med 56 vävningar per tum"
+  - "Dubbel Dura-Coating för hög vattenavvisning"
   - "Coastal Morning Mist passar havsfiske"
 cons:
-  - "Mycket hogt pris"
-  - "Svart att motivera for sotvattensfiske"
+  - "Mycket högt pris"
+  - "Svårt att motivera för sötvattensfiske"
 affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=16475&url=https://fiskeonline.com/sv/produkt/westin-w10-13-braid-coastal-morning-mist-0-148mm-150m-8-7kg/"
 merchant: "FiskeOnline"
 featured: false
@@ -13163,11 +13246,11 @@ priceRange: "premium"
 quizEnabled: false
 ---
 
-Westin W10 Coastal Braid ar Westins absoluta flaggskepp inom flatlinor, speciellt utvecklad for havsfiske och saltvattensfiske dar linan utsatts for de tuffaste forhallanden. Den 13-tradiga CORE-konstruktionen bestar av 12 fibrer tatt vavda runt en central karna for att skapa en enhetlig rund lina med forbattrad styrka. Advanced Ultra High PIC-konstruktionen med 56 vavningar per tum ger hogre notningsbestandighet, en smidigare yta for langre och mer precisa kast.
+Westin W10 Coastal Braid är Westins flaggskepp inom flätlinor, särskilt utvecklad för havsfiske och saltvattensfiske där linan utsätts för de tuffaste förhållandena. Den 13-trådiga CORE-konstruktionen består av 12 fibrer tätt vävda runt en central kärna för att skapa en enhetlig rund lina med förbättrad styrka. Advanced Ultra High PIC-konstruktionen med 56 vävningar per tum ger högre nötningsbeständighet och en smidigare yta för längre och mer precisa kast.
 
-W10 Coastal har en dubbel Dura-Coating-teknologi som sakerstaller en styvare lina for farre vindknutar, maximal vattenavstotning, minskad friktion och en supersmidig yta. Processen med Dura-Coating gel gor flatlinan smidigare och hydrofobisk, vilket reducerar absorption av vatten och minskar friktionen. Dubbel gel-coat forseglar linan for forbattrad livslangd.
+W10 Coastal har en dubbel Dura-Coating-teknik som ger en styvare lina med färre vindknutar, hög vattenavvisning, minskad friktion och en slät yta. Processen med Dura-Coating-gel gör flätlinan smidigare och hydrofob, vilket minskar vattenabsorptionen och friktionen. Dubbel gelbeläggning förseglar linan för längre livslängd.
 
-Coastal Morning Mist-fargen ar designad for havsfiske och ger bra synlighet i kustnara miljoer. 0,148mm med 8,7kg brottstyrka ar dimensionerat for havsoring, lax och storre predatorfisk. For sotvattensfiske efter abborre och gos ar W6 ett mer kostnadseffektivt alternativ. W10 Coastal ar valet for den som fiskar hav och kust och kraver det allra basta av sin lina.
+Coastal Morning Mist-färgen är utvecklad för havsfiske och ger bra synlighet i kustnära miljöer. 0,148 mm med 8,7 kg brottstyrka är dimensionerat för havsöring, lax och större predatorfisk. För sötvattensfiske efter abborre och gös är W6 ett mer kostnadseffektivt alternativ. W10 Coastal är valet för den som fiskar hav och kust och kräver det yttersta av sin lina.
 ```
 
 ## src/content/gear-reviews/westin-w2-powercast-t-spinnspo.mdx
@@ -13215,20 +13298,20 @@ Kastvikten 20–80 g täcker de flesta gäddriggar från medelstora wobblers upp
 ---
 title: "Westin W2 Predator Trolling 8.6 255cm H 60-180g 2-delat"
 slug: "westin-w2-predator-trolling"
-description: "Premiumtrolingspo fran Westins W2-serie med 24/30 ton kolfiberklinga och AAA-korkhandtag. Byggt for kraaevande trollingfiske efter gadda, gos, lax och musky."
+description: "Trollingspö från Westins W2-serie med 24/30 tons kolfiberklinga och AAA-korkhandtag. Byggt för krävande trollingfiske efter gädda, gös och lax."
 heroImage: "/images/gear/westin-w2-predator-trolling.jpg"
 brand: "Westin"
 category: "trollingspon"
 price: 1199
 rating: 4.5
 pros:
-  - "24/30 ton High Performance Carbon-klinga"
+  - "24/30 tons High Performance Carbon-klinga"
   - "Premium AAA-korkhandtag"
   - "Seaguide SXBLSG-ringar"
-  - "DPS rullfaste for saekert grepp"
+  - "DPS rullfäste för säkert grepp"
 cons:
   - "Inte lika avancerad som W3-serien"
-  - "H-aktion kraver erfarenhet"
+  - "H-aktion kräver erfarenhet"
 affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=103503&url=https://fiskeonline.com/sv/produkt/westin-w2-predator-trolling-86-255cm-h-60-180g-2-delat/"
 merchant: "FiskeOnline"
 featured: false
@@ -13243,11 +13326,11 @@ priceRange: "mellanklass"
 quizEnabled: false
 ---
 
-Westin W2 Predator Trolling ar ett 2-delat trollingspo pa 255 cm med H-aktion och kastvikt 60-180g, specialbyggt for trollingfiske efter gadda, gos, lax och musky med stora beten i sotvatten. Klingan i 24/30 ton High Performance Carbon ger exceptionell styrka och kansla, och klarar av att hantera tunga beten och inmonterade sidoparavaner for alla kraevande trollingtekniker.
+Westin W2 Predator Trolling är ett 2-delat trollingspö på 255 cm med H-aktion och kastvikt 60-180 g, byggt för trollingfiske efter gädda, gös, lax och musky med stora beten i sötvatten. Klingan i 24/30 tons High Performance Carbon ger styrka och känsla, och klarar att hantera tunga beten och linmonterade sidoparavaner för krävande trollingtekniker.
 
-DPS rullfaste, Seaguide SXBLSG-ringar och Premium AAA-korkhandtag satter W2 over manga konkurrenter i samma prisklass. Korkhandtaget ger ett bekvamt och varmt grepp aven i kallt vader och ar ett material som ofta reserveras for dyrare spoon. Seaguide Dhook-krokhallare kompletterar utrustningslistan.
+DPS rullfäste, Seaguide SXBLSG-ringar och Premium AAA-korkhandtag sätter W2 över många konkurrenter i samma prisklass. Korkhandtaget ger ett bekvämt och varmt grepp även i kallt väder och är ett material som ofta reserveras för dyrare spön. Seaguide Dhook-krokhållare kompletterar utrustningslistan.
 
-Jamfort med W3 Predator Trolling ar W2 faktiskt lite billigare men med likvardiga eller hogre specifikationer pa nyckelkomponenter som klingan och handtaget. Det gor W2 till ett utmarkt val for den erfarne trollingfiskaren som vill ha premiumkansla utan att betala for W3-serien. Kastvikten 60-180g tackar samma register som W3 och passar de flesta sotvatten-trollingriggar.
+Kastvikten 60-180 g täcker samma register som W3 Predator Trolling och passar de flesta trollingriggar i sötvatten. W2 är ett bra val för den erfarne trollingfiskaren som vill ha premiumkänsla på nyckelkomponenter som klinga och handtag utan att gå upp till W3-serien.
 ```
 
 ## src/content/gear-reviews/westin-w3-4000-fd.mdx
@@ -13255,7 +13338,7 @@ Jamfort med W3 Predator Trolling ar W2 faktiskt lite billigare men med likvardig
 ---
 title: "Westin W3 Haspelrulle 4000 FD 7+1 Kullager"
 slug: "westin-w3-4000-fd"
-description: "Allround-haspelrulle fran Westin med aluminiumkropp och Carbon Drag-bromssystem. Passar spinnfiske efter gadda, oring och predatorfisk i sot- och saltvatten."
+description: "Allroundrulle från Westin med aluminiumkropp och Carbon Drag-bromssystem. Passar spinnfiske efter gädda och öring i söt- och saltvatten."
 heroImage: "/images/gear/westin-w3-4000-fd.jpg"
 brand: "Westin"
 category: "haspelrullar"
@@ -13263,12 +13346,12 @@ price: 2149
 rating: 4.3
 pros:
   - "Robust aluminiumkropp och gavel"
-  - "Carbon Drag-broms for jamn kraft"
+  - "Carbon Drag-broms för jämn kraft"
   - "Keramisk lintrissa minskar friktion"
-  - "IPX5-klassad vattenskyddsniva"
+  - "IPX5-klassad vattenskyddsnivå"
 cons:
-  - "Tyngre an Shimano-alternativ i samma prisklass"
-  - "Storlek 4000 passar inte finessefiske"
+  - "Tyngre än Shimano-alternativ i samma prisklass"
+  - "Storlek 4000 passar inte finessfiske"
 affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=102754&url=https://fiskeonline.com/sv/produkt/westin-w3-haspelrulle-4000-fd-71-kullager/"
 merchant: "FiskeOnline"
 featured: false
@@ -13285,11 +13368,11 @@ priceRange: "mellanklass"
 quizEnabled: false
 ---
 
-Westin W3 4000 FD ar byggd for tufft fiske med robust aluminiumkropp och gavel som haller formen aven under hoga laster. Carbon Drag-bromsen levererar jamn och kontrollerbar kraft vid drillning, vilket gors mojligt av kolfiberlamelldrivna skivor som talar bade snabba rusningar och tyngre fiskar. Den keramiska lintrissam minskar friktion och motverkar linvridning, sarskilt viktigt vid anvandning av flatlina.
+Westin W3 4000 FD är byggd för tufft fiske med robust aluminiumkropp och gavel som håller formen även under höga laster. Carbon Drag-bromsen levererar jämn och kontrollerbar kraft vid drillning, tack vare kolfiberlameller som tål både snabba rusningar och tyngre fiskar. Den keramiska lintrissan minskar friktion och motverkar linvridning, vilket är särskilt viktigt vid användning av flätlina.
 
-CNC-frast aluminiumhandtag med TPR-grepp ger ett stabilt och bekvamt grepp under hela fiskepasset. Dubbelanodiserad aluminiumspole ar optimerad for langa kast och smidig linhantering. IPX5-klassad vattenskydssniva gor rullen lamplig for kutsfiske och saltvattenmiljoer.
+CNC-fräst aluminiumhandtag med TPR-grepp ger ett stabilt och bekvämt grepp under hela fiskepasset. Dubbelanodiserad aluminiumspole är optimerad för långa kast och smidig linhantering. IPX5-klassad vattenskyddsnivå gör rullen lämplig för kustfiske och saltvattensmiljöer.
 
-Storleken 4000 ar optimerad for gaddspinn, gosjigg och oringfiske i storre vatten. Det ar inte en rulle for finessefiske eller lattare abborrtekniker. For den som soker en paltlig och allsidig rulle till medeltungt spinnfiske ar W3 4000 ett genomtankt val som levererar bra prestanda i en bred rad fiskesituationer.
+Storleken 4000 är optimerad för gäddspinn, gösjigg och öringfiske i större vatten. Det är inte en rulle för finessfiske eller lättare abborrtekniker. För den som söker en pålitlig och allsidig rulle till medeltungt spinnfiske är W3 4000 ett genomtänkt val som levererar bra prestanda i ett brett spann av fiskesituationer.
 ```
 
 ## src/content/gear-reviews/westin-w3-8-braid-smokey-grey.mdx
@@ -13297,20 +13380,20 @@ Storleken 4000 ar optimerad for gaddspinn, gosjigg och oringfiske i storre vatte
 ---
 title: "Westin W3 8 Braid Smokey Grey 150m 0,148mm 6,1kg"
 slug: "westin-w3-8-braid-smokey-grey"
-description: "8-tradig flatlinor fran Westin i diskret Smokey Grey. Konstruerad med japanska UHMPE-fibrer och Dura-Coating for lang livslangd och smidig kastning."
+description: "8-trådig flätlina från Westin i diskret Smokey Grey. Japanska UHMPE-fibrer och Dura-Coating för lång livslängd och smidig kastning."
 heroImage: "/images/gear/westin-w3-8-braid-smokey-grey.jpg"
 brand: "Westin"
 category: "flatlinor"
 price: 249
 rating: 4.6
 pros:
-  - "Japanska premium UHMPE-fibrer"
-  - "32 vavningar per tum for rund profil"
-  - "Dura-Coating for vattenavstotning och lag friktion"
+  - "Japanska premium-UHMPE-fibrer"
+  - "32 vävningar per tum för rund profil"
+  - "Dura-Coating för vattenavvisning och låg friktion"
   - "Diskret Smokey Grey passar klart vatten"
 cons:
-  - "Hogre pris an Kinetic och Hurricane"
-  - "Smokey Grey svarare att se vid linobservation"
+  - "Högre pris än Kinetic och Hurricane"
+  - "Smokey Grey svårare att se vid linobservation"
 affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=29918&url=https://fiskeonline.com/sv/produkt/westin-w3-8-braid-smokey-grey-150m-0148mm-61kg/"
 merchant: "FiskeOnline"
 featured: false
@@ -13327,11 +13410,11 @@ priceRange: "mellanklass"
 quizEnabled: false
 ---
 
-Westin W3 8 Braid Smokey Grey ar tillverkad av premium japanska Ultra High Molecular Polyethylene-fibrer med en 8X-design och 32 vavningar per tum, vilket ger en stel och styv lina med farre vindknutar och utmarkt vattenavstotning. Den hogre vavningsgraden jamfort med standard 8-tradiga linor ger en jamnare och rundare profil for battre kastprestanda och lagre friktion.
+Westin W3 8 Braid Smokey Grey är tillverkad av japanska ultrahögmolekylära polyetenfibrer med 8X-design och 32 vävningar per tum, vilket ger en styv lina med färre vindknutar och god vattenavvisning. Den högre vävningsgraden jämfört med standardlinor i åtta trådar ger en jämnare och rundare profil för bättre kastprestanda och lägre friktion.
 
-Dura-Coating-teknologin sakerstaller att linan ar stel och styv for farre vindknutar med utmarkt vattenavstotning, en slatare yta och lagre friktion for langre och mer exakta kast. For att uppna maximal fargstabilitet blotlaggs W3 Braid i fargtankar och hardas i ugn for att baka in pigmenten, vilket ger suveran fargstabilitet over tid.
+Dura-Coating-tekniken ger en slätare yta och lägre friktion för längre och mer exakta kast. För att uppnå färgstabilitet blötläggs W3 Braid i färgtankar och härdas i ugn för att baka in pigmenten, vilket gör att färgen håller över tid.
 
-Smokey Grey-fargen ar diskret och passar klart vatten dar synliga linor kan skrammas av fisken, men kraver mer upmarksamhet vid linobservation an gula eller oranga alternativ. 0,148mm med 6,1kg brottstyrka ar optimalt for abborrjiggar och latta gosriggar. Den som vill ha Orange-varianten for battre synlighet hittar den som Dutch Orange i samma serie.
+Smokey Grey-färgen är diskret och passar klart vatten där synliga linor kan skrämma fisken, men kräver mer uppmärksamhet vid linobservation än gula eller orange alternativ. 0,148 mm med 6,1 kg brottstyrka passar abborrjiggar och lätta gösriggar. Den som vill ha bättre synlighet hittar Dutch Orange i samma serie.
 ```
 
 ## src/content/gear-reviews/westin-w3-finesse-jig-3rd.mdx
@@ -13498,7 +13581,7 @@ Kastvikten 14–49 g täcker de flesta gösjiggar från grunt till djupt vatten.
 ---
 title: "Westin W3 Predator Trolling 3rd 8.6 259cm H 60-180g 2-delat"
 slug: "westin-w3-predator-trolling-3rd"
-description: "Kraftfullt trollingspo fran Westins W3-serie med Torayca-klinga och premiumkomponenter. Byggt for sotvattensfiske efter gadda, gos och musky."
+description: "Kraftfullt trollingspö från Westins W3-serie med Torayca-klinga och premiumkomponenter. Byggt för sötvattensfiske efter gädda, gös och musky."
 heroImage: "/images/gear/westin-w3-predator-trolling-3rd.jpg"
 brand: "Westin"
 category: "trollingspon"
@@ -13506,12 +13589,12 @@ price: 1499
 rating: 4.4
 pros:
   - "Torayca High Performance Carbon-klinga"
-  - "Progressiv aktion for kraftfull krokningsformaga"
-  - "Carbon SKS-LS rullfaste och Seaguide TUXBRAG-ringar"
-  - "Passar bredda trollingtekniker"
+  - "Progressiv aktion för kraftfull krokningsförmåga"
+  - "Carbon SKS-LS rullfäste och Seaguide TUXBRAG-ringar"
+  - "Passar olika trollingtekniker"
 cons:
-  - "H-aktion kan vara haard for nyborrjare"
-  - "Specialiserat for trolling - inte for spinnfiske"
+  - "H-aktion kan vara hård för nybörjare"
+  - "Specialiserat för trolling, inte för spinnfiske"
 affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=104453&url=https://fiskeonline.com/sv/produkt/westin-w3-predator-trolling-3rd-86-259cm-h-60-180g-2-delat/"
 merchant: "FiskeOnline"
 featured: false
@@ -13526,11 +13609,11 @@ priceRange: "mellanklass"
 quizEnabled: false
 ---
 
-Westin W3 Predator Trolling 3rd ar ett 2-delat trollingspo pa 259 cm med H-aktion och kastvikt 60-180g, konstruerat for sotvattensfiske efter gadda, gos och musky med stora beten och olika trollingtekniker. Klingan i Torayca High Performance Carbon ger en exceptionell styrka och motstandskraft for att hantera tunga beten och linmonterade sidoparavaner.
+Westin W3 Predator Trolling 3rd är ett 2-delat trollingspö på 259 cm med H-aktion och kastvikt 60-180 g, konstruerat för sötvattensfiske efter gädda, gös och musky med stora beten och olika trollingtekniker. Klingan i Torayca High Performance Carbon ger styrka och motståndskraft för att hantera tunga beten och linmonterade sidoparavaner.
 
-Den progressiva aktionen absorberar harda knyckar och rusningar fran storre fiskar, vilket sakerstalller att du behaller kontrollen hela vagen till haavet. Carbon SKS-LS rullfaste och Seaguide TUXBRAG-ringar kompletterar konstruktionen med komponenter som taal haard anvandning. Premium EVA-handtag ger ett bekvamt grepp under langa dagar pa vattnet.
+Den progressiva aktionen absorberar hårda knyckar och rusningar från större fiskar, vilket gör att du behåller kontrollen hela vägen till håven. Carbon SKS-LS rullfäste och Seaguide TUXBRAG-ringar kompletterar konstruktionen med komponenter som tål hård användning. Premium EVA-handtag ger ett bekvämt grepp under långa dagar på vattnet.
 
-Kastvikten 60-180g tackaer de flesta trollingriggar for gadda och gos. W3 Predator Trolling levererar markbart hogre kanslighet och komponentkvalitet an Okuma Magda Finn och ar det naturliga steget upp for den som fiskar trolling regelbudet. Den som vill ha toppkvalitet bor titta pa W3:s storebror W2 Predator Trolling.
+Kastvikten 60-180 g täcker de flesta trollingriggar för gädda och gös. W3 Predator Trolling levererar märkbart högre känslighet och komponentkvalitet än Okuma Magda Finn och är det naturliga steget upp för den som fiskar trolling regelbundet.
 ```
 
 ## src/content/gear-reviews/westin-w6-8-braid-0148mm.mdx
@@ -13538,20 +13621,20 @@ Kastvikten 60-180g tackaer de flesta trollingriggar for gadda och gos. W3 Predat
 ---
 title: "Westin W6 8 Braid Lime Punch 0,148mm 135m 6,8kg"
 slug: "westin-w6-8-braid-0148mm"
-description: "Premium 8-tradig flatlinor fran Westins W6-serie med Advanced High PIC-konstruktion och 36 vavningar per tum. Steg upp fran W3 for hogre kanslighet och styrka."
+description: "8-trådig flätlina från Westins W6-serie med Advanced High PIC-konstruktion och 36 vävningar per tum. Steg upp från W3 i känslighet och styrka."
 heroImage: "/images/gear/westin-w6-8-braid-0148mm.jpg"
 brand: "Westin"
 category: "flatlinor"
 price: 399
 rating: 4.7
 pros:
-  - "Advanced High PIC med 36 vavningar per tum"
-  - "Starkare lina for sin diameter an W3"
-  - "Dura-Coating for vattenavstotning och lag friktion"
+  - "Advanced High PIC med 36 vävningar per tum"
+  - "Starkare lina för sin diameter än W3"
+  - "Dura-Coating för vattenavvisning och låg friktion"
   - "Lime Punch ger bra linobservation"
 cons:
-  - "Betydligt hogre pris an W3"
-  - "Kortare spole pa 135m"
+  - "Högre pris än W3"
+  - "Kortare spole på 135 m"
 affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=16481&url=https://fiskeonline.com/sv/produkt/westin-w6-8-braid-lime-punch-0-148mm-135m-6-8kg/"
 merchant: "FiskeOnline"
 featured: false
@@ -13568,11 +13651,11 @@ priceRange: "premium"
 quizEnabled: false
 ---
 
-Westin W6 8 Braid ar nasta steg upp fran W3-serien och anvander en unik konstruktionsprocess med japanska UHMPE-premiumfibrer och Advanced High PIC-konstruktionen med 36 vavningar per tum. Den tatare vavningen ger en starkare lina for sin diameter, en smidigare yta for langre och mer precisa kast samt hogre notningsbestandighet. Dura-Coating-teknologin ger maximal vattenavstotning och minskad absorption av vatten och smuts.
+Westin W6 8 Braid är nästa steg upp från W3-serien och använder japanska UHMPE-premiumfibrer med Advanced High PIC-konstruktionen och 36 vävningar per tum. Den tätare vävningen ger en starkare lina för sin diameter, en smidigare yta för längre och mer precisa kast samt högre nötningsbeständighet. Dura-Coating-tekniken ger god vattenavvisning och minskar absorptionen av vatten och smuts.
 
-Lime Punch-fargen ger bra linobservation utan att vara lika skrikig som Fluo Yellow, vilket gor den lamplig bade for jiggfiske dar linobservation ar viktigt och for spinnfiske i klart vatten. 0,148mm med 6,8kg brottstyrka passar abborrjiggar och gosriggar.
+Lime Punch-färgen ger bra linobservation utan att vara lika skrikig som Fluo Yellow, vilket gör den lämplig både för jiggfiske där linobservation är viktigt och för spinnfiske i klart vatten. 0,148 mm med 6,8 kg brottstyrka passar abborrjiggar och gösriggar.
 
-Steget fran W3 till W6 ar markbart i kastprestanda och kanslighet, sarskilt vid jiggfiske pa djupare vatten dar varje extra meter kastlangd och direkt linkanslighet spelar roll. Den som fiskar abborre och gos regelbudet och vill ha det basta inom rimliga prisgranger bor titta serios pa W6. For de absolutt hogsta kraven finns W10-serien.
+Steget från W3 till W6 är märkbart i kastprestanda och känslighet, särskilt vid jiggfiske på djupare vatten där varje extra meter kastlängd och direkt linkänsla spelar roll. Den som fiskar abborre och gös regelbundet och vill ha hög kvalitet inom rimliga prisgränser bör titta närmare på W6. För de allra högsta kraven finns W10-serien.
 ```
 
 ## src/content/gear-reviews/westin-w6-dropshot-haspelspo.mdx
@@ -41143,6 +41226,87 @@ function checkProduktRuta(file, text) {
   }
 }
 
+/**
+ * Innehallspastaenden som bryter mot reglerna i BESLUT.md och CLAUDE.md.
+ *
+ * Varningar, inte fel: monstren ar heuristiska och kan sla fel. De fangar de
+ * aterkommande fallen fran genomgangen i augusti 2026, da 30 produktsidor
+ * visade sig innehalla prisrelativa jamforelser, uppfunnen precision och
+ * superlativ utan underlag. BESLUT.md skrevs i juli, alltsa efter att sidorna
+ * skapades i maj och juni, sa texterna brot inte mot nagot nar de skrevs.
+ * Kontrollen finns for att samma fel inte ska uppsta igen.
+ */
+const CLAIM_PATTERNS = [
+  {
+    re: /\d[\d\s]*\s?(kr|kronor)\s+(billigare|dyrare|mer|mindre|lagre|l\u00e4gre|hogre|h\u00f6gre|extra)/i,
+    why: 'prisrelativ jamforelse i kronor, aldras inom dagar',
+  },
+  {
+    re: /\d+\s*(procent|%)\s+av\s+(prestandan|kapaciteten|kvaliteten|funktionen)/i,
+    why: 'uppfunnen precision, andelen gar inte att mata',
+  },
+  {
+    re: /(marknadens|varldens|v\u00e4rldens)\s+(basta|b\u00e4sta|framsta|fr\u00e4msta|mest)/i,
+    why: 'superlativ om marknaden utan underlag',
+  },
+  {
+    re: /b(a|\u00e4)st[ae]?\s+(pa|p\u00e5|i)\s+marknaden/i,
+    why: 'superlativ om marknaden utan underlag',
+  },
+  {
+    re: /ett\s+av\s+de\s+b(a|\u00e4)sta\s+alternativen/i,
+    why: 'superlativ utan underlag',
+  },
+  {
+    re: /utan\s+(motstycke|konkurrens)/i,
+    why: 'superlativ utan underlag',
+  },
+  {
+    re: /(inget|ingen|inga)\s+(direkt\s+)?j(a|\u00e4)mf(o|\u00f6)rbar/i,
+    why: 'pastaende om att inget alternativ finns, gar inte att belagga',
+  },
+  {
+    re: /\bidag\b/i,
+    why: 'skriv "i dag" i tva ord',
+  },
+  {
+    re: /\bgratis\b/i,
+    why: 'skriv "kostnadsfri"',
+  },
+  {
+    re: /\S\s--\s\S/,
+    why: 'dubbelt bindestreck som tankstreck, byt mot komma, kolon eller punkt',
+  },
+  {
+    re: /[a-z\u00e5\u00e4\u00f6] - [a-z\u00e5\u00e4\u00f6]/i,
+    why: 'spatierat bindestreck som tankstreck, byt mot komma, kolon eller punkt',
+  },
+];
+
+function checkClaims(file, text) {
+  text.split('\n').forEach((line, idx) => {
+    // YAML-listrader borjar med "- " och ar inte tankstreck.
+    const prose = line.replace(/^\s*-\s/, '');
+    for (const { re, why } of CLAIM_PATTERNS) {
+      if (re.test(prose)) warnings.push(`${file}:${idx + 1}: ${why}`);
+    }
+  });
+}
+
+/**
+ * Filer helt utan svenska tecken.
+ *
+ * 30 av 94 gear-reviews skapades maj-juni 2026 utan a, a och o genomgaende,
+ * vilket var synligt for lasaren pa publicerade sidor. Felet upptacktes forst
+ * i augusti. En svensk innehallsfil utan ett enda svenskt tecken ar nastan
+ * alltid ett teckenkodningsfel.
+ */
+function checkSwedishChars(file, text) {
+  if (!/[\u00e5\u00e4\u00f6\u00c5\u00c4\u00d6]/.test(text)) {
+    warnings.push(`${file}: inga svenska tecken i hela filen, kontrollera teckenkodning`);
+  }
+}
+
 for (const f of files) {
   const coll = f.split('/')[2];
   const raw = readFileSync(f, 'utf-8');
@@ -41152,6 +41316,8 @@ for (const f of files) {
   if (!f.endsWith('.json')) checkDashes(f, raw);
   if (!f.endsWith('.json')) checkCampaignDates(f, raw);
   if (!f.endsWith('.json')) checkProduktRuta(f, raw);
+  if (!f.endsWith('.json')) checkClaims(f, raw);
+  if (!f.endsWith('.json')) checkSwedishChars(f, raw);
 }
 
 // --- Tackning: hur manga produkter varje art- och tekniksida kan visa ---
