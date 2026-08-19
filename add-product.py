@@ -44,7 +44,7 @@ MERCHANTS = {
         "env": "ADTRACTION_FEED_URL_FISKEONLINE",
     },
     "2": {
-        "name": "Frilufts och Vildmark",
+        "name": "Fritid och Vildmark",
         "base": "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1",
         "domain": "fritidvildmark.se",
         "env": None,  # Ingen feed uppsatt i Adtraction, kontrollerat 2026-08-13

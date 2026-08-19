@@ -442,14 +442,14 @@ att kanalen levererade en order, inte vilken produkt som sålde.
 
 `add-product.py` och `feed-sok.mjs` bygger nya länkar med parametern.
 `add-cupa-sku.mjs` lägger till den på befintliga. Värdet får vara högst 128
-tecken. Produkter utan feedträff, alltså slutsålda och Fritid & Vildmark, får
+tecken. Produkter utan feedträff, alltså slutsålda och Fritid och Vildmark, får
 ingen parameter och behöver ingen.
 
 ID-mappning i Adtractions gränssnitt för FiskeOnline: Brand ID `1954031989`,
 Brand AD ID `1954031990`, Selected channel ID `2072765905`. Det är Brand AD ID
 plus kanal-ID som används i baslänken, inte Brand ID.
 
-**Fritid & Vildmark har ingen feed.** De produkterna visar `price` från
+**Fritid och Vildmark har ingen feed.** De produkterna visar `price` från
 frontmatter och kontrolleras inte av `validate-feed.mjs`.
 
 Verifiera alltid att affiliate-URL:er returnerar 200 med URL-testskriptet nedan.
