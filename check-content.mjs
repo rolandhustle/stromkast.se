@@ -328,6 +328,87 @@ function checkProduktRuta(file, text) {
   }
 }
 
+/**
+ * Innehallspastaenden som bryter mot reglerna i BESLUT.md och CLAUDE.md.
+ *
+ * Varningar, inte fel: monstren ar heuristiska och kan sla fel. De fangar de
+ * aterkommande fallen fran genomgangen i augusti 2026, da 30 produktsidor
+ * visade sig innehalla prisrelativa jamforelser, uppfunnen precision och
+ * superlativ utan underlag. BESLUT.md skrevs i juli, alltsa efter att sidorna
+ * skapades i maj och juni, sa texterna brot inte mot nagot nar de skrevs.
+ * Kontrollen finns for att samma fel inte ska uppsta igen.
+ */
+const CLAIM_PATTERNS = [
+  {
+    re: /\d[\d\s]*\s?(kr|kronor)\s+(billigare|dyrare|mer|mindre|lagre|l\u00e4gre|hogre|h\u00f6gre|extra)/i,
+    why: 'prisrelativ jamforelse i kronor, aldras inom dagar',
+  },
+  {
+    re: /\d+\s*(procent|%)\s+av\s+(prestandan|kapaciteten|kvaliteten|funktionen)/i,
+    why: 'uppfunnen precision, andelen gar inte att mata',
+  },
+  {
+    re: /(marknadens|varldens|v\u00e4rldens)\s+(basta|b\u00e4sta|framsta|fr\u00e4msta|mest)/i,
+    why: 'superlativ om marknaden utan underlag',
+  },
+  {
+    re: /b(a|\u00e4)st[ae]?\s+(pa|p\u00e5|i)\s+marknaden/i,
+    why: 'superlativ om marknaden utan underlag',
+  },
+  {
+    re: /ett\s+av\s+de\s+b(a|\u00e4)sta\s+alternativen/i,
+    why: 'superlativ utan underlag',
+  },
+  {
+    re: /utan\s+(motstycke|konkurrens)/i,
+    why: 'superlativ utan underlag',
+  },
+  {
+    re: /(inget|ingen|inga)\s+(direkt\s+)?j(a|\u00e4)mf(o|\u00f6)rbar/i,
+    why: 'pastaende om att inget alternativ finns, gar inte att belagga',
+  },
+  {
+    re: /\bidag\b/i,
+    why: 'skriv "i dag" i tva ord',
+  },
+  {
+    re: /\bgratis\b/i,
+    why: 'skriv "kostnadsfri"',
+  },
+  {
+    re: /\S\s--\s\S/,
+    why: 'dubbelt bindestreck som tankstreck, byt mot komma, kolon eller punkt',
+  },
+  {
+    re: /[a-z\u00e5\u00e4\u00f6] - [a-z\u00e5\u00e4\u00f6]/i,
+    why: 'spatierat bindestreck som tankstreck, byt mot komma, kolon eller punkt',
+  },
+];
+
+function checkClaims(file, text) {
+  text.split('\n').forEach((line, idx) => {
+    // YAML-listrader borjar med "- " och ar inte tankstreck.
+    const prose = line.replace(/^\s*-\s/, '');
+    for (const { re, why } of CLAIM_PATTERNS) {
+      if (re.test(prose)) warnings.push(`${file}:${idx + 1}: ${why}`);
+    }
+  });
+}
+
+/**
+ * Filer helt utan svenska tecken.
+ *
+ * 30 av 94 gear-reviews skapades maj-juni 2026 utan a, a och o genomgaende,
+ * vilket var synligt for lasaren pa publicerade sidor. Felet upptacktes forst
+ * i augusti. En svensk innehallsfil utan ett enda svenskt tecken ar nastan
+ * alltid ett teckenkodningsfel.
+ */
+function checkSwedishChars(file, text) {
+  if (!/[\u00e5\u00e4\u00f6\u00c5\u00c4\u00d6]/.test(text)) {
+    warnings.push(`${file}: inga svenska tecken i hela filen, kontrollera teckenkodning`);
+  }
+}
+
 for (const f of files) {
   const coll = f.split('/')[2];
   const raw = readFileSync(f, 'utf-8');
@@ -337,6 +418,8 @@ for (const f of files) {
   if (!f.endsWith('.json')) checkDashes(f, raw);
   if (!f.endsWith('.json')) checkCampaignDates(f, raw);
   if (!f.endsWith('.json')) checkProduktRuta(f, raw);
+  if (!f.endsWith('.json')) checkClaims(f, raw);
+  if (!f.endsWith('.json')) checkSwedishChars(f, raw);
 }
 
 // --- Tackning: hur manga produkter varje art- och tekniksida kan visa ---
