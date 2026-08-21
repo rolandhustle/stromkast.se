@@ -10,7 +10,6 @@ import { trackAffiliateClick } from '../../lib/track';
  * Den centrala distinktionen verktyget löser, och som vanliga butikslistor
  * förklarar dåligt: Striker-serien har GPS och Quickdraw för egna kartor men
  * läser inte Navionics-sjökort, medan Echomap-serien är kartplotter med sjökort.
- * Deeper START exkluderas medvetet ur isfiske eftersom modellen inte stödjer det.
  */
 
 interface EkolodProduct {
