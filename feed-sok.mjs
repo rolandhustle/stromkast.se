@@ -27,6 +27,7 @@
  *
  *   node --env-file=.env feed-sok.mjs <sökord...>
  *   node --env-file=.env feed-sok.mjs <produkt-URL...>
+ *   node --env-file=.env feed-sok.mjs <SKU...>
  *
  * Flaggor:
  *   --butik <namn>      begränsa till FiskeOnline eller Outl1
@@ -40,6 +41,7 @@
  * Exempel:
  *   node --env-file=.env feed-sok.mjs shimano haspelrulle --pris 800-2000 --ny
  *   node --env-file=.env feed-sok.mjs --butik Outl1 --typ marint --kort
+ *   node --env-file=.env feed-sok.mjs 30626
  *   node --env-file=.env feed-sok.mjs --bild shimano-miravel-2500=109272
  */
 
@@ -243,6 +245,13 @@ function matches(item) {
   // URL-sökning: exakt uppslag
   if (terms.some((t) => t.startsWith('http'))) {
     return terms.some((t) => normalise(t) === item.key);
+  }
+
+  // SKU-uppslag: exakt matchning mot g:id. Ligger före fritexten så att ett
+  // produkt-ID ur --kort-listan går att slå upp direkt. Matchningen är exakt,
+  // en delsträng räknas inte, annars skulle 306 träffa 30626.
+  if (item.sku && terms.some((t) => t.toLowerCase() === item.sku.toLowerCase())) {
+    return true;
   }
 
   // Fritext: alla ord måste finnas i titel eller varumärke
