@@ -1,0 +1,45 @@
+---
+/**
+ * MultiValjareIsland.astro
+ * Serverwrapper som hämtar de tolv multirullarna ur gear-reviews-collectionen
+ * och matar dem till den interaktiva MultiValjare-islanden. Inkludera bara den
+ * här i multirulleguiden, så lever väljaren bara där. Samma mönster som
+ * RullValjareIsland.astro, LinValjareIsland.astro och EkolodValjareIsland.astro.
+ */
+import { getCollection } from 'astro:content';
+import MultiValjare from './MultiValjare.tsx';
+
+const MULTI_SLUGS = new Set<string>([
+  'kinetic-ozor-bc-200',
+  'shimano-caius-c-151-hg',
+  'shimano-slx-151-hg',
+  '13-fishing-modus-c2',
+  'shimano-slx-xt-a-151-hg',
+  'westin-w4-101-ssg',
+  'bft-rebel-x8',
+  'shimano-curado-bfs-xg',
+  'westin-w6-bc-301-hd',
+  'shimano-curado-m-151-hg',
+  'shimano-curado-k-301-hg',
+  'shimano-tranx-b-301-hg',
+]);
+
+const allReviews = await getCollection('gear-reviews');
+
+const multirullar = allReviews
+  .filter((entry) => {
+    const category = (entry.data.category ?? '').toLowerCase();
+    return MULTI_SLUGS.has(entry.data.slug) || category === 'multirullar';
+  })
+  .map((entry) => ({
+    slug: entry.data.slug,
+    title: entry.data.title,
+    brand: entry.data.brand,
+    price: entry.data.price,
+    priceRange: entry.data.priceRange,
+    affiliateUrl: entry.data.affiliateUrl,
+    merchant: entry.data.merchant,
+  }));
+---
+
+<MultiValjare client:visible multirullar={multirullar} />

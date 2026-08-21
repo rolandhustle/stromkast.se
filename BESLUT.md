@@ -322,6 +322,20 @@ Storlek är däremot produktrelevant. Shimano Sahara i 1000 är en abborrulle oc
 
 ---
 
+### Utväxlings- och vevsidevarianter får inte egna sidor
+
+**Beslut.** En sida per modell och spolstorlek. Utväxling och vevsida ger inte egna sidor utan nämns i brödtexten. Där flera utväxlingar finns pekar affiliatelänken på HG före XG före standardversionen, och på vänstervev. För Westins beteckningar gäller MSG före SSG före HSG.
+
+**Skäl.** Detta utvidgar regeln om storleks- och färgvarianter med ett tredje fall. FiskeOnlines multirullkategori hade i augusti 2026 45 rader som i praktiken var ungefär tolv rullar. Shimano SLX fanns i tolv varianter, Curado i sex, Westin W4 och W6 i vardera fem eller sex.
+
+Curado M 151, 151 HG och 151 XG kostar alla 3 099 kr och är samma rulle med olika växlar. Tre sidor med identiskt pris och en siffras skillnad är exakt den konstruktion som föder prisrelativa jämförelser, eftersom det inte finns något annat att skriva om.
+
+Utväxling är dessutom ett spektrum snarare än en produktegenskap. Spolstorlek avgör vilka beten rullen kan kasta och är därmed ett verkligt vägval, medan utväxlingen är en preferens inom samma användningsområde.
+
+**Vad som skulle ändra det.** Att en tillverkare börjar prissätta utväxlingsvarianter olika, eller att de får skilda specifikationer utöver växeln. Då är de olika produkter och inte varianter.
+
+---
+
 ### Nätmaterial avgör inte urvalet, men står först bland nackdelarna
 
 **Beslut.** Kinetic Prospero Landing Net L togs in i håvkategorin trots att den saknar gummerat nät. Avsaknaden står som första `cons` och som eget stycke i brödtexten.
