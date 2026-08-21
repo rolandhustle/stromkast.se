@@ -492,11 +492,17 @@ kategori- och slug-skiftläge, samt att gear-review `category` matchar en gear-k
 slug exakt.
 
 **Språk och innehåll (varningar):** em-streck, en-streck före gemen, kampanjdatum och
-ProduktRuta. Sedan augusti 2026 även elva mönster som fångar redaktionella regelbrott:
+ProduktRuta. Sedan augusti 2026 även tolv mönster som fångar redaktionella regelbrott:
 
 - Prisrelativa jämförelser i kronor, t.ex. "800 kr mindre". De åldras inom dagar.
 - Uppfunnen precision, t.ex. "90 procent av prestandan". Andelen går inte att mäta.
-- Superlativ om marknaden, "utan konkurrens", "inget jämförbart alternativ".
+- Värdeomdömen om kvalitet: "marknadens bästa", "Sveriges främsta", "landets bästa".
+  Träffar även Sydsveriges och Mellansveriges, eftersom delsträngen matchar.
+- Superlativ om ett fiskevatten med "mest", t.ex. "världens mest kända vatten".
+  Kräver att påståendet gäller fiske eller vatten, annars träffades geografiska
+  beskrivningar som "världens mest trafikerade sund", vilket är en uppgift om
+  sjöfart och inte om fiske.
+- "utan konkurrens" och "inget jämförbart alternativ".
 - Sammanskrivet "i dag" och ordet "gratis".
 - Dubbla och spatierade bindestreck använda som tankstreck.
 - Stycken på minst 200 tecken utan ett enda svenskt tecken, samt filer som
@@ -509,6 +515,11 @@ ord direkt efter beloppet, så "kostar 29 995 kr" passerar medan "800 kr mindre"
 **Varför i kod och inte bara i BESLUT.md.** Reglerna skrevs i juli 2026, men 30 produktsidor
 hade skapats i maj och juni och bröt mot dem utan att någon märkte det. En regel som bara
 finns i ett dokument fångar ingenting i det som redan är publicerat. Se BESLUT.md.
+
+Varje gång kontrollen skärpts har den hittat fel ingen visste fanns: 24 träffar när den
+infördes, ytterligare 39 när superlativmönstret utökades med fler regioner, och fem filer
+med delvis trasig teckenkodning som filnivåkontrollen släppt igenom. Superlativen är i
+skrivande stund inte åtgärdade, de är varningar och stoppar inte bygget.
 
 ### validate-feed.mjs
 Kontrollerar `gear-reviews` mot Adtractions produktfeeds. Kräver miljövariablerna,
