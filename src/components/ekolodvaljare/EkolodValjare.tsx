@@ -52,18 +52,13 @@ const BUDGETAR: { value: Budget; label: string }[] = [
 
 /** Egenskapstaggar per slug, enbart för visning. Ekolodsdata ligger inte i schemat. */
 const ATTR: Record<string, { typ: 'Kastbart' | 'Fast monterat'; taggar: string[] }> = {
-  'deeper-start-global': { typ: 'Kastbart', taggar: ['Instegsmodell'] },
   'garmin-striker-cast-no-gps': { typ: 'Kastbart', taggar: ['Isfiske'] },
   'garmin-striker-cast-worldwide': { typ: 'Kastbart', taggar: ['GPS', 'Isfiske'] },
-  'deeper-smart-sonar-pro-plus-2': { typ: 'Kastbart', taggar: ['GPS', 'Isfiske'] },
   'deeper-smart-sonar-chirp-plus-3': { typ: 'Kastbart', taggar: ['CHIRP', 'GPS', 'Isfiske'] },
   'deeper-smart-sonar-chirp-plus-4': { typ: 'Kastbart', taggar: ['CHIRP', 'AI', 'GPS', 'Isfiske'] },
-  'garmin-striker-vivid-4cv': { typ: 'Fast monterat', taggar: ['GPS', '4 tum'] },
-  'garmin-striker-vivid-5cv': { typ: 'Fast monterat', taggar: ['GPS', '5 tum'] },
   'garmin-striker-vivid-7cv': { typ: 'Fast monterat', taggar: ['GPS', 'Wi-Fi', '7 tum'] },
   'garmin-striker-vivid-9sv': { typ: 'Fast monterat', taggar: ['SideScan', 'GPS', '9 tum'] },
   'garmin-echomap-uhd2-52cv': { typ: 'Fast monterat', taggar: ['Sjökort', 'GPS', '5 tum'] },
-  'garmin-echomap-uhd2-92sv': { typ: 'Fast monterat', taggar: ['Sjökort', 'SideScan', '9 tum'] },
 };
 
 interface Rec {
@@ -79,14 +74,14 @@ function recommend(plats: Plats, fokus: Fokus): Rec {
   if (plats === 'land') {
     switch (fokus) {
       case 'enkelt':
-        return { slugs: ['deeper-start-global', 'garmin-striker-cast-no-gps'] };
+        return { slugs: ['garmin-striker-cast-no-gps'] };
       case 'kartor':
         return {
-          slugs: ['garmin-striker-cast-worldwide', 'deeper-smart-sonar-pro-plus-2', 'deeper-smart-sonar-chirp-plus-3'],
+          slugs: ['garmin-striker-cast-worldwide', 'deeper-smart-sonar-chirp-plus-3'],
         };
       case 'sjokort':
         return {
-          slugs: ['garmin-striker-cast-worldwide', 'deeper-smart-sonar-pro-plus-2'],
+          slugs: ['garmin-striker-cast-worldwide'],
           note: 'Färdiga sjökort kräver en fast monterad kartplotter och båt. Från land får du i stället egna djupkartor med ett kastbart ekolod med GPS.',
         };
       case 'basta':
@@ -97,35 +92,39 @@ function recommend(plats: Plats, fokus: Fokus): Rec {
   if (plats === 'bat') {
     switch (fokus) {
       case 'enkelt':
-        return { slugs: ['garmin-striker-vivid-4cv', 'garmin-striker-vivid-5cv'] };
+        return {
+          slugs: [],
+          note: 'Fast monterade ekolod i sortimentet börjar på 4 195 kr. Vi har i dag inget billigare alternativ att rekommendera för båtfiske. Ett kastbart ekolod är billigare men löser en annan uppgift: det läser av ett område där du kastar ut det, i stället för att visa botten kontinuerligt medan du kör.',
+        };
       case 'kartor':
         return {
-          slugs: ['garmin-striker-vivid-5cv', 'garmin-striker-vivid-7cv', 'garmin-striker-vivid-4cv'],
+          slugs: ['garmin-striker-vivid-7cv'],
           note: 'Striker Vivid har GPS och Quickdraw för egna kartor men läser inte Navionics-sjökort. Vill du ha färdiga sjökort, byt fokus till navigering.',
         };
       case 'sjokort':
-        return { slugs: ['garmin-echomap-uhd2-52cv', 'garmin-echomap-uhd2-92sv'], showChart: true };
+        return { slugs: ['garmin-echomap-uhd2-52cv'], showChart: true };
       case 'basta':
-        return { slugs: ['garmin-echomap-uhd2-92sv', 'garmin-striker-vivid-9sv'], showChart: true };
+        // showChart utelamnat: Striker Vivid 9sv laser inte Navionics-sjokort.
+        return { slugs: ['garmin-striker-vivid-9sv'] };
     }
   }
 
-  // plats === 'is'. Deeper START exkluderas, den stödjer inte isfiske.
+  // plats === 'is'.
   switch (fokus) {
     case 'enkelt':
       return { slugs: ['garmin-striker-cast-no-gps', 'garmin-striker-cast-worldwide'] };
     case 'kartor':
       return {
-        slugs: ['garmin-striker-cast-worldwide', 'deeper-smart-sonar-pro-plus-2', 'deeper-smart-sonar-chirp-plus-3'],
+        slugs: ['garmin-striker-cast-worldwide', 'deeper-smart-sonar-chirp-plus-3'],
       };
     case 'sjokort':
       return {
-        slugs: ['garmin-striker-cast-worldwide', 'deeper-smart-sonar-pro-plus-2'],
+        slugs: ['garmin-striker-cast-worldwide'],
         note: 'Sjökort är inte aktuellt på isen. Här räknas snabb, tydlig ekolodsbild och GPS för att märka ut hålen.',
       };
     case 'basta':
       return {
-        slugs: ['deeper-smart-sonar-chirp-plus-4', 'deeper-smart-sonar-chirp-plus-3', 'deeper-smart-sonar-pro-plus-2'],
+        slugs: ['deeper-smart-sonar-chirp-plus-4', 'deeper-smart-sonar-chirp-plus-3'],
       };
   }
 }

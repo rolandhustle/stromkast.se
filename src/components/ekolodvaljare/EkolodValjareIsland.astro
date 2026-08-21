@@ -10,18 +10,13 @@ import { getCollection } from 'astro:content';
 import EkolodValjare from './EkolodValjare.tsx';
 
 const EKOLOD_SLUGS = new Set<string>([
-  'deeper-start-global',
   'garmin-striker-cast-no-gps',
   'garmin-striker-cast-worldwide',
-  'deeper-smart-sonar-pro-plus-2',
   'deeper-smart-sonar-chirp-plus-3',
   'deeper-smart-sonar-chirp-plus-4',
-  'garmin-striker-vivid-4cv',
-  'garmin-striker-vivid-5cv',
   'garmin-striker-vivid-7cv',
   'garmin-striker-vivid-9sv',
   'garmin-echomap-uhd2-52cv',
-  'garmin-echomap-uhd2-92sv',
 ]);
 
 const allReviews = await getCollection('gear-reviews');
