@@ -348,8 +348,16 @@ const CLAIM_PATTERNS = [
     why: 'uppfunnen precision, andelen gar inte att mata',
   },
   {
-    re: /(marknadens|varldens|v\u00e4rldens)\s+(basta|b\u00e4sta|framsta|fr\u00e4msta|mest)/i,
-    why: 'superlativ om marknaden utan underlag',
+    // Vardeomdomen om kvalitet. Fangas oavsett vad de galler.
+    re: /(marknadens|varldens|v\u00e4rldens|sveriges|nordens|landets)\s+(basta|b\u00e4sta|framsta|fr\u00e4msta)/i,
+    why: 'superlativ utan underlag',
+  },
+  {
+    // "mest" kraver att pastaendet handlar om fiske eller vatten. Utan den
+    // begransningen traffades geografiska beskrivningar som "varldens mest
+    // trafikerade sund", vilket ar en uppgift om sjofart och inte om fiske.
+    re: /(marknadens|varldens|v\u00e4rldens|sveriges|nordens|landets)\s+mest\s+\S+\s+(fiske|fiskevatten|vatten|sj\u00f6|sjo|\u00e4lv|alv|lax\u00e4lv|laxalv|g\u00e4ddvatten|gaddvatten)/i,
+    why: 'superlativ om ett fiskevatten, ange havsomr\u00e5de, art, m\u00e5tt och \u00e5rtal',
   },
   {
     re: /b(a|\u00e4)st[ae]?\s+(pa|p\u00e5|i)\s+marknaden/i,
