@@ -2961,7 +2961,6 @@ import { trackAffiliateClick } from '../../lib/track';
  * Den centrala distinktionen verktyget löser, och som vanliga butikslistor
  * förklarar dåligt: Striker-serien har GPS och Quickdraw för egna kartor men
  * läser inte Navionics-sjökort, medan Echomap-serien är kartplotter med sjökort.
- * Deeper START exkluderas medvetet ur isfiske eftersom modellen inte stödjer det.
  */
 
 interface EkolodProduct {
@@ -10830,7 +10829,7 @@ pros:
   - "Fuji-komponenter i hela serien"
   - "Monocoque-bakhandtag för direkt känsla"
 cons:
-  - "Specialiserat för hårdbeten - inte för jigg eller dropshot"
+  - "Specialiserat för hårdbeten, inte för jigg eller dropshot"
   - "Begränsat lagersaldo"
 affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=35077&url=https://fiskeonline.com/sv/produkt/bft-ninety-two-mimic-stick-multi-71-7-21g-2pcs/"
 merchant: "FiskeOnline"
@@ -11096,7 +11095,7 @@ pros:
 cons:
   - "Högt pris för ett kastbart ekolod"
   - "Ingen AI-fiskidentifiering (finns i CHIRP+ 4)"
-affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://shop.fritidvildmark.se/products/deeper-smart-sonar-chirp-3"
 merchant: "Fritid och Vildmark"
 featured: true
 budgetPick: false
@@ -11143,7 +11142,7 @@ pros:
 cons:
   - "Högst pris bland kastbara ekolod"
   - "AI-funktionen kräver stabil Wi-Fi-signal"
-affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://shop.fritidvildmark.se/products/deeper-smart-sonar-chirp-4"
 merchant: "Fritid och Vildmark"
 featured: false
 budgetPick: false
@@ -11264,7 +11263,7 @@ cons:
   - "Knappstyrning, ingen pekskärm"
   - "5 tums skärm, liten för delad vy"
   - "Navionics-sjökort köps separat"
-affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://shop.fritidvildmark.se/products/garmin-echomap-uhd2-52cv-ink-gt20"
 merchant: "Fritid och Vildmark"
 featured: false
 budgetPick: false
@@ -11286,7 +11285,7 @@ Garmin ECHOMAP UHD2 52cv är det naturliga steget upp från Striker Vivid-serien
 
 Den medföljande GT20-givaren ger traditionellt Garmin CHIRP-ekolod och ClearVu med tydliga färgpaletter. Den 5 tums WVGA IPS-skärmen (800x480 pixlar) är ljusstark och lättläst. Wi-Fi med ActiveCaptain-integration ger tillgång till OneChart, Garmin Quickdraw Community och programvaruuppdateringar. Inbyggd GPS med stöd för Galileo och WAAS ger precis positionering.
 
-Quickdraw Contours låter dig komplettera med egna kartor på vatten där Navionics inte har tillräcklig detalj. 5 000 waypoints och 50 sparade spår ger gott om utrymme för att markera och återkomma till dina bästa fiskeplatser. För den som vill ha en större skärm, SideVu och mer avancerade funktioner är ECHOMAP UHD2 92sv nästa steg.
+Quickdraw Contours låter dig komplettera med egna kartor på vatten där Navionics inte har tillräcklig detalj. 5 000 waypoints och 50 sparade spår ger gott om utrymme för att markera och återkomma till dina bästa fiskeplatser. Vill du ha SideVu för att söka av åt sidorna finns det i Striker Vivid 9sv, som i gengäld inte läser sjökort.
 ```
 
 ## src/content/gear-reviews/garmin-striker-cast-no-gps.mdx
@@ -11294,23 +11293,23 @@ Quickdraw Contours låter dig komplettera med egna kartor på vatten där Navion
 ---
 title: "Garmin Striker Cast no GPS"
 slug: "garmin-striker-cast-no-gps"
-description: "Portabelt kastbart ekolod fran Garmin utan GPS. Forvandlar mobilen till en fishfinder med tydlig ekolodsbild, fiskikoner och vattentemperatur via STRIKER Cast-appen."
+description: "Portabelt kastbart ekolod från Garmin utan GPS. Förvandlar mobilen till en fishfinder med tydlig ekolodsbild, fiskikoner och vattentemperatur."
 heroImage: "/images/gear/garmin-striker-cast-no-gps.jpg"
 brand: "Garmin"
 category: "ekolod"
 price: 1495
 rating: 4.1
 pros:
-  - "Garmin STRIKER Cast-appen ar intuitiv och lattanvand"
-  - "AutoGain for tydligare ekolodsbild"
+  - "Garmin STRIKER Cast-appen är intuitiv och lättanvänd"
+  - "AutoGain för tydligare ekolodsbild"
   - "Visar vattentemperatur"
-  - "Over 10 timmars batteritid"
+  - "Över 10 timmars batteritid"
   - "Fungerar vid isfiske"
 cons:
-  - "Ingen GPS - kan inte skapa kartor"
-  - "260 och 455 kHz - inte CHIRP"
-  - "60 meters rackvidd"
-affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
+  - "Ingen GPS, kan inte skapa kartor"
+  - "260 och 455 kHz, inte CHIRP"
+  - "60 meters räckvidd"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://shop.fritidvildmark.se/products/garmin-striker-cast-no-gps"
 merchant: "Fritid och Vildmark"
 featured: false
 budgetPick: false
@@ -11326,11 +11325,11 @@ priceRange: "budget"
 quizEnabled: false
 ---
 
-Garmin Striker Cast ar ett kastbart ekolod som forvandlar din smartphone till en fishfinder. Du kastar ut enheten, vevar in den och ser fisk, djup, bottenstruktur och vattentemperatur direkt i Garmin STRIKER Cast-appen via trådlos Wi-Fi med upp till 60 meters rackvidd.
+Garmin Striker Cast är ett kastbart ekolod som förvandlar din smartphone till en fishfinder. Du kastar ut enheten, vevar in den och ser fisk, djup, bottenstruktur och vattentemperatur direkt i Garmin STRIKER Cast-appen via trådlös Wi-Fi med upp till 60 meters räckvidd.
 
-AutoGain-tekniken justerar ekolodsbilden automatiskt for tydligare avlasning utan manuell instaallning. Traditionellt 2D ekolod och realtidsvisning for isfiske ger flexibilitet for olika fiskesituationer. Fiskikoner visar pa vilket djup fisken befinner sig och justerbar djuplinje och djupomradeskugga gor bilden enklare att tolka.
+AutoGain-tekniken justerar ekolodsbilden automatiskt för tydligare avläsning utan manuell inställning. Traditionellt 2D-ekolod och realtidsvisning för isfiske ger flexibilitet för olika fiskesituationer. Fiskikoner visar på vilket djup fisken befinner sig, och justerbar djuplinje och djupområdesskugga gör bilden enklare att tolka.
 
-Jamfort med Deeper START ger Striker Cast en tydligare app-upplevelse och fungerar aven vid isfiske. Den saknar dock GPS och kan inte skapa kartor, vilket Garmin Striker Cast Worldwide klarar. For den som vill ha GPS-kartlaggning ar Worldwide-varianten for 500 kr mer ett naturligt steg upp.
+Den saknar GPS och kan därför inte skapa kartor, vilket Garmin Striker Cast Worldwide klarar. För den som fiskar samma vatten ofta och vill bygga upp egna djupkartor är Worldwide-varianten ett naturligt steg upp. Vill du i stället ha CHIRP-teknik och längre räckvidd bör du titta på Deeper CHIRP+ 3.
 ```
 
 ## src/content/gear-reviews/garmin-striker-cast-worldwide.mdx
@@ -11353,7 +11352,7 @@ pros:
 cons:
   - "260 och 455 kHz, inte CHIRP"
   - "60 meters räckvidd"
-affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://shop.fritidvildmark.se/products/garmin-striker-cast-worldwide"
 merchant: "Fritid och Vildmark"
 featured: false
 budgetPick: false
@@ -11373,7 +11372,7 @@ Garmin Striker Cast Worldwide är samma kastbara ekolod som varianten utan GPS, 
 
 5 000 waypoints kan sparas, och alla kartor lagras i appen och är åtkomliga från valfri enhet. AutoGain justerar ekolodsbilden automatiskt, och traditionellt 2D-ekolod kombinerat med realtidsvisning för isfiske ger flexibilitet för både sommar och vinter.
 
-GPS-kartläggningen är det mest praktiska tillskottet jämfört med varianten utan GPS, särskilt för den som fiskar samma vatten upprepade gånger och vill bygga upp detaljerad bottenkunskap. Den som vill ha CHIRP-teknik och djupare räckvidd bör titta på Deeper PRO+ 2 eller CHIRP+ 3.
+GPS-kartläggningen är det mest praktiska tillskottet jämfört med varianten utan GPS, särskilt för den som fiskar samma vatten upprepade gånger och vill bygga upp detaljerad bottenkunskap. Den som vill ha CHIRP-teknik och djupare räckvidd bör titta på Deeper CHIRP+ 3.
 ```
 
 ## src/content/gear-reviews/garmin-striker-vivid-7cv.mdx
@@ -11396,7 +11395,7 @@ pros:
 cons:
   - "Läser inga Navionics-sjökort"
   - "Knappstyrning, ingen pekskärm"
-affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://shop.fritidvildmark.se/products/garmin-striker-vivid-7cv-ink-gt20"
 merchant: "Fritid och Vildmark"
 featured: false
 budgetPick: false
@@ -11418,7 +11417,7 @@ Garmin Striker Vivid 7cv ger samma ekolodsprestanda som 5cv-modellen men på en 
 
 Wi-Fi-anslutningen och ActiveCaptain-appen är det största tillskottet jämfört med 5cv. Du kan föra över waypoints, få smartaviseringar, ladda ned programvaruuppdateringar och få tillgång till Garmin Quickdraw Community där andra användare delar sina kartor. Det gör det möjligt att få tillgång till bottendata på fiskevatten du aldrig kartlagt själv.
 
-För den som fiskar mycket från båt och vill ha en stor och lättläst skärm med Wi-Fi-funktionalitet är Striker Vivid 7cv ett starkt mellanklassalternativ. Den som dessutom vill ha färdiga Navionics-sjökort för navigering bör titta på ECHOMAP UHD2 52cv eller 92sv.
+För den som fiskar mycket från båt och vill ha en stor och lättläst skärm med Wi-Fi-funktionalitet är Striker Vivid 7cv ett starkt mellanklassalternativ. Den som dessutom vill ha färdiga Navionics-sjökort för navigering bör titta på ECHOMAP UHD2 52cv.
 ```
 
 ## src/content/gear-reviews/garmin-striker-vivid-9sv.mdx
@@ -11442,7 +11441,7 @@ cons:
   - "Läser inga Navionics-sjökort"
   - "Knappstyrning, ingen pekskärm"
   - "Stor enhet, kräver mer monteringsutrymme"
-affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
+affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://shop.fritidvildmark.se/products/garmin-striker-vivid-9sv-ink-gt56"
 merchant: "Fritid och Vildmark"
 featured: false
 budgetPick: false
@@ -11464,7 +11463,7 @@ Garmin Striker Vivid 9sv är toppmodellen i Striker Vivid-serien och tillför Si
 
 Den 9 tums WVGA-skärmen (800x480 pixlar) ger generöst med utrymme för delad skärm där du kan köra traditionellt ekolod, ClearVu och SideVu samtidigt. Två 4-poliga givarportar ger flexibilitet för den som vill koppla in ytterligare givare. Wi-Fi och ActiveCaptain-stöd ger tillgång till Quickdraw Community och smartaviseringar.
 
-Striker Vivid 9sv läser inte Navionics-sjökort, vilket är den tydligaste begränsningen jämfört med ECHOMAP UHD2 92sv. För den som enbart vill ha ekolod med SideVu och GPS utan behov av färdiga sjökort är 9sv ett starkt val. Vill du ha färdiga sjökort för trygg navigering är ECHOMAP UHD2 92sv rätt svar.
+Striker Vivid 9sv läser inte Navionics-sjökort, vilket är den tydligaste begränsningen. Du kan rita egna kartor med Quickdraw men inte navigera på färdiga sjökort. För den som enbart vill ha ekolod med SideVu och GPS är 9sv ett starkt val. Behöver du sjökort för navigering är ECHOMAP UHD2 52cv rätt serie.
 ```
 
 ## src/content/gear-reviews/hurricane-x8-braid-012mm.mdx
@@ -11556,19 +11555,19 @@ För den som vill komma igång med flätlina utan att betala mycket är Kinetic 
 ---
 title: "Kinetic 8 Braid 150m 0,14mm 11,5kg Black"
 slug: "kinetic-8-braid-014mm"
-description: "Prisvaerd 8-tradig flatlinor fran Kinetic med oval profil och ultrahog molekylar polyeten. Praktiskt taget ingen tojning for direkt kanslighet vid jigg och dropshot."
+description: "Prisvärd 8-trådig flätlina från Kinetic med oval profil och ultrahögmolekylär polyeten. Praktiskt taget ingen töjning för direkt känslighet."
 heroImage: "/images/gear/kinetic-8-braid-014mm.jpg"
 brand: "Kinetic"
 category: "flatlinor"
 price: 119
 rating: 4.1
 pros:
-  - "8-tradig for symmetrisk profil"
-  - "Praktiskt taget ingen tojning"
-  - "Bra pris for en 8-tradig lina"
-  - "Ultrahog molekylar polyeten"
+  - "8-trådig för symmetrisk profil"
+  - "Praktiskt taget ingen töjning"
+  - "Lågt pris för en 8-trådig lina"
+  - "Ultrahögmolekylär polyeten"
 cons:
-  - "Oval profil istallet for rund"
+  - "Oval profil i stället för rund"
   - "Black syns inte lika bra vid linobservation"
 affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/kinetic-8-braid-150m-014mm-115kg-black/"
 merchant: "FiskeOnline"
@@ -11586,11 +11585,11 @@ priceRange: "budget"
 quizEnabled: false
 ---
 
-Kinetic 8 Braid ar Kinetics mest avancerade flatlinor och tillverkad av atta vavda fibrer i ultrahog molekylar polyeten. Den 8-tradiga konstruktionen ger en symmetrisk profil som gor fisket smidigare an en 4-tradig lina, med praktiskt taget ingen tojning vilket ger direkt kanslighet och kontakt med betet vid jigg och dropshot.
+Kinetic 8 Braid är Kinetics mest avancerade flätlina och tillverkad av åtta vävda fibrer i ultrahögmolekylär polyeten. Den 8-trådiga konstruktionen ger en symmetrisk profil som gör fisket smidigare än en 4-trådig lina, med praktiskt taget ingen töjning vilket ger direkt känslighet och kontakt med betet vid jigg och dropshot.
 
-Jämfört med Kinetic 4 Braid ger 8 Braid markbart bättre kanslighet och rundare profil tack vare de extra traadarna. 0,14mm med 11,5kg brottstyrka passar abborrjigg, gosriggar och lättare gaddspinn. Black-färgen är diskret i vattnet men gör linobservation svårare än gula eller oranga alternativ.
+Jämfört med Kinetic 4 Braid ger 8 Braid märkbart bättre känslighet och rundare profil tack vare de extra trådarna. 0,14 mm med 11,5 kg brottstyrka passar abborrjigg, gösriggar och lättare gäddspinn. Black-färgen är diskret i vattnet men gör linobservation svårare än gula eller orange alternativ.
 
-Till priset är Kinetic 8 Braid ett av de bästa alternativen for den som vill ta steget fran 4-tradig till 8-tradig utan att betala mellanklasspris. Den som vill ha rundare profil och bättre kastprestanda bör titta på Hurricane X8 Braid eller Shimano Kairiki 8+.
+Kinetic 8 Braid är ett rimligt val för den som vill ta steget från 4-trådig till 8-trådig utan att gå upp i mellanklass. Den som vill ha rundare profil och bättre kastprestanda bör titta på Hurricane X8 Braid eller Shimano Kairiki 8+.
 ```
 
 ## src/content/gear-reviews/kinetic-brutalis-5000-fd.mdx
@@ -12151,7 +12150,7 @@ Den minsta kortriggade modellen i Lyfcos elmotorserie, med 55 lbs dragkraft, mot
 
 Det en elmotor tillför fisket är tystnaden. Trolling och smyg längs vasskanter går att göra utan motorljud som skrämmer fisken, och på vatten där förbränningsmotorer inte är tillåtna är eldrift enda alternativet, kontrollera alltid reglerna för ditt vatten. Motorn drivs på ett 12-voltsbatteri som inte ingår, ett fritidsbatteri på 100 Ah ger runt tre timmars körtid och väger omkring 20 kg som ska räknas in i båtens lastvikt.
 
-Som minsta kortriggsmodell passar 55X lätta båtar i lugna vatten: gummibåtarna, 3-metersekan och flytringar med motorfäste, och den som klarar lång rigg hittar billigare insteg i [NRS-36L](/utrustning/test/lyfco-nrs-36l/) och [NRS-46L](/utrustning/test/lyfco-nrs-46l/). Blåser det upp eller ska en tyngre båt flyttas är [62X](/utrustning/test/lyfco-nrs-62x/) för 100 kr mer det stabilare valet.
+Som minsta kortriggsmodell passar 55X lätta båtar i lugna vatten: gummibåtarna, 3-metersekan och flytringar med motorfäste, och den som klarar lång rigg hittar billigare insteg i [NRS-36L](/utrustning/test/lyfco-nrs-36l/) och [NRS-46L](/utrustning/test/lyfco-nrs-46l/). Blåser det upp eller ska en tyngre båt flyttas är [62X](/utrustning/test/lyfco-nrs-62x/) det stabilare valet.
 ```
 
 ## src/content/gear-reviews/lyfco-nrs-62x.mdx
@@ -13222,20 +13221,20 @@ Den silikonbaserade ytbehandlingen i tre lager är det som skiljer Kairiki 8+ fr
 ---
 title: "Shimano Haspelrulle Miravel 2500"
 slug: "shimano-miravel-2500"
-description: "Prisvard mellanklass-rulle fran Shimanos Magnumlite-serie med CI4+ kompositkropp och HAGANE Gear. Lat, smidig och byggd for langvarig anvandning."
+description: "Prisvärd mellanklassrulle från Shimanos Magnumlite-serie med CI4+ kompositkropp och HAGANE Gear. Lätt, smidig och byggd för långvarig användning."
 heroImage: "/images/gear/shimano-miravel-2500.jpg"
 brand: "Shimano"
 category: "haspelrullar"
 price: 1599
 rating: 4.4
 pros:
-  - "CI4+ kompositkropp ger utmarkt latthet"
-  - "HAGANE Gear for slitstyrka"
-  - "X-SHIP och Silent Drive for jamn gang"
-  - "Duracross drag for precis bromskontroll"
+  - "CI4+ kompositkropp ger utmärkt lätthet"
+  - "HAGANE Gear för slitstyrka"
+  - "X-SHIP och Silent Drive för jämn gång"
+  - "Duracross-drag för precis bromskontroll"
 cons:
   - "Bara 5 kullager"
-  - "Inte lika lattviktig som Vanford"
+  - "Inte lika lättviktig som Vanford"
 affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=27523&url=https://fiskeonline.com/sv/produkt/shimano-haspelrulle-miravel-2500/"
 merchant: "FiskeOnline"
 featured: false
@@ -13251,11 +13250,11 @@ priceRange: "mellanklass"
 quizEnabled: false
 ---
 
-Shimano Miravel 2500 tillhor Magnumlite-serien och bygger pa CI4+ kompositkropp, ett material som Shimano anvander tvers igenom sina mellanklass- och premiumrullar for att kombinera latthet med styvhet. HAGANE Gear-vaxeln ger hallfasthet och precision over tid, medan X-SHIP och Silent Drive samverkar for en tyst och smidig invevning som kanner sig betydligt dyrare an priset.
+Shimano Miravel 2500 tillhör Magnumlite-serien och bygger på CI4+ kompositkropp, ett material som Shimano använder tvärs igenom sina mellanklass- och premiumrullar för att kombinera lätthet med styvhet. HAGANE Gear-växeln ger hållfasthet och precision över tid, medan X-SHIP och Silent Drive samverkar för en tyst och smidig invevning.
 
-Duracross-draget ger exakt och jamn bromskontroll vid kamp med storre fiskar, och Anti-Twist Fin kontrollerar trycket pa linan nar den passerar linrullen. AR-C-spolen optimerar kastlangden och minskar friktion med tunna flatlinor. Med 5 kullager ar Miravel ingen rekordrulle pa kullagerantalet, men gangkvaliteten kompenserar for det.
+Duracross-draget ger exakt och jämn bromskontroll vid kamp med större fiskar, och Anti-Twist Fin kontrollerar trycket på linan när den passerar linrullen. AR-C-spolen optimerar kastlängden och minskar friktion med tunna flätlinor. Med 5 kullager är Miravel ingen rekordrulle på kullagerantalet, men gångkvaliteten kompenserar för det.
 
-Storleken 2500 passar abborr- och gosjigg, dropshot och latt spinnfiske. Miravel ar det naturliga valet for den som vill ha ett kannt Shimano-varumärke med bevisad teknik till ett pris som fortfarande ar overkomligt. Steget upp fran Nexave ar markbart i invevningskansla och materialval.
+Storleken 2500 passar abborr- och gösjigg, dropshot och lätt spinnfiske. Miravel är det naturliga valet för den som vill ha ett känt Shimano-varumärke med bevisad teknik utan att gå upp i premiumklass. Steget upp från Nexave är märkbart i invevningskänsla och materialval.
 ```
 
 ## src/content/gear-reviews/shimano-nexave-fi-2500.mdx
@@ -13263,7 +13262,7 @@ Storleken 2500 passar abborr- och gosjigg, dropshot och latt spinnfiske. Miravel
 ---
 title: "Shimano Haspelrulle Nexave FI 2500"
 slug: "shimano-nexave-fi-2500"
-description: "Prisvaerd budgetrulle fran Shimano med G-Free Body-design och AR-C-spole. Passar abborrfiske och latt predatorfiske."
+description: "Prisvärd budgetrulle från Shimano med G-Free Body-design och AR-C-spole. Passar abborrfiske och lätt predatorfiske med jigg och dropshot."
 heroImage: "/images/gear/shimano-nexave-fi-2500.jpg"
 brand: "Shimano"
 category: "haspelrullar"
@@ -13271,12 +13270,12 @@ price: 599
 rating: 4.0
 pros:
   - "Shimano-kvalitet till budgetpris"
-  - "G-Free Body for battre balans"
-  - "AR-C-spole for langre kast"
+  - "G-Free Body för bättre balans"
+  - "AR-C-spole för längre kast"
   - "Justerbar broms"
 cons:
   - "Bara 3 kullager"
-  - "Inte for tyngre beten"
+  - "Inte för tyngre beten"
 affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&url=https://fiskeonline.com/sv/produkt/shimano-haspelrulle-nexave-fi-2500/"
 merchant: "FiskeOnline"
 featured: false
@@ -13292,11 +13291,11 @@ priceRange: "budget"
 quizEnabled: false
 ---
 
-Shimano Nexave FI 2500 ar Shimanos most prisvarda haspelrulle och anvander G-Free Body-designen som flyttar de interna komponenterna hogre i kroppen for battre balans och minskad tratthet vid langvarig anvandning. Det ar samma konstruktionsprincip som anvands i betydligt dyrare Shimano-rullar.
+Shimano Nexave FI 2500 är en av Shimanos mest prisvärda haspelrullar och använder G-Free Body-designen som flyttar de interna komponenterna högre i kroppen för bättre balans och minskad trötthet vid långvarig användning. Det är samma konstruktionsprincip som används i betydligt dyrare Shimano-rullar.
 
-AR-C-spolen har en specialdesignad vinklad lapp som minskar friktion och mojliggor langre och mer precisa kast an en konventionell spole. Bromssystemet ar latt att justera och hanterar storre fiskar utan problem trots det blygsamma priset. Med 3 kullager ar gangsmidigheten godkand men markbart under dyrare alternativ.
+AR-C-spolen har en specialdesignad vinklad läpp som minskar friktion och möjliggör längre och mer precisa kast än en konventionell spole. Bromssystemet är lätt att justera och hanterar större fiskar utan problem trots det blygsamma priset. Med 3 kullager är gångsmidigheten godkänd men märkbart under dyrare alternativ.
 
-Storleken 2500 passar abborrfiske med jigg, dropshot och latt spinnfiske. Kombinerat med ett Shimano Nexave-spo ger det en funktionell och balanserad kombination till ett mycket fornuftigt totalpris. For den som vill ha Shimano-varumärket utan att betala for mellanklass ar detta det naturliga valet.
+Storleken 2500 passar abborrfiske med jigg, dropshot och lätt spinnfiske. Kombinerat med ett Shimano Nexave-spö ger det en funktionell och balanserad kombination. För den som vill ha Shimano-varumärket utan att gå upp i mellanklass är detta det naturliga valet.
 ```
 
 ## src/content/gear-reviews/shimano-nexave-haspelspo-191m.mdx
@@ -13623,20 +13622,20 @@ Storleken 2500 med standardutväxling passar finessfiske med jigg och dropshot e
 ---
 title: "Shimano Haspelrulle Vanford FA 4000"
 slug: "shimano-vanford-fa-4000"
-description: "Lat premiumrulle fran Shimanos Magnumlite-serie i storlek 4000. Passar spinnfiske efter gadda, oring och havsfiske dar latthet och precision ar avgOrande."
+description: "Lätt premiumrulle från Shimanos Magnumlite-serie i storlek 4000. Passar spinnfiske efter gädda, öring och havsfiske där lättheten räknas."
 heroImage: "/images/gear/shimano-vanford-fa-4000.jpg"
 brand: "Shimano"
 category: "haspelrullar"
 price: 3399
 rating: 4.7
 pros:
-  - "Extremt lat for storleken"
+  - "Extremt lätt för storleken"
   - "HAGANE Gear, X-SHIP och MicroModule II"
   - "InfinityDrive och Long Stroke Spool"
-  - "X-Protect vattentatlighet"
+  - "X-Protect vattenresistens"
 cons:
-  - "Hogt pris"
-  - "Storlek 4000 passar inte finessefiske"
+  - "Högt pris"
+  - "Storlek 4000 passar inte finessfiske"
 affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=30308&url=https://fiskeonline.com/sv/produkt/shimano-reel-vanford-fa-4000/"
 merchant: "FiskeOnline"
 featured: false
@@ -13654,11 +13653,11 @@ priceRange: "premium"
 quizEnabled: false
 ---
 
-Shimano Vanford FA 4000 ar storebror till Vanford 2500 och delar samma Magnumlite-teknik men i en storlek lamplig for spinnfiske efter gadda, gos och oring. Vikten runt 215 gram ar markbart lagre an de flesta aluminium-rullar i storlek 4000, vilket gors mojligt av CI4+ Magnumlite-kroppen och Magnumlite Rotor.
+Shimano Vanford FA 4000 är den större systermodellen till Vanford 2500 och delar samma Magnumlite-teknik, men i en storlek lämplig för spinnfiske efter gädda, gös och öring. Vikten runt 215 gram är märkbart lägre än de flesta aluminiumrullar i storlek 4000, vilket görs möjligt av CI4+ Magnumlite-kroppen och Magnumlite Rotor.
 
-HAGANE Gear, MicroModule II, X-SHIP och InfinityDrive ger samma premiumkansla i invevningen som Vanford 2500. Long Stroke Spool optimerar kastlangden med tunna flatlinor, och X-Protect vattenresistens ger ett bra skydd for saltvattenanvandning. Duracross-draget med 11 kg maxbroms hanterar storre fiskar med precision.
+HAGANE Gear, MicroModule II, X-SHIP och InfinityDrive ger samma premiumkänsla i invevningen som Vanford 2500. Long Stroke Spool optimerar kastlängden med tunna flätlinor, och X-Protect vattenresistens ger ett bra skydd för saltvattenanvändning. Duracross-draget med 11 kg maxbroms hanterar större fiskar med precision.
 
-Storleken 4000 med HG-utaxling ger 87 cm lintag per vev, vilket passar aktiv betesaterhemtning vid gaddspinn och gosjigg. For den som vill ha Shimanos basta Magnumlite-teknik i ett format for storre predatorfiske ar Vanford FA 4000 ett naturligt val. Jämfört med Stradic FM i samma prisklass ar Vanford markbart lattare men med liknande teknisk utrustning.
+Storleken 4000 med HG-utväxling ger 87 cm lintag per vev, vilket passar aktiv betesåterhämtning vid gäddspinn och gösjigg. För den som vill ha Shimanos Magnumlite-teknik i ett format för större predatorfiske är Vanford FA 4000 ett naturligt val. Jämfört med Stradic FM är Vanford märkbart lättare men med liknande teknisk utrustning.
 ```
 
 ## src/content/gear-reviews/shimano-yasei-bb-pike-xh.mdx
@@ -24735,7 +24734,7 @@ Sportfiskarnas regionkontor Sjölyckan vid Stora Delsjön har under flera decenn
 ---
 title: "Emån"
 slug: "eman"
-description: "Emån är världens mest kända vatten för storvuxen havsöring. Det svenska rekordet på 15,26 kg är taget här. 35 fiskarter i ett 229 km långt vattendrag."
+description: "Emån är känt för storvuxen havsöring. Det svenska rekordet på 15,26 kg togs här 1993. 35 fiskarter i ett 229 km långt vattendrag."
 heroImage: "/images/destinations/eman.jpg"
 lat: 57.05
 lng: 16.45
@@ -24743,7 +24742,7 @@ län: "Jönköping, Kronoberg, Kalmar"
 primarySpecies: ["Havsöring", "Lax", "Gädda", "Abborre", "Gös", "Asp"]
 waterType: "river"
 iFiskeUrl: "https://www.ifiske.se/fiske-emsfors.htm"
-excerpt: "Världens mest kända vatten för storvuxen havsöring."
+excerpt: "Känt vatten för storvuxen havsöring, med det svenska rekordet."
 recommendedGear: []
 publishedAt: "2026-05-27"
 updatedAt: "2026-06-07"
@@ -36191,7 +36190,7 @@ Harr är en klassisk art i Torneälvens forsar men bestånden har minskat krafti
 
 ### Vandringssik
 
-Vandringssik är älvens kulturellt viktigaste fisk -- ikonen bakom Kukkolaforsens sikhåvningstradition och Sikfesten i juli. Beståndet är i kris med sjunkande vikter och minskande fångster. Fortfarande möjlig att fånga, framförallt i forsnackarna under uppvandringen i juli.
+Vandringssik är älvens kulturellt viktigaste fisk, ikonen bakom Kukkolaforsens sikhåvningstradition och Sikfesten i juli. Beståndet är i kris med sjunkande vikter och minskande fångster. Fortfarande möjlig att fånga, framförallt i forsnackarna under uppvandringen i juli.
 
 ### Gädda och abborre
 
@@ -38998,7 +38997,7 @@ Borra ett 200 mm hål, rigga ett paternostertackel eller fritt rinnande sänke, 
 
 ### Pilkfiske på havsis
 
-På havsis i Bottenviken och norra Östersjön används tyngre pilkar (20-100 g) för strömming. Strömmingen tas på häckla med flera glittrande krokar som darras med korta ryck strax ovan botten. Observera att riktat torskfiske är förbjudet i hela Östersjön sedan 2025 -- fångad torsk ska omedelbart återutsättas.
+På havsis i Bottenviken och norra Östersjön används tyngre pilkar (20-100 g) för strömming. Strömmingen tas på häckla med flera glittrande krokar som darras med korta ryck strax ovan botten. Observera att riktat torskfiske är förbjudet i hela Östersjön sedan 2025. Fångad torsk ska omedelbart återutsättas.
 
 ### Läsa islandskapet
 
@@ -39173,7 +39172,7 @@ Krokstorlekar: #4 till 1/0 för 5–8 cm beten, 2/0–4/0 för 8–13 cm, 5/0–
 
 ### Hårdgjutna jiggar
 
-- **Kastjigg (bucktail jig):** klassisk metalljigg med hår eller fjäder. Funkar på abborre, lax och torsk (torsk enbart i Västerhavet -- riktat torskfiske i Östersjön är förbjudet sedan 2025).
+- **Kastjigg (bucktail jig):** klassisk metalljigg med hår eller fjäder. Funkar på abborre, lax och torsk (torsk enbart i Västerhavet, riktat torskfiske i Östersjön är förbjudet sedan 2025).
 - **Chatterbait / blade jig:** jiggskalle med vibrerande metallblad. Skickar ut starka tryckvågor och fungerar utmärkt på stor abborre och gädda längs vasskanter.
 
 ## Riggar
@@ -39237,7 +39236,7 @@ Krokstorlekar: #4 till 1/0 för 5–8 cm beten, 2/0–4/0 för 8–13 cm, 5/0–
 - **Mälaren:** klassiskt gösvatten. Stora abborrar i skärgården. Aspfiske vid Stockholms ström.
 - **Hjälmaren:** grunt och produktivt med starkt gösbestånd, bra för kastjiggning på 4–8 m.
 - **Motala ström, Göta älv, Klarälven:** strömmande vatten med asp, gös och öring beroende på sträcka.
-- **Skärgårdar (Stockholm, Blekinge, Bohuslän):** gädda, abborre och havsabborre vid steniga grund, tångbottnar och rev. Torsk enbart i Bohuslän/Västerhavet -- torskfiske i Östersjön är förbjudet sedan 2025.
+- **Skärgårdar (Stockholm, Blekinge, Bohuslän):** gädda, abborre och havsabborre vid steniga grund, tångbottnar och rev. Torsk enbart i Bohuslän och Västerhavet, torskfiske i Östersjön är förbjudet sedan 2025.
 
 Generella platser värda att leta: steniga grund, vasskanter, djupkanter, bottentoppar, brostolpar, bryggor, sjunkna träd och näckrosfält.
 
@@ -39300,7 +39299,7 @@ faq:
   - q: "Vad är skillnaden på mete och flötefiske?"
     a: "Flötefiske är en typ av mete där betet presenteras på bestämt djup med ett flöte. Mete är ett bredare begrepp som inkluderar feeder, match och pågående utan flöte."
   - q: "Vilken lina ska man använda till mete?"
-    a: "Huvudlina 0,16–0,20 mm monofil och tafs 0,10–0,14 mm beroende på art. Karp kräver starkare -- 0,25–0,35 mm. Fluorocarbon som tafs i klart vatten ger fler napp."
+    a: "Huvudlina 0,16–0,20 mm monofil och tafs 0,10–0,14 mm beroende på art. Karp kräver starkare, 0,25–0,35 mm. Fluorocarbon som tafs i klart vatten ger fler napp."
   - q: "Vilka beten fungerar bäst för vitfisk?"
     a: "Maggot (fluglarv) är det effektivaste universalbetet. Caster (puppa) är selektivt för större fisk. Majs och pellets fungerar bra för braxen och karp. Brödpunch är utmärkt för mört i kanaler."
 updatedAt: "2026-06-07"
@@ -39343,11 +39342,11 @@ Fluorocarbon används som tafs i klart vatten eller vid skygg fisk. Flätlina f�
 
 Krokskalan går bakvänt: högre nummer ger en mindre krok.
 
-- Storlek 20–22: pinkie, squatt, brödpunch -- löja och vintermört
-- Storlek 16–18: maggot, caster, små maskbitar -- mört och braxen
-- Storlek 12–14: dubbel maggot, majs, hampa -- medelbraxen och sutare
-- Storlek 8–10: hela maskar, räka -- stor braxen och mindre karp
-- Storlek 4–6: boilies, stora pellets via hair rig -- karp
+- Storlek 20–22: pinkie, squatt, brödpunch: löja och vintermört
+- Storlek 16–18: maggot, caster, små maskbitar: mört och braxen
+- Storlek 12–14: dubbel maggot, majs, hampa: medelbraxen och sutare
+- Storlek 8–10: hela maskar, räka: stor braxen och mindre karp
+- Storlek 4–6: boilies, stora pellets via hair rig: karp
 
 Vanliga mönster är Carbon Match (allround), wide gape (pellets) och curve shank (boilies).
 
@@ -40186,7 +40185,7 @@ faq:
   - q: "Vad är skillnaden mellan Garmin Striker och Echomap?"
     a: "Striker Vivid har GPS och ritar egna kartor men läser inte färdiga sjökort. Echomap är en kartplotter som stödjer Garmin Navionics-sjökort. Vill du bara hitta tillbaka till dina platser räcker Striker. Vill du navigera på sjökort behöver du Echomap."
   - q: "Vilket ekolod är bäst för isfiske?"
-    a: "Ett kastbart ekolod med isfiskestöd och GPS, till exempel Garmin Striker Cast Worldwide eller Deeper PRO+ 2. Den enklaste instegsmodellen utan GPS passar inte isfiske. Tänk på att batteritiden sjunker i kyla."
+    a: "Ett kastbart ekolod med isfiskestöd och GPS, till exempel Garmin Striker Cast Worldwide eller Deeper CHIRP+ 3. Ett ekolod utan GPS fungerar på isen men kan inte märka ut hålen. Tänk på att batteritiden sjunker i kyla."
   - q: "Behöver jag CHIRP?"
     a: "Inte alltid. CHIRP ger skarpare bild och bättre separation på djupare vatten och när fisken står tätt. För grunt land- och isfiske räcker ofta ett ekolod utan CHIRP."
 ---
@@ -42651,10 +42650,58 @@ function checkClaims(file, text) {
  * i augusti. En svensk innehallsfil utan ett enda svenskt tecken ar nastan
  * alltid ett teckenkodningsfel.
  */
+/** Kortare an sa ar for lite text for att slutsatsen ska halla. */
+const SWEDISH_MIN_CHARS = 200;
+
 function checkSwedishChars(file, text) {
-  if (!/[\u00e5\u00e4\u00f6\u00c5\u00c4\u00d6]/.test(text)) {
+  const svenska = /[\u00e5\u00e4\u00f6\u00c5\u00c4\u00d6]/;
+
+  if (!svenska.test(text)) {
     warnings.push(`${file}: inga svenska tecken i hela filen, kontrollera teckenkodning`);
+    return;
   }
+
+  // Per stycke, inte per fil. En fil kan ha korrekt frontmatter och trasig
+  // brodtext, vilket den tidigare filnivakontrollen slapp igenom.
+  const rader = text.split('\n');
+  let stycke = [];
+  let start = 0;
+
+  const provaStycke = () => {
+    const prosa = stycke.join(' ').trim();
+    stycke = [];
+    if (prosa.length < SWEDISH_MIN_CHARS) return;
+    if (svenska.test(prosa)) return;
+    warnings.push(
+      `${file}:${start + 1}: stycke pa ${prosa.length} tecken utan svenska tecken, kontrollera teckenkodning`
+    );
+  };
+
+  // Tabellrader och kodblock ar inte prosa. En specifikationstabell med
+  // produktnamn, matt och enheter saknar diakriter av naturliga skal.
+  let iKodblock = false;
+
+  rader.forEach((rad, idx) => {
+    const t = rad.trim();
+
+    if (t.startsWith('```')) {
+      iKodblock = !iKodblock;
+      provaStycke();
+      return;
+    }
+    if (iKodblock || t.startsWith('|')) {
+      provaStycke();
+      return;
+    }
+
+    if (t === '') {
+      provaStycke();
+    } else {
+      if (stycke.length === 0) start = idx;
+      stycke.push(rad);
+    }
+  });
+  provaStycke();
 }
 
 for (const f of files) {
@@ -42755,6 +42802,7 @@ process.exit(0);```
  *
  *   node --env-file=.env feed-sok.mjs <sökord...>
  *   node --env-file=.env feed-sok.mjs <produkt-URL...>
+ *   node --env-file=.env feed-sok.mjs <SKU...>
  *
  * Flaggor:
  *   --butik <namn>      begränsa till FiskeOnline eller Outl1
@@ -42768,6 +42816,7 @@ process.exit(0);```
  * Exempel:
  *   node --env-file=.env feed-sok.mjs shimano haspelrulle --pris 800-2000 --ny
  *   node --env-file=.env feed-sok.mjs --butik Outl1 --typ marint --kort
+ *   node --env-file=.env feed-sok.mjs 30626
  *   node --env-file=.env feed-sok.mjs --bild shimano-miravel-2500=109272
  */
 
@@ -42971,6 +43020,13 @@ function matches(item) {
   // URL-sökning: exakt uppslag
   if (terms.some((t) => t.startsWith('http'))) {
     return terms.some((t) => normalise(t) === item.key);
+  }
+
+  // SKU-uppslag: exakt matchning mot g:id. Ligger före fritexten så att ett
+  // produkt-ID ur --kort-listan går att slå upp direkt. Matchningen är exakt,
+  // en delsträng räknas inte, annars skulle 306 träffa 30626.
+  if (item.sku && terms.some((t) => t.toLowerCase() === item.sku.toLowerCase())) {
+    return true;
   }
 
   // Fritext: alla ord måste finnas i titel eller varumärke
