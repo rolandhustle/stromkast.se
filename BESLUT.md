@@ -284,32 +284,6 @@ Shimano Sahara FJ 2500 fick 4,2 enligt regeln: samma pris som Ceymar HD på 4,1,
 
 ---
 
-### `priceRange` är kategorirelativ, inte absolut
-
-**Beslut.** `priceRange` sätts i förhållande till spannet inom produktens egen kategori, inte mot en gemensam kronskala för hela sajten. Håvar delas vid 400 och 1 000 kr: budget upp till 399, mellanklass 400 till 999, premium från 1 000.
-
-**Skäl.** Fältet användes redan så, men det var aldrig skrivet någonstans. Genomgången i augusti 2026 visade att `budget` sträcker sig från 59 till 9 995 kr och `premium` från 359 till 39 995 kr över de 94 befintliga produkterna. En båt på 9 995 kr står som budget och ett kustdrag på 359 kr som premium. Talen är oförenliga som absolut skala men konsekventa som kategoriintern.
-
-Alternativet, alltså en gemensam kronskala, skulle göra hela håvkategorin till budget och hela båtkategorin till premium. Fältet styr filtrering inom kategorisidan, där en läsare vill se billiga och dyra håvar, inte veta att håvar är billigare än utombordare.
-
-**Vad som skulle ändra det.** Att fältet börjar användas i en vy som blandar kategorier, exempelvis ett globalt prisfilter. Då betyder `premium` två oförenliga saker samtidigt och skalan måste göras om.
-
----
-
-### Butikens produktfoton ligger som `heroSource: illustration`
-
-**Beslut.** Produktbilder hämtade ur feeden får `heroSource: "illustration"` utan `heroCredit`, trots att de är fotografier.
-
-**Skäl.** Ingen av de 94 gear-reviews som fanns i augusti 2026 använde `photo`. Arton hade `illustration` explicit och 76 saknade fältet, vilket schemat ger samma värde. Praxis var alltså redan entydig, om än oskriven.
-
-`photo` kräver `heroCredit` med fotografens namn. Butikens produktbilder har ingen namngiven fotograf, så fältet skulle behöva lämnas tomt eller fyllas med butikens namn, vilket inte är vad fältet betyder. Att införa `photo` för en enskild kategori skulle dessutom göra nio av 103 sidor inkonsekventa mot resten utan att lösa krediteringsfrågan.
-
-Valet är en medveten oprecision. `illustration` är fel ord för ett fotografi.
-
-**Vad som skulle ändra det.** Att en tredje `heroSource`-nivå införs, exempelvis `product`, som markerar bilder från leverantörens eget material. Då bör alla 103 sidor migreras samtidigt, inte bara nya.
-
----
-
 ### Storleksvarianter får egna sidor, färgvarianter gör det inte
 
 **Beslut.** Rullar och spön i olika storlekar är egna produktsidor. Beten i olika färger är det inte.
@@ -319,34 +293,6 @@ Valet är en medveten oprecision. `illustration` är fel ord för ett fotografi.
 Storlek är däremot produktrelevant. Shimano Sahara i 1000 är en abborrulle och i 4000 en gäddrulle. Slås de ihop går det inte längre att sätta `targetSpecies` per storlek, och GearModul bygger hela sin matchning på det fältet. En familjesida måste dessutom peka sin affiliatelänk på en enda variant, vilket är ett godtyckligt val som feeden inte kan hjälpa till med.
 
 **Vad som skulle ändra det.** Att en storleksserie är så smal att storlekarna delar art och teknik. Då är familjesidan bättre, och storlekarna nämns i texten.
-
----
-
-### Utväxlings- och vevsidevarianter får inte egna sidor
-
-**Beslut.** En sida per modell och spolstorlek. Utväxling och vevsida ger inte egna sidor utan nämns i brödtexten. Där flera utväxlingar finns pekar affiliatelänken på HG före XG före standardversionen, och på vänstervev. För Westins beteckningar gäller MSG före SSG före HSG.
-
-**Skäl.** Detta utvidgar regeln om storleks- och färgvarianter med ett tredje fall. FiskeOnlines multirullkategori hade i augusti 2026 45 rader som i praktiken var ungefär tolv rullar. Shimano SLX fanns i tolv varianter, Curado i sex, Westin W4 och W6 i vardera fem eller sex.
-
-Curado M 151, 151 HG och 151 XG kostar alla 3 099 kr och är samma rulle med olika växlar. Tre sidor med identiskt pris och en siffras skillnad är exakt den konstruktion som föder prisrelativa jämförelser, eftersom det inte finns något annat att skriva om.
-
-Utväxling är dessutom ett spektrum snarare än en produktegenskap. Spolstorlek avgör vilka beten rullen kan kasta och är därmed ett verkligt vägval, medan utväxlingen är en preferens inom samma användningsområde.
-
-**Vad som skulle ändra det.** Att en tillverkare börjar prissätta utväxlingsvarianter olika, eller att de får skilda specifikationer utöver växeln. Då är de olika produkter och inte varianter.
-
----
-
-### Nätmaterial avgör inte urvalet, men står först bland nackdelarna
-
-**Beslut.** Kinetic Prospero Landing Net L togs in i håvkategorin trots att den saknar gummerat nät. Avsaknaden står som första `cons` och som eget stycke i brödtexten.
-
-**Skäl.** Kategorin behöver ett budgetalternativ, och Prospero är den enda håven under 300 kr i FiskeOnlines sortiment med fullständiga mått angivna. Att utesluta den skulle lämna kategorin utan ingångspris.
-
-Gummerat nät är samtidigt den enskilt viktigaste egenskapen för catch and release, eftersom trekrokar fastnar i textilfibrer på ett sätt de inte gör i gummi. Northern Tackles specifikationsblad anger uttryckligen `Gummerat nät: No` för Prospero XL, och Kinetics egen punktlista för serien nämner ram, spridarblock, skaft, grepp och låsning men aldrig nätmaterialet.
-
-Att sälja en icke-gummerad håv utan att nämna det vore att låta priset göra ett påstående om produkten som produkten inte lever upp till.
-
-**Vad som skulle ändra det.** Att Kinetic börjar ange gummerat nät för serien, eller att en gummerad håv under 300 kr blir tillgänglig. Kontrollera specifikationen igen innan nästa Prospero-produkt läggs in.
 
 ---
 
@@ -397,6 +343,22 @@ Att sälja en icke-gummerad håv utan att nämna det vore att låta priset göra
 **Skäl.** Ekolod har bäst ordervärde och passar destinationskontexten, någon som lär känna ett nytt vatten. Men ett ekolod är inte vattenspecifikt, så all variation är i grunden godtycklig. Att visa samma modell på alla 41 destinationer såg automatiserat ut. Deterministisk rotation på slugen ger stabil variation utan manuellt arbete och utan att påstå en relevans som inte finns: kortet säger "bra att ha på vattnet", vilket är sant för alla ekolod. Premiummodellerna utesluts ur poolen så ett dyrt ekolod inte dyker upp slumpvis. Mobildöljningen finns för att kortet annars dubblerar full-modulen som ligger i flödet.
 
 **Vad som skulle ändra det.** Att ekolod blev genuint vattenspecifika (djupintervall, sötvatten mot kust) och kunde matchas mot `waterType` i stället för roteras. Då blir matchning bättre än rotation. Så länge skillnaden mellan modeller är för liten för att motivera en äkta matchning är stabil rotation det ärliga valet.
+
+---
+
+### Kategorisidor indexeras villkorligt av `guideUrl`
+
+**Beslut.** `utrustning/[kategori].astro` sätter `noindex={Boolean(c.guideUrl)}` i stället för hårdkodat `noindex={true}`. En kategori med kopplad köpguide står utanför indexet, en kategori utan guide får konkurrera. Samtidigt ändrades `SEO.astro` från `noindex, nofollow` till `noindex, follow`.
+
+**Skäl.** Den hårdkodade flaggan antog att varje kategorisida hade en guide att stå tillbaka för. Sju av arton kategorier saknade `guideUrl` vid genomgången i augusti 2026, och för dem skyddade noindex ingenting. Sidorna låg utanför indexet utan att någon annan sida tog frågan, samtidigt som mallen satte titeln till "Bästa {kategori}: recensioner och köpguide", alltså en titel byggd för exakt det sökord sidan inte fick delta i. `ekolod` var dessutom en ren dataglugg: guiden `/guider/basta-ekolod/` fanns, var en av två sidor med faktisk trafik i GSC, men var aldrig kopplad från kategorin.
+
+Kontroll i GSC före ändringen visade ingen kannibalisering mellan produktsidor och guider. `basta-gaddbeten` och `basta-ekolod` rankade ensamma på sina termer och inga produktsidor syntes på "bästa"-frågor. Antagandet att produktsidor konkurrerade med guiderna gick alltså inte att belägga. Kannibalisering uppstår när två sidor rankar för samma fråga, och produktnamn är inte kategorisökord.
+
+`nofollow` var ett bifel som följde med i samma metatagg. Varje kategorisida länkar till nio till tolv produktsidor, och med `nofollow` räknades ingen av dem, samtidigt som beslutet om automatiskt härledd produktlänkning bygger hela strategin på interna länkar mot produktsidorna. `noindex, follow` håller sidan ute ur indexet utan att göra den till en återvändsgränd.
+
+**Vad som skulle ändra det.** Att GSC visar att en fri kategorisida rankar över sin motsvarande guide på kategorisökordet, eller att de två pendlar på samma fråga. Då ska guiden ha företräde och `guideUrl` sättas. Omvänt gäller att en fri kategorisida som efter tolv veckor inte fått några visningar alls signalerar att frågan är för svår för sidtypen, och då bör en guide skrivas i stället.
+
+**Bieffekt att hålla ögonen på.** Fyra av de sex frisläppta kategorierna är betekategorier som ligger nära `basta-gaddbeten`. Det är där gränsdragningen först sätts på prov.
 
 ---
 
@@ -482,20 +444,6 @@ Att sälja en icke-gummerad håv utan att nämna det vore att låta priset göra
 
 ---
 
-### Citerade argument till `feed-sok.mjs` blir en sammanhängande fras
-
-**Beslut.** Söktermer till `feed-sok.mjs` skickas som separata argument utan citattecken. `feed-sok.mjs prospero 130cm`, inte `feed-sok.mjs "prospero 130cm"`.
-
-**Skäl.** Argumentparsningen lägger varje argv-element som en egen term och matchningen kräver att varje term finns som delsträng i titel, varumärke eller kategori. Ett citerat argument blir ett enda element, vilket ger `includes("prospero 130cm")`, alltså orden i följd med mellanslag emellan. Titeln lyder "Kinetic Prospero Landing Net L 50x50x40cm 130cm" och matchar inte.
-
-Fällan är svår att se eftersom citerade fraser ibland fungerar. `"floating net"` och `"foldable river"` gav träff, men bara för att de råkar stå exakt så i titlarna. Det ser ut som att citattecken fungerar tills orden ligger isär, och då rapporteras noll träffar utan felmeddelande.
-
-Två relaterade fällor från samma session. Korta engelska ord som också är produktegenskaper ger brus, `net` matchar `Kinetic` och gav 264 träffar, `floating` beskriver hur beten går i vattnet och gav 184. Sorteringen sker på stigande pris, så det sökta hamnar bortom `--antal`-gränsen utan att synas. Och `--typ` går inte att använda mot FiskeOnline, vars `g:product_type` innehåller Googles sifferkoder eller kampanjetiketter som "SuperDeals" i stället för kategorinamn.
-
-**Vad som skulle ändra det.** Att skriptet får explicit stöd för citerade fraser, exempelvis genom att tolka ett argument med mellanslag som en fras och dokumentera det. Fram till dess är separata ord det enda som beter sig förutsägbart.
-
----
-
 ### `cupa_sku` läggs på alla länkar som har en feedträff
 
 **Beslut.** `affiliateUrl` bär `&cupa_sku=<g:id>` placerad före `&url=`. 73 av 94 produktsidor har den. `add-cupa-sku.mjs` gjorde tillägget på befintliga länkar, och `add-product.py` och `feed-sok.mjs` bygger nya länkar med den.
@@ -545,6 +493,7 @@ Följande är **portabelt** och gäller oavsett land:
 - Ett klampat värde kan visas men inte sorteras på. Klampningen gör lika av det som är olika, och en stabil sortering på lika nycklar ger samlingsordningen, alltså bokstavsordning som ser ut som en rangordning.
 - En numrerad lista, en pokal eller ordet "bäst" är ett löfte till läsaren om en ordning. Kontrollera att nyckeln som sorteras på faktiskt har den upplösning löftet kräver.- Historiska normaler krävs för att en flödessiffra ska betyda något. Räkna dem ur arkivet en gång och checka in dem.
 - Reglerat mot oreglerat är den viktigaste tolkningsnyckeln för flöde. I ett korttidsreglerat vatten är ett dygnsmedelvärde nästintill oanvändbart för dagsplanering.
+- Indexering av kategorisidor styrs av om kategorin har redaktionellt djupinnehåll kopplat till sig, inte av en hårdkodad flagga per sidtyp. Regeln är locale-oberoende och förutsätter bara ett valfritt fält i kategoridata som pekar på guiden. En noindex-tagg innehåller aldrig `nofollow` när sidan länkar vidare internt.
 - Internlänkning mot produktsidor härleds ur produkternas egna taggfält, inte ur manuella listor per sida. Mönstret (filtrera på art, teknik, vattentyp; override möjlig men inte förstahandsval) är portabelt. `GearModul.astro` flyttar med i stort sett oförändrad.
 - Produktfält som också beskriver bettyp (`techniques`) hålls isär från sidslugarna via en aliastabell, inte genom normalisering. Principen är portabel även om tabellens innehåll är lokalt.
 - Kärnutrustning viktas före tillbehör på tekniksidor. Principen är portabel. Vilka kategorier som är kärna respektive tillbehör beror på sortimentet och är lokalt.
@@ -566,8 +515,6 @@ Följande är **portabelt** och gäller oavsett land:
 - Betyg måste hänga ihop inbördes inom en kategori. Härled regeln ur befintliga sidor i stället för att gissa per produkt, och var vaken på om betyget bara upprepar priset.
 - Storleksvarianter av utrustning får egna sidor, färgvarianter av beten inte. Gränsen går vid om varianten byter målart eller teknik.
 - Matchningslogik som delas av flera skript måste hållas i takt. Vid införandet glömdes ett av tre skript och rapporterade tyst noll träffar, vilket såg ut som att allt stämde.
-- Prisklassfältet är kategorirelativt, inte absolut. Principen är portabel, brytpunkterna per kategori är lokala. En gemensam kronskala gör hela billiga kategorier till budget och hela dyra till premium.
-- Sökning mot en produktfeed med korta ord ger brus när ordet också är en produktegenskap eller ingår i ett varumärkesnamn. Sorteringen döljer misslyckandet, eftersom noll relevanta träffar ser likadant ut som fyrtio irrelevanta.
 
 Följande är **lokalt** och måste byggas om:
 
@@ -585,4 +532,3 @@ Följande är **lokalt** och måste byggas om:
 - Annons-ID per butik i `validate-feed.mjs`
 - Tioprocentsgränsen för prisavvikelser
 - Antagandet att querystring i produkt-URL:er är interna ID:n, vilket är verifierat per butik och inte generellt
-- Att `--typ` inte går att använda mot FiskeOnline, vars `g:product_type` innehåller sifferkoder eller kampanjetiketter i stället för kategorinamn
