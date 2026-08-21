@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import AffiliateCard from '../../components/AffiliateCard.astro';
 import { getCollection } from 'astro:content';
+import { getFeedPrice } from '../../lib/feed';
 
 export async function getStaticPaths() {
   const categories = await getCollection('gear-categories');
@@ -19,8 +20,43 @@ export async function getStaticPaths() {
 const { category, reviews } = Astro.props;
 const c = category.data;
 
-const featured = reviews.find((r) => r.data.featured);
-const budgetPick = reviews.filter((r) => !r.data.featured).sort((a, b) => a.data.price - b.data.price)[0];
+const kr = (v: number) =>
+  new Intl.NumberFormat('sv-SE', {
+    style: 'currency',
+    currency: 'SEK',
+    maximumFractionDigits: 0,
+  }).format(v);
+
+/**
+ * Priser slås upp ur feeden, inte ur frontmatter.
+ *
+ * Korten hämtade redan kampanjpris via AffiliateCard medan jämförelsetabellen
+ * läste reservvärdet i frontmatter. Under kampanj visade samma produkt då två
+ * olika tal på samma sida, några centimeter isär, utan att läsaren kunde veta
+ * vilket som gällde.
+ *
+ * budgetPick räknades på samma frontmatter-värde. Märkningen "Budgetval" är ett
+ * löfte om en ordning, och nyckeln måste därför spegla vad produkterna faktiskt
+ * kostar just nu, inte vad de kostade när sidan skrevs.
+ *
+ * Hämtningsdatum utelämnas i tabellen. Det står redan i korten ovanför och
+ * skulle upprepas per rad utan att tillföra något.
+ */
+const reviewsWithPrice = await Promise.all(
+  reviews.map(async (review) => {
+    const feed = await getFeedPrice(review.data.affiliateUrl);
+    const onSale = feed !== null && feed.salePrice !== null && feed.salePrice < feed.price;
+    return {
+      data: review.data,
+      price: onSale ? feed!.salePrice! : (feed?.price ?? review.data.price),
+      strikePrice: onSale ? feed!.price : null,
+    };
+  })
+);
+
+const budgetPick = reviewsWithPrice
+  .filter((r) => !r.data.featured)
+  .sort((a, b) => a.price - b.price)[0];
 
 const merchants = [...new Set(reviews.map((r) => r.data.merchant))].sort();
 const merchantText = merchants.length
@@ -115,7 +151,7 @@ const breadcrumbSchema = {
 
     <!-- Best in test cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-      {reviews.map((review) => (
+      {reviewsWithPrice.map((review) => (
         <AffiliateCard
           title={review.data.title}
           brand={review.data.brand}
@@ -133,7 +169,7 @@ const breadcrumbSchema = {
     </div>
 
     <!-- Comparison table -->
-    {reviews.length > 1 && (
+    {reviewsWithPrice.length > 1 && (
       <div class="overflow-x-auto">
         <h2 class="font-display text-2xl font-bold text-deep mb-6">Jämförelsetabell</h2>
         <table class="w-full text-sm border-collapse">
@@ -146,13 +182,20 @@ const breadcrumbSchema = {
             </tr>
           </thead>
           <tbody>
-            {reviews.map((review, i) => (
+            {reviewsWithPrice.map((review, i) => (
               <tr class={i % 2 === 0 ? 'bg-white' : 'bg-paper'}>
                 <td class="px-4 py-3 border border-mist font-medium text-deep">
                   {review.data.title}
                   {review.data.featured && <span class="ml-2 text-xs bg-rust text-white px-2 py-0.5 rounded-full">Bästa val</span>}
                 </td>
-                <td class="px-4 py-3 border border-mist text-deep">{new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK', maximumFractionDigits: 0 }).format(review.data.price)}</td>
+                <td class="px-4 py-3 border border-mist text-deep whitespace-nowrap">
+                  {kr(review.price)}
+                  {review.strikePrice !== null && (
+                    <span class="ml-1.5 text-xs font-normal text-stone line-through">
+                      <span class="sr-only">Ordinarie pris </span>{kr(review.strikePrice)}
+                    </span>
+                  )}
+                </td>
                 <td class="px-4 py-3 border border-mist text-deep">{review.data.rating}/5</td>
                 <td class="px-4 py-3 border border-mist text-stone">{review.data.merchant}</td>
               </tr>
