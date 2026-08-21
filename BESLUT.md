@@ -232,6 +232,18 @@ En kontroll som bara letar efter det man nyss ändrat är ingen kontroll. Det en
 
 ---
 
+### Teckenkontrollen mäter per stycke, inte per fil
+
+**Beslut.** `check-content.mjs` varnar för stycken på minst 200 tecken utan ett enda svenskt tecken. Tabellrader och kodblock undantas. Filnivåkontrollen finns kvar för filer som saknar diakriter helt.
+
+**Skäl.** Den tidigare kontrollen tittade på hela filen. Shimano Miravel hade ordet varumärke korrekt på ett ställe i frontmatter och räddade därmed hela filen från kontrollen, trots att all brödtext saknade diakriter. Fem filer missades av samma anledning vid genomgången i augusti 2026, och en av dem var just den fil som gjorde att problemet upptäcktes från början.
+
+Gränsen 200 tecken är satt så att rubriker och korta tekniska uppräkningar inte ger falsklarm. Tabeller undantas eftersom en specifikationstabell med produktnamn, mått och enheter saknar diakriter av naturliga skäl. Efter införandet gav kontrollen noll träffar i 111 produktsidor och samtliga artiklar, vilket är första gången det gick att säga med säkerhet.
+
+**Vad som skulle ändra det.** Att falsklarmen blir fler än träffarna. Höj då gränsen i stället för att ta bort kontrollen.
+
+---
+
 ### Ögonblicksbilden söker igenom projektroten i stället för att lista filer
 
 **Beslut.** `generate-claude-context.sh` hittar rotens `.mjs`, `.py` och `.sh` automatiskt, med en kort uteslutningslista för skriptet självt och `astro.config.mjs`. Utförda engångsskript flyttas till `scripts/utford/` och kommer därför inte med.
@@ -364,11 +376,38 @@ Kontroll i GSC före ändringen visade ingen kannibalisering mellan produktsidor
 
 ## Priser och produktfeeds
 
+### Djuplänkning kräver att domänen matchar programmets godkända domän
+
+**Beslut.** Länkar till Fritid och Vildmark byggs mot `shop.fritidvildmark.se`, inte mot `fritidvildmark.se`.
+
+**Skäl.** Djuplänkar gav "Invalid link" från juli 2026 och framåt, och tolv produktsidor länkade därför till butikens startsida i stället för till produkten. Adtraction förklarade 21 augusti 2026 att programmets godkända domän är `shop.fritidvildmark.se`. Våra länkar pekade på domänen utan prefix, och eftersom det inte räknas som samma domän avvisades de.
+
+Det som gjorde felet svårt att hitta var att adressen fungerade i webbläsaren. Webbläsaren följer omdirigeringen från `fritidvildmark.se` till `shop.`, men spårningen gör inte det vid domänkontrollen. En URL som svarar 200 i en webbläsare kan alltså ändå avvisas av nätverket.
+
+**Vad som skulle ändra det.** Att butiken byter domän eller att annonsören lägger till fler godkända domäner. Kontrollera den godkända domänen i programmets villkor innan djuplänkar byggs för en ny butik, och testa med `curl` utan `-L` så att en omdirigering inte döljer problemet.
+
+---
+
+### Butiker utan feed har ingen signal när produkter utgår
+
+**Beslut.** Sortimentet hos butiker utan produktfeed kontrolleras manuellt med jämna mellanrum. Det finns ingen automatisk kontroll att bygga.
+
+**Skäl.** Fem av tolv ekolod hos Fritid och Vildmark hade utgått ur sortimentet utan att det märktes: Deeper PRO+ 2, Deeper START, Garmin Echomap UHD2 92sv samt Striker Vivid 4cv och 5cv. Produktsidorna beskrev varor butiken inte längre säljer, och ekolodsväljaren rekommenderade dem, varav en gren pekade enbart på två borttagna produkter och blev tom.
+
+För FiskeOnline och Outl1 fångas detta av att produkten försvinner ur feeden, vilket `validate-feed.mjs` rapporterar. Fritid och Vildmark har ingen feed, så `validate-feed.mjs` hoppar över butiken helt. Ingen signal alls.
+
+**Vad som skulle ändra det.** Att butiken får en feed i Adtraction. Fram till dess är sortimentskontrollen manuell, och en produktsida hos en feedlös butik är alltid färskvara.
+
+---
+
+
 ### Priser hämtas ur Adtractions feed vid byggtid, frontmatter är reserv
 
 **Beslut.** `src/lib/feed.ts` hämtar produktfeeds från Adtraction vid varje bygge och slår upp pris per produkt via `affiliateUrl`. `price` i `gear-reviews` visas bara när feeden saknas, inte svarar, eller inte innehåller produkten. Fältet ska alltid innehålla ordinarie pris, aldrig ett reapris.
 
 **Skäl.** Vid genomgången 13 augusti 2026 låg 37 av 51 matchade FiskeOnline-priser på reanivå i stället för ordinarie, eftersom de matats in under pågående kampanj. Samtidigt var 50 av 94 produkter REA-märkta just då, vilket gör kampanj till normaltillstånd snarare än undantag hos butiken. Ett handinmatat pris är därmed nästan alltid fel, och regeln om att alltid verifiera priser mot butikssidan innan patchning skalade inte. Med den dagliga cron-körningen klockan 05:00 blir priset aldrig äldre än ett dygn.
+
+Uppslaget måste omfatta varje ställe på sidan som visar ett pris, inte bara det mest synliga. Jämförelsetabellen på kategorisidorna läste frontmatter medan korten ovanför läste feeden, vilket gav två olika tal för samma produkt på samma sida under kampanj. Samma fel drabbade `budgetPick`, som sorterade på frontmatter-värdet och därmed kunde märka fel produkt som budgetval. Märkningen är ett löfte om en ordning, och nyckeln måste spegla vad produkterna kostar nu. Rättat 21 augusti 2026, tre månader efter att uppslaget infördes på produktsidorna, vilket visar att felet inte syns förrän någon jämför två vyer av samma data.
 
 **Vad som skulle ändra det.** Att en butik slutar leverera feed, eller att andelen produkter utan feedträff blir så stor att reservvärdet dominerar. Vid 73 av 94 sidor med feedpris är byggtidshämtning klart bättre än statiska tal.
 
@@ -514,6 +553,9 @@ Följande är **portabelt** och gäller oavsett land:
 - En kalender eller modell som beskriver säsong ska inte tala om var arten finns. Det är två olika påståenden, och att blanda dem ger ett toppläge för fiske som inte existerar på platsen.
 - Betyg måste hänga ihop inbördes inom en kategori. Härled regeln ur befintliga sidor i stället för att gissa per produkt, och var vaken på om betyget bara upprepar priset.
 - Storleksvarianter av utrustning får egna sidor, färgvarianter av beten inte. Gränsen går vid om varianten byter målart eller teknik.
+- Kontrollera nätverkets godkända domän innan djuplänkar byggs. En URL som fungerar i webbläsaren kan ändå avvisas av spårningen, eftersom webbläsaren följer omdirigeringar och domänkontrollen inte gör det.
+- En butik utan produktfeed ger ingen signal när produkter utgår. Sortimentet måste då kontrolleras manuellt, och produktsidorna är färskvara.
+- Kontroller som mäter på filnivå missar filer som är delvis trasiga. Mät per stycke när det som ska fångas kan sitta i en del av filen.
 - Matchningslogik som delas av flera skript måste hållas i takt. Vid införandet glömdes ett av tre skript och rapporterade tyst noll träffar, vilket såg ut som att allt stämde.
 
 Följande är **lokalt** och måste byggas om:

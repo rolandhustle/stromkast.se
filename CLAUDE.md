@@ -203,7 +203,7 @@ OBS: `category`-fältet i en gear-review MÅSTE matcha kategorins slug exakt och
 
 ---
 
-## Gear-reviews (94 st)
+## Gear-reviews (111 st)
 
 Tabellerna nedan är ett urval och inte fullständiga. `claude-context.md` är
 auktoritativ för vilka produkter som faktiskt finns, och `ls src/content/gear-reviews/`
@@ -449,8 +449,29 @@ ID-mappning i Adtractions gränssnitt för FiskeOnline: Brand ID `1954031989`,
 Brand AD ID `1954031990`, Selected channel ID `2072765905`. Det är Brand AD ID
 plus kanal-ID som används i baslänken, inte Brand ID.
 
-**Fritid och Vildmark har ingen feed.** De produkterna visar `price` från
-frontmatter och kontrolleras inte av `validate-feed.mjs`.
+### Fritid och Vildmark
+
+**Baslänk:** `https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1`
+
+**Djuplänkar byggs mot `shop.fritidvildmark.se`**, inte mot `fritidvildmark.se`.
+Programmets godkända domän är shop-varianten, och en länk mot domänen utan
+prefix avvisas med "Invalid link". Att adressen ändå fungerar i webbläsaren
+beror på att webbläsaren följer omdirigeringen, vilket spårningen inte gör.
+
+```
+https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1&url=https://shop.fritidvildmark.se/products/[produkt-slug]
+```
+
+Butikens slugs följer Shopify-mönstret `/products/<slug>` och matchar inte alltid
+våra egna. Kontrollera med `curl -s -o /dev/null -w "%{http_code}"` utan `-L`,
+så att en omdirigering inte döljer ett fel.
+
+**Butiken har ingen feed.** Produkterna visar `price` från frontmatter, får
+ingen `cupa_sku` och kontrolleras inte av `validate-feed.mjs`.
+
+**Det betyder också att inget varnar när en produkt utgår ur sortimentet.**
+I augusti 2026 hade fem av tolv ekolod försvunnit från butiken utan att det
+märktes. Kontrollera sortimentet manuellt med jämna mellanrum.
 
 Verifiera alltid att affiliate-URL:er returnerar 200 med URL-testskriptet nedan.
 
@@ -478,7 +499,9 @@ ProduktRuta. Sedan augusti 2026 även elva mönster som fångar redaktionella re
 - Superlativ om marknaden, "utan konkurrens", "inget jämförbart alternativ".
 - Sammanskrivet "i dag" och ordet "gratis".
 - Dubbla och spatierade bindestreck använda som tankstreck.
-- Filer helt utan svenska tecken, alltså sannolikt teckenkodningsfel.
+- Stycken på minst 200 tecken utan ett enda svenskt tecken, samt filer som
+  saknar diakriter helt. Tabellrader och kodblock undantas, eftersom en
+  specifikationstabell saknar diakriter av naturliga skäl.
 
 Mönstren är heuristiska och därför varningar, inte fel. Prismönstret kräver ett jämförande
 ord direkt efter beloppet, så "kostar 29 995 kr" passerar medan "800 kr mindre" fångas.
@@ -516,8 +539,15 @@ node --env-file=.env feed-sok.mjs --butik Outl1 --kort --antal 40
 node --env-file=.env feed-sok.mjs --bild shimano-miravel-2500=27523
 ```
 
+Sökordet kan vara fritext, en produkt-URL eller ett SKU. SKU-uppslaget är exakt
+mot `g:id`, så ett produkt-ID ur `--kort`-listan går att slå upp direkt.
+
 Flaggor: `--butik`, `--pris 500-1500`, `--typ`, `--antal`, `--ny`, `--kort`,
 `--bild slug=SKU`.
+
+OBS: fritextsökning matchar tecken för tecken utan att normalisera diakriter,
+så `hav` träffar inte `håv`. Och `--typ` matchar `g:product_type`, som hos
+FiskeOnline är en naken sifferkod och inte ett läsbart kategorinamn.
 
 ### add-cupa-sku.mjs
 Lägger till `cupa_sku` i befintliga `affiliateUrl` utifrån feedens `g:id`.

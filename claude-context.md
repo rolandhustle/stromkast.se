@@ -537,9 +537,40 @@ import sitemap from '@astrojs/sitemap';
 import mdx from '@astrojs/mdx';
 import rss from '@astrojs/rss';
 import vercel from '@astrojs/vercel';
+import fs from 'node:fs';
+import path from 'node:path';
+
+const SITE = 'https://stromkast.se';
+
+/**
+ * Sidor som inte ska ligga i sitemapen.
+ *
+ * En sida med noindex som samtidigt anmäls i sitemapen är en motstridig
+ * signal: vi ber sökmotorn hämta något vi sedan ber den utelämna. Det kostar
+ * ingen ranking men ger onödiga crawlanrop och fyller GSC med rapporten
+ * "Utesluten genom taggen noindex" på sidor vi själva anmält.
+ *
+ * Kategoriundantagen härleds ur samma guideUrl-fält som styr noindex i
+ * utrustning/[kategori].astro. En handskriven lista hade glidit isär från
+ * mallen första gången en ny guide kopplades.
+ */
+const KATEGORI_DIR = 'src/content/gear-categories';
+
+const noindexKategorier = fs
+  .readdirSync(KATEGORI_DIR)
+  .filter((f) => f.endsWith('.json'))
+  .map((f) => JSON.parse(fs.readFileSync(path.join(KATEGORI_DIR, f), 'utf-8')))
+  .filter((c) => Boolean(c.guideUrl))
+  .map((c) => `${SITE}/utrustning/${c.slug}/`);
+
+const uteslutna = new Set([
+  `${SITE}/sok/`,
+  `${SITE}/honeypot-trap/`,
+  ...noindexKategorier,
+]);
 
 export default defineConfig({
-  site: 'https://stromkast.se',
+  site: SITE,
   trailingSlash: 'always',
   output: 'static',
   adapter: vercel(),
@@ -547,6 +578,7 @@ export default defineConfig({
     react(),
     sitemap({
       customPages: [],
+      filter: (page) => !uteslutna.has(page),
       serialize(item) {
         if (item.url.includes('/destinationer/')) item.priority = 0.8;
         else if (item.url.includes('/utrustning/test/')) item.priority = 0.7;
@@ -1662,7 +1694,11 @@ const schemas = [orgSchema, websiteSchema, ...(schema ? (Array.isArray(schema) ?
 
 <title>{title} | Strömkast</title>
 <meta name="description" content={description} />
-{noindex && <meta name="robots" content="noindex, nofollow" />}
+{/* noindex, follow: sidan ska inte rankas men dess interna länkar ska räknas.
+    noindex, nofollow gjorde varje noindexad sida till en återvändsgränd i
+    länkstrukturen, vilket drabbade kategorisidorna som länkar till 9-12
+    produktsidor var. */}
+{noindex && <meta name="robots" content="noindex, follow" />}
 <link rel="canonical" href={canonicalUrl} />
 
 <meta property="og:type" content="website" />
@@ -1679,8 +1715,7 @@ const schemas = [orgSchema, websiteSchema, ...(schema ? (Array.isArray(schema) ?
 
 {schemas.map((s) => (
   <script type="application/ld+json" set:html={JSON.stringify(s)} />
-))}
-```
+))}```
 
 ## src/components/DestinationMap.tsx
 ```
@@ -8671,6 +8706,7 @@ const difficultyColor: Record<string, string> = {
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import AffiliateCard from '../../components/AffiliateCard.astro';
 import { getCollection } from 'astro:content';
+import { getFeedPrice } from '../../lib/feed';
 
 export async function getStaticPaths() {
   const categories = await getCollection('gear-categories');
@@ -8688,8 +8724,43 @@ export async function getStaticPaths() {
 const { category, reviews } = Astro.props;
 const c = category.data;
 
-const featured = reviews.find((r) => r.data.featured);
-const budgetPick = reviews.filter((r) => !r.data.featured).sort((a, b) => a.data.price - b.data.price)[0];
+const kr = (v: number) =>
+  new Intl.NumberFormat('sv-SE', {
+    style: 'currency',
+    currency: 'SEK',
+    maximumFractionDigits: 0,
+  }).format(v);
+
+/**
+ * Priser slås upp ur feeden, inte ur frontmatter.
+ *
+ * Korten hämtade redan kampanjpris via AffiliateCard medan jämförelsetabellen
+ * läste reservvärdet i frontmatter. Under kampanj visade samma produkt då två
+ * olika tal på samma sida, några centimeter isär, utan att läsaren kunde veta
+ * vilket som gällde.
+ *
+ * budgetPick räknades på samma frontmatter-värde. Märkningen "Budgetval" är ett
+ * löfte om en ordning, och nyckeln måste därför spegla vad produkterna faktiskt
+ * kostar just nu, inte vad de kostade när sidan skrevs.
+ *
+ * Hämtningsdatum utelämnas i tabellen. Det står redan i korten ovanför och
+ * skulle upprepas per rad utan att tillföra något.
+ */
+const reviewsWithPrice = await Promise.all(
+  reviews.map(async (review) => {
+    const feed = await getFeedPrice(review.data.affiliateUrl);
+    const onSale = feed !== null && feed.salePrice !== null && feed.salePrice < feed.price;
+    return {
+      data: review.data,
+      price: onSale ? feed!.salePrice! : (feed?.price ?? review.data.price),
+      strikePrice: onSale ? feed!.price : null,
+    };
+  })
+);
+
+const budgetPick = reviewsWithPrice
+  .filter((r) => !r.data.featured)
+  .sort((a, b) => a.price - b.price)[0];
 
 const merchants = [...new Set(reviews.map((r) => r.data.merchant))].sort();
 const merchantText = merchants.length
@@ -8697,6 +8768,18 @@ const merchantText = merchants.length
       ? merchants.slice(0, -1).join(', ') + ' och ' + merchants[merchants.length - 1]
       : merchants[0])
   : 'våra partnerbutiker';
+
+/**
+ * Indexering styrs av guideUrl, inte av en hårdkodad flagga.
+ *
+ * Finns en köpguide för kategorin ska guiden ta kategorisökordet och
+ * kategorisidan stå tillbaka. Saknas guide skyddar noindex ingenting,
+ * sidan är då den enda ingången vi har för den frågan.
+ *
+ * Regeln uppdaterar sig själv: sätts guideUrl i kategorins JSON faller
+ * sidan ur indexet vid nästa bygge, utan att flaggan rörs för hand.
+ */
+const hasGuide = Boolean(c.guideUrl);
 
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
@@ -8715,7 +8798,7 @@ const breadcrumbSchema = {
   ogImage={c.heroImage}
   schema={breadcrumbSchema}
   pageType="gear-category"
-  noindex={true}
+  noindex={hasGuide}
 >
   <!-- Breadcrumb -->
   <nav class="pt-24 px-4 sm:px-6 max-w-[1280px] mx-auto" aria-label="Brödsmulor">
@@ -8755,10 +8838,10 @@ const breadcrumbSchema = {
           </svg>
         </div>
         <div class="flex-1 min-w-0">
-          <p class="text-deep text-sm font-semibold">Osäker på vilket spö du ska välja?</p>
-          <p class="text-stone text-xs mt-0.5">Läs vår guide med råd per art och prisklass.</p>
+          <p class="text-deep text-sm font-semibold">Osäker på vad du ska välja?</p>
+          <p class="text-stone text-xs mt-0.5">Vår köpguide går igenom vad som skiljer modellerna åt.</p>
         </div>
-        <a
+        
           href={c.guideUrl}
           class="shrink-0 inline-flex items-center gap-1.5 bg-pine text-white font-semibold text-sm px-4 py-2 rounded-full hover:bg-deep transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
         >
@@ -8772,7 +8855,7 @@ const breadcrumbSchema = {
 
     <!-- Best in test cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-      {reviews.map((review) => (
+      {reviewsWithPrice.map((review) => (
         <AffiliateCard
           title={review.data.title}
           brand={review.data.brand}
@@ -8790,7 +8873,7 @@ const breadcrumbSchema = {
     </div>
 
     <!-- Comparison table -->
-    {reviews.length > 1 && (
+    {reviewsWithPrice.length > 1 && (
       <div class="overflow-x-auto">
         <h2 class="font-display text-2xl font-bold text-deep mb-6">Jämförelsetabell</h2>
         <table class="w-full text-sm border-collapse">
@@ -8803,13 +8886,20 @@ const breadcrumbSchema = {
             </tr>
           </thead>
           <tbody>
-            {reviews.map((review, i) => (
+            {reviewsWithPrice.map((review, i) => (
               <tr class={i % 2 === 0 ? 'bg-white' : 'bg-paper'}>
                 <td class="px-4 py-3 border border-mist font-medium text-deep">
                   {review.data.title}
                   {review.data.featured && <span class="ml-2 text-xs bg-rust text-white px-2 py-0.5 rounded-full">Bästa val</span>}
                 </td>
-                <td class="px-4 py-3 border border-mist text-deep">{new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK', maximumFractionDigits: 0 }).format(review.data.price)}</td>
+                <td class="px-4 py-3 border border-mist text-deep whitespace-nowrap">
+                  {kr(review.price)}
+                  {review.strikePrice !== null && (
+                    <span class="ml-1.5 text-xs font-normal text-stone line-through">
+                      <span class="sr-only">Ordinarie pris </span>{kr(review.strikePrice)}
+                    </span>
+                  )}
+                </td>
                 <td class="px-4 py-3 border border-mist text-deep">{review.data.rating}/5</td>
                 <td class="px-4 py-3 border border-mist text-stone">{review.data.merchant}</td>
               </tr>
@@ -8819,8 +8909,7 @@ const breadcrumbSchema = {
       </div>
     )}
   </div>
-</BaseLayout>
-```
+</BaseLayout>```
 
 ## src/pages/utrustning/index.astro
 ```
@@ -10448,7 +10537,8 @@ export function trackQuizCompleted(result_product_ids: string[]): void {
   "title": "Ekolod",
   "slug": "ekolod",
   "description": "Handplockade ekolod för sportfiskare. Kastbara modeller för land, kajak och isfiske samt fastmonterade fishfinders och kartplotters för båt.",
-  "heroImage": "/images/gear/ekolod.jpg"
+  "heroImage": "/images/gear/ekolod.jpg",
+  "guideUrl": "/guider/basta-ekolod/"
 }
 ```
 
