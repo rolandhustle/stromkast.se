@@ -31,6 +31,9 @@ src/components/linvaljare
 src/components/linvaljare/.DS_Store
 src/components/linvaljare/LinValjare.tsx
 src/components/linvaljare/LinValjareIsland.astro
+src/components/multivaljare
+src/components/multivaljare/MultiValjare.tsx
+src/components/multivaljare/MultiValjareIsland.astro
 src/components/NewsletterForm.astro
 src/components/ProduktRuta.astro
 src/components/quiz
@@ -56,6 +59,8 @@ src/content/articles/nappkalender-guide.mdx
 src/content/articles/valja-fiskebat.mdx
 src/content/articles/valja-fiskelina.mdx
 src/content/articles/valja-haspelrulle.mdx
+src/content/articles/valja-hav.mdx
+src/content/articles/valja-multirulle.mdx
 src/content/articles/vattenforing-och-fiske.mdx
 src/content/articles/vilken-utombordare.mdx
 src/content/authors
@@ -125,9 +130,11 @@ src/content/gear-categories/elmotorer.json
 src/content/gear-categories/flatlinor.json
 src/content/gear-categories/fluorocarbon.json
 src/content/gear-categories/haspelrullar.json
+src/content/gear-categories/havar.json
 src/content/gear-categories/jerkbaits.json
 src/content/gear-categories/jiggar.json
 src/content/gear-categories/kustdrag.json
+src/content/gear-categories/multirullar.json
 src/content/gear-categories/nylon.json
 src/content/gear-categories/spinnare.json
 src/content/gear-categories/spon.json
@@ -136,22 +143,22 @@ src/content/gear-categories/utombordare.json
 src/content/gear-categories/wobblers.json
 src/content/gear-reviews
 src/content/gear-reviews/.DS_Store
+src/content/gear-reviews/13-fishing-modus-c2.mdx
 src/content/gear-reviews/bft-lizzard-x-stefan-trumstedt.mdx
 src/content/gear-reviews/bft-ninety-two-mimic-stick.mdx
 src/content/gear-reviews/bft-raptor-g2-jerkbait.mdx
+src/content/gear-reviews/bft-rebel-x8.mdx
 src/content/gear-reviews/bomber-long-a.mdx
+src/content/gear-reviews/cwc-foldable-boat-net.mdx
+src/content/gear-reviews/darts-landing-net-medium-teleskopisk.mdx
+src/content/gear-reviews/darts-vadarhav-flytande-medium.mdx
 src/content/gear-reviews/deeper-smart-sonar-chirp-plus-3.mdx
 src/content/gear-reviews/deeper-smart-sonar-chirp-plus-4.mdx
-src/content/gear-reviews/deeper-smart-sonar-pro-plus-2.mdx
-src/content/gear-reviews/deeper-start-global.mdx
 src/content/gear-reviews/ej-lures-flatnose-mini.mdx
 src/content/gear-reviews/ej-lures-flatnose-shad.mdx
 src/content/gear-reviews/garmin-echomap-uhd2-52cv.mdx
-src/content/gear-reviews/garmin-echomap-uhd2-92sv.mdx
 src/content/gear-reviews/garmin-striker-cast-no-gps.mdx
 src/content/gear-reviews/garmin-striker-cast-worldwide.mdx
-src/content/gear-reviews/garmin-striker-vivid-4cv.mdx
-src/content/gear-reviews/garmin-striker-vivid-5cv.mdx
 src/content/gear-reviews/garmin-striker-vivid-7cv.mdx
 src/content/gear-reviews/garmin-striker-vivid-9sv.mdx
 src/content/gear-reviews/hurricane-x8-braid-012mm.mdx
@@ -159,6 +166,8 @@ src/content/gear-reviews/kinetic-4-braid-012mm.mdx
 src/content/gear-reviews/kinetic-8-braid-014mm.mdx
 src/content/gear-reviews/kinetic-brutalis-5000-fd.mdx
 src/content/gear-reviews/kinetic-marshall-4000-fd.mdx
+src/content/gear-reviews/kinetic-ozor-bc-200.mdx
+src/content/gear-reviews/kinetic-prospero-landing-net-l.mdx
 src/content/gear-reviews/kinetic-xarann-predator-trigger-ct.mdx
 src/content/gear-reviews/lyfco-aluminiumbat-300.mdx
 src/content/gear-reviews/lyfco-aluminiumbat-380-kategori-c.mdx
@@ -192,14 +201,21 @@ src/content/gear-reviews/pig-chopper-spinnerbait.mdx
 src/content/gear-reviews/pig-shad-jr.mdx
 src/content/gear-reviews/rapala-shadow-rap.mdx
 src/content/gear-reviews/shimano-26-zodias-haspelspo.mdx
+src/content/gear-reviews/shimano-caius-c-151-hg.mdx
+src/content/gear-reviews/shimano-curado-bfs-xg.mdx
+src/content/gear-reviews/shimano-curado-k-301-hg.mdx
+src/content/gear-reviews/shimano-curado-m-151-hg.mdx
 src/content/gear-reviews/shimano-expride-haspelspo-198m.mdx
 src/content/gear-reviews/shimano-kairiki-8-013mm.mdx
 src/content/gear-reviews/shimano-miravel-2500.mdx
 src/content/gear-reviews/shimano-nexave-fi-2500.mdx
 src/content/gear-reviews/shimano-nexave-haspelspo-191m.mdx
 src/content/gear-reviews/shimano-sahara-fj-2500.mdx
+src/content/gear-reviews/shimano-slx-151-hg.mdx
+src/content/gear-reviews/shimano-slx-xt-a-151-hg.mdx
 src/content/gear-reviews/shimano-stella-fk-2500.mdx
 src/content/gear-reviews/shimano-stradic-fm-c3000-hg.mdx
+src/content/gear-reviews/shimano-tranx-b-301-hg.mdx
 src/content/gear-reviews/shimano-vanford-fa-2500.mdx
 src/content/gear-reviews/shimano-vanford-fa-4000.mdx
 src/content/gear-reviews/shimano-yasei-bb-pike-xh.mdx
@@ -219,10 +235,15 @@ src/content/gear-reviews/westin-w3-4000-fd.mdx
 src/content/gear-reviews/westin-w3-8-braid-smokey-grey.mdx
 src/content/gear-reviews/westin-w3-finesse-jig-3rd.mdx
 src/content/gear-reviews/westin-w3-finesse-tc-2nd.mdx
+src/content/gear-reviews/westin-w3-floating-net-m.mdx
+src/content/gear-reviews/westin-w3-foldable-river-xl.mdx
+src/content/gear-reviews/westin-w3-full-rubber-mesh-xl.mdx
 src/content/gear-reviews/westin-w3-hybridcast-t-3rd.mdx
 src/content/gear-reviews/westin-w3-powerteez-3rd.mdx
 src/content/gear-reviews/westin-w3-predator-trolling-3rd.mdx
+src/content/gear-reviews/westin-w4-101-ssg.mdx
 src/content/gear-reviews/westin-w6-8-braid-0148mm.mdx
+src/content/gear-reviews/westin-w6-bc-301-hd.mdx
 src/content/gear-reviews/westin-w6-dropshot-haspelspo.mdx
 src/content/gear-reviews/westin-w6-jerk-swimbait-t-2nd.mdx
 src/content/gear-reviews/westin-w6-powercast-t-spinnspo.mdx
@@ -230,6 +251,8 @@ src/content/gear-reviews/westin-w6-powerteez-haspelspo.mdx
 src/content/gear-reviews/westin-w6-st3-hard-062mm.mdx
 src/content/gear-reviews/westin-w6-st5-soft-030mm.mdx
 src/content/gear-reviews/westin-w6-st5-soft-038mm.mdx
+src/content/gear-reviews/westin-w6-telescopic-4m.mdx
+src/content/gear-reviews/wiggler-trahav-vadarhav.mdx
 src/content/gear-reviews/wiggler-viking-herring.mdx
 src/content/species
 src/content/species/.DS_Store
@@ -2945,18 +2968,13 @@ const BUDGETAR: { value: Budget; label: string }[] = [
 
 /** Egenskapstaggar per slug, enbart för visning. Ekolodsdata ligger inte i schemat. */
 const ATTR: Record<string, { typ: 'Kastbart' | 'Fast monterat'; taggar: string[] }> = {
-  'deeper-start-global': { typ: 'Kastbart', taggar: ['Instegsmodell'] },
   'garmin-striker-cast-no-gps': { typ: 'Kastbart', taggar: ['Isfiske'] },
   'garmin-striker-cast-worldwide': { typ: 'Kastbart', taggar: ['GPS', 'Isfiske'] },
-  'deeper-smart-sonar-pro-plus-2': { typ: 'Kastbart', taggar: ['GPS', 'Isfiske'] },
   'deeper-smart-sonar-chirp-plus-3': { typ: 'Kastbart', taggar: ['CHIRP', 'GPS', 'Isfiske'] },
   'deeper-smart-sonar-chirp-plus-4': { typ: 'Kastbart', taggar: ['CHIRP', 'AI', 'GPS', 'Isfiske'] },
-  'garmin-striker-vivid-4cv': { typ: 'Fast monterat', taggar: ['GPS', '4 tum'] },
-  'garmin-striker-vivid-5cv': { typ: 'Fast monterat', taggar: ['GPS', '5 tum'] },
   'garmin-striker-vivid-7cv': { typ: 'Fast monterat', taggar: ['GPS', 'Wi-Fi', '7 tum'] },
   'garmin-striker-vivid-9sv': { typ: 'Fast monterat', taggar: ['SideScan', 'GPS', '9 tum'] },
   'garmin-echomap-uhd2-52cv': { typ: 'Fast monterat', taggar: ['Sjökort', 'GPS', '5 tum'] },
-  'garmin-echomap-uhd2-92sv': { typ: 'Fast monterat', taggar: ['Sjökort', 'SideScan', '9 tum'] },
 };
 
 interface Rec {
@@ -2972,14 +2990,14 @@ function recommend(plats: Plats, fokus: Fokus): Rec {
   if (plats === 'land') {
     switch (fokus) {
       case 'enkelt':
-        return { slugs: ['deeper-start-global', 'garmin-striker-cast-no-gps'] };
+        return { slugs: ['garmin-striker-cast-no-gps'] };
       case 'kartor':
         return {
-          slugs: ['garmin-striker-cast-worldwide', 'deeper-smart-sonar-pro-plus-2', 'deeper-smart-sonar-chirp-plus-3'],
+          slugs: ['garmin-striker-cast-worldwide', 'deeper-smart-sonar-chirp-plus-3'],
         };
       case 'sjokort':
         return {
-          slugs: ['garmin-striker-cast-worldwide', 'deeper-smart-sonar-pro-plus-2'],
+          slugs: ['garmin-striker-cast-worldwide'],
           note: 'Färdiga sjökort kräver en fast monterad kartplotter och båt. Från land får du i stället egna djupkartor med ett kastbart ekolod med GPS.',
         };
       case 'basta':
@@ -2990,35 +3008,39 @@ function recommend(plats: Plats, fokus: Fokus): Rec {
   if (plats === 'bat') {
     switch (fokus) {
       case 'enkelt':
-        return { slugs: ['garmin-striker-vivid-4cv', 'garmin-striker-vivid-5cv'] };
+        return {
+          slugs: [],
+          note: 'Fast monterade ekolod i sortimentet börjar på 4 195 kr. Vi har i dag inget billigare alternativ att rekommendera för båtfiske. Ett kastbart ekolod är billigare men löser en annan uppgift: det läser av ett område där du kastar ut det, i stället för att visa botten kontinuerligt medan du kör.',
+        };
       case 'kartor':
         return {
-          slugs: ['garmin-striker-vivid-5cv', 'garmin-striker-vivid-7cv', 'garmin-striker-vivid-4cv'],
+          slugs: ['garmin-striker-vivid-7cv'],
           note: 'Striker Vivid har GPS och Quickdraw för egna kartor men läser inte Navionics-sjökort. Vill du ha färdiga sjökort, byt fokus till navigering.',
         };
       case 'sjokort':
-        return { slugs: ['garmin-echomap-uhd2-52cv', 'garmin-echomap-uhd2-92sv'], showChart: true };
+        return { slugs: ['garmin-echomap-uhd2-52cv'], showChart: true };
       case 'basta':
-        return { slugs: ['garmin-echomap-uhd2-92sv', 'garmin-striker-vivid-9sv'], showChart: true };
+        // showChart utelamnat: Striker Vivid 9sv laser inte Navionics-sjokort.
+        return { slugs: ['garmin-striker-vivid-9sv'] };
     }
   }
 
-  // plats === 'is'. Deeper START exkluderas, den stödjer inte isfiske.
+  // plats === 'is'.
   switch (fokus) {
     case 'enkelt':
       return { slugs: ['garmin-striker-cast-no-gps', 'garmin-striker-cast-worldwide'] };
     case 'kartor':
       return {
-        slugs: ['garmin-striker-cast-worldwide', 'deeper-smart-sonar-pro-plus-2', 'deeper-smart-sonar-chirp-plus-3'],
+        slugs: ['garmin-striker-cast-worldwide', 'deeper-smart-sonar-chirp-plus-3'],
       };
     case 'sjokort':
       return {
-        slugs: ['garmin-striker-cast-worldwide', 'deeper-smart-sonar-pro-plus-2'],
+        slugs: ['garmin-striker-cast-worldwide'],
         note: 'Sjökort är inte aktuellt på isen. Här räknas snabb, tydlig ekolodsbild och GPS för att märka ut hålen.',
       };
     case 'basta':
       return {
-        slugs: ['deeper-smart-sonar-chirp-plus-4', 'deeper-smart-sonar-chirp-plus-3', 'deeper-smart-sonar-pro-plus-2'],
+        slugs: ['deeper-smart-sonar-chirp-plus-4', 'deeper-smart-sonar-chirp-plus-3'],
       };
   }
 }
@@ -3227,18 +3249,13 @@ import { getCollection } from 'astro:content';
 import EkolodValjare from './EkolodValjare.tsx';
 
 const EKOLOD_SLUGS = new Set<string>([
-  'deeper-start-global',
   'garmin-striker-cast-no-gps',
   'garmin-striker-cast-worldwide',
-  'deeper-smart-sonar-pro-plus-2',
   'deeper-smart-sonar-chirp-plus-3',
   'deeper-smart-sonar-chirp-plus-4',
-  'garmin-striker-vivid-4cv',
-  'garmin-striker-vivid-5cv',
   'garmin-striker-vivid-7cv',
   'garmin-striker-vivid-9sv',
   'garmin-echomap-uhd2-52cv',
-  'garmin-echomap-uhd2-92sv',
 ]);
 
 const allReviews = await getCollection('gear-reviews');
@@ -3843,6 +3860,404 @@ const monos = allReviews
 ---
 
 <LinValjare client:load lines={lines} leaders={leaders} monos={monos} />
+```
+
+## src/components/multivaljare/MultiValjare.tsx
+```
+import { useMemo, useState } from 'react';
+import { trackAffiliateClick } from '../../lib/track';
+
+/**
+ * MultiValjare
+ * En deterministisk multirulleväljare i samma anda som RullValjare, LinValjare
+ * och EkolodValjare. Tre val ger direkt en rekommendation ur de tolv
+ * multirullarna i gear-reviews-collectionen.
+ *
+ * Skillnad mot RullValjare: primäraxeln är betesvikt, inte art. Spolens
+ * tröghet avgör vilka beten en multirulle kan kasta, och det valet gör folk
+ * fel oftare än artvalet. Art kommer in först i andra hand via bromskraft.
+ *
+ * Rekommendationslogiken bygger på verifierade specar från tillverkarnas egna
+ * tabeller (utväxling, linintag, vikt, bromskraft, lager). BFT saknar
+ * publicerad bromskraft och visar taggen "Bromskraft anges ej" öppet, samma
+ * ärlighetslinje som i guiden.
+ */
+
+interface MultiProduct {
+  slug: string;
+  title: string;
+  brand: string;
+  price: number;
+  priceRange: 'budget' | 'mellanklass' | 'premium';
+  affiliateUrl: string;
+  merchant: string;
+}
+
+interface Props {
+  multirullar: MultiProduct[];
+}
+
+type Bete = 'latt' | 'medel' | 'tungt';
+type Tempo = 'kraft' | 'allround' | 'snabb';
+type Budget = 'lag' | 'mellan' | 'oavsett';
+
+const BETEN: { value: Bete; label: string }[] = [
+  { value: 'latt', label: 'Under 10 g' },
+  { value: 'medel', label: '10 till 40 g' },
+  { value: 'tungt', label: 'Över 40 g' },
+];
+
+/**
+ * Etiketterna namnger beten i stället för utväxling. Läsaren vet vad hen fiskar
+ * med, inte vilket utväxlingstal det motsvarar, och den översättningen är
+ * väljarens jobb. Alla tre är grammatiskt parallella och kräver ingen
+ * förförståelse.
+ *
+ * Singular i 'kraft'-etiketten är medvetet. Plural drar tanken mot stora
+ * gäddbeten, vilket krockar med viktvalet 'under 10 g'. 'Djupgående' beskriver
+ * hur betet går, inte hur stort det är, och små crankbaits under tio gram har
+ * verkligt vattenmotstånd.
+ */
+const TEMPON: { value: Tempo; label: string }[] = [
+  { value: 'kraft', label: 'Djupgående wobbler och gummifisk' },
+  { value: 'allround', label: 'Jigg och blandat fiske' },
+  { value: 'snabb', label: 'Jerkbait och ytbeten' },
+];
+
+const BUDGETAR: { value: Budget; label: string }[] = [
+  { value: 'lag', label: 'Under 1 500 kr' },
+  { value: 'mellan', label: 'Under 3 000 kr' },
+  { value: 'oavsett', label: 'Spelar ingen roll' },
+];
+
+/** Visningstaggar per slug. Endast verifierade uppgifter ur tillverkarnas tabeller. */
+const ATTR: Record<string, { storlek: string; taggar: string[] }> = {
+  'kinetic-ozor-bc-200': { storlek: '200', taggar: ['6.3:1', '220 g', '5 kg broms', 'Bromstyp anges ej'] },
+  'shimano-caius-c-151-hg': { storlek: '150', taggar: ['72 cm/vev', '185 g', '5 kg broms', 'Komposit'] },
+  'shimano-slx-151-hg': { storlek: '150', taggar: ['72 cm/vev', '195 g', '5 kg broms', 'Aluminium'] },
+  '13-fishing-modus-c2': { storlek: '2', taggar: ['6.6:1', '210 g', '8,2 kg broms', 'Endast sötvatten'] },
+  'shimano-slx-xt-a-151-hg': { storlek: '150', taggar: ['72 cm/vev', '205 g', '5,5 kg broms', 'Extern bromsratt'] },
+  'westin-w4-101-ssg': { storlek: '100', taggar: ['66 cm/vev', '195 g', '5,5 kg broms', 'Intern bromsjustering'] },
+  'bft-rebel-x8': { storlek: '300-klass', taggar: ['6.2:1', '280 g', 'Magnet och centrifugal', 'Bromskraft anges ej'] },
+  'shimano-curado-bfs-xg': { storlek: 'BFS', taggar: ['82 cm/vev', '175 g', '3,5 kg broms', 'Extern bromsratt'] },
+  'westin-w6-bc-301-hd': { storlek: '300', taggar: ['70 cm/vev', '284 g', '13 kg broms', 'Intern bromsjustering'] },
+  'shimano-curado-m-151-hg': { storlek: '150', taggar: ['74 cm/vev', '190 g', '6 kg broms', 'Extern bromsratt'] },
+  'shimano-curado-k-301-hg': { storlek: '300', taggar: ['88 cm/vev', '305 g', '8 kg broms', '230 m 0,30'] },
+  'shimano-tranx-b-301-hg': { storlek: '300', taggar: ['103 cm/vev', '345 g', '8 kg broms', 'Extern bromsratt'] },
+};
+
+/**
+ * Rullar där tillverkaren uttryckligen anger att bromsen justeras under
+ * sidoplattan. Endast dessa två är verifierade. För övriga anger tillverkaren
+ * inte var justeringen sker, och då påstås ingenting.
+ */
+const INTERN_BROMS = new Set<string>(['westin-w4-101-ssg', 'westin-w6-bc-301-hd']);
+
+const INTERN_BROMS_NOT =
+  'Bromsen på toppvalet justeras under sidoplattan, inte med en ratt på utsidan. I praktiken betyder det att du ställer in den en gång per pass i stället för när betet byts. Är du ny på multirulle är det värt att veta.';
+
+interface Rec {
+  /** Slugs i prioritetsordning */
+  slugs: string[];
+  /** Ärlig not när valet behöver en förklaring */
+  note?: string;
+}
+
+const HASPELNOT =
+  'Beten under tio gram ligger i underkant för de flesta multirullar. Spolen behöver rörelseenergi för att komma igång, och för lätta beten ger korta kast oavsett bromsinställning. En haspelrulle är oftast både enklare och kastar längre i det spannet.';
+
+function recommend(bete: Bete, tempo: Tempo): Rec {
+  if (bete === 'latt') {
+    switch (tempo) {
+      case 'kraft':
+        return {
+          slugs: ['shimano-slx-151-hg', 'shimano-caius-c-151-hg'],
+          note: 'Kraft och lätta beten drar åt olika håll. En 150-rulle är kompromissen, men fiskar du mest under tio gram är haspel rätt verktyg.',
+        };
+      case 'allround':
+        return {
+          slugs: ['shimano-caius-c-151-hg', 'shimano-slx-151-hg', 'kinetic-ozor-bc-200'],
+          note: HASPELNOT,
+        };
+      case 'snabb':
+        return {
+          slugs: ['shimano-curado-bfs-xg', 'shimano-slx-xt-a-151-hg'],
+          note: 'Curado BFS är den enda rullen i sortimentet som är byggd för beten under fem gram. Den har en mycket lätt spole men bara 3,5 kilo bromskraft, så den är fel val om gädda kan dyka upp.',
+        };
+    }
+  }
+
+  if (bete === 'medel') {
+    switch (tempo) {
+      case 'kraft':
+        return { slugs: ['westin-w4-101-ssg', '13-fishing-modus-c2', 'shimano-curado-k-301-hg'] };
+      case 'allround':
+        return { slugs: ['shimano-slx-151-hg', 'shimano-slx-xt-a-151-hg', 'shimano-curado-m-151-hg'] };
+      case 'snabb':
+        return { slugs: ['shimano-curado-m-151-hg', 'shimano-slx-xt-a-151-hg', 'shimano-slx-151-hg'] };
+    }
+  }
+
+  // bete === 'tungt'
+  switch (tempo) {
+    case 'kraft':
+      return {
+        slugs: ['westin-w6-bc-301-hd', 'bft-rebel-x8', 'shimano-curado-k-301-hg'],
+        note: 'Låg utväxling ger mer kraft per vevtag, vilket är vad som krävs för stora gummifiskar och djupgående beten. Priset är att inveving av långa kast tar fler varv.',
+      };
+    case 'allround':
+      return { slugs: ['shimano-curado-k-301-hg', 'westin-w6-bc-301-hd', 'bft-rebel-x8'] };
+    case 'snabb':
+      return {
+        slugs: ['shimano-tranx-b-301-hg', 'shimano-curado-k-301-hg'],
+        note: 'Tranx tar hem 103 cm per vev, mest i sortimentet, vilket är byggt för att hinna ta upp slack mellan jerkryck. Den väger också 345 gram och kräver ett spö som balanserar vikten.',
+      };
+  }
+}
+
+/**
+ * Gränserna följer priceRange-indelningen för kategorin: budget under 1 500,
+ * mellanklass 1 500 till 2 999, premium från 3 000. Samma brytpunkter som i
+ * frontmattern, så väljaren och kategorisidan säger samma sak. Testat mot alla
+ * nio kombinationer av betesvikt och tempo: budgetvalet ändrar utfallet i
+ * samtliga. Ändras gränserna, kontrollera om det fortfarande gäller.
+ */
+function budgetCap(b: Budget): number {
+  if (b === 'lag') return 1500;
+  if (b === 'mellan') return 3000;
+  return Infinity;
+}
+
+const COLOR_ACTIVE = 'bg-pine text-white border-pine';
+const COLOR_IDLE = 'bg-white text-deep border-mist hover:border-pine';
+
+export default function MultiValjare({ multirullar }: Props) {
+  const [bete, setBete] = useState<Bete>('medel');
+  const [tempo, setTempo] = useState<Tempo>('allround');
+  const [budget, setBudget] = useState<Budget>('oavsett');
+
+  const result = useMemo(() => {
+    const rec = recommend(bete, tempo);
+    const bySlug = new Map(multirullar.map((p) => [p.slug, p]));
+    const ranked = rec.slugs
+      .map((s) => bySlug.get(s))
+      .filter((p): p is MultiProduct => Boolean(p));
+
+    const cap = budgetCap(budget);
+    const within = ranked.filter((p) => p.price <= cap);
+
+    if (within.length === 0 && ranked.length > 0) {
+      const cheapest = [...ranked].sort((a, b) => a.price - b.price).slice(0, 1);
+      return {
+        picks: cheapest,
+        notes: ['Inget alternativ i den här gruppen ligger under vald budget. Det billigaste visas i stället.'],
+      };
+    }
+
+    const top = within[0];
+    const notes = [rec.note, top && INTERN_BROMS.has(top.slug) ? INTERN_BROMS_NOT : undefined].filter(
+      (n): n is string => Boolean(n),
+    );
+
+    return { picks: within, notes };
+  }, [bete, tempo, budget, multirullar]);
+
+  const renderChips = <T extends string>(
+    options: { value: T; label: string }[],
+    selected: T,
+    onSelect: (v: T) => void,
+  ) => (
+    <div className="flex flex-wrap gap-2">
+      {options.map((o) => {
+        const active = selected === o.value;
+        return (
+          <button
+            key={o.value}
+            type="button"
+            aria-pressed={active}
+            onClick={() => onSelect(o.value)}
+            className={`px-4 py-2 rounded-full text-sm font-medium border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2 ${
+              active ? COLOR_ACTIVE : COLOR_IDLE
+            }`}
+          >
+            {o.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  return (
+    <div className="max-w-xl mx-auto bg-mist/40 border border-mist rounded-3xl p-6 sm:p-8 not-prose">
+      <div className="mb-6">
+        <h2 className="font-display text-2xl font-bold text-deep mb-2">Multirulleväljaren</h2>
+        <p className="text-stone text-sm leading-relaxed">
+          Börja med betesvikten. Den avgör spolstorleken, och spolstorleken avgör resten.
+          Rekommendationerna bygger på tillverkarnas egna tabeller för linintag, vikt och
+          bromskraft, inte på kullagerantal.
+        </p>
+      </div>
+
+      <fieldset className="mb-5">
+        <legend className="text-xs font-semibold uppercase tracking-wider text-stone mb-2">
+          Hur tunga är dina vanligaste beten?
+        </legend>
+        {renderChips(BETEN, bete, setBete)}
+      </fieldset>
+
+      <fieldset className="mb-5">
+        <legend className="text-xs font-semibold uppercase tracking-wider text-stone mb-2">
+          Vilken typ av bete fiskar du mest?
+        </legend>
+        {renderChips(TEMPON, tempo, setTempo)}
+      </fieldset>
+
+      <fieldset className="mb-7">
+        <legend className="text-xs font-semibold uppercase tracking-wider text-stone mb-2">Budget</legend>
+        {renderChips(BUDGETAR, budget, setBudget)}
+      </fieldset>
+
+      <div>
+        {result.notes.map((n) => (
+          <div key={n} className="mb-4 bg-white border border-mist rounded-2xl px-4 py-3">
+            <p className="text-deep text-sm leading-relaxed">{n}</p>
+          </div>
+        ))}
+
+        {result.picks.length > 0 ? (
+          <div className="space-y-3">
+            {result.picks.map((p, i) => {
+              const attr = ATTR[p.slug];
+              return (
+                <div key={p.slug} className="bg-white rounded-2xl border border-mist p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      {i === 0 && (
+                        <span className="inline-block text-[11px] font-semibold uppercase tracking-wider text-pine mb-1">
+                          Bäst för dig
+                        </span>
+                      )}
+                      <h3 className="font-display text-lg font-bold text-deep leading-tight">{p.title}</h3>
+                      <p className="text-stone text-xs mt-0.5">{p.brand}</p>
+                    </div>
+                    <span className="text-deep font-bold whitespace-nowrap">{p.price.toLocaleString('sv-SE')} kr</span>
+                  </div>
+
+                  {attr && (
+                    <div className="flex flex-wrap gap-1.5 mt-3">
+                      <span className="text-[11px] font-medium text-stone bg-mist/60 rounded-full px-2.5 py-1">
+                        {attr.storlek}
+                      </span>
+                      {attr.taggar.map((t) => (
+                        <span key={t} className="text-[11px] font-medium text-stone bg-mist/60 rounded-full px-2.5 py-1">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  <a
+                    href={p.affiliateUrl}
+                    target={p.affiliateUrl ? '_blank' : undefined}
+                    rel={p.affiliateUrl ? 'noopener noreferrer sponsored' : undefined}
+                    onClick={() => trackAffiliateClick(p.merchant, p.slug, i + 1, 'article')}
+                    className="inline-flex items-center gap-1.5 mt-4 text-pine text-sm font-semibold hover:text-deep transition-colors underline underline-offset-2"
+                  >
+                    Se pris hos {p.merchant}
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                      <path
+                        d="M2 10L10 2M10 2H4M10 2v6"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </a>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="bg-white rounded-2xl border border-mist p-5">
+            <p className="text-deep text-sm leading-relaxed mb-3">
+              Vi har i dag ingen multirulle i sortimentet som matchar exakt för det här valet. Prova
+              en annan budget eller ett annat tempo.
+            </p>
+            <a
+              href="/utrustning/multirullar/"
+              className="inline-flex items-center gap-1.5 text-pine text-sm font-semibold hover:text-deep transition-colors underline underline-offset-2"
+            >
+              Se alla multirullar
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <path
+                  d="M3 6h6M6 3l3 3-3 3"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </a>
+          </div>
+        )}
+      </div>
+
+      <p className="text-xs text-stone/60 text-center mt-6">
+        Rekommendationerna bygger på vår redaktionella bedömning. Affiliatelänkar kan förekomma.
+      </p>
+    </div>
+  );
+}
+```
+
+## src/components/multivaljare/MultiValjareIsland.astro
+```
+---
+/**
+ * MultiValjareIsland.astro
+ * Serverwrapper som hämtar de tolv multirullarna ur gear-reviews-collectionen
+ * och matar dem till den interaktiva MultiValjare-islanden. Inkludera bara den
+ * här i multirulleguiden, så lever väljaren bara där. Samma mönster som
+ * RullValjareIsland.astro, LinValjareIsland.astro och EkolodValjareIsland.astro.
+ */
+import { getCollection } from 'astro:content';
+import MultiValjare from './MultiValjare.tsx';
+
+const MULTI_SLUGS = new Set<string>([
+  'kinetic-ozor-bc-200',
+  'shimano-caius-c-151-hg',
+  'shimano-slx-151-hg',
+  '13-fishing-modus-c2',
+  'shimano-slx-xt-a-151-hg',
+  'westin-w4-101-ssg',
+  'bft-rebel-x8',
+  'shimano-curado-bfs-xg',
+  'westin-w6-bc-301-hd',
+  'shimano-curado-m-151-hg',
+  'shimano-curado-k-301-hg',
+  'shimano-tranx-b-301-hg',
+]);
+
+const allReviews = await getCollection('gear-reviews');
+
+const multirullar = allReviews
+  .filter((entry) => {
+    const category = (entry.data.category ?? '').toLowerCase();
+    return MULTI_SLUGS.has(entry.data.slug) || category === 'multirullar';
+  })
+  .map((entry) => ({
+    slug: entry.data.slug,
+    title: entry.data.title,
+    brand: entry.data.brand,
+    price: entry.data.price,
+    priceRange: entry.data.priceRange,
+    affiliateUrl: entry.data.affiliateUrl,
+    merchant: entry.data.merchant,
+  }));
+---
+
+<MultiValjare client:visible multirullar={multirullar} />
 ```
 
 ## src/components/quiz/SpoQuiz.tsx
@@ -10087,6 +10502,19 @@ export function trackQuizCompleted(result_product_ids: string[]): void {
 }
 ```
 
+## src/content/gear-categories/havar.json
+```
+{
+  "title": "Håvar",
+  "slug": "havar",
+  "description": "Håvar för fiske i svenska vatten. Vadarhåvar, båthåvar och teleskopiska modeller bedömda efter ramstorlek, skaftlängd och nätmaterial, från budget till premium.",
+  "heroImage": "/images/gear/havar.jpg",
+  "heroSource": "illustration",
+  "guideUrl": "/guider/valja-hav/",
+  "excerpt": "Vadarhåvar, båthåvar och teleskopiska modeller."
+}
+```
+
 ## src/content/gear-categories/jerkbaits.json
 ```
 {
@@ -10123,6 +10551,20 @@ export function trackQuizCompleted(result_product_ids: string[]): void {
   "heroImage": "/images/gear/kustdrag.jpg",
   "heroSource": "illustration",
   "excerpt": "Långkastande drag för havsöring på kusten."
+}
+```
+
+## src/content/gear-categories/multirullar.json
+```
+{
+  "title": "Multirullar",
+  "slug": "multirullar",
+  "parent": "rullar",
+  "description": "Multirullar för gädda, gös och abborre. Vi går igenom spolstorlek, utväxling och bromssystem, från ingångsmodeller till rullar för tungt jerkbaitfiske.",
+  "heroImage": "/images/gear/multirullar.jpg",
+  "heroSource": "illustration",
+  "guideUrl": "/guider/valja-multirulle/",
+  "excerpt": "Multirullar för jerkbait, jigg och trolling."
 }
 ```
 
@@ -10203,6 +10645,43 @@ export function trackQuizCompleted(result_product_ids: string[]): void {
 ```
 
 # Content: gear-reviews
+
+## src/content/gear-reviews/13-fishing-modus-c2.mdx
+```
+---
+title: "13 Fishing Modus C2"
+slug: "13-fishing-modus-c2"
+description: "Multirulle med aluminiumchassi och japanska drev. Bromskraften är 8,2 kilo, vikten 210 gram och spolen rymmer 120 meter 0,32 nylon."
+heroImage: "/images/gear/13-fishing-modus-c2.jpg"
+heroSource: "illustration"
+brand: "13 Fishing"
+category: "multirullar"
+price: 1599
+rating: 4
+pros:
+  - "8,2 kilo bromskraft i den här prisklassen"
+  - "Aluminiumchassi och urfräst aluminiumspole"
+  - "Sju kullager och krokhållare på huset"
+cons:
+  - "Angiven som sötvattensrulle, alltså inte för kust"
+  - "120 meter i 0,32 är måttlig linkapacitet"
+  - "210 gram är tyngre än jämnstora konkurrenter"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=17296&url=https://fiskeonline.com/sv/produkt/13-fishing-modus-c2-multirulle-utvaxling-6-61-vanstervev/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["gadda", "gos", "abborre"]
+techniques: ["jigg", "jerkbait", "wobbler"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+13 Fishing Modus C2 sticker ut på en punkt i sin prisklass. Bromskraften är 8,2 kilo, alltså samma nivå som Shimanos 300-rullar levererar för dubbla priset. Systemet heter Multi-Material Drag och bygger på bromsbrickor i olika material staplade på varandra. Chassit är aluminium av HD-typ och spolen är urfräst ur ett aluminiumblock.
+
+Drevet är japanskt av märket Hamai, och rullen har sju kullager av 13 Fishings High Spin-typ. Utväxlingen 6.6:1 ligger i allroundspannet, alltså snabbt nog för jigg och långsamt nog för beten med vattenmotstånd. Bromsen är en sexvägs centrifugalbroms. Greppen är EVA och veven har en linförare av Arrowhead-typ samt Dead Stop, alltså backspärr utan glapp.
+
+Två saker att veta innan köp. 13 Fishing anger uttryckligen att rullen är en sötvattensrulle, vilket betyder att den inte är byggd för salt eller bräckt vatten och att kustfiske sliter på den. Linkapaciteten är 120 meter i 0,32 millimeter, vilket räcker för normalt gädd- och gösfiske men inte lämnar stor marginal om en fisk drar. Vikten är 210 gram. En detalj som märks i praktiken är KeepR, en krokhållare på huset där betet kan hängas upp under förflyttning.
+```
 
 ## src/content/gear-reviews/bft-lizzard-x-stefan-trumstedt.mdx
 ```
@@ -10322,6 +10801,43 @@ Komponentvalet speglar prisnivån. Rostfria stålringar fungerar men är tyngre 
 Kastvikten upp till 150 g täcker de flesta jerkbaits och gliders för gädda. Det är ett rimligt första jerkbaitspö för den som vill prova tekniken utan att investera i topsegmentet, eller ett reservspö för den som redan har ett dyrare alternativ. Den som fiskar jerkbait regelbundet och vill ha bättre känsla och komponentkvalitet bör titta på BFT Lizzard X eller Westin W6 Jerk och Swimbait.
 ```
 
+## src/content/gear-reviews/bft-rebel-x8.mdx
+```
+---
+title: "BFT Rebel X8"
+slug: "bft-rebel-x8"
+description: "Multirulle för tungt gäddfiske med både magnet- och centrifugalbroms. Utväxling 6.2:1, vikt 280 gram och plats för 135 meter 0,36 lina."
+heroImage: "/images/gear/bft-rebel-x8.jpg"
+heroSource: "illustration"
+brand: "BFT"
+category: "multirullar"
+price: 2595
+rating: 4
+pros:
+  - "Både magnetbroms och centrifugalbroms kan användas"
+  - "Extra backspärr mot linöverlopp vid tunga kast"
+  - "Överdimensionerad vev med EVA-grepp"
+cons:
+  - "Bromskraften anges ej av tillverkaren"
+  - "280 gram kräver ett spö som balanserar vikten"
+  - "Två bromssystem betyder mer att ställa in"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=106316&url=https://fiskeonline.com/sv/produkt/bft-rebel-x8-multirulle-utvaxling-6-21-vanstervev/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["gadda", "gos"]
+techniques: ["jerkbait", "jigg", "trolling"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+BFT Rebel X8 är byggd för tungt gäddfiske och har en lösning på kastkontroll som ingen annan rulle i vårt urval använder. Dual Braking System kombinerar tre sätt att styra spolen: den vanliga kastbromsen, en magnetbroms och centrifugalbromsar som kan aktiveras på spolens sida för kraftigare effekt.
+
+Poängen är spännvidden. En magnetbroms är förlåtande och lätt att ställa in men tappar kontrollen när betet blir riktigt tungt eller har stort luftmotstånd. Centrifugalbromsar tar vid där. Att kunna använda båda betyder att samma rulle fungerar med en 40-grams gummifisk och en 150-grams jerkbait, men det betyder också att det finns fler inställningar att lära sig innan rullen sitter.
+
+Utväxlingen 6.2:1 ligger i allroundspannet. Rullen har sju kullager och ett rullager med omedelbar backspärr, och bromssystemet använder kolfiberbrickor. Det finns dessutom en extra backspärr som ska hantera linöverlopp vid kast med tunga beten, alltså när spolen fortsätter snurra efter att betet landat. Vevens EVA-grepp sitter på en överdimensionerad arm som ger mer invevningskraft. Vikten är 280 gram och spolen rymmer 135 meter lina i 0,36 millimeter. Maximal bromskraft anges ej.
+```
+
 ## src/content/gear-reviews/bomber-long-a.mdx
 ```
 ---
@@ -10357,6 +10873,117 @@ Bomber Long A är en klassisk flytande wobbler som har fångat rovfisk i decenni
 Skeden i nosen styr djupet. Vid kastfiske arbetar betet på ungefär en meters djup, och trollat går det något djupare. Den fina gången kommer fram redan i lågt tempo, men du utlöser ofta hugg genom att växla fart och lägga in korta vevstopp. Betet är utrustat med starka krokar och tål fisk efter fisk.
 
 Det här är en mångsidig wobbler för dig som fiskar gädda, gös och öring och vill ha ett bete som fungerar i många vatten och situationer. Storleken gör den till en bra allroundwobbler snarare än ett renodlat storgäddbete. Vill du fiska djupare eller efter grövre fisk finns Long A i större och djupgående utföranden.
+```
+
+## src/content/gear-reviews/cwc-foldable-boat-net.mdx
+```
+---
+title: "CWC Foldable Boat Net"
+slug: "cwc-foldable-boat-net"
+description: "Båthåv med hopfällbar ram på 50x60 cm och teleskopskaft på 150 cm. Mjukt gumminät byggt för skonsam återutsättning av fisken."
+heroImage: "/images/gear/cwc-foldable-boat-net.jpg"
+heroSource: "illustration"
+brand: "CWC"
+category: "havar"
+price: 995
+rating: 4
+pros:
+  - "Ramen fälls ihop och skaftet skjuts in i ramen"
+  - "Mjukt gumminät för catch and release"
+  - "150 cm skaft räcker från de flesta relingar"
+cons:
+  - "Nätdjupet anges inte av tillverkaren"
+  - "Maskvidden anges inte för den här modellen"
+  - "Vikten anges inte av tillverkaren"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=36326&url=https://fiskeonline.com/sv/produkt/cwc-foldable-boat-net-tele-handle-50x-60xcm-150cm/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["gos", "abborre", "oring", "havsoring"]
+techniques: ["jigg", "spinn", "dropshot"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+CWC Foldable Boat Net är gjord för att ligga i en båt utan att vara i vägen. Ramen mäter 50x60 cm och fälls ihop på längden, och det teleskopiska skaftet på 150 cm skjuts in i ramen. Hopfälld blir håven ett paket som får plats under en durk i stället för att ligga tvärs över däck och fastna i varje kast.
+
+Nätet är mjukt gummi. Catch with Care bygger hela sitt sortiment kring skonsam hantering, och gumminät är det som gör skillnad i praktiken när fisken ska tillbaka. Kroken lossnar ur nätet i stället för att arbeta sig in i fibrerna, och nätet drar inte åt sig slem på samma sätt som textil.
+
+Tillverkaren anger den här modellen som lämplig för öring, gös och abborre, och skaftlängden pekar åt båtfiske snarare än vadning. 150 cm räcker från de flesta relingar utan att bli ohanterligt. Det som saknas i underlaget är nätdjup och maskvidd, två uppgifter CWC anger för sina större modeller men inte för den här. Ramens 50x60 cm sätter under alla omständigheter gränsen vid medelstora rovfiskar, inte vid metergädda.
+```
+
+## src/content/gear-reviews/darts-landing-net-medium-teleskopisk.mdx
+```
+---
+title: "Darts Landing Net Medium Teleskopisk"
+slug: "darts-landing-net-medium-teleskopisk"
+description: "Flytande håv med teleskopiskt skaft och gumminät. Ramen anges till 53 cm och både ram och skaft fälls ihop för transport."
+heroImage: "/images/gear/darts-landing-net-medium-teleskopisk.jpg"
+heroSource: "illustration"
+brand: "Darts"
+category: "havar"
+price: 699
+rating: 3.5
+pros:
+  - "Flytande trots teleskopiskt skaft"
+  - "Gumminät som är skonsamt vid återutsättning"
+  - "Hopfällbar ram och infällbart skaft"
+cons:
+  - "Måtten skiljer sig mellan återförsäljare, 53x43 eller 53x45 cm"
+  - "Skaftlängden anges motstridigt i olika källor"
+  - "Vikten anges inte av tillverkaren"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=105774&url=https://fiskeonline.com/sv/produkt/darts-landing-net-medium-teleskopisk-53cm/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["abborre", "havsoring", "oring"]
+techniques: ["spinn", "jigg"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Darts Landing Net Medium kombinerar två saker som sällan sitter i samma håv. Den har teleskopiskt skaft för räckvidd och flyter samtidigt, vilket de flesta skafthåvar inte gör. Ramen fälls ihop och skaftet skjuts in, så håven packas ner till ett format som fungerar i båt och ryggsäck.
+
+Nätet är gummerat. Ramen anges till 53 cm på bredden, vilket är storleken för abborre, regnbåge, havsöring och kustfiskets makrill och horngädda snarare än för gädda och gös.
+
+Specifikationerna är motstridiga i källorna. Ramens andra mått anges som 43 cm av en återförsäljare och 45 cm av en annan, och skaftlängden dyker upp både som 163 cm och som 63 cm hopskjutet mot 100 cm utdraget. Darts har ingen egen produktsida för håven att stämma av mot. Räckvidden ligger alltså någonstans runt en meter utdraget, men den exakta siffran går inte att verifiera. För fiske där du behöver veta att skaftet når finns bättre dokumenterade alternativ.
+```
+
+## src/content/gear-reviews/darts-vadarhav-flytande-medium.mdx
+```
+---
+title: "Darts Vadarhåv Flytande Medium"
+slug: "darts-vadarhav-flytande-medium"
+description: "Flytande vadarhåv med gumminät och flytelement runt ramen. Storleken anges till 50 cm och håven fungerar även som tillfällig sump."
+heroImage: "/images/gear/darts-vadarhav-flytande-medium.jpg"
+heroSource: "illustration"
+brand: "Darts"
+category: "havar"
+price: 599
+rating: 3.5
+pros:
+  - "Flytelement runt hela ramen"
+  - "Gumminät som släpper krokar lätt"
+  - "Djup nätficka som låser fisken när håven vinklas"
+cons:
+  - "Endast ett mått anges, 50 cm, utan att det preciseras"
+  - "Nätdjup och maskvidd anges inte"
+  - "Vikten anges inte av tillverkaren"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=105778&url=https://fiskeonline.com/sv/produkt/darts-vadarhav-flytande-medium-50cm/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["havsoring", "oring", "abborre"]
+techniques: ["spinn", "flugfiske"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Darts Vadarhåv Flytande Medium har flytelement runt hela ramen, inte bara i skaftet. Tappar du håven när du står midjedjupt i en ränna ligger den kvar på ytan i stället för att gå till botten. Det är den egenskap som gör håven relevant för kustfiske, kajak och flytring, alltså situationer där du inte kan böja dig ner och plocka upp något från bottnen.
+
+Nätet är gummerat och nätfickan är djup i förhållande till öppningen. Vinklar du håven efter håvningen låser fisken sig i fickan i stället för att kunna vända och ta sig ut. Att ramen flyter gör också att håven kan användas som tillfällig sump, alltså att fisken får ligga kvar i vattnet en stund medan du gör i ordning kamera eller tång.
+
+Underlaget är tunt. Darts anger 50 cm utan att precisera om det gäller ramens bredd eller något annat mått, och varken nätdjup, maskvidd eller vikt finns angivet någonstans. Det är en håv för vadande fiske efter havsöring, öring och abborre, där fisken redan är inom armlängds håll. Gädda och båtfiske från reling kräver något annat.
 ```
 
 ## src/content/gear-reviews/deeper-smart-sonar-chirp-plus-3.mdx
@@ -10450,96 +11077,6 @@ Deeper CHIRP+ 4 är toppmodellen i Deepers sortiment och för med sig AI-baserad
 Triple beam CHIRP-tekniken med tre skanningsvinklar ger fyra gånger högre detaljrikedom i grunt vatten jämfört med tidigare generationer, vilket gör fisk, kanter, vegetation och strukturer tydligare och enklare att skilja åt även på djup ner till fem meter. Detaljerade 2D- och 3D-kartor visar djupkurvor, bottenhårdhet, vegetation och markerade fiskpositioner.
 
 Med 94 grams vikt, USB-C laddning och upp till 15 timmars batteritid är CHIRP+ 4 praktisk att använda under längre fiskepass. För den som vill ha det absolut bästa i kastbara ekolod och vill använda AI-funktionen för smidigare fiskidentifiering är CHIRP+ 4 svaret. För de flesta sportfiskare levererar dock CHIRP+ 3 tillräcklig prestanda till ett lägre pris.
-```
-
-## src/content/gear-reviews/deeper-smart-sonar-pro-plus-2.mdx
-```
----
-title: "Deeper Smart Sonar PRO+ 2"
-slug: "deeper-smart-sonar-pro-plus-2"
-description: "Kastbart ekolod från Deeper med tre konvinklar, inbyggd GPS och Wi-Fi. Skapar sjökort från land, kajak eller båt och fungerar utmärkt vid isfiske."
-heroImage: "/images/gear/deeper-smart-sonar-pro-plus-2.jpg"
-brand: "Deeper"
-category: "ekolod"
-price: 2595
-rating: 4.4
-pros:
-  - "Tre konvinklar (47, 20 och 7 grader)"
-  - "Inbyggd GPS för kartläggning från land"
-  - "Utmärkt för isfiske"
-  - "1 cm målseparation"
-  - "Upp till 100 meters djup"
-cons:
-  - "Inte CHIRP, lägre upplösning än CHIRP+ 3"
-  - "9 timmars batteritid"
-affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
-merchant: "Fritid och Vildmark"
-featured: false
-budgetPick: false
-targetSpecies:
-  - "abborre"
-  - "gos"
-  - "gadda"
-  - "lax"
-  - "oring"
-techniques:
-  - "spinn"
-  - "jigg"
-  - "isfiske"
-  - "trolling"
-priceRange: "mellanklass"
-quizEnabled: false
----
-
-Deeper PRO+ 2 är ett kraftfullt kastbart ekolod med tre konvinklar som ger full kontroll över hur du läser av vattnet. 47 graders bred vinkel för snabb skanning, 20 graders mellanvinkel för mer detaljerad analys och 7 graders smal stråle för isfiske och vertikalfiske. Djupkapaciteten på 100 meter och 1 cm målseparation ger tydliga avläsningar även på djupare vatten.
-
-Den inbyggda GPS-funktionen gör att du kan skapa sjökort direkt från land genom att kasta ut och veva in, utan båt. Kartorna sparas automatiskt i Fish Deeper-appen och kan nås från valfri enhet. Det är en av de största fördelarna jämfört med Garmin Striker Cast, där GPS-varianten klarar samma sak men med lägre ekolodskvalitet.
-
-Deeper lyfter särskilt fram PRO+ 2:s lämplighet för isfiske, och den 7 grader smala strålen och kyltoleransen ner till minus 20 grader gör den till ett solitt val för vinterfiske. Den som vill ha CHIRP-teknik för högre upplösning och mer detaljerade avläsningar bör titta på CHIRP+ 3.
-```
-
-## src/content/gear-reviews/deeper-start-global.mdx
-```
----
-title: "Deeper START Global"
-slug: "deeper-start-global"
-description: "Enklaste kastbara ekolodet fran Deeper. Visar djup, fisk och bottenstruktur direkt i mobilen via Wi-Fi. Passar nyborrjare och landfiske utan GPS."
-heroImage: "/images/gear/deeper-start-global.jpg"
-brand: "Deeper"
-category: "ekolod"
-price: 1295
-rating: 3.9
-pros:
-  - "Lat och smidig - bara 65 gram"
-  - "Enkel att komma igang med"
-  - "Tydlig Fish Deeper-app"
-  - "Fungerar fran land, brygga och bat"
-cons:
-  - "Ingen GPS - kan inte skapa kartor"
-  - "Enkel strale - lagre detaljrikedom an CHIRP"
-  - "Passar ej isfiske"
-  - "Endast 50 meters rackvidd"
-affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
-merchant: "Fritid och Vildmark"
-featured: false
-budgetPick: true
-targetSpecies:
-  - "abborre"
-  - "gos"
-  - "gadda"
-techniques:
-  - "spinn"
-  - "jigg"
-  - "mete"
-priceRange: "budget"
-quizEnabled: false
----
-
-Deeper START ar den enklaste modellen i Deeper-familjen och riktar sig till fiskare som vill komma igang med ekolodsfiske utan att investera i avancerad teknik. Med en vikt pa 65 gram och trådlos Wi-Fi-anslutning kastar du ut enheten, kopplar upp mobilen och ser djup, fisk och bottenstruktur i realtid via Fish Deeper-appen.
-
-Enkeltrale-konstruktionen med 120 kHz och 40 graders konvinkel ger en bred overblick over vad som hander under ytan. Du ser fiskikoner, bottenkonturer och vegetation med fargkodad bild som ar enkel att tolka. Radickvidden pa 50 meter och djupkapaciteten pa 50 meter racker for de flesta insjositutationer vid landfiske och brygga.
-
-Deeper START saknar GPS och kan darfor inte skapa kartor, och den ar inte anpassad for isfiske. For den som vill ha GPS-kartlaggning eller isfiske passar Garmin Striker Cast eller Deeper PRO+ 2 battre. Men for den som vill ha ett enkelt, latt och prisvaert forsta ekolod for landfiske ar START ett funktionellt val som ger direkt insyn i vattnet under ytan.
 ```
 
 ## src/content/gear-reviews/ej-lures-flatnose-mini.mdx
@@ -10662,55 +11199,6 @@ Den medföljande GT20-givaren ger traditionellt Garmin CHIRP-ekolod och ClearVu 
 Quickdraw Contours låter dig komplettera med egna kartor på vatten där Navionics inte har tillräcklig detalj. 5 000 waypoints och 50 sparade spår ger gott om utrymme för att markera och återkomma till dina bästa fiskeplatser. För den som vill ha en större skärm, SideVu och mer avancerade funktioner är ECHOMAP UHD2 92sv nästa steg.
 ```
 
-## src/content/gear-reviews/garmin-echomap-uhd2-92sv.mdx
-```
----
-title: "Garmin Echomap UHD2 92SV ink GT56"
-slug: "garmin-echomap-uhd2-92sv"
-description: "Avancerad kartplotter med ekolod från Garmin med 9 tums pekskärm, CHIRP, ClearVu, SideVu och stöd för LiveScope. Multiband-GPS och Navionics-sjökort."
-heroImage: "/images/gear/garmin-echomap-uhd2-92sv.jpg"
-brand: "Garmin"
-category: "ekolod"
-price: 11195
-rating: 4.8
-pros:
-  - "9 tums pekskärm med knappar"
-  - "SideVu för skanning åt sidorna"
-  - "Stöd för LiveScope och Panoptix"
-  - "Multiband-GPS med GLONASS, Galileo och BeiDou"
-  - "NMEA 2000 och Garmin Marine Network"
-  - "Navionics-sjökort och Quickdraw Contours"
-cons:
-  - "Mycket högt pris"
-  - "LiveScope-givare kostar extra"
-  - "Kräver 12 V strömförsörjning i båt"
-affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
-merchant: "Fritid och Vildmark"
-featured: false
-budgetPick: false
-targetSpecies:
-  - "gadda"
-  - "gos"
-  - "abborre"
-  - "lax"
-  - "oring"
-techniques:
-  - "trolling"
-  - "jigg"
-  - "spinn"
-priceRange: "premium"
-quizEnabled: false
----
-
-Garmin ECHOMAP UHD2 92sv är den mest avancerade enheten i den här kategorin och representerar toppnivån för båtmonterade kartplottrar med ekolod. Den 9 tums pekskärmen med knappar (1024x600 pixlar) ger utmärkt överblick, och med GT56-givaren får du traditionellt CHIRP-ekolod, ClearVu och SideVu i ett paket.
-
-SideVu låter dig skanna av större områden åt sidorna, vilket är särskilt användbart när du letar efter kanter, stenpartier, betesfisk och platser där rovfisken gärna står. Stöd för LiveScope och Panoptix gör det dessutom möjligt att bygga vidare på systemet med realtidsekolod om du vill ta fiskeupplevelsen till nästa nivå.
-
-Multiband-GPS med stöd för GPS, GLONASS, Galileo och BeiDou ger hög positionsnoggrannhet. NMEA 2000-stöd och Garmin Marine Network gör enheten till ett nav i båtens elsystem. Navionics+ och Navionics Vision+ ger tillgång till detaljerade sjökort. Wi-Fi med ActiveCaptain, AIS-stöd och möjlighet att ansluta Force trollingmotor kompletterar en omfattande funktionslista.
-
-ECHOMAP UHD2 92sv är för den som fiskar mycket från båt, vill ha det bästa tillgängliga och är beredd att investera därefter. För de flesta sportfiskare räcker ECHOMAP UHD2 52cv eller Striker Vivid 7cv gott.
-```
-
 ## src/content/gear-reviews/garmin-striker-cast-no-gps.mdx
 ```
 ---
@@ -10796,97 +11284,6 @@ Garmin Striker Cast Worldwide är samma kastbara ekolod som varianten utan GPS, 
 5 000 waypoints kan sparas, och alla kartor lagras i appen och är åtkomliga från valfri enhet. AutoGain justerar ekolodsbilden automatiskt, och traditionellt 2D-ekolod kombinerat med realtidsvisning för isfiske ger flexibilitet för både sommar och vinter.
 
 GPS-kartläggningen är det mest praktiska tillskottet jämfört med varianten utan GPS, särskilt för den som fiskar samma vatten upprepade gånger och vill bygga upp detaljerad bottenkunskap. Den som vill ha CHIRP-teknik och djupare räckvidd bör titta på Deeper PRO+ 2 eller CHIRP+ 3.
-```
-
-## src/content/gear-reviews/garmin-striker-vivid-4cv.mdx
-```
----
-title: "Garmin Striker Vivid 4CV ink GT20"
-slug: "garmin-striker-vivid-4cv"
-description: "Kompakt fastmonterat ekolod från Garmin med 4 tums färgskärm, CHIRP och ClearVu. Inbyggd GPS och Quickdraw Contours för egna kartor."
-heroImage: "/images/gear/garmin-striker-vivid-4cv.jpg"
-brand: "Garmin"
-category: "ekolod"
-price: 1995
-rating: 4.2
-pros:
-  - "Traditionellt CHIRP och ClearVu"
-  - "Inbyggd GPS med waypoints"
-  - "Quickdraw Contours för egna kartor"
-  - "Kompakt 4 tums skärm"
-  - "IPX7 vattenklassad"
-cons:
-  - "4 tums skärm kan vara liten vid starkt solljus"
-  - "Läser inga Navionics-sjökort"
-  - "Knappstyrning, ingen pekskärm"
-affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
-merchant: "Fritid och Vildmark"
-featured: false
-budgetPick: true
-targetSpecies:
-  - "gadda"
-  - "gos"
-  - "abborre"
-  - "lax"
-  - "oring"
-techniques:
-  - "trolling"
-  - "jigg"
-  - "spinn"
-priceRange: "budget"
-quizEnabled: false
----
-
-Garmin Striker Vivid 4cv är ett kompakt fastmonterat ekolod för den som vill ha ett pålitligt verktyg i båten utan att betala för en full kartplotter. Den medföljande GT20-givaren ger både traditionellt Garmin CHIRP-ekolod och ClearVu, vilket ger en tydlig överblick över fisk och djup samt en mer detaljerad vy av struktur och botten.
-
-Den 4 tums färgstarka skärmen med QSVGA-panel (272x480 pixlar) är lätt att avläsa med tydliga kontraster mellan fisk, botten och vegetation. Inbyggd GPS med stöd för WAAS ger precis positionering, och med Quickdraw Contours kan du skapa egna kartor över dina fiskevatten med 30 cm konturintervall. Enheten klarar kartor över upp till 80 000 hektar.
-
-Striker Vivid 4cv läser inte Navionics- eller Garmin-sjökort, vilket skiljer den från ECHOMAP-serien. För den som enbart vill ha GPS-markering, ekolod och egna kartor utan behov av färdiga sjökort är Striker Vivid 4cv ett funktionellt val. Den som behöver färdiga sjökort bör titta på Garmin ECHOMAP UHD2 52cv.
-```
-
-## src/content/gear-reviews/garmin-striker-vivid-5cv.mdx
-```
----
-title: "Garmin Striker Vivid 5CV ink GT20"
-slug: "garmin-striker-vivid-5cv"
-description: "Fastmonterat ekolod från Garmin med 5 tums färgskärm, CHIRP och ClearVu. Inbyggd GPS, Quickdraw Contours och 500 W uteffekt för tydliga avläsningar."
-heroImage: "/images/gear/garmin-striker-vivid-5cv.jpg"
-brand: "Garmin"
-category: "ekolod"
-price: 3395
-rating: 4.4
-pros:
-  - "5 tums skärm, tydligare än 4cv"
-  - "500 W uteffekt för djupare avläsningar"
-  - "Traditionellt CHIRP och ClearVu"
-  - "Inbyggd GPS med Quickdraw Contours"
-  - "IPX7 vattenklassad"
-cons:
-  - "Läser inga Navionics-sjökort"
-  - "Knappstyrning, ingen pekskärm"
-affiliateUrl: "https://go.fritidvildmark.se/t/t?a=2020679758&as=2072765905&t=2&tk=1"
-merchant: "Fritid och Vildmark"
-featured: false
-budgetPick: false
-targetSpecies:
-  - "gadda"
-  - "gos"
-  - "abborre"
-  - "lax"
-  - "oring"
-techniques:
-  - "trolling"
-  - "jigg"
-  - "spinn"
-priceRange: "mellanklass"
-quizEnabled: false
----
-
-Garmin Striker Vivid 5cv ger samma ekolodsteknik som 4cv-modellen men med en större 5 tums WVGA-skärm (800x480 pixlar) som ger bättre överblick och är enklare att avläsa även i starkt solljus. Den medföljande GT20-givaren ger traditionellt Garmin CHIRP-ekolod och ClearVu med 500 W uteffekt, vilket ger tydligare avläsningar på djupare vatten jämfört med 4cv:s 300 W.
-
-Inbyggd GPS med WAAS-stöd ger precis positionering, och Quickdraw Contours låter dig skapa egna djupkartor med 30 cm konturintervall över upp till 80 000 hektar. Enheten levereras med GT20-givare, lutningsbart fäste och allt monteringsmaterial för installation på akterspegel eller trollingmotor.
-
-Steget från 4cv till 5cv ligger framför allt i skärmstorlek och uteffekt. För den som fiskar mycket från båt och vill ha en tydligare bild utan att betala för en kartplotter är Striker Vivid 5cv ett naturligt val i mellanklass. Den som behöver färdiga Navionics-sjökort bör titta på ECHOMAP UHD2 52cv.
 ```
 
 ## src/content/gear-reviews/garmin-striker-vivid-7cv.mdx
@@ -11186,6 +11583,80 @@ Kinetic Marshall 4000-FD är en budgetrulle i grafitkomposit med stativ och roto
 En praktisk detalj är att rullen levereras med Kinetic 4 Braid flätlina på spolen, vilket sparar in ett köp och gör den direkt klar att använda. Pressgjuten aluminiumspole, rostfri överdimensionerad bygel och laminerat bromssystem är de tekniska höjdpunkterna för prisnivån.
 
 Storleken 4000 är mer lämplig för gädda och gös än för abborrfiske med lätta beten. För den som vill ha en enkel och billig rulle till ett gäddspinn eller ett grövre abborrspinn är Marshall 4000 ett funktionellt förstaval. Den som vill ha bättre känslighet och längre livslängd bör titta högre upp i prisskalan.
+```
+
+## src/content/gear-reviews/kinetic-ozor-bc-200.mdx
+```
+---
+title: "Kinetic Ozor BC 200"
+slug: "kinetic-ozor-bc-200"
+description: "Ingångsmodell bland multirullarna med aluminiumspole och 5 kilo bromskraft. Utväxling 6.3:1, vikt 220 gram och plats för 210 meter 0,26 lina."
+heroImage: "/images/gear/kinetic-ozor-bc-200.jpg"
+heroSource: "illustration"
+brand: "Kinetic"
+category: "multirullar"
+price: 599
+rating: 3
+pros:
+  - "Lägsta ingångspriset bland multirullarna"
+  - "Aluminiumspole trots prisklassen"
+  - "210 meter i 0,26 är gott om lina"
+cons:
+  - "Två kullager plus ett rullager är få"
+  - "Bromssystemets typ anges inte av tillverkaren"
+  - "Rammaterialet anges inte av tillverkaren"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=35321&url=https://fiskeonline.com/sv/produkt/kinetic-multirulle-ozor-bc-200-vanstervev/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: true
+targetSpecies: ["gadda", "abborre", "gos", "oring"]
+techniques: ["jigg", "spinn", "wobbler"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Kinetic Ozor BC 200 är kategorins ingångsmodell och kostar en tredjedel av vad nästa rulle i urvalet gör. Den fyller en tydlig funktion: att kunna prova multifiske utan att lägga ut tusenlappar på något som kanske inte passar. Många upptäcker att de föredrar haspel, och då är det bättre att ha gjort upptäckten billigt.
+
+Utväxlingen 6.3:1 ligger i allroundspannet och spolen rymmer 210 meter lina i 0,26 millimeter, alltså mer än flera dyrare rullar i urvalet. Spolen är i aluminium, vilket inte är självklart i prisklassen och betyder lägre starttröghet än en plastspole hade gett. Bromskraften är 5 kilo, samma som Shimanos SLX levererar för nästan tre gånger priset. Vikten är 220 gram.
+
+Där underlaget tar slut är också där du bör vara försiktig. Rullen har två kullager plus ett rullager, vilket är få och betyder att den kommer att kännas mindre mjuk i gången än rullar med sex eller sju. Kinetic anger varken vilken typ av bromssystem som används för kastkontrollen eller vilket material ramen är gjord i, två uppgifter som konkurrenterna specificerar. För en förstarulle spelar det mindre roll. Ska rullen bli din huvudrulle i flera säsonger är det värt att lägga mer.
+```
+
+## src/content/gear-reviews/kinetic-prospero-landing-net-l.mdx
+```
+---
+title: "Kinetic Prospero Landing Net L"
+slug: "kinetic-prospero-landing-net-l"
+description: "Budgethåv med teleskopiskt aluminiumskaft i två delar. Ramen mäter 50x50 cm med 40 cm djup och skaftet går ut till 130 cm."
+heroImage: "/images/gear/kinetic-prospero-landing-net-l.jpg"
+heroSource: "illustration"
+brand: "Kinetic"
+category: "havar"
+price: 225
+rating: 3.5
+pros:
+  - "Teleskopiskt skaft i två delar med låsning"
+  - "Ramen fälls ihop för transport"
+  - "Ramstorlek 50x50 cm för priset"
+cons:
+  - "Kinetic anger inte gummerat nät för serien"
+  - "Vikten anges inte av tillverkaren"
+  - "Nätdjupet 40 cm är grunt för lång fisk"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=33554&url=https://fiskeonline.com/sv/produkt/kinetic-prospero-landing-net-l-50x50x40cm-130cm/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: true
+targetSpecies: ["abborre", "gadda", "gos"]
+techniques: ["spinn", "jigg", "mete"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Kinetic Prospero Landing Net L är seriens mellanstorlek och den billigaste håven i vårt urval. Ramen mäter 50x50 cm med 40 cm nätdjup och skaftet är teleskopiskt i två delar, utdraget till 130 cm. Ramen fälls ihop och skaftet skjuts in, så håven tar begränsad plats i bagageutrymmet.
+
+Konstruktionen är enkel men genomtänkt på de punkter som spelar roll för hållbarheten. Skaftet är i aluminium och har ett låssystem som håller längden när håven belastas. Spridarblocket, alltså infästningen där ramens bågar möts vid skaftet, är förstärkt. Det är just den punkten som ger vika först på billiga håvar när en tung fisk läggs i nätet.
+
+En sak att veta innan köp. Kinetic anger inte gummerat nät för Prospero-serien, och en återförsäljare listar uttryckligen storlek XL som icke-gummerad. Det betyder att trekrokar fastnar lättare i nätet än på håvarna med gjutet gummi, och att nätet håller kvar mer väta och slem. För fisk du behåller spelar det mindre roll. Fiskar du konsekvent catch and release är det argumentet för att lägga mer pengar på en gummerad modell. Nätdjupet på 40 cm gör också att fisk över 70 cm ligger utsträckt snarare än samlad i påsen.
 ```
 
 ## src/content/gear-reviews/kinetic-xarann-predator-trigger-ct.mdx
@@ -12426,6 +12897,154 @@ Hi-Power X-teknologin minskar klingens vridning vid kast och mothugg, vilket ger
 CI4+ rullfästet håller totalvikten nere och bidrar till den balanserade känslan som gör spöet lämpligt för längre fiskepass. Kastvikten 7-21 g täcker de flesta abborrjiggar och dropshotriggar. Det är inte ett spö för tyngre gäddriggar eller kastning med stora wobblers. För den som fiskar abborre regelbundet med jigg och dropshot och vill ha ett spö med dokumenterad JDM-kvalitet är Zodias ett naturligt val i premiumsegmentet.
 ```
 
+## src/content/gear-reviews/shimano-caius-c-151-hg.mdx
+```
+---
+title: "Shimano Caius C 151 HG"
+slug: "shimano-caius-c-151-hg"
+description: "Instegsmultirulle med kompositstomme och sexpinnars centrifugalbroms. Väger 185 gram, tar hem 72 cm per vev och är byggd för beten mellan 10 och 60 gram."
+heroImage: "/images/gear/shimano-caius-c-151-hg.jpg"
+heroSource: "illustration"
+brand: "Shimano"
+category: "multirullar"
+price: 1299
+rating: 3.5
+pros:
+  - "185 gram är lägre än flera dyrare rullar"
+  - "Sex bromspinnar ger finare steg vid inställning"
+  - "Aluminiumspole trots kompositstomme"
+cons:
+  - "Stommen är komposit, inte metall"
+  - "Betesspannet 10 till 60 gram utesluter stora jerkbaits"
+  - "Bromskraften 5 kilo är samma som på dyrare modeller"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=107819&url=https://fiskeonline.com/sv/produkt/shimano-multirulle-caius-c-151-hg-vanstervev/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["abborre", "gos", "gadda"]
+techniques: ["jigg", "wobbler", "spinn"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Shimano Caius C 151 HG är märkets ingångsmodell bland multirullarna, och Shimano beskriver den själva som en rulle för den som är ny på multifiske. Stommen är i XT-7, alltså Shimanos komposit, inte metall. Det är den avgörande skillnaden mot SLX i nästa prisklass och märks under belastning, där en kompositstomme kan flexa på ett sätt en aluminiumstomme inte gör.
+
+Bromssystemet är sexpinnars VBS, en centrifugalbroms där vikter slungas utåt när spolen accelererar. Sex pinnar i stället för fyra ger fler steg att ställa in mellan, vilket gör det lättare att hitta en inställning som fungerar innan man har tummen tränad. Det är också skälet Shimano lyfter systemet som nybörjarvänligt. Spolen är i aluminium av samma typ som sitter på dyrare modeller, vilket håller nere starttrögheten och gör att lättare beten går att kasta.
+
+Vikten är 185 gram, alltså tio gram lägre än SLX, och utväxlingen 7.2:1 ger 72 centimeter per vev med 45 millimeters vevarm. Bromskraften ligger på 5 kilo och rullen har tre kullager plus ett rullager. Shimano anger betesspannet till mellan 10 och 60 gram, vilket täcker abborrjiggar, mellanstora wobblers och mindre gäddbeten men inte tunga jerkbaits. Linkapaciteten är 12 lb på 130 meter.
+```
+
+## src/content/gear-reviews/shimano-curado-bfs-xg.mdx
+```
+---
+title: "Shimano Curado BFS XG"
+slug: "shimano-curado-bfs-xg"
+description: "Multirulle för lätta beten med magnetbroms och grund spole. Väger 175 gram, har utväxling 8.2:1 och är byggd för beten under fem gram."
+heroImage: "/images/gear/shimano-curado-bfs-xg.jpg"
+heroSource: "illustration"
+brand: "Shimano"
+category: "multirullar"
+price: 3099
+rating: 4
+pros:
+  - "Kastar beten under fem gram, vilket vanliga multirullar inte gör"
+  - "Magnetbromsen sitter i sidoplattan, inte på spolen"
+  - "175 gram är lägst i vårt urval"
+cons:
+  - "Bromskraften 3.5 kilo utesluter grov fisk"
+  - "Linkapaciteten är 45 meter fluorocarbon"
+  - "Smalt användningsområde för priset"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=33377&url=https://fiskeonline.com/sv/produkt/shimano-multirulle-curado-bfs-xg-vanstervev/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["abborre", "oring", "harr"]
+techniques: ["jigg", "dropshot", "spinn"]
+priceRange: "premium"
+quizEnabled: false
+---
+
+Shimano Curado BFS XG löser ett problem som vanliga multirullar inte klarar. BFS står för Bait Finesse System, och rullen är byggd för beten som är för lätta för att dra igång en normal spole. Shimano anger själva gränsen till omkring fem gram, alltså den viktklass där de flesta byter till haspel.
+
+Lösningen ligger i bromsen. FTB, Finesse Tune Brake, flyttar bromsmagneterna från spolen till sidoplattan. Spolen blir därmed lättare och kan snurra med mycket lite kraft, medan magneterna verkar mot spolens insida utifrån. Bromsstyrkan ökar automatiskt när spolen accelererar, och justeras med en ratt. Utväxlingen 8.2:1 är hög och ger 82 centimeter per vev med 42 millimeters vevarm.
+
+Det du betalar för är alltså specialisering, inte allroundegenskaper. Bromskraften är 3.5 kilo och spolen är grund, med plats för 45 meter fluorocarbon i klassen 8 lb. Vikten är 175 gram och rullen har sju kullager plus ett rullager. Det här är en rulle för abborre på små jiggar, för öring och harr med lätta beten, och för lägen där fisken vägrar allt som är större. Ska den vara din enda multirulle är det fel val.
+```
+
+## src/content/gear-reviews/shimano-curado-k-301-hg.mdx
+```
+---
+title: "Shimano Curado K 301 HG"
+slug: "shimano-curado-k-301-hg"
+description: "Multirulle i 300-storlek med aluminiumstomme. Bromskraften är 8 kilo, spolen rymmer 235 meter 0,30 nylon och vevarmen är 51 millimeter."
+heroImage: "/images/gear/shimano-curado-k-301-hg.jpg"
+heroSource: "illustration"
+brand: "Shimano"
+category: "multirullar"
+price: 3199
+rating: 4.5
+pros:
+  - "8 kilo bromskraft mot 5 till 6 på 150-storlekarna"
+  - "235 meter 0,30 nylon eller 180 meter PE4"
+  - "88 cm per vev trots måttlig utväxling"
+cons:
+  - "305 gram gör den tung på ett lätt spö"
+  - "Fem kullager plus ett rullager i den här prisklassen"
+  - "300-spolen kräver grövre lina för att fungera väl"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=33332&url=https://fiskeonline.com/sv/produkt/shimano-multirulle-curado-k-301-hg-vanstervev/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["gadda", "gos"]
+techniques: ["jerkbait", "jigg", "trolling"]
+priceRange: "premium"
+quizEnabled: false
+---
+
+Shimano Curado K 301 HG är den största i Curado-familjen och byggd för ett annat fiske än 150-rullarna. Spolen rymmer 235 meter nylon i 0,30 eller 180 meter flätlina i PE4, alltså tillräckligt för att både fiska djupt och ha marginal när en fisk drar ut lina. Stommen är i aluminium.
+
+Bromskraften är 8 kilo, mot 5 till 6 på Shimanos 150-storlekar. Det är den siffra som avgör om rullen klarar att stoppa en grov gädda innan den når vass eller stenrev. Utväxlingen 6.6:1 låter måttlig men ger ändå 88 centimeter per vev, eftersom en 300-spole har större diameter och därmed tar hem mer lina per varv. Vevarmen är 51 millimeter, alltså längre än på 150-rullarna, vilket ger mer hävstång vid tunga beten.
+
+Vikten är 305 gram. Det märks på ett lätt spö och är priset för spolstorleken och metallstommen. Rullen har fem kullager plus ett rullager, vilket är färre än Curado M har trots högre pris, och bromsen är centrifugal. Shimano använder både VBS och SVS som beteckning på sin egen sida utan att ange vilket som gäller här. Kombinationen kraft, linkapacitet och tyngd gör den till en gäddrulle för stora beten, inte till en allroundrulle.
+```
+
+## src/content/gear-reviews/shimano-curado-m-151-hg.mdx
+```
+---
+title: "Shimano Curado M 151 HG"
+slug: "shimano-curado-m-151-hg"
+description: "Multirulle med MGL III-spole och extern bromsratt. Utväxling 7.4:1 ger 74 cm per vev, vikten är 190 gram och bromskraften 6 kilo."
+heroImage: "/images/gear/shimano-curado-m-151-hg.jpg"
+heroSource: "illustration"
+brand: "Shimano"
+category: "multirullar"
+price: 3099
+rating: 4.5
+pros:
+  - "Bromsen justeras med extern ratt utan att sidoplattan öppnas"
+  - "Sex kullager plus ett rullager"
+  - "6 kilo bromskraft på en 150-spole"
+cons:
+  - "Priset är dubbelt mot SLX på samma spolstorlek"
+  - "150-spolen begränsar linmängden vid grov fläta"
+  - "Byggd för medeltunga beten, inte för de största jerkbaitsen"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=107814&url=https://fiskeonline.com/sv/produkt/shimano-multirulle-curado-m-151-hg-vanstervev/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["gos", "gadda", "abborre"]
+techniques: ["jigg", "jerkbait", "wobbler"]
+priceRange: "premium"
+quizEnabled: false
+---
+
+Shimano Curado M 151 HG är rullen där två saker skiljer mot enklare modeller, och båda märks från första kastet. Spolen är av MGL III-typ med tunn vägg och låg starttröghet, vilket betyder att den kommer igång med mindre kraft. Praktiskt innebär det att lättare beten går att kasta utan att spolen behöver ryckas igång med hela armen.
+
+Den andra skillnaden är bromssystemet. SVS Infinity justeras med en ratt på utsidan, så inställningen kan ändras mitt i fisket när vinden vänder eller betet byts. Enklare centrifugalbromsar kräver att sidoplattan öppnas, vilket i praktiken betyder att de ställs in en gång per pass och sedan står orörda. Utväxlingen 7.4:1 ger 74 centimeter per vev med 45 millimeters vevarm.
+
+Vikten är 190 gram och bromskraften 6 kilo, vilket är ett kilo mer än på Shimanos enklare 150-rullar. Rullen har sex kullager plus ett rullager. Linkapaciteten är 12 lb på 130 meter i nylon, alltså en 150-spole med det linutrymme det innebär. Shimano placerar Curado M mitt i sitt MGL-sortiment och beskriver den som byggd för medeltunga och lättare beten. Ska du kasta stora jerkbaits efter grov gädda ligger 300-storlekarna närmare till hands.
+```
+
 ## src/content/gear-reviews/shimano-expride-haspelspo-198m.mdx
 ```
 ---
@@ -12670,6 +13289,80 @@ Kroppen är av XT-7 i stället för CI4+ som Miravel använder, vilket är ett s
 Fyra kullager plus rullager är få för priset, och det är den tydligaste kompromissen. I praktiken bär gångkvaliteten mer av växelkonstruktionen än av antalet lager, men den som jämför specifikationer kommer att notera det. Storleken 2500 passar abborrjigg, dropshot och lätt gösfiske. Sahara är valet för den som vill ha Shimanos växelteknik utan att gå upp till Miravel eller Stradic.
 ```
 
+## src/content/gear-reviews/shimano-slx-151-hg.mdx
+```
+---
+title: "Shimano SLX 151 HG"
+slug: "shimano-slx-151-hg"
+description: "Multirulle med aluminiumstomme och centrifugalbroms. Utväxling 7.2:1 ger 72 cm lina per vev, vikten är 195 gram och bromskraften 5 kilo."
+heroImage: "/images/gear/shimano-slx-151-hg.jpg"
+heroSource: "illustration"
+brand: "Shimano"
+category: "multirullar"
+price: 1599
+rating: 4
+pros:
+  - "Aluminiumstomme i stället för komposit i den här prisklassen"
+  - "72 cm lina per vev tar hem slack snabbt"
+  - "195 gram är lågt för en rulle med metallstomme"
+cons:
+  - "Bromskraften 5 kilo är blygsam för tungt gäddfiske"
+  - "Tre kullager plus ett rullager är få för priset"
+  - "Linkapaciteten anges bara i lb, inte i millimeter"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=33363&url=https://fiskeonline.com/sv/produkt/shimano-multirulle-slx-151-hg-vanstervev/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["gadda", "gos", "abborre"]
+techniques: ["jigg", "jerkbait", "wobbler"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Shimano SLX 151 HG är den rulle de flesta hamnar på när de går från haspel till multi. Stommen är i aluminium, vilket inte är självklart i den här prisklassen där komposit är vanligt. Skillnaden märks när rullen belastas, eftersom en metallstomme inte vrider sig under drag och kraften från veven går rakt in i utväxlingen i stället för att försvinna i flex.
+
+Utväxlingen 7.2:1 ger 72 centimeter lina per vevvarv med full spole. Det är snabbt nog att ta hem slack efter ett kast och långsamt nog att arbeta en jerkbait utan att beten går för fort. Vevarmen är 45 millimeter. Vikten ligger på 195 gram och maximal bromskraft på 5 kilo. Bromsen är centrifugal, alltså vikter som slungas utåt när spolen accelererar, i stället för magnetisk. Kastkontrollen ställs in efter betesvikt och vind, och centrifugalsystem kräver mer inställning än magnetbromsar men ger också mer kontroll när man lärt sig dem.
+
+Siffran 151 betyder vänstervev på en 150-spole. Linkapaciteten anges av Shimano i pund och meter, alltså 12 lb på 130 meter eller 20 lb på 80 meter. Bromskraften på 5 kilo räcker för gös, abborre och gädda i normalstorlek men är i underkant om du fiskar stora jerkbaits efter riktigt grov gädda. Då ligger 300-storlekarna närmare till hands. Rullen har tre kullager och ett rullager, vilket är få jämfört med billigare rullar som staplar lager som säljargument.
+```
+
+## src/content/gear-reviews/shimano-slx-xt-a-151-hg.mdx
+```
+---
+title: "Shimano SLX XT A 151 HG"
+slug: "shimano-slx-xt-a-151-hg"
+description: "Multirulle med SVS Infinity och extern bromsratt. Utväxling 7.2:1 ger 72 cm per vev, vikten är 205 gram och bromskraften 5,5 kilo."
+heroImage: "/images/gear/shimano-slx-xt-a-151-hg.jpg"
+heroSource: "illustration"
+brand: "Shimano"
+category: "multirullar"
+price: 1899
+rating: 4
+pros:
+  - "SVS Infinity justeras med ratt på utsidan"
+  - "Fyra kullager plus ett rullager"
+  - "Spolen rymmer 150 meter i 0,25 millimeter"
+cons:
+  - "205 gram är tyngre än enklare SLX-modeller"
+  - "5,5 kilo bromskraft är i underkant för grov gädda"
+  - "Namnlikheten med övriga SLX-modeller gör det lätt att köpa fel"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=105044&url=https://fiskeonline.com/sv/produkt/shimano-multirulle-slx-xt-a-151-hg-vanstervev/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["gadda", "gos", "abborre"]
+techniques: ["jigg", "jerkbait", "wobbler"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Shimano SLX XT A 151 HG är uppgraderingen inom SLX-familjen, och skillnaden mot grundmodellen sitter i bromssystemet. XT använder SVS Infinity, där bromskraften justeras med en ratt på utsidan av rullen. Enklare centrifugalbromsar kräver att sidoplattan öppnas för att bromsvikterna ska nås, vilket i praktiken betyder att inställningen görs en gång och sedan får stå.
+
+Det låter som en detalj men avgör hur rullen används. Byter du från en tung jerkbait till en lätt wobbler mitt i passet, eller går vinden upp, kan bromsen ställas om på några sekunder i stället för att du fiskar vidare med fel inställning och riskerar backlash. Utväxlingen 7.2:1 ger 72 centimeter per vev.
+
+Vikten är 205 gram och bromskraften 5,5 kilo. Rullen har fyra kullager plus ett rullager och spolen rymmer 150 meter lina i 0,25 millimeter. En varning värd att ta på allvar: Shimano säljer SLX, SLX XT, SLX XT A, SLX DC och SLX XT DC med nästan identiska namn men olika bromssystem och priser. Kontrollera bokstäverna efter modellnamnet innan du beställer, eftersom skillnaden mellan dem är hundralappar och en helt annan kastupplevelse.
+```
+
 ## src/content/gear-reviews/shimano-stella-fk-2500.mdx
 ```
 ---
@@ -12754,6 +13447,43 @@ Shimano Stradic FM C3000 HG är i praktiken en premiuminspirerad rulle till mell
 Long Stroke Spool ger upp till 10 procent längre kast än konventionella spolar, och X-Protect-vattenresistensen ger en hög skyddsnivå för en rulle utan fullständig tätning. Anti-Twist Fin och avancerad oscillation för jämn linläggning kompletterar en teknisk utrustningslista som imponerar för prisnivån. Duracross-draget ger exakt kontroll vid kamp med större fiskar.
 
 C3000 HG-varianten med High Gear-utväxling passar jigg- och dropshotfiske samt spinnfiske där snabb betesåterhämtning är en fördel. Den som fiskar slow roll eller behöver extra kraft vid invevning av tunga beten bör titta på en variant med lägre utväxling. Stradic FM sätter standarden för vad som går att få i mellanklass från Shimano.
+```
+
+## src/content/gear-reviews/shimano-tranx-b-301-hg.mdx
+```
+---
+title: "Shimano Tranx B 301 HG"
+slug: "shimano-tranx-b-301-hg"
+description: "Multirulle byggd för tungt gäddfiske. Tar hem 103 cm lina per vev, väger 345 gram och har åtta bromsklossar med steglös extern justering."
+heroImage: "/images/gear/shimano-tranx-b-301-hg.jpg"
+heroSource: "illustration"
+brand: "Shimano"
+category: "multirullar"
+price: 4199
+rating: 4.5
+pros:
+  - "103 cm lina per vev är mest i vårt urval"
+  - "Åtta bromsklossar hanterar stora beten med luftmotstånd"
+  - "70 mm vevarm ger hävstång vid tunga beten"
+cons:
+  - "345 gram kräver ett spö som balanserar vikten"
+  - "Fem kullager plus ett rullager för priset"
+  - "Överdimensionerad för allt utom tungt fiske"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=103818&url=https://fiskeonline.com/sv/produkt/shimano-multirulle-tranx-b-301-hg-vanstervev/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["gadda", "gos"]
+techniques: ["jerkbait", "trolling", "jigg"]
+priceRange: "premium"
+quizEnabled: false
+---
+
+Shimano Tranx B 301 HG är kategorins tyngsta rulle i båda betydelser. Den väger 345 gram och är byggd för fiske med stora beten efter grov fisk, ursprungligen för amerikansk muskie. Stommen är CoreSolid, vilket betyder att sidoplatta, linstyrningsskydd och ram är gjutna i ett stycke aluminium i stället för att skruvas ihop av delar.
+
+Utväxlingen 7.6:1 på en 300-spole ger 103 centimeter lina per vevvarv, alltså mer än en meter. Vevarmen är 70 millimeter, betydligt längre än de 45 till 51 millimeter som sitter på mindre rullar, och avslutas med en enkel powerknopp i stället för dubbla paddlar. Kombinationen är gjord för att kunna dra hem en stor gummifisk mot vattenmotståndet utan att veven känns kort.
+
+Bromssystemet heter SVS Infinity MD Tune och använder åtta bromsklossar mot vanliga systems färre. Shimano anger uttryckligen att det är byggt för spolar med hög tröghet och för beten med stort luftmotstånd, alltså den situation där en vanlig broms tappar kontrollen mitt i kastet. Justeringen är steglös via en yttre ratt. Bromskraften är 8 kilo och rullen har fem kullager plus ett rullager. X-Protect tätar mot vatten runt drivaxelns lager, vilket gör den användbar i bräckt vatten.
 ```
 
 ## src/content/gear-reviews/shimano-vanford-fa-2500.mdx
@@ -13496,6 +14226,117 @@ Kastvikten 2–10 g gör det till ett utpräglat finessespö. Det passar bäst f
 Det delade handtaget med premium EVA och gummikorksinslag ger ett bekvämt grepp även under långa fiskepass. Jämfört med W3 Finesse Jig, som är optimerad för jigg och dropshot, är T&C-varianten något mer allround och passar bättre för den som växlar mellan flera tekniker under samma utflykt.
 ```
 
+## src/content/gear-reviews/westin-w3-floating-net-m.mdx
+```
+---
+title: "Westin W3 C&R Floating Net M"
+slug: "westin-w3-floating-net-m"
+description: "Flytande vadarhåv med 10 mm gumminät. Ramen mäter 40x50x50 cm och skaftet är 33 cm, byggd för vadning och fiske från belly boat."
+heroImage: "/images/gear/westin-w3-floating-net-m.jpg"
+heroSource: "illustration"
+brand: "Westin"
+category: "havar"
+price: 399
+rating: 4
+pros:
+  - "Både ram och skaft flyter om håven tappas"
+  - "Djup nätpåse på 50 cm i förhållande till ramen"
+  - "Snöre för vadning medföljer"
+cons:
+  - "Skaftet är 33 cm och ger ingen räckvidd"
+  - "Ramen på 40 cm är för liten för större gädda"
+  - "Vikten anges inte av tillverkaren"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=29939&url=https://fiskeonline.com/sv/produkt/westin-w3-cr-floating-net-m/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["abborre", "oring", "harr"]
+techniques: ["spinn", "flugfiske"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Westin W3 C&R Floating Net M är byggd för fiske där du står i vattnet. Både ramen och skaftet flyter, så håven blir kvar på ytan om du tappar den i strömmen eller från en belly boat. Ramen mäter 40x50x50 cm och skaftet är 33 cm. Det är ett handhållet redskap, inte en håv du sträcker ut med.
+
+Nätet är gummerat med en maskvidd på 10 mm och påsen är djup i förhållande till ramen. Kombinationen 40 cm bredd och 50 cm djup betyder att fisken hamnar i en påse som håller den samlad, i stället för att den ligger platt mot botten och slår sig mot ramen. Ett snöre för vadning ingår, så håven kan hänga i vadarbältet mellan fiskarna.
+
+Ramstorleken sätter gränsen. Abborre, öring och harr av normalstorlek går bra, men en gädda över metern får inte plats. Fiskar du vadande i strömmande vatten eller från belly boat är det räckvidden du saknar minst, eftersom fisken redan är inom armlängds håll när den ska håvas. Ska håven följa med i båt eller användas från hög strandkant behöver du en modell med längre skaft. Westin anger ingen vikt.
+```
+
+## src/content/gear-reviews/westin-w3-foldable-river-xl.mdx
+```
+---
+title: "Westin W3 C&R Foldable River XL"
+slug: "westin-w3-foldable-river-xl"
+description: "Hopfällbar älvhåv med 40 mm gumminät och aluminiumram. Ramen mäter 70x85x80 cm och skaftet är 120 cm med teleskopfunktion."
+heroImage: "/images/gear/westin-w3-foldable-river-xl.jpg"
+heroSource: "illustration"
+brand: "Westin"
+category: "havar"
+price: 999
+rating: 4.5
+pros:
+  - "Grov maskvidd på 40 mm ger mindre motstånd i ström"
+  - "Fälls ihop för transport längs älven"
+  - "Aluminiumram dimensionerad för stor fisk"
+cons:
+  - "Ramen på 70x85 cm är otymplig i trång strandvegetation"
+  - "Grov maskvidd passar sämre för småfisk"
+  - "Vikten anges inte av tillverkaren"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=29945&url=https://fiskeonline.com/sv/produkt/westin-w3-cr-foldable-river-landing-net-xl/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["lax", "oring", "gadda"]
+techniques: ["spinn", "flugfiske"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Westin W3 C&R Foldable River XL är dimensionerad för strömmande vatten. Maskvidden är 40 mm, alltså betydligt grövre än på Westins håvar för sjö och båt. Grovt nät släpper igenom vatten i stället för att bromsa mot det, vilket är skillnaden mellan att kunna föra håven under en fisk i strid ström och att kämpa emot trycket. Ramen mäter 70x85x80 cm och sitter på en aluminiumkonstruktion.
+
+Skaftet är 120 cm och har ett teleskopsystem som skjuts ihop och klickar på plats. Håven fälls sedan ihop vid leden mellan nät och skaft. Det gör den möjlig att bära längs en älvsträcka utan att den fastnar i varje gren, och den får plats i bilen utan att läggas diagonalt. Nätet är gummerat.
+
+Det här är en håv för dig som fiskar lax eller stor öring i älv, eller gädda i strömmande vatten. Ramen är stor nog för fisk i det övre spannet. Den grova maskvidden är samtidigt argumentet emot i annat fiske, eftersom mindre fisk och krokar hittar igenom 40 mm lättare än genom ett tätare nät. Fiskar du mest sjö och båt finns bättre alternativ. Westin anger ingen vikt.
+```
+
+## src/content/gear-reviews/westin-w3-full-rubber-mesh-xl.mdx
+```
+---
+title: "Westin W3 C&R Full Rubber Mesh XL"
+slug: "westin-w3-full-rubber-mesh-xl"
+description: "Håv med gjutet gumminät och aluminiumram. Ramen mäter 64x54x43 cm och skaftet är 120 cm i ett stycke, utan teleskop eller hopfällning."
+heroImage: "/images/gear/westin-w3-full-rubber-mesh-xl.jpg"
+heroSource: "illustration"
+brand: "Westin"
+category: "havar"
+price: 799
+rating: 4
+pros:
+  - "Gjutet gumminät fastnar inte i trekrokar"
+  - "Graverad måttskala på skaftet"
+  - "Aluminiumram i ett stycke utan leder som glappar"
+cons:
+  - "Skaftet är fast på 120 cm och går inte att förlänga"
+  - "Går inte att fälla ihop för transport"
+  - "Vikten anges inte av tillverkaren"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=38164&url=https://fiskeonline.com/sv/produkt/westin-w3-cr-full-rubber-mesh-landing-net-xl-64x54x43cm-handle-120cm/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["gadda", "gos", "abborre"]
+techniques: ["jigg", "spinn", "jerkbait"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Westin W3 C&R Full Rubber Mesh XL är en håv byggd i ett stycke. Ramen är av aluminium och mäter 64x54x43 cm, skaftet är 120 cm och sitter fast. Det finns ingen led att fälla och inget teleskop att dra ut. Konstruktionen har färre delar som kan kärva eller glappa efter en säsong i båten, men den tar också full plats i bilen och i förvaringen.
+
+Nätet är gjutet i gummi rakt igenom, inte ett textilnät med gummibeläggning. Skillnaden märks när en trekrok hamnar i nätet i stället för i fisken. Ett gjutet gumminät har inga fibrer för krokspetsen att gripa i, vilket kortar tiden fisken ligger i håven. Samma egenskap gör att nätet torkar snabbt och inte drar åt sig slem. Skaftet har en graverad måttskala, så längden går att läsa av utan att fisken flyttas till ett måttband. Greppet är av EVA och låsningen mellan skaft och ram sker med dubbla knappar.
+
+Ramstorleken räcker för gädda i normalstorlek och med god marginal för gös och abborre. Det fasta skaftet gör den bäst i båt, där 120 cm är tillräckligt från de flesta relingar. Fiskar du från land med hög strandkant, eller behöver packa ner håven i en ryggsäck, är en teleskopisk eller hopfällbar modell ett bättre val. Westin anger ingen vikt för håven.
+```
+
 ## src/content/gear-reviews/westin-w3-hybridcast-t-3rd.mdx
 ```
 ---
@@ -13616,6 +14457,43 @@ Den progressiva aktionen absorberar hårda knyckar och rusningar från större f
 Kastvikten 60-180 g täcker de flesta trollingriggar för gädda och gös. W3 Predator Trolling levererar märkbart högre känslighet och komponentkvalitet än Okuma Magda Finn och är det naturliga steget upp för den som fiskar trolling regelbundet.
 ```
 
+## src/content/gear-reviews/westin-w4-101-ssg.mdx
+```
+---
+title: "Westin W4 Multirulle 101 SSG"
+slug: "westin-w4-101-ssg"
+description: "Multirulle med aluminiumram och kolfibergavel. Utväxling 6.6:1 ger 66 cm per vev, vikten är 195 gram och bromskraften 5,5 kilo."
+heroImage: "/images/gear/westin-w4-101-ssg.jpg"
+heroSource: "illustration"
+brand: "Westin"
+category: "multirullar"
+price: 2499
+rating: 4
+pros:
+  - "Sju tätade kullager plus ett rullager"
+  - "Line View visar hur mycket lina som är kvar"
+  - "Hårt fodral ingår"
+cons:
+  - "Gaveln är kolfiber, inte metall som ramen"
+  - "5,5 kilo bromskraft är blygsamt i prisklassen"
+  - "66 cm per vev är långsammare än de flesta i urvalet"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=21012&url=https://fiskeonline.com/sv/produkt/westin-w4-multirulle-101-ssg-utvaxling-6-61-metallic-trooper-vanstervev/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["gadda", "gos", "abborre", "oring"]
+techniques: ["jigg", "jerkbait", "wobbler"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Westin W4 Multirulle 101 SSG är seriens 100-storlek med låg utväxling och vänstervev. Ramen är aluminium i ett stycke medan gaveln är kolfiber, alltså en blandkonstruktion där styvheten sitter där belastningen är och vikten hålls nere där den inte behövs. Storlek 300 i samma serie har hel aluminiumram, vilket antyder var Westin drar gränsen för när metall behövs hela vägen.
+
+SSG står för slow speed gear. Utväxlingen 6.6:1 ger 66 centimeter lina per vevvarv, vilket är långsamt jämfört med snabbare rullar i urvalet. Det är en avvägning snarare än en brist. Låg utväxling ger mer kraft per vevvarv och gör det lättare att arbeta beten med stort vattenmotstånd, som djupgående wobblers och stora gummifiskar, utan att veven känns tung. Vill du täcka vatten snabbt finns HSG-varianten på 8.1:1 i samma storlek.
+
+Bromsen är CBS6, en sexstifts centrifugalbroms som sitter internt. Bromskraften är 5,5 kilo och rullen har sju tätade rostfria kullager plus ett rullager. Vikten är 195 gram och spolen rymmer 135 meter lina i 0,285 millimeter. Två detaljer som sällan nämns men märks i praktiken: Line View är ett fönster som visar hur mycket lina som är kvar på spolen, och Fast Line Connector är ett fäste som gör att linan kan sättas fast utan knut. Ett hårt fodral ingår.
+```
+
 ## src/content/gear-reviews/westin-w6-8-braid-0148mm.mdx
 ```
 ---
@@ -13656,6 +14534,43 @@ Westin W6 8 Braid är nästa steg upp från W3-serien och använder japanska UHM
 Lime Punch-färgen ger bra linobservation utan att vara lika skrikig som Fluo Yellow, vilket gör den lämplig både för jiggfiske där linobservation är viktigt och för spinnfiske i klart vatten. 0,148 mm med 6,8 kg brottstyrka passar abborrjiggar och gösriggar.
 
 Steget från W3 till W6 är märkbart i kastprestanda och känslighet, särskilt vid jiggfiske på djupare vatten där varje extra meter kastlängd och direkt linkänsla spelar roll. Den som fiskar abborre och gös regelbundet och vill ha hög kvalitet inom rimliga prisgränser bör titta närmare på W6. För de allra högsta kraven finns W10-serien.
+```
+
+## src/content/gear-reviews/westin-w6-bc-301-hd.mdx
+```
+---
+title: "Westin W6 Multirulle BC 301 HD"
+slug: "westin-w6-bc-301-hd"
+description: "Multirulle i 300-storlek med 13 kilo bromskraft och elva lager. Utväxling 5.6:1, vikten 284 gram och spolen rymmer 230 meter 0,30 nylon."
+heroImage: "/images/gear/westin-w6-bc-301-hd.jpg"
+heroSource: "illustration"
+brand: "Westin"
+category: "multirullar"
+price: 3099
+rating: 4.5
+pros:
+  - "13 kilo bromskraft är högst i vårt urval"
+  - "Tio kullager plus ett rullager"
+  - "284 gram trots 300-storlek"
+cons:
+  - "70 cm per vev är långsamt för snabba beten"
+  - "Låg utväxling kräver mer vevande på långa kast"
+  - "Överdimensionerad broms för abborre och gös"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=105258&url=https://fiskeonline.com/sv/produkt/westin-w6-multirulle-bc-301-hd-utvaxling-5-61-vanstervev/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["gadda", "gos"]
+techniques: ["jerkbait", "jigg", "trolling"]
+priceRange: "premium"
+quizEnabled: false
+---
+
+Westin W6 Multirulle BC 301 HD är byggd kring en enda siffra. Bromskraften är 13 kilo, vilket är mer än någon annan rulle i vårt urval och betydligt över de 8 kilo som Shimanos 300-storlekar levererar. HD står för heavy duty, och rullen sitter i toppen av Westins sortiment.
+
+Utväxlingen är 5.6:1 och ger 70 centimeter lina per vevvarv. Det är långsamt, och det är avsiktligt. Låg utväxling betyder mer kraft per vevvarv, vilket är vad som krävs när ett stort gummibete eller en tung jerkbait ska arbetas mot vattenmotståndet under en hel dag. Priset är att inveving av långa kast tar fler varv. Vill du täcka vatten snabbt är det fel rulle.
+
+Vikten är 284 gram, vilket är lågt för en 300-rulle med den här bromskraften. Spolen rymmer 230 meter nylon i 0,30 millimeter. Rullen har tio kullager plus ett rullager, alltså fler än de fem plus ett som sitter i Shimanos motsvarande storlekar. Ramen är aluminium i ett stycke och bromsen är CBS6, samma sexstifts centrifugalsystem som i W4-serien. För gädda med tunga beten är kombinationen kraft, linkapacitet och måttlig vikt svår att argumentera emot.
 ```
 
 ## src/content/gear-reviews/westin-w6-dropshot-haspelspo.mdx
@@ -13915,6 +14830,80 @@ Westin W6 ST5 Soft i 0,38 mm är en mjuk fluorocarbontafs. ST5 är den mjukaste 
 Lågt linminne är den praktiska skillnaden mot billigare tafsmaterial. Tråden ligger rak direkt från spolen i stället för att hänga kvar i spiraler, och det ger färre trassel och en jämnare presentation. 0,38 mm med drygt 9 kg brottstyrka klarar gös och havsöring med marginal och tål skav mot sten och musselkanter. En kort tafs på 30-metersspolen räcker till många byten innan du behöver ny.
 
 Den passar gösfiske med jigg och dropshot, havsöring i skärgården och större abborre där en lite grövre tafs behövs. Vill du ha en klenare variant för riktigt klart vatten finns samma serie i 0,30 mm på 50-metersspole. Behöver du i stället en styv och mer nötningstålig tafs är ST3 Hard rätt gren av serien.
+```
+
+## src/content/gear-reviews/westin-w6-telescopic-4m.mdx
+```
+---
+title: "Westin W6 C&R Telescopic 4m M"
+slug: "westin-w6-telescopic-4m"
+description: "Teleskopisk håv med kolfiberskaft som går från 65 till 400 cm. Ramen mäter 45x55x60 cm, nätet har 12 mm maskvidd och axelrem ingår."
+heroImage: "/images/gear/westin-w6-telescopic-4m.jpg"
+heroSource: "illustration"
+brand: "Westin"
+category: "havar"
+price: 1849
+rating: 4
+pros:
+  - "Skaftet går från 65 till 400 cm"
+  - "Kolfiberskaft håller nere vikten vid full utdragning"
+  - "Justerbar axelrem ingår"
+cons:
+  - "Priset är högt om räckvidden sällan behövs"
+  - "Teleskopleder är fler rörliga delar som kan kärva"
+  - "Vikten anges inte av tillverkaren"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=38157&url=https://fiskeonline.com/sv/produkt/westin-w6-cr-telescopic-landing-net-4m-m/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["gadda", "gos", "abborre"]
+techniques: ["spinn", "jigg"]
+priceRange: "premium"
+quizEnabled: false
+---
+
+Westin W6 C&R Telescopic 4m M löser ett problem som inte alla har. Skaftet går från 65 till 400 cm, vilket är räckvidd för fiske från bro, pir, kaj eller hög strandkant där fisken hamnar flera meter under dig. Behöver du aldrig mer än en armlängd är det här fel håv, och då finns det billigare alternativ som gör jobbet bättre.
+
+Skaftet är i kolfiber, vilket är avgörande vid full utdragning. Fyra meter aluminium med en fisk i andra änden blir tungt på ett sätt som är svårt att styra med en hand. Ramen mäter 45x55x60 cm och nätet är gummerat med 12 mm maskvidd, alltså tätare än på Westins älvhåvar. Leden mellan nät och skaft fälls ihop, och en justerbar axelrem ingår för att bära håven utdragen eller hopskjuten.
+
+Ramen på 45 cm bredd täcker gädda, gös och abborre i normala storlekar men är inte byggd för de största fiskarna. Prioriteringen är tydlig, räckvidd före ramstorlek. Det gör den till ett redskap för stadsnära fiske från höga kanter snarare än för båt. Fler teleskopsektioner betyder också fler ställen där sand och salt kan få skaftet att kärva, så den behöver sköljas efter kustfiske. Westin anger ingen vikt.
+```
+
+## src/content/gear-reviews/wiggler-trahav-vadarhav.mdx
+```
+---
+title: "Wiggler Trähåv Vadarhåv"
+slug: "wiggler-trahav-vadarhav"
+description: "Vadarhåv med träram och transparent gumminät utan leder eller teleskop. Storleken anges till ungefär 60 cm och vikten till 300 gram."
+heroImage: "/images/gear/wiggler-trahav-vadarhav.jpg"
+heroSource: "illustration"
+brand: "Wiggler"
+category: "havar"
+price: 309
+rating: 3.5
+pros:
+  - "Transparent gumminät som är skonsamt vid återutsättning"
+  - "300 gram att bära i vadarvästen"
+  - "Träram utan leder eller låsmekanismer"
+cons:
+  - "Endast ett ungefärligt mått anges, ca 60 cm"
+  - "Ramens bredd och nätdjup anges inte separat"
+  - "Träslag och konstruktion anges inte"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=17122&url=https://fiskeonline.com/sv/produkt/wiggler-trahav-vadarhav-catch-release-gummi/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["oring", "harr", "abborre"]
+techniques: ["flugfiske", "spinn"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Wiggler Trähåv är en klassisk vadarhåv med ram i trä och ett transparent gumminät. Den har inga leder, inga teleskopsektioner och ingen låsmekanism. Det finns alltså heller ingenting som kan kärva efter en säsong i grus och sand, vilket är hela poängen med den här typen av håv.
+
+Nätet är transparent gummi. Fisken syns genom nätet medan den ligger kvar i vattnet, och gummit håller inte fast krokspetsar på det sätt som ett textilnät gör. Vikten anges till 300 gram, vilket är lite nog för att håven ska kunna hänga i vadarvästen eller på ryggen utan att märkas mellan fiskarna.
+
+Måttet är det svaga i underlaget. Wiggler anger storleken till ungefär 60 cm utan att specificera om det gäller ramens bredd, håvens totala längd eller något annat, och nätdjupet anges inte alls. Håven är avsedd för vadande fiske efter öring, harr och abborre, där fisken redan är inom räckhåll när den ska håvas. Ska du landa gädda eller fiska från båt är det fel redskap.
 ```
 
 ## src/content/gear-reviews/wiggler-viking-herring.mdx
@@ -39155,11 +40144,11 @@ Väljaren nedan utgår från var du fiskar, vad som är viktigast för dig och d
 
 Det här är ekoloden för dig som fiskar utan båt, eller som vill ha ett enkelt komplement.
 
-Instegsmodellen är avskalad. Den visar djup, botten och fisk men saknar GPS, så du kan inte rita kartor, och den lämpar sig inte för isfiske. Den passar den som vill prova ekolodsfiske från land eller brygga utan större utlägg.
+Instegsmodellen är avskalad. Den visar djup, botten och fisk men saknar GPS, så du kan inte rita kartor. Den passar den som vill prova ekolodsfiske från land eller brygga utan större utlägg.
 
 Steget upp ger dig GPS, så att du kan märka ut platser och bygga egna djupkartor medan du fiskar. Det är den enskilt mest praktiska funktionen för den som fiskar samma vatten ofta. I den klassen finns både Garmins och Deepers kastbara ekolod, och flera av dem fungerar även i ishålet.
 
-Toppmodellerna lägger till CHIRP för skarpare bild och, i den dyraste, fiskidentifiering i realtid. För de flesta är det mer än vad som behövs, men för den som fiskar mycket från land eller kajak och vill ha bästa möjliga bild är det ett genomtänkt val. Instegsmodellerna ligger ungefär mellan 1 300 och 2 000 kr, mellanklassen runt 2 500 till 3 700 kr och toppmodellen kring 4 500 kr. Priserna ändras, så stäm av aktuell nivå i väljaren.
+Toppmodellerna lägger till CHIRP för skarpare bild och, i den dyraste, fiskidentifiering i realtid. För de flesta är det mer än vad som behövs, men för den som fiskar mycket från land eller kajak och vill ha bästa möjliga bild är det ett genomtänkt val. Aktuella priser hittar du i väljaren ovan.
 
 <ProduktRuta slug="garmin-striker-cast-worldwide" />
 
@@ -39167,17 +40156,17 @@ Toppmodellerna lägger till CHIRP för skarpare bild och, i den dyraste, fiskide
 
 Fiskar du från båt får du mer för pengarna med en fast monterad enhet. Här går den stora skiljelinjen mellan Garmins två serier.
 
-Striker Vivid finns från 4 till 9 tum. Alla har GPS och kan rita egna kartor, men ingen läser Navionics-sjökort. Ju större skärm, desto enklare delad bild och desto mer uteffekt för djupare vatten. Den största modellen lägger till SideScan, vilket gör stor skillnad när du söker av kanter och grynnor. Vill du ha ekolod, GPS och egna kartor utan färdiga sjökort är Striker Vivid rätt serie.
+Striker Vivid finns i 7 och 9 tum. Båda har GPS och kan rita egna kartor, men ingen läser Navionics-sjökort. Den större skärmen gör delad bild enklare att läsa och ger mer uteffekt för djupare vatten. Nio tum lägger dessutom till SideVu, vilket gör stor skillnad när du söker av kanter och grynnor. Vill du ha ekolod, GPS och egna kartor utan färdiga sjökort är Striker Vivid rätt serie.
 
-Echomap är kartplotter. Den läser Navionics-sjökort och passar dig som vill kombinera fiske med navigering, i skärgård eller på stora sjöar som Vänern och Vättern. Den minsta är ett naturligt steg upp från Striker för den som vill ha sjökort, och den största är en komplett enhet med stor pekskärm, SideScan och stöd för realtidsekolod som LiveScope. Räkna med att fast monterade ekolod spänner från runt 2 000 kr för den minsta Strikern till drygt 11 000 kr för den största Echomap-enheten.
+Echomap är kartplotter. Den läser Navionics-sjökort och passar dig som vill kombinera fiske med navigering, i skärgård eller på stora sjöar som Vänern och Vättern. Det är valet för den som vill ha färdiga sjökort i stället för att rita egna. Fast monterade ekolod kostar mer än kastbara, och aktuella priser hittar du i väljaren ovan.
 
-<ProduktRuta slug="garmin-striker-vivid-5cv" />
+<ProduktRuta slug="garmin-striker-vivid-7cv" />
 
 ## Ekolod för isfiske
 
 Isfisket har egna krav. Du behöver en snabb och tydlig bild i ett litet hål, och gärna GPS för att märka ut hål som ger fisk. Ett kastbart ekolod med isfiskestöd är den vanligaste lösningen, eftersom det inte kräver montering och tål kyla. Tänk på batteritiden, som sjunker i kyla, och på att en enkel instegsmodell utan GPS och isstöd inte passar här. För den som vertikalfiskar gös eller pimplar abborre och röding på djupkanter är ekolodet ofta skillnaden mellan att hitta fisken och att leta i blindo. Läs mer om [isfiske](/teknik/isfiske/) och [vertikalfiske](/teknik/vertikalfiske/).
 
-<ProduktRuta slug="deeper-smart-sonar-pro-plus-2" />
+<ProduktRuta slug="deeper-smart-sonar-chirp-plus-3" />
 
 ## Vad du faktiskt behöver, efter art och vatten
 
@@ -40307,6 +41296,277 @@ Fyra vanor gör mer för rullens livslängd än något köpbeslut. Skölj rullen
 1. **Vilket fiske ska rullen bära?** Storleken följer arten, och en enda allroundrulle heter 2500.
 2. **Hur mycket tar den hem per vev?** Jämför invevning i centimeter, inte utväxlingssiffran eller kullagerantalet.
 3. **Balanserar den ditt spö?** Rulle, spö och lina väljs som helhet, guiderna för [spön](/guider/basta-fiskespon-2026/) och [linor](/guider/valja-fiskelina/) tar vid där denna slutar.
+
+*Strömkast finansieras via affiliate-länkar. Köper du utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar produkterna.*
+```
+
+## src/content/articles/valja-hav.mdx
+```
+---
+title: "Välja håv: nätmaterial, storlek och reglerna som gäller"
+slug: "valja-hav"
+description: "Så väljer du håv. Gumminät mot knutet nylon, maskvidd efter vatten, och vilka svenska vatten som kräver knutlös håv i sina kortvillkor."
+excerpt: "Nätmaterial, maskvidd och skaftlängd. Plus reglerna du måste känna till."
+heroImage: "/images/articles/valja-hav.jpg"
+publishedAt: "2026-08-19"
+updatedAt: "2026-08-19"
+author: "redaktionen"
+category: "guide"
+faq:
+  - q: "Måste man ha gumminät i håven i Sverige?"
+    a: "Inte enligt lag. Varken fiskelagen, fiskeförordningen eller Havs- och vattenmyndighetens föreskrifter ställer krav på håvens nätmaterial. Däremot kräver flera enskilda vatten det i sina kortvillkor. Mörrumsån anger knutfri gummerad håv och Emsfors sträcka i Emån kräver knutlös håv som regel, inte som rekommendation. Kontrollera alltid kortvillkoren för det vatten du ska fiska."
+  - q: "Vilken maskvidd ska håven ha?"
+    a: "Fin maska kring 10 till 12 mm passar öring, harr, regnbåge och kustfiske efter mindre fisk. Grov maska kring 30 till 40 mm används till stor fisk i strömmande vatten, eftersom grovt nät släpper igenom vatten i stället för att bromsa mot strömmen. Avvägningen är att grov maska släpper igenom fenor och krokar lättare."
+  - q: "Är gumminät alltid bättre än nylonnät?"
+    a: "Nästan alltid, men inte alltid. Barthel med flera fann 2003 ungefär 4 procent dödlighet med gummerat nät mot 10 till 14 procent med knutet nylon. Samtidigt visade en studie på coholax 2026 att gummerat nät kunde ge mer fenskada än knutet, och forskarnas slutsats för den arten var att avstå från håv helt. Skillnaden är alltså artberoende."
+  - q: "Får man fånga fisk med håv i Sverige?"
+    a: "Håv är ett tillåtet rörligt redskap enligt fiskelagen, men det fria handredskapsfisket omfattar bara spö och pilk. Att aktivt håva fisk på enskilt vatten kräver därför fiskerättsägarens tillstånd. Vissa vatten har egna regler, i Torneälven är håv uttryckligen tillåten fångstmetod med särskilda krav på maskvidd och trådtjocklek."
+  - q: "Hur stor håv behöver jag till gädda?"
+    a: "Ramen ska rymma den största fisk du realistiskt kan få, och nätpåsen ska vara djup nog att fisken ligger samlad i stället för utsträckt. För gädda över metern innebär det en ram kring 70 cm på bredden och ett nätdjup på 70 cm eller mer. En ram på 40 till 50 cm räcker för abborre, öring och harr men inte för stor gädda."
+---
+
+import ProduktRuta from '../../components/ProduktRuta.astro';
+
+Håven är den utrustning som avgör hur fisken mår när den simmar iväg, och den enda där ett köpbeslut mätbart påverkar överlevnaden. Samtidigt är det utrustningen flest köper på storlek och pris utan att titta på nätet. Den här guiden går igenom vad som faktiskt skiljer håvar åt, vad forskningen säger om nätmaterial, och vilka svenska vatten som ställer krav i sina kortvillkor.
+
+## Nätmaterialet är det första beslutet
+
+Tre material dominerar. Knutet nylonnät är det billigaste och det sämsta för fisken. Knutlöst nät tar bort knutarna som skaver mot fenor och slemskikt. Gummerat eller gjutet gumminät går längst, både för fisken och för den som ska kroka av den.
+
+Grundstudien är Barthel med flera i Fisheries Research 2003, som jämförde fyra nättyper på solabborre med 30 sekunders håvning och sedan följde fisken i en vecka. Fisk som landades för hand utan håv hade noll dödlighet. Håvad fisk låg mellan 4 och 14 procent, där gummerat nät låg lägst och de knutna näten högst. Det mest användbara i studien är tidsförloppet: merparten av dödligheten inträffade två till fyra dygn efter håvningen, som fördröjd effekt av fenslitage och svampinfektion. En fisk som simmar iväg pigg kan alltså vara död tre dagar senare, vilket är skälet till att korttidsobservationer på 24 timmar underskattar problemet.
+
+Bilden är dock inte entydig, och det förtjänar att sägas rakt. Colotelo och Cooke fann 2011 att gädda fick 2,6 procent epitelskada med gumminät mot 29,1 procent med knutet nylon, alltså en dramatisk skillnad, medan svartabborre i samma studie inte visade någon statistiskt säkerställd skillnad alls. En studie på 235 coholaxar publicerad 2026 fann att gummerat nät gav mindre fjällförlust men kunde ge mer fenskada än knutet nät, och forskarnas rekommendation för just den arten var att avstå från håv och kroka av vid ytan.
+
+Slutsatsen för svenskt fiske: gummerat eller knutlöst nät är rätt val i praktiskt taget alla lägen, och skillnaden är störst för gädda. Men håven är alltid ett ingrepp, och den bästa håvningen är den som inte behövs.
+
+<ProduktRuta slug="westin-w3-full-rubber-mesh-xl" />
+
+## Vatten där knutlöst nät är ett krav
+
+Det finns inget nationellt lagkrav på håvens nätmaterial. Varken fiskelagen, fiskeförordningen eller Havs- och vattenmyndighetens föreskrifter reglerar saken. Havs- och vattenmyndigheten rekommenderar gumminät i sina hanteringsråd, men det är just ett råd.
+
+Kravet uppstår i stället lokalt, genom kortvillkor som varje fiskevårdsområde eller rättighetsägare sätter själv. Där är det bindande, och överträdelser kan kosta fiskekortet. Exempel som är verifierade i skrivande stund:
+
+| Vatten | Formulering |
+|---|---|
+| Mörrumsån | Använd knutfri gummerad håv |
+| Emån, Emsfors sträcka | Knutlös håv, uttryckligen som regel och inte rekommendation |
+| Ätran | Håv med knutlöst garn eller gumminät |
+| Put and take, exempelvis Harasjömåla | Håvning tillåten om håven är knutlös, och håv och fisk ska förbli i vattnet |
+
+Listan är inte fullständig och villkoren uppdateras löpande. Kontrollera alltid det aktuella kortvillkoret på iFiske, fiskevårdsområdets egen sida eller i kortet du köper. Fiskar du de klassiska laxvattnen är en knutlös gummihåv i praktiken ett krav snarare än ett val.
+
+## Håvning som fångstmetod är inte fritt
+
+Här finns ett missförstånd värt att reda ut, eftersom det handlar om vad som är lagligt och inte om vad som är lämpligt.
+
+Håv räknas juridiskt inte som handredskap. Handredskap definieras i fiskelagen som spö, pilk och liknande rörligt redskap utrustat med lina och högst tio krokar, och en håv har varken lina eller krokar. Håv listas i stället som en egen kategori i fiskeförordningen, vid sidan av nät, långrev, ryssja, bur och handredskap.
+
+Konsekvensen är att det fria handredskapsfisket på enskilt vatten, alltså rätten att fiska med spö längs kusten och i de fem stora sjöarna, inte omfattar håv. Att aktivt håva fisk på enskilt vatten kräver fiskerättsägarens tillstånd. Att landa en fisk du krokat på spö är däremot en helt annan sak och faller inom det normala handredskapsfisket.
+
+Undantag finns. I Torneälven är håv en uttryckligen tillåten fångstmetod på angivna fångstplatser, med egna krav på redskapet, minst 80 mm maska och högst 0,40 mm entrådig nylon, och med egna fiske- och kvotregler. Sikhåvningen i Kukkolaforsen är en flerhundraårig tradition inom samma regelverk. Kvoterna omförhandlas årligen före den 1 april, så kontrollera aktuella villkor inför säsongen.
+
+## Maskvidd väljs efter vattnet, inte efter arten
+
+Maskvidden avgör hur mycket motstånd håven möter när den förs genom vattnet. Ett finmaskigt nät bromsar mot strömmen på ett sätt som märks tydligt när du står i en älv och ska föra håven under en fisk som fortfarande har kraft kvar. Grov maska släpper igenom vattnet.
+
+Vanliga spann i sortimentet ser ut så här. Kring 10 till 12 mm för öring, harr, regnbåge och kustfiske. Kring 20 mm som mellanläge. Kring 30 till 40 mm för stor fisk i strömmande vatten. Vissa tillverkare kombinerar, med grövre maska på sidorna och tätare i botten, för att minska motståndet utan att tappa botten under fisken.
+
+Avvägningen åt andra hållet är att grov maska släpper igenom fenor, krokar och småfisk lättare. En 40 mm-håv i en put and take-damm är fel redskap.
+
+<ProduktRuta slug="westin-w3-foldable-river-xl" />
+
+## Ramstorlek och nätdjup
+
+Tumregeln är enkel. Ramen ska rymma den största fisk du realistiskt kan få, och nätpåsen ska vara djup nog att fisken kan ligga samlad utan att böjas.
+
+Nätdjupet är den underskattade siffran. En grund håv gör att fisken ligger utsträckt mot botten, med sin egen vikt mot ryggraden och med begränsad möjlighet att ligga kvar i vattnet under avkrokningen. En djup ficka låter fisken vila i vattnet medan du arbetar, vilket kopplar direkt till nästa avsnitt.
+
+Grovt indelat efter art:
+
+| Fiske | Ram |
+|---|---|
+| Abborre, harr, öring, regnbåge | 40 till 50 cm |
+| Havsöring, gös, mindre gädda, makrill | 50 till 60 cm |
+| Stor gädda och lax | 70 cm och uppåt, med minst lika stort djup |
+
+## Tiden i luft är viktigare än håven
+
+Det här är guidens viktigaste avsnitt, och det handlar egentligen inte om vilken håv du köper utan om hur du använder den.
+
+Ferguson och Tufts visade 1992 på regnbåge att överlevnaden efter hård utmattning låg på 88 procent utan luftexponering, föll till 62 procent efter 30 sekunder i luft och till 28 procent efter 60 sekunder. Senare fältstudier har nyanserat bilden och funnit att effekten är betydligt mindre i kallt vatten, så siffrorna ska inte läsas som en universell tabell. Riktningen är däremot obestridd, och den samverkar med vattentemperatur och hur hårt fisken körts.
+
+Praktiskt betyder det att håvens främsta funktion är att hålla fisken kvar i vattnet medan du krokar av. En djup nätpåse, ett gumminät som kroken inte fastnar i och en tång inom räckhåll gör mer för fiskens överlevnad än något annat i utrustningsväskan. Att lyfta upp håven med fisken i för att fotografera är den vanligaste anledningen till att sekunderna blir till minuter.
+
+Vid vattentemperaturer över ungefär 18 grader bör återutsättningsfiske efter gädda och laxfisk undvikas helt, oavsett håv. Vid minusgrader gäller samma sak, eftersom slemskikt och ögon fryser vid luftexponering.
+
+## Skaftlängd efter fiskesätt
+
+Skaftet väljs efter var du står, inte efter vilken fisk du fiskar.
+
+Vadande fiske och belly boat kräver kort skaft, kring 30 till 65 cm. Fisken är redan inom armlängds håll när den ska håvas, och ett långt skaft blir bara i vägen. Flytande ram är värt mycket här, eftersom en tappad håv annars går till botten.
+
+Båt med låg reling klarar sig med 1 till 1,5 meter. Hopfällbara modeller sparar plats i durken, vilket är en verklig fråga i en liten båt där håven annars ligger tvärs över och fastnar i varje kast.
+
+Brygga, pir, bro och hög strandkant kräver teleskop, från 2 meter och uppåt. Kolfiber blir avgörande vid längre utdragning, eftersom fyra meter aluminium med en fisk i andra änden är svårt att styra med en hand.
+
+<ProduktRuta slug="westin-w6-telescopic-4m" />
+
+## Skötsel
+
+Gumminät torkar snabbt, tar inte åt sig fisklukt och trasslar mindre med krokar. Nackdelen är att gummi bryts ned av UV-ljus över tid, så förvara håven skuggat. Nylonnät ska torka helt före förvaring för att undvika mögel.
+
+Efter saltvattenfiske gäller sköljning i sötvatten, och för teleskopiska skaft att dra ut alla sektioner och låta dem torka innan de skjuts ihop. Salt och sand som torkar inne i sektionerna är den vanligaste orsaken till att ett teleskopskaft slutar löpa.
+
+## Tre kontrollfrågor innan du köper
+
+1. **Vad säger kortvillkoren för vattnet du ska fiska?** Flera laxvatten kräver knutlöst eller gummerat nät, och det avgör valet innan någon annan fråga blir relevant.
+2. **Hur djup är nätpåsen?** Djupet avgör om fisken kan ligga kvar i vattnet under avkrokning, vilket är det som faktiskt påverkar överlevnaden.
+3. **Var står du när fisken ska håvas?** Skaftlängden följer fiskesättet, inte arten.
+
+Hela sortimentet finns i [håvkategorin](/utrustning/havar/).
+
+*Strömkast finansieras via affiliate-länkar. Köper du utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar produkterna.*
+```
+
+## src/content/articles/valja-multirulle.mdx
+```
+---
+title: "Välja multirulle: spolstorlek, utväxling och broms"
+slug: "valja-multirulle"
+description: "Så väljer du multirulle. Varför spolstorleken avgör vilka beten du kan kasta, vad utväxlingen egentligen betyder och hur de fem bromssystemen skiljer sig."
+excerpt: "Spolstorlek, utväxling och bromssystem. Vad siffrorna betyder."
+heroImage: "/images/articles/valja-multirulle.jpg"
+publishedAt: "2026-08-21"
+updatedAt: "2026-08-21"
+author: "redaktionen"
+category: "guide"
+faq:
+  - q: "Vilken storlek på multirulle ska jag välja?"
+    a: "En 150-storlek täcker det bredaste spannet för svenskt fiske efter gös, abborre och mellanstor gädda. Gå upp till 300 först när du regelbundet kastar beten över 40 till 50 gram, alltså stora jerkbaits och gummifiskar. Går du ner till BFS-storlek handlar det om beten under sju gram, och där är haspel oftast enklare om du inte specifikt vill fiska med multi."
+  - q: "Varför kastar min multirulle så kort med lätta beten?"
+    a: "Betet måste ha tillräcklig rörelseenergi för att övervinna spolens tröghet innan den börjar snurra. En stor och tung spole kräver ett tyngre bete för att komma igång. Mer broms hjälper inte, eftersom bromsen verkar mot övervarvning senare i kastet och inte mot att spolen inte startar. Lösningen är antingen tyngre bete eller en rulle med lättare spole."
+  - q: "Vad är skillnaden mellan utväxling och linintag?"
+    a: "Utväxlingen anger hur många varv spolen snurrar per vevtag. Linintaget anger hur många centimeter lina som faktiskt kommer in, och det beror även på spolens diameter. En 300-rulle med 6.6:1 kan ta hem mer lina per vev än en 150-rulle med 7.2:1, eftersom den större spolen samlar mer lina per varv."
+  - q: "Hur mycket bromskraft behöver jag till gädda?"
+    a: "Fem kilo maximal bromskraft räcker för normalt gäddfiske, eftersom man i praktiken drillar med långt under maxvärdet. Vanlig praxis är att fiska med 15 till 30 procent av linans brottstyrka. Åtta kilo eller mer blir relevant först vid riktigt tungt fiske med stora beten, i tät vegetation eller på kusten."
+  - q: "Hur lång tid tar det att lära sig kasta med multirulle?"
+    a: "Några timmars övning, inte veckor. Börja med beten kring tio till tjugo gram i lugnt väder, ställ spolspänningen så att ett hängande bete sjunker sakta och stannar utan att spolen fortsätter snurra, sätt kastbromsen högt och sänk den gradvis när tekniken sitter."
+---
+
+import ProduktRuta from '../../components/ProduktRuta.astro';
+import MultiValjareIsland from '../../components/multivaljare/MultiValjareIsland.astro';
+
+En multirulle beskrivs ofta som en uppgradering från haspel. Det är fel sätt att tänka. Den är ett annat verktyg som är bättre på vissa saker och sämre på andra, och siffrorna på förpackningen säger mindre än man tror. Den här guiden går igenom vad de faktiskt betyder.
+
+## Spolstorleken avgör vilka beten du kan kasta
+
+Det här är den viktigaste punkten och den som missförstås mest.
+
+En haspelrulle har fast spole. Linan dras av kanten och betet behöver bara övervinna friktionen. Därför kastar haspel lätta beten så bra. En multirulle fungerar tvärtom: betet drar ut lina och måste samtidigt sätta hela spolen i rotation. Ju tyngre spolen är och ju mer lina den bär, desto mer energi krävs innan den kommer igång.
+
+Konsekvensen är konkret. Ett för lätt bete på en stor spole ger ett kort och trögt kast, och det går inte att lösa med bromsinställningen. Bromsen verkar mot övervarvning senare i kastet, inte mot att spolen aldrig startar. Enda lösningen är tyngre bete eller lättare spole. Det är också hela idén bakom BFS-rullar, där spolen görs så lätt som möjligt just för att kunna kasta småbeten.
+
+Grovt indelat:
+
+| Storlek | Betesvikt | Typiskt fiske |
+|---|---|---|
+| BFS och 50 till 70 | Under ungefär 7 gram | Abborre på småjigg, öring och harr |
+| 150 och 200 | Mellanviktigt | Gös, abborre, mellanstor gädda |
+| 300 och uppåt | 40 gram och mer | Jerkbait, stora gummifiskar, kust |
+
+En viktig reservation. Tillverkarna publicerar nästan aldrig betesviktsspann i gram för sina rullar, till skillnad från vad de gör för spön. Siffrorna ovan är branschpraxis och sammanställd erfarenhet, inte uppmätta värden från Shimano eller Westin. Behandla dem som riktmärken.
+
+<ProduktRuta slug="shimano-slx-151-hg" />
+
+<MultiValjareIsland />
+
+## Utväxling är inte samma sak som hastighet
+
+Utväxlingen 7.2:1 betyder att spolen snurrar 7,2 varv per helt vevtag. Men det som avgör hur snabbt du får hem betet är linintaget, alltså hur många centimeter lina som kommer in per vev, och det beror även på spolens diameter.
+
+Ett exempel ur vår egen kategori visar varför det spelar roll. Shimano SLX 151 HG har utväxling 7.2:1 och tar hem 72 centimeter per vev. Shimano Curado K 301 HG har lägre utväxling, 6.6:1, men tar hem 88 centimeter. Den större spolen samlar mer lina per varv och kompenserar med marginal för den långsammare växeln.
+
+Grundregeln är densamma som för cykelväxlar. Låg utväxling ger mer kraft och mindre hastighet, hög ger tvärtom.
+
+| Utväxling | Passar |
+|---|---|
+| Under 6.5:1 | Djupgående wobblers, stora gummifiskar, allt med vattenmotstånd |
+| 6.5 till 7.3:1 | Allround, jigg, vertikal, de flesta gäddbeten |
+| Över 7.3:1 | Jerkbait och ytbeten, där slack ska tas hem snabbt mellan ryck |
+
+## De fem bromssystemen
+
+Kastbromsen är det som mest skiljer multirullar åt i praktiken, och det finns fler varianter än de flesta tror. Alla fem finns representerade i vår kategori.
+
+**Centrifugalbroms** använder vikter eller pinnar som slungas utåt av rotationen och gnider mot en trumma. Bromskraften är som störst när spolen snurrar som snabbast, alltså precis i kastets början där trasslet uppstår, och avtar sedan nästan helt. Det ger potentiellt långa kast. Shimanos VBS och SVS Infinity, Westins CBS6 och 13 Fishings sexvägssystem hör hit.
+
+**Magnetbroms** bromsar via magnetfält och verkar jämnare genom hela kastet. Den är mer förlåtande att lära sig på och justeras nästan alltid med en ratt på utsidan.
+
+**Digital broms**, Shimanos DC, mäter spolhastigheten med en mikrodator och justerar bromsen löpande under kastet. Den korta inlärningskurvan och hanteringen av blåst är det man betalar för. Rullen behöver inga batterier eftersom spolen genererar strömmen själv.
+
+**FTB** sitter på Shimanos BFS-rullar och flyttar magneterna från spolen till sidoplattan. Poängen är inte bromsen i sig utan att spolen därmed blir extremt lätt.
+
+**Kombinerade system** finns hos BFT, som låter dig använda både magnetbroms och utfällbara centrifugalkopplingar. Det ger stor spännvidd men också fler saker att ställa in.
+
+En praktisk detalj som spelar större roll än systemvalet: kan bromsen justeras med en ratt på utsidan, eller måste sidoplattan öppnas? Extern justering betyder att du ställer om när vinden vänder eller betet byts. Intern justering betyder i praktiken att inställningen görs en gång per pass.
+
+<ProduktRuta slug="shimano-curado-bfs-xg" />
+
+## Backlash och hur du undviker det
+
+Backlash uppstår när spolen fortsätter snurra snabbare än linan lämnar den. Betet saktar in mot vinden eller slår i vattnet, men spolens tröghet håller igång rotationen och linan buntar upp sig.
+
+Ordningen att lära sig i:
+
+1. **Spolspänningen först.** Frikoppla rullen och låt betet hänga från spötoppen. Justera ratten så att betet sjunker sakta, ungefär en meter på två sekunder, och så att spolen stannar när betet når marken.
+2. **Kastbromsen högt.** Börja med rejält mycket broms. Kastet blir kortare men trasselfritt.
+3. **Tummen mot spolen.** Lätt tryck genom kastet, och stoppa spolen precis när betet slår i.
+4. **Sänk bromsen gradvis** allteftersom tekniken sätter sig.
+
+Räkna med några timmars övning, inte veckor. Börja med beten kring tio till tjugo gram i lugnt väder. Ett knep vid inlärning är att tejpa fast linan på spolen efter ungefär ett och ett halvt kasts längd, så begränsas hur djupt ett trassel kan gå.
+
+## Linval
+
+Fläta ger bäst känsla och är standard i svenskt gäddfiske, men den är också det som straffar misstag hårdast på en multirulle. Tunn fläta kan skära ner i sig själv på spolen vid ett mothugg eller en backlash, och då blir trasslet svårt att reda ut.
+
+För den som är ny på multi är grövre nylon eller fluorocarbon ett förlåtande val. Materialet har mer stelhet och lägger sig lugnare, och ett trassel går att reda ut. Ett mellanting är att lägga nylonbotten under flätan och undvika att fylla spolen ända upp.
+
+Mer om avvägningarna finns i vår [guide om fiskelinor](/guider/valja-fiskelina/).
+
+## Bromskraft: siffran du inte fiskar med
+
+Maximal bromskraft anges ofta som säljargument, men ingen fiskar nära den. Etablerad praxis är att ställa bromsen på 15 till 30 procent av linans brottstyrka, lägre för fläta eftersom den saknar stretch som buffert.
+
+Praktiskt betyder det att fem kilo maximal bromskraft räcker gott för gädda, gös och abborre i normalt kastfiske. Åtta kilo eller mer blir relevant först vid tungt fiske med stora beten, i tät vegetation där fisken måste vinschas ut, eller på kusten. Läs siffran som ett mått på hur robust rullen är byggd, inte som något du kommer att använda.
+
+<ProduktRuta slug="shimano-curado-k-301-hg" />
+
+## Vänster eller höger vev
+
+Multirullen kommer från amerikanskt saltvattensfiske där man vevade med starka handen, vilket är skälet till att högervev är standard där. För en högerhänt betyder det handbyte efter varje kast.
+
+Svenska butiker domineras av vänstervevade modeller, och för den som kommer från haspel är vänstervev oftast det naturliga valet. Du kastar med höger och vevar med vänster utan att flytta spöet. Argumentet för högervev finns kvar vid riktigt tungt fiske, där den starka handen orkar mer.
+
+## När är haspel bättre?
+
+Ärligt svar: oftare än multirullen får det att låta som.
+
+Multi är bättre när du kastar tyngre beten, när du vill kunna bromsa in kastet med tummen mot en vasskant, och vid vertikalfiske från båt där direktkontakten gör skillnad. Kraftöverföringen vid inveving av stora beten är också påtagligt bättre.
+
+Haspel är bättre för beten under ungefär sju till tio gram, för dropshot och lätta finessriggar, och för den som vill komma igång utan trasselrisk. För en stor del av svenskt allroundfiske, som abborre på småjigg, finns ingen anledning att byta.
+
+## Skötsel
+
+Skölj efter varje tur i salt eller bräckt vatten, med lågt vattentryck och roterande spole. Använd rulltillverkarens egen olja på lager och fett på drev, inte tunn sprayolja som avdunstar och lämnar lagren oskyddade. Lossa bromsen vid förvaring så att bromsbrickorna inte belastas i onödan. En grundlig service om året räcker för den som fiskar regelbundet.
+
+## Tre frågor innan du köper
+
+1. **Vad väger dina vanligaste beten?** Det avgör spolstorleken, och spolstorleken avgör allt annat.
+2. **Hur ställs bromsen in?** Extern ratt eller sidoplatta som måste öppnas. Skillnaden märks varje gång du byter bete.
+3. **Har du redan en haspelrulle som gör jobbet?** Om svaret är ja och du mest fiskar lätt, lägg pengarna någon annanstans.
+
+Hela sortimentet finns i [kategorin för multirullar](/utrustning/multirullar/). Motsvarande genomgång för haspelrullar finns i [guiden om att välja haspelrulle](/guider/valja-haspelrulle/).
 
 *Strömkast finansieras via affiliate-länkar. Köper du utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar produkterna.*
 ```

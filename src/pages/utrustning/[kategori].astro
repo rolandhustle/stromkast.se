@@ -29,6 +29,18 @@ const merchantText = merchants.length
       : merchants[0])
   : 'våra partnerbutiker';
 
+/**
+ * Indexering styrs av guideUrl, inte av en hårdkodad flagga.
+ *
+ * Finns en köpguide för kategorin ska guiden ta kategorisökordet och
+ * kategorisidan stå tillbaka. Saknas guide skyddar noindex ingenting,
+ * sidan är då den enda ingången vi har för den frågan.
+ *
+ * Regeln uppdaterar sig själv: sätts guideUrl i kategorins JSON faller
+ * sidan ur indexet vid nästa bygge, utan att flaggan rörs för hand.
+ */
+const hasGuide = Boolean(c.guideUrl);
+
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
@@ -46,7 +58,7 @@ const breadcrumbSchema = {
   ogImage={c.heroImage}
   schema={breadcrumbSchema}
   pageType="gear-category"
-  noindex={true}
+  noindex={hasGuide}
 >
   <!-- Breadcrumb -->
   <nav class="pt-24 px-4 sm:px-6 max-w-[1280px] mx-auto" aria-label="Brödsmulor">
@@ -86,10 +98,10 @@ const breadcrumbSchema = {
           </svg>
         </div>
         <div class="flex-1 min-w-0">
-          <p class="text-deep text-sm font-semibold">Osäker på vilket spö du ska välja?</p>
-          <p class="text-stone text-xs mt-0.5">Läs vår guide med råd per art och prisklass.</p>
+          <p class="text-deep text-sm font-semibold">Osäker på vad du ska välja?</p>
+          <p class="text-stone text-xs mt-0.5">Vår köpguide går igenom vad som skiljer modellerna åt.</p>
         </div>
-        <a
+        
           href={c.guideUrl}
           class="shrink-0 inline-flex items-center gap-1.5 bg-pine text-white font-semibold text-sm px-4 py-2 rounded-full hover:bg-deep transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2"
         >

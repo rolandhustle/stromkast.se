@@ -50,7 +50,11 @@ const schemas = [orgSchema, websiteSchema, ...(schema ? (Array.isArray(schema) ?
 
 <title>{title} | Strömkast</title>
 <meta name="description" content={description} />
-{noindex && <meta name="robots" content="noindex, nofollow" />}
+{/* noindex, follow: sidan ska inte rankas men dess interna länkar ska räknas.
+    noindex, nofollow gjorde varje noindexad sida till en återvändsgränd i
+    länkstrukturen, vilket drabbade kategorisidorna som länkar till 9-12
+    produktsidor var. */}
+{noindex && <meta name="robots" content="noindex, follow" />}
 <link rel="canonical" href={canonicalUrl} />
 
 <meta property="og:type" content="website" />
