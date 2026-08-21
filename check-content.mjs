@@ -403,10 +403,58 @@ function checkClaims(file, text) {
  * i augusti. En svensk innehallsfil utan ett enda svenskt tecken ar nastan
  * alltid ett teckenkodningsfel.
  */
+/** Kortare an sa ar for lite text for att slutsatsen ska halla. */
+const SWEDISH_MIN_CHARS = 200;
+
 function checkSwedishChars(file, text) {
-  if (!/[\u00e5\u00e4\u00f6\u00c5\u00c4\u00d6]/.test(text)) {
+  const svenska = /[\u00e5\u00e4\u00f6\u00c5\u00c4\u00d6]/;
+
+  if (!svenska.test(text)) {
     warnings.push(`${file}: inga svenska tecken i hela filen, kontrollera teckenkodning`);
+    return;
   }
+
+  // Per stycke, inte per fil. En fil kan ha korrekt frontmatter och trasig
+  // brodtext, vilket den tidigare filnivakontrollen slapp igenom.
+  const rader = text.split('\n');
+  let stycke = [];
+  let start = 0;
+
+  const provaStycke = () => {
+    const prosa = stycke.join(' ').trim();
+    stycke = [];
+    if (prosa.length < SWEDISH_MIN_CHARS) return;
+    if (svenska.test(prosa)) return;
+    warnings.push(
+      `${file}:${start + 1}: stycke pa ${prosa.length} tecken utan svenska tecken, kontrollera teckenkodning`
+    );
+  };
+
+  // Tabellrader och kodblock ar inte prosa. En specifikationstabell med
+  // produktnamn, matt och enheter saknar diakriter av naturliga skal.
+  let iKodblock = false;
+
+  rader.forEach((rad, idx) => {
+    const t = rad.trim();
+
+    if (t.startsWith('```')) {
+      iKodblock = !iKodblock;
+      provaStycke();
+      return;
+    }
+    if (iKodblock || t.startsWith('|')) {
+      provaStycke();
+      return;
+    }
+
+    if (t === '') {
+      provaStycke();
+    } else {
+      if (stycke.length === 0) start = idx;
+      stycke.push(rad);
+    }
+  });
+  provaStycke();
 }
 
 for (const f of files) {
