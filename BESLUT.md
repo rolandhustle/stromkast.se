@@ -42,7 +42,7 @@ Att visa ett dikes flöde som Helge ås hade varit ett tyst fel, alltså ett som
 
 ---
 
-### Bara 13 av 23 älvar visar vattenföring
+### Tio älvar saknar vattenföring, 16 av 27 visar den
 
 **Beslut.** Ångermanälven, Indalsälven, Mellanljusnan, Dalälven, Klarälven, Göta älv, Ätran, Nissan, Lagan och Dammån saknar flödesdata.
 
@@ -52,9 +52,11 @@ För de tio älvarna finns ingen station i **rätt** vattendrag med aktuell data
 
 **Ett tomt fält är bättre än en siffra från fel älv.**
 
-**Bieffekt värd att notera.** Det som blir kvar är inte slumpmässigt. Kvar är alla fyra nationalälvar plus Gimån och Byskeälven, alltså just de **oreglerade** vattnen där flödet speglar naturlig avrinning och faktiskt betyder något. Det vi tappar är i huvudsak reglerade kraftverksälvar, där korttidsflödet ändå styrs av turbinschemat snarare än av väder.
+**Bieffekt värd att notera.** Det som blir kvar är inte slumpmässigt. Kvar är alla fyra nationalälvar plus Gimån, Byskeälven och Råneälven, alltså just de **oreglerade** vattnen där flödet speglar naturlig avrinning och faktiskt betyder något. Det vi tappar är i huvudsak reglerade kraftverksälvar, där korttidsflödet ändå styrs av turbinschemat snarare än av väder.
 
 **Vad som skulle ändra det.** Att SMHI:s S-HYPE-modelldata går att automatisera vid byggtid. Den skulle täcka de tio, tydligt märkt som modell och inte mätning. Vattenwebb är dock en nedladdningsportal och inte ett API, så det är osäkert.
+
+**Talen åldras, listan över de tio gör det inte.** Rubriken löd länge "13 av 23" medan `hydro-stations.ts` sa 15 av 26. Antalet stiger varje gång en ny älvdestination läggs till, och de tio uteslutna är det som faktiskt är beslutet. Augusti 2026 tillkom Rönne å (Forsmöllan), Voxnan (Nybro) och Råneälven (Niemisel), medan Ljungan prövades och föll: fyra stationer täcker mer än 20 procent av arealen och alla fyra saknar aktuell data, däribland Skällböle KRV på 12 088 km² som sitter precis där man vill mäta.
 
 ---
 
@@ -232,18 +234,6 @@ En kontroll som bara letar efter det man nyss ändrat är ingen kontroll. Det en
 
 ---
 
-### Teckenkontrollen mäter per stycke, inte per fil
-
-**Beslut.** `check-content.mjs` varnar för stycken på minst 200 tecken utan ett enda svenskt tecken. Tabellrader och kodblock undantas. Filnivåkontrollen finns kvar för filer som saknar diakriter helt.
-
-**Skäl.** Den tidigare kontrollen tittade på hela filen. Shimano Miravel hade ordet varumärke korrekt på ett ställe i frontmatter och räddade därmed hela filen från kontrollen, trots att all brödtext saknade diakriter. Fem filer missades av samma anledning vid genomgången i augusti 2026, och en av dem var just den fil som gjorde att problemet upptäcktes från början.
-
-Gränsen 200 tecken är satt så att rubriker och korta tekniska uppräkningar inte ger falsklarm. Tabeller undantas eftersom en specifikationstabell med produktnamn, mått och enheter saknar diakriter av naturliga skäl. Efter införandet gav kontrollen noll träffar i 111 produktsidor och samtliga artiklar, vilket är första gången det gick att säga med säkerhet.
-
-**Vad som skulle ändra det.** Att falsklarmen blir fler än träffarna. Höj då gränsen i stället för att ta bort kontrollen.
-
----
-
 ### Ögonblicksbilden söker igenom projektroten i stället för att lista filer
 
 **Beslut.** `generate-claude-context.sh` hittar rotens `.mjs`, `.py` och `.sh` automatiskt, med en kort uteslutningslista för skriptet självt och `astro.config.mjs`. Utförda engångsskript flyttas till `scripts/utford/` och kommer därför inte med.
@@ -253,6 +243,20 @@ Gränsen 200 tecken är satt så att rubriker och korta tekniska uppräkningar i
 Genomsökningen drog först in fem utförda migreringar. Det är sämre än att de saknas: ett migreringsskript i ögonblicksbilden ser ut som ett aktuellt verktyg, och `convert-gear-reviews.py` som konverterar JSON till MDX en andra gång är inte harmlöst. Flytten till `scripts/utford/` löser det vid källan i stället för via uteslutningslistan, som annars hade vuxit med varje migrering.
 
 **Vad som skulle ändra det.** Att projektroten börjar innehålla annat än verktyg. Då behövs urval igen, och urvalet bör i så fall vara en katalog och inte en lista.
+
+---
+
+### Stationslistan finns i två filer som inte känner till varandra
+
+**Beslut.** `hydro-stations.ts` kopplar destination till station och `hydro-normals.mjs` har en egen `STATIONS`-array för att räkna normaler. Listorna upprepas i stället för att härledas. Tills skriptet importerar `HYDRO_STATIONS` måste båda uppdateras vid varje ny station.
+
+**Skäl, mätt.** Rönne å och Voxnan lades in i `hydro-stations.ts` i augusti 2026 men aldrig i skriptets array. De visade därför flöde utan normal fram till 22 augusti 2026, alltså en naken siffra av precis det slag som posten om historiskt sammanhang finns för att förhindra. Ingenting gick sönder. Sidorna renderade, bygget gick igenom, och `npm run check` har ingen regel för det eftersom felet ligger mellan två filer och inte i någon av dem.
+
+Asymmetrin går åt båda hållen och är olika allvarlig. En station i tabellen men inte i skriptet ger flöde utan sammanhang, vilket är det som drabbar läsaren. En station i skriptet men inte i tabellen ger normaler som ingen läser, vilket bara är slöseri. Det första fallet är det som måste fångas.
+
+Efter körningen 22 augusti 2026 har alla 16 stationer normaler för samtliga 12 månader, alltså 192 av 192 poster ifyllda. Arkiven räckte i samtliga fall: tunnast är Torsebro med 4 936 dygn, tjockast Niemisel med 44 526.
+
+**Vad som skulle ändra det.** Att `hydro-normals.mjs` importerar stationslistan ur `hydro-stations.ts`. Filen är TypeScript och skriptet är ren ESM-Node, så det kräver antingen att listan bryts ut till JSON eller att skriptet körs genom en TypeScript-laddare. Ingetdera är stort, men ingetdera är gjort. Till dess är dubbelposten en känd och accepterad kostnad, inte ett förbiseende.
 
 ---
 
@@ -375,31 +379,6 @@ Kontroll i GSC före ändringen visade ingen kannibalisering mellan produktsidor
 ---
 
 ## Priser och produktfeeds
-
-### Djuplänkning kräver att domänen matchar programmets godkända domän
-
-**Beslut.** Länkar till Fritid och Vildmark byggs mot `shop.fritidvildmark.se`, inte mot `fritidvildmark.se`.
-
-**Skäl.** Djuplänkar gav "Invalid link" från juli 2026 och framåt, och tolv produktsidor länkade därför till butikens startsida i stället för till produkten. Adtraction förklarade 21 augusti 2026 att programmets godkända domän är `shop.fritidvildmark.se`. Våra länkar pekade på domänen utan prefix, och eftersom det inte räknas som samma domän avvisades de.
-
-Det som gjorde felet svårt att hitta var att adressen fungerade i webbläsaren. Webbläsaren följer omdirigeringen från `fritidvildmark.se` till `shop.`, men spårningen gör inte det vid domänkontrollen. En URL som svarar 200 i en webbläsare kan alltså ändå avvisas av nätverket.
-
-**Vad som skulle ändra det.** Att butiken byter domän eller att annonsören lägger till fler godkända domäner. Kontrollera den godkända domänen i programmets villkor innan djuplänkar byggs för en ny butik, och testa med `curl` utan `-L` så att en omdirigering inte döljer problemet.
-
----
-
-### Butiker utan feed har ingen signal när produkter utgår
-
-**Beslut.** Sortimentet hos butiker utan produktfeed kontrolleras manuellt med jämna mellanrum. Det finns ingen automatisk kontroll att bygga.
-
-**Skäl.** Fem av tolv ekolod hos Fritid och Vildmark hade utgått ur sortimentet utan att det märktes: Deeper PRO+ 2, Deeper START, Garmin Echomap UHD2 92sv samt Striker Vivid 4cv och 5cv. Produktsidorna beskrev varor butiken inte längre säljer, och ekolodsväljaren rekommenderade dem, varav en gren pekade enbart på två borttagna produkter och blev tom.
-
-För FiskeOnline och Outl1 fångas detta av att produkten försvinner ur feeden, vilket `validate-feed.mjs` rapporterar. Fritid och Vildmark har ingen feed, så `validate-feed.mjs` hoppar över butiken helt. Ingen signal alls.
-
-**Vad som skulle ändra det.** Att butiken får en feed i Adtraction. Fram till dess är sortimentskontrollen manuell, och en produktsida hos en feedlös butik är alltid färskvara.
-
----
-
 
 ### Priser hämtas ur Adtractions feed vid byggtid, frontmatter är reserv
 
@@ -553,10 +532,8 @@ Följande är **portabelt** och gäller oavsett land:
 - En kalender eller modell som beskriver säsong ska inte tala om var arten finns. Det är två olika påståenden, och att blanda dem ger ett toppläge för fiske som inte existerar på platsen.
 - Betyg måste hänga ihop inbördes inom en kategori. Härled regeln ur befintliga sidor i stället för att gissa per produkt, och var vaken på om betyget bara upprepar priset.
 - Storleksvarianter av utrustning får egna sidor, färgvarianter av beten inte. Gränsen går vid om varianten byter målart eller teknik.
-- Kontrollera nätverkets godkända domän innan djuplänkar byggs. En URL som fungerar i webbläsaren kan ändå avvisas av spårningen, eftersom webbläsaren följer omdirigeringar och domänkontrollen inte gör det.
-- En butik utan produktfeed ger ingen signal när produkter utgår. Sortimentet måste då kontrolleras manuellt, och produktsidorna är färskvara.
-- Kontroller som mäter på filnivå missar filer som är delvis trasiga. Mät per stycke när det som ska fångas kan sitta i en del av filen.
 - Matchningslogik som delas av flera skript måste hållas i takt. Vid införandet glömdes ett av tre skript och rapporterade tyst noll träffar, vilket såg ut som att allt stämde.
+- En lista som styr både vad som visas och vad som förbehandlas ska ha en källa. Två kopior ger ingen felsignal när de glider isär, eftersom varje fil är korrekt för sig och det som saknas är sammanhang och inte data.
 
 Följande är **lokalt** och måste byggas om:
 

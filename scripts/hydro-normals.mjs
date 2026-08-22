@@ -19,13 +19,14 @@ import { writeFile, mkdir } from 'node:fs/promises';
 const BASE = 'https://opendata-download-hydroobs.smhi.se/api/version/1.0';
 const OUT  = 'src/data/hydro-normals.json';
 
-// De 13 alvar som faktiskt har aktuell data. Se hydro-stations.ts.
+// De 16 alvar som faktiskt har aktuell data. Se hydro-stations.ts.
 const STATIONS = [
   [2395,  'Kallio',      'Torneälven'],
   [17,    'Räktfors',    'Kalixälven'],
   [1387,  'Gransel',     'Piteälven'],
   [2238,  'Sorsele',     'Vindelälven'],
   [2284,  'Byske',       'Byskeälven'],
+  [20,    'Niemisel',    'Råneälven'],
   [2237,  'Granåker',    'Umeälven'],
   [2506,  'Torrböle',    'Öreälven'],
   [97,    'Gimdalsby',   'Gimån'],
@@ -34,6 +35,8 @@ const STATIONS = [
   [186,   'Mörrum',      'Mörrumsån'],
   [2525,  'Torsebro',    'Helge å'],
   [2171,  'Högsmölla',   'Lödde å'],
+  [2372,  'Forsmöllan',  'Rönne å'],
+  [740,   'Nybro',       'Voxnan'],
 ];
 
 function quantile(sorted, q) {

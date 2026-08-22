@@ -23,7 +23,7 @@
  * Klaralven under GOTA ALV. Namnmatchning duger alltsa inte heller.
  *
  * ---------------------------------------------------------------------------
- * VARFOR BARA 15 AV 26 ALVAR
+ * VARFOR BARA 16 AV 27 ALVAR
  * ---------------------------------------------------------------------------
  *
  * Hydroobs har tre perioder: latest-hour, latest-day och corrected-archive.
@@ -39,9 +39,9 @@
  * siffra fran fel alv.
  *
  * Det som blir kvar ar dock inte slumpmassigt. Kvar ar alla fyra nationalalvar
- * plus Giman och Byskealven, alltsa just de OREGLERADE vattnen dar flodet
- * speglar naturlig avrinning och faktiskt betyder nagot for fisket. Det vi
- * tappar ar i huvudsak reglerade kraftverksalvar, dar korttidsflodet anda
+ * plus Giman, Byskealven och Ranealven, alltsa just de OREGLERADE vattnen dar
+ * flodet speglar naturlig avrinning och faktiskt betyder nagot for fisket. Det
+ * vi tappar ar i huvudsak reglerade kraftverksalvar, dar korttidsflodet anda
  * styrs av turbinschemat snarare an av vader.
  *
  * ---------------------------------------------------------------------------
@@ -64,6 +64,28 @@
  * Arealandel ar daremot en palitlig nyckel for huvudfara mot biflode. Under
  * ungefar 20 procent av vattendragets totala areal sitter stationen i ett
  * biflode eller en kallgren.
+ *
+ * ---------------------------------------------------------------------------
+ * TILLAGG AUGUSTI 2026: RANEALVEN
+ * ---------------------------------------------------------------------------
+ *
+ * Ranealven redovisas under catchmentName RANEALVEN, huvudavrinningsomrade 7
+ * (catchmentNumber 7000). Tolv stationer finns i systemet, tre av dem aktiva.
+ * Niemisel tacker 3 778,63 km2 av alvens 4 207, alltsa 90 procent, och ar
+ * darmed otvetydigt huvudfara.
+ *
+ * De tva andra aktiva ar fallgropar av samma slag som tidigare beskrivits.
+ * Ytterholmen (1 012 km2) ligger bara ett par mil fran destinationens
+ * koordinat och hade sett rimlig ut i en avstandsmatchning, men tacker 24
+ * procent och sitter i biflode. Vuoddasbacken tacker 41,3 km2. Ovriga nio
+ * stationer i systemet ar inaktiva sedan 1970-talet, daribland Livastorpet
+ * (366 km2) och Lombergsfallet (177 km2), som bada namnger platser i alvdalen
+ * och darfor lockar till fel val.
+ *
+ * Niemisel ar SMHI-agd, har bade latest-day och corrected-archive, och har med
+ * 44 526 dygn den langsta arkivserien av samtliga kopplade stationer, alltsa
+ * ca 122 ar. Det ar samma station som SMHI anvander som exempel pa en station
+ * i grundnatet och som referenspunkt i sin redovisning av varfloden 2018.
  */
 
 export interface HydroStation {
@@ -130,6 +152,15 @@ export const HYDRO_STATIONS: Record<string, HydroStation> = {
   orealven: {
     id: 2506, param: 1, name: 'Torrböle', catchmentKm2: 2859, distanceKm: 18,
     regulated: false,
+  },
+  ranealven: {
+    // Ytterholmen ar aktiv och ligger nara, men tacker 1 012 km2 av 4 207 och
+    // sitter alltsa i biflode. Niemisel tacker 90 procent av systemet.
+    // Alven ar helt oreglerad och skyddad enligt 4 kap. 6 § miljobalken, sa
+    // flodet speglar ren avrinning utan tappningsschema.
+    id: 20, param: 1, name: 'Niemisel', catchmentKm2: 3779, distanceKm: 14,
+    regulated: false,
+    note: 'Mäts vid Niemisel, nedströms Gunnarsbyn.',
   },
 
   // --- Reglerade ------------------------------------------------------------
