@@ -105,8 +105,16 @@ const gearReviews = defineCollection({
     merchant: z.string(),
     featured: z.boolean().default(false),
     budgetPick: z.boolean().default(false),
-    targetSpecies: z.array(z.enum(['abborre', 'gadda', 'gos', 'oring', 'lax', 'harr', 'havsoring'])).default([]),
-    techniques: z.array(z.enum(['jigg', 'dropshot', 'spinn', 'wobbler', 'jerkbait', 'flugfiske', 'mete', 'trolling', 'isfiske'])).default([]),
+    targetSpecies: z.array(z.enum([
+      'abborre', 'gadda', 'gos', 'oring', 'lax', 'harr', 'havsoring',
+      'al', 'asp', 'braxen', 'farna', 'havskatt', 'horngadda', 'id', 'kanadaroding', 'karp',
+      'lake', 'makrill', 'mort', 'nors', 'piggvar', 'regnbage', 'roding', 'rodspatta', 'ruda',
+      'sarv', 'sik', 'sill', 'skrubbskadda', 'stromming', 'sutare', 'torsk',
+    ])).default([]),
+    techniques: z.array(z.enum([
+      'jigg', 'dropshot', 'spinn', 'wobbler', 'jerkbait',
+      'flugfiske', 'mete', 'trolling', 'isfiske', 'vertikalfiske', 'havsfiske',
+    ])).default([]),
     priceRange: z.enum(['budget', 'mellanklass', 'premium']),
     quizEnabled: z.boolean().default(false),
   }),
