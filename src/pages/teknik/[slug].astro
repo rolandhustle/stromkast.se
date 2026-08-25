@@ -235,6 +235,14 @@ const faqSchema = t.faq && t.faq.length > 0 ? {
           </a>
         </div>
 
+        <!-- Produktkort, syns bara pa desktop. Harleds ur teknikens slug precis
+             som den fulla modulen langre upp i huvudkolumnen. -->
+        <GearModul
+          techniques={[t.slug]}
+          variant="sidebar"
+          heading="Utrustning för tekniken"
+        />
+
         <div class="bg-mist rounded-2xl p-6">
           <h3 class="font-display font-bold text-deep text-lg mb-3">Fler tekniker</h3>
           <a href="/teknik/" class="text-sky text-sm font-medium hover:text-pine transition-colors underline underline-offset-2">
