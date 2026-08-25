@@ -400,16 +400,6 @@ const faqSchema = {
           <Content />
         </div>
 
-        <!-- Utrustning: manuellt via recommendedGear, annars harledd ur primarySpecies + waterType -->
-        <GearModul
-          species={d.primarySpecies}
-          waterType={d.waterType}
-          manualSlugs={d.recommendedGear}
-          limit={6}
-          heading="Rekommenderad utrustning"
-          categoryHref="/utrustning/"
-        />
-
         <!-- FAQ -->
         <div class="mt-16">
           <h2 class="font-display text-2xl font-bold text-deep mb-6">Vanliga frågor</h2>
@@ -525,7 +515,9 @@ const faqSchema = {
           waterType={d.waterType}
           manualSlugs={d.recommendedGear}
           variant="sidebar"
+          limit={6}
           heading="Bra att ha på vattnet"
+          categoryHref="/utrustning/"
           sidebarRotateCategory="ekolod"
           rotateKey={d.slug}
         />

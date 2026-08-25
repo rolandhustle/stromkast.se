@@ -172,14 +172,6 @@ const faqSchema = t.faq && t.faq.length > 0 ? {
           </div>
         )}
 
-        <!-- Utrustning: harledd ur tekniken via techniques-faltet, aliasoversatt i modulen -->
-        <GearModul
-          techniques={[t.slug]}
-          limit={6}
-          heading={`Utrustning för ${t.title.toLowerCase()}`}
-          categoryHref="/utrustning/"
-        />
-
         <!-- FAQ -->
         {t.faq && t.faq.length > 0 && (
           <div class="mt-16">
@@ -240,7 +232,9 @@ const faqSchema = t.faq && t.faq.length > 0 ? {
         <GearModul
           techniques={[t.slug]}
           variant="sidebar"
-          heading="Utrustning för tekniken"
+          limit={6}
+          heading={`Utrustning för ${t.title.toLowerCase()}`}
+          categoryHref="/utrustning/"
         />
 
         <div class="bg-mist rounded-2xl p-6">

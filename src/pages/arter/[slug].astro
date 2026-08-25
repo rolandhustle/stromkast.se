@@ -241,15 +241,6 @@ const difficultyColor: Record<string, string> = {
           </div>
         )}
 
-        <!-- Utrustning: manuellt kuraterad via gearRecs, annars harledd ur targetSpecies -->
-        <GearModul
-          species={[s.slug]}
-          manualSlugs={s.gearRecs}
-          limit={6}
-          heading="Rekommenderad utrustning"
-          categoryHref="/utrustning/"
-        />
-
         <!-- FAQ -->
         {s.faq && s.faq.length > 0 && (
           <div class="mt-16">
@@ -388,12 +379,15 @@ const difficultyColor: Record<string, string> = {
           </a>
         </div>
 
-        <!-- Produktkort, syns bara pa desktop, doljs pa mobil for att inte dubblera modulen nedan -->
+        <!-- Enda produktmodulen pa sidan. Ligger sist i spalten, alltsa efter
+             fiskekort, sasong och karta aven pa mobil. -->
         <GearModul
           species={[s.slug]}
           manualSlugs={s.gearRecs}
           variant="sidebar"
-          heading="Vårt val"
+          limit={6}
+          heading="Rekommenderad utrustning"
+          categoryHref="/utrustning/"
         />
       </aside>
     </div>
