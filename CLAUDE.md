@@ -666,6 +666,35 @@ portabel till en annan marknad även när talen är lokala.
 
 ---
 
+**Kontrollera att utgångspunkten är aktuell innan `BESLUT.md` levereras som komplett fil.**
+Filen skrivs från flera chattsessioner, och projektkopian som Claude arbetar mot kan vara
+flera commits gammal. Levereras en komplett fil byggd på en inaktuell kopia raderas allt som
+tillkommit sedan dess, tyst och utan konflikt.
+
+Claude ska därför be om två siffror innan filen skrivs:
+
+```
+wc -l BESLUT.md
+grep -c "^### " BESLUT.md
+```
+
+Stämmer de med Claudes kopia är den aktuell och en komplett fil är rätt leveransform, alltså
+det enklaste för mottagaren. Skiljer de sig har någon annan session ändrat filen, och då
+levereras i stället ett Python-skript som fogar in posterna med unika ankare och en
+assertion per ankare, så att körningen avbryts utan att skriva om något ankare saknas.
+
+Samma sak gäller varje fil som skrivs från flera håll, inklusive den här filen. För nya filer
+och filer som bara den här sessionen rör är komplett fil alltid rätt.
+
+**Bakgrund.** I augusti 2026 skrev två parallella sessioner i `BESLUT.md`. Den ena levererade
+en komplett fil byggd på en projektkopia som saknade tre poster ur repot, och de försvann.
+Felet upptäcktes först vid `git diff --stat`, som visade 89 tillagda och 38 borttagna rader
+när bara ett tillägg var avsett. Samma dag höll det på att hända igen med `CLAUDE.md`, där
+projektkopian saknade 55 rader. Den gången upptäcktes det på att filstorleken var mindre än
+originalet trots fler rader.
+
+---
+
 ## Workflow för att lägga till ny produkt
 
 1. Kör `python3 add-product.py` och fyll i info
