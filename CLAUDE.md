@@ -695,6 +695,37 @@ originalet trots fler rader.
 
 ---
 
+**Kontrollera innan du påstår, och skilj på läst och slutet.**
+Ett påstående om repot, butikernas sortiment, en komponents beteende eller en sidmalls
+struktur ska bygga på en fil som faktiskt öppnats i sessionen, inte på hur något rimligen
+brukar fungera. Går det inte att kontrollera ska osäkerheten stå i texten i stället för att
+tystas. Felen nedan gjordes alla med full övertygelse, vilket är hela problemet.
+
+**Ett grep-resultat är ett besked om sökmönstret, inte om datan.** `grep "^targetSpecies:"`
+gav tom sträng för 50 produkter i augusti 2026, och slutsatsen blev att de saknade taggning.
+I själva verket använde de YAML-blocklista med värdena på efterföljande rader. Noll träffar
+eller påfallande få träffar ska prövas med ett andra mönster innan de tolkas.
+
+**Sök i feeden med butikens stavning, inte med din egen.** `metespö` gav en träff, `metspö`
+gav tio. `metkrok` gav noll, medan kategorin heter "Enkel och Dubbelkrok" och innehåller 86
+produkter. Ett magert resultat är oftare fel sökord än tomt sortiment. Öppna butikens
+kategorisida och läs hur produkterna faktiskt heter.
+
+**Mät innan du uttalar dig om längd och layout.** Att en högerspalt skulle bli längre än
+brödtexten hävdades två gånger utan underlag och höll ingen av gångerna. Medianartsidan har
+1 879 ord. Räkna först.
+
+**Läs artsidans utrustningsavsnitt innan produkter taggas mot arten.** Sutare ströks först ur
+ett metset på antagandet att arten kräver karpfiske med boilies, medan sajtens egen artsida
+anger daggmask och majs som klassiker som fungerar hela säsongen. Underlaget fanns redan i
+repot.
+
+**Räkna om innan siffror skrivs ut.** Antal filer, antal varningar och antal arter har
+angetts fel flera gånger under en och samma session. Siffror som ser ut att komma från en
+mätning måste komma från en mätning.
+
+---
+
 ## Workflow för att lägga till ny produkt
 
 1. Kör `python3 add-product.py` och fyll i info
