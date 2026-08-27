@@ -67,7 +67,7 @@ const TEKNIK_ALIAS: Record<string, string> = {
 // HALL LISTAN KOMPLETT. En kategori som saknas far tyst vardet 2 via viktAv
 // och hamnar da mitt bland rullarna, vilket sallan ar avsett.
 const KATEGORI_VIKT: Record<string, number> = {
-  spon: 0, trollingspon: 0,
+  spon: 0, trollingspon: 0, metspon: 0,
   jerkbaits: 1, wobblers: 1, jiggar: 1, spinnare: 1, kustdrag: 1, metset: 1,
   haspelrullar: 2, multirullar: 2,
   flatlinor: 3, fluorocarbon: 3, nylon: 3,
@@ -139,7 +139,7 @@ for (const r of manual) {
 // kategorier men samma sak for lasaren, sa tva av vardera gav fyra spon
 // utan att taket reagerade.
 const GRUPP: Record<string, string> = {
-  spon: 'spo', trollingspon: 'spo',
+  spon: 'spo', trollingspon: 'spo', metspon: 'spo',
   haspelrullar: 'rulle', multirullar: 'rulle',
   flatlinor: 'lina', fluorocarbon: 'lina', nylon: 'lina',
   jerkbaits: 'bete', wobblers: 'bete', jiggar: 'bete', spinnare: 'bete', kustdrag: 'bete',
