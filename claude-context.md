@@ -1264,7 +1264,16 @@ const KATEGORI_VIKT: Record<string, number> = {
 const fold = (str: string) =>
   str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
-const viktAv = (cat: string) => KATEGORI_VIKT[fold(cat)] ?? 2;
+// Beten ar tekniken pa en tekniksida. En jigg definierar jiggfiske medan
+// spoet ar utbytbart, sa dar lyfts beten till samma niva som spon. Pa
+// artsidor behalls skillnaden, eftersom lasaren dar bygger en uppsattning
+// och rullarna annars trangs ut av tva beten plus tva spon.
+const BETESKATEGORIER = new Set(['jerkbaits', 'wobblers', 'jiggar', 'spinnare', 'kustdrag']);
+const viktAv = (cat: string, techSida = false) => {
+  const k = fold(cat);
+  if (techSida && BETESKATEGORIER.has(k)) return 0;
+  return KATEGORI_VIKT[k] ?? 2;
+};
 
 const wantSpecies = new Set(species.map(fold));
 const wantTech = new Set(techniques.map((t) => TEKNIK_ALIAS[fold(t)] ?? fold(t)));
@@ -1308,7 +1317,7 @@ const isTechFilter = wantTech.size > 0 && wantSpecies.size === 0;
 // sorterades art- och destinationssidor enbart pa betyg, vilket lat
 // tillbehor med hogt betyg ligga fore karnutrustning.
 const sortByRelevance = (a: (typeof reviews)[number], b: (typeof reviews)[number]) => {
-  const w = viktAv(a.data.category ?? '') - viktAv(b.data.category ?? '');
+  const w = viktAv(a.data.category ?? '', isTechFilter) - viktAv(b.data.category ?? '', isTechFilter);
   if (w !== 0) return w;
   return byRating(a, b);
 };
@@ -1346,15 +1355,18 @@ const fullGrupp = (r: (typeof reviews)[number]) =>
 
 for (const r of picked) rakna(r);
 
-// Prisspridning. Varje prisklass ska representeras, men taket foredras.
-// Finns ingen kandidat under taket tas den basta anda, sa att en prisklass
-// aldrig hoppas over.
+// Prisspridning. Varje prisklass far en plats, men taket gar fore.
+// Finns ingen kandidat under taket hoppas prisklassen over och platsen
+// gar till fyllnaden i stallet. Tidigare tvingades den basta in anda,
+// vilket gav tre metspon pa mortsidan dar alla tre prisklasser bestod
+// av metspon. En prisklass som bara innehaller en grupp ar ingen
+// prisbredd att bevara.
 for (const klass of RANK) {
   if (picked.length >= limit) break;
-  const iKlassen = derived
+  const best = derived
     .filter((r) => fold(r.data.priceRange ?? '') === klass && !seen.has(r.id))
-    .sort(sortByRelevance);
-  const best = iKlassen.find((r) => !fullGrupp(r)) ?? iKlassen[0];
+    .sort(sortByRelevance)
+    .find((r) => !fullGrupp(r));
   if (best) { picked.push(best); seen.add(best.id); rakna(best); }
 }
 
@@ -11666,7 +11678,7 @@ merchant: "FiskeOnline"
 featured: false
 budgetPick: false
 targetSpecies: ["makrill", "horngadda"]
-techniques: ["mete"]
+techniques: ["mete", "havsfiske"]
 priceRange: "mellanklass"
 quizEnabled: false
 ---
@@ -11701,7 +11713,7 @@ merchant: "FiskeOnline"
 featured: false
 budgetPick: false
 targetSpecies: ["makrill", "horngadda"]
-techniques: ["mete"]
+techniques: ["mete", "havsfiske"]
 priceRange: "mellanklass"
 quizEnabled: false
 ---
@@ -13626,6 +13638,7 @@ targetSpecies:
   - "kanadaroding"
 techniques:
   - "trolling"
+  - "havsfiske"
 priceRange: "mellanklass"
 quizEnabled: false
 ---
@@ -13667,6 +13680,7 @@ targetSpecies:
   - "kanadaroding"
 techniques:
   - "trolling"
+  - "havsfiske"
 priceRange: "budget"
 quizEnabled: false
 ---
@@ -15452,7 +15466,7 @@ merchant: "FiskeOnline"
 featured: false
 budgetPick: true
 targetSpecies: ["havsoring"]
-techniques: ["spinn"]
+techniques: ["spinn", "havsfiske"]
 priceRange: "budget"
 quizEnabled: false
 ---
@@ -15533,6 +15547,7 @@ techniques:
   - "jigg"
   - "spinn"
   - "trolling"
+  - "havsfiske"
 priceRange: "premium"
 quizEnabled: false
 ---
@@ -15614,6 +15629,7 @@ targetSpecies:
   - "kanadaroding"
 techniques:
   - "trolling"
+  - "havsfiske"
 priceRange: "mellanklass"
 quizEnabled: false
 ---
@@ -16025,6 +16041,7 @@ targetSpecies:
   - "kanadaroding"
 techniques:
   - "trolling"
+  - "havsfiske"
 priceRange: "mellanklass"
 quizEnabled: false
 ---
@@ -16724,7 +16741,7 @@ merchant: "FiskeOnline"
 featured: false
 budgetPick: true
 targetSpecies: ["havsoring", "lax", "oring"]
-techniques: ["spinn"]
+techniques: ["spinn", "havsfiske"]
 priceRange: "budget"
 quizEnabled: false
 ---
