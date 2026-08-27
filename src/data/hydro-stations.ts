@@ -86,6 +86,23 @@
  * 44 526 dygn den langsta arkivserien av samtliga kopplade stationer, alltsa
  * ca 122 ar. Det ar samma station som SMHI anvander som exempel pa en station
  * i grundnatet och som referenspunkt i sin redovisning av varfloden 2018.
+ *
+ * ---------------------------------------------------------------------------
+ * TILLAGG AUGUSTI 2026: LAINIOALVEN
+ * ---------------------------------------------------------------------------
+ *
+ * Lainioalven ar Torneälvens storsta biflode och producerar ca 60 procent av
+ * systemets vildlax. Alven ar helt oreglerad och skyddad som nationalälv.
+ *
+ * Lannavaara (id 5) ar den enda aktiva stationen i systemet och ar dessutom
+ * SMHIs langst lopande station med oforändrad troskel, med matningar fran 1923.
+ * Den tacker 3 856 km2, vilket motsvarar ca 65 procent av Lainioalvens
+ * avrinningsomrade. Stationen ligger i Lannavaara by, ca 50 km uppstroms
+ * Kangos, i det mest frekventerade laxfiskeomradet.
+ *
+ * Kaitumälven: enda kandidaten var Lappeasuvanto (id 813, 5 647 km2) men den
+ * stangdes 2001. Ingen aktiv station finns i Kaitumälvens system. Ingen post
+ * laggs in for kaitumalven.
  */
 
 export interface HydroStation {
@@ -141,6 +158,16 @@ export const HYDRO_STATIONS: Record<string, HydroStation> = {
   byskealven: {
     id: 2284, param: 1, name: 'Byske', catchmentKm2: 3620, distanceKm: 1,
     regulated: false,
+  },
+  lainioalven: {
+    // Lannavaara ar den enda aktiva stationen i systemet och SMHIs langst
+    // lopande station med oforandrad troskel (matningar fran 1923). Tacker
+    // 3 856 km2, ca 65 procent av avrinningsomradet. Stationen ligger i det
+    // mest frekventerade laxfiskeomradet, 50 km uppstroms Kangos.
+    // Alven ar oreglerad nationalälv -- flodet speglar ren avrinning.
+    id: 5, param: 1, name: 'Lannavaara', catchmentKm2: 3856, distanceKm: 50,
+    regulated: false,
+    note: 'Mäts vid Lannavaara, ca 50 km uppströms Kangos.',
   },
   giman: {
     // Verifierad mot VISS: stationen GIMDALSBY har atgardsomrade Giman.

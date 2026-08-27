@@ -26,6 +26,7 @@ const STATIONS = [
   [1387,  'Gransel',     'Piteälven'],
   [2238,  'Sorsele',     'Vindelälven'],
   [2284,  'Byske',       'Byskeälven'],
+  [5,     'Lannavaara',  'Lainioälven'],
   [20,    'Niemisel',    'Råneälven'],
   [2237,  'Granåker',    'Umeälven'],
   [2506,  'Torrböle',    'Öreälven'],
