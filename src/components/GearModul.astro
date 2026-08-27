@@ -63,12 +63,17 @@ const TEKNIK_ALIAS: Record<string, string> = {
 // Kategorivikt for tekniksidor. Nar tekniken ar det aktiva filtret ska
 // karnutrustning (spon, beten) rankas fore tillbehor (rullar, linor, ekolod).
 // Lagre tal = hogre upp. Okand kategori hamnar i mitten.
+// Kategorivikt. Lagre tal = hogre upp. Karnutrustning fore tillbehor.
+// HALL LISTAN KOMPLETT. En kategori som saknas far tyst vardet 2 via viktAv
+// och hamnar da mitt bland rullarna, vilket sallan ar avsett.
 const KATEGORI_VIKT: Record<string, number> = {
-  spon: 0, jerkbaits: 0, wobblers: 0, jiggar: 0, spinnare: 0, kustdrag: 0,
-  trollingspon: 1,
-  haspelrullar: 2,
+  spon: 0, trollingspon: 0,
+  jerkbaits: 1, wobblers: 1, jiggar: 1, spinnare: 1, kustdrag: 1, metset: 1,
+  haspelrullar: 2, multirullar: 2,
   flatlinor: 3, fluorocarbon: 3, nylon: 3,
-  ekolod: 4, batar: 4, elmotorer: 4, utombordare: 4, battrailers: 4,
+  havar: 4, vadare: 4,
+  krokar: 5, floten: 5, tyngder: 5,
+  ekolod: 6, batar: 6, elmotorer: 6, utombordare: 6, battrailers: 6,
 };
 const fold = (str: string) =>
   str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
@@ -113,11 +118,12 @@ const byRating = (a: (typeof reviews)[number], b: (typeof reviews)[number]) =>
 
   // Pa tekniksidor: kategorivikt forst, betyg som tiebreak. Annars bara betyg.  
 const isTechFilter = wantTech.size > 0 && wantSpecies.size === 0;
+// Kategorivikt galler alla sidtyper, inte bara tekniksidor. Utan det
+// sorterades art- och destinationssidor enbart pa betyg, vilket lat
+// tillbehor med hogt betyg ligga fore karnutrustning.
 const sortByRelevance = (a: (typeof reviews)[number], b: (typeof reviews)[number]) => {
-  if (isTechFilter) {
-    const w = viktAv(a.data.category ?? '') - viktAv(b.data.category ?? '');
-    if (w !== 0) return w;
-  }
+  const w = viktAv(a.data.category ?? '') - viktAv(b.data.category ?? '');
+  if (w !== 0) return w;
   return byRating(a, b);
 };
 
@@ -129,17 +135,47 @@ for (const r of manual) {
   if (!seen.has(r.id)) { picked.push(r); seen.add(r.id); }
 }
 
+// Taket raknar produkttyp, inte kategori. Spon och trollingspon ar olika
+// kategorier men samma sak for lasaren, sa tva av vardera gav fyra spon
+// utan att taket reagerade.
+const GRUPP: Record<string, string> = {
+  spon: 'spo', trollingspon: 'spo',
+  haspelrullar: 'rulle', multirullar: 'rulle',
+  flatlinor: 'lina', fluorocarbon: 'lina', nylon: 'lina',
+  jerkbaits: 'bete', wobblers: 'bete', jiggar: 'bete', spinnare: 'bete', kustdrag: 'bete',
+  krokar: 'krok', floten: 'flote', tyngder: 'tyngd', metset: 'set',
+  havar: 'utrustning', vadare: 'utrustning',
+  batar: 'bat', elmotorer: 'bat', utombordare: 'bat', battrailers: 'bat', ekolod: 'bat',
+};
+const gruppAv = (cat: string) => GRUPP[fold(cat)] ?? fold(cat);
+
+const MAX_PER_GRUPP = 2;
+const antalPerGrupp = new Map<string, number>();
+const rakna = (r: (typeof reviews)[number]) => {
+  const g = gruppAv(r.data.category ?? '');
+  antalPerGrupp.set(g, (antalPerGrupp.get(g) ?? 0) + 1);
+};
+const fullGrupp = (r: (typeof reviews)[number]) =>
+  (antalPerGrupp.get(gruppAv(r.data.category ?? '')) ?? 0) >= MAX_PER_GRUPP;
+
+for (const r of picked) rakna(r);
+
+// Prisspridning. Varje prisklass ska representeras, men taket foredras.
+// Finns ingen kandidat under taket tas den basta anda, sa att en prisklass
+// aldrig hoppas over.
 for (const klass of RANK) {
   if (picked.length >= limit) break;
-  const best = derived
+  const iKlassen = derived
     .filter((r) => fold(r.data.priceRange ?? '') === klass && !seen.has(r.id))
-    .sort(sortByRelevance)[0];
-  if (best) { picked.push(best); seen.add(best.id); }
+    .sort(sortByRelevance);
+  const best = iKlassen.find((r) => !fullGrupp(r)) ?? iKlassen[0];
+  if (best) { picked.push(best); seen.add(best.id); rakna(best); }
 }
 
 for (const r of [...derived].sort(sortByRelevance)) {
   if (picked.length >= limit) break;
-  if (!seen.has(r.id)) { picked.push(r); seen.add(r.id); }
+  if (fullGrupp(r)) continue;
+  if (!seen.has(r.id)) { picked.push(r); seen.add(r.id); rakna(r); }
 }
 
 const hasProducts = picked.length > 0;
