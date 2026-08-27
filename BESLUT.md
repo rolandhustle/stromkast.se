@@ -428,7 +428,23 @@ Att sälja en icke-gummerad håv utan att nämna det vore att låta priset göra
 
 **Skäl.** Ekolod har bäst ordervärde och passar destinationskontexten, någon som lär känna ett nytt vatten. Men ett ekolod är inte vattenspecifikt, så all variation är i grunden godtycklig. Att visa samma modell på alla 41 destinationer såg automatiserat ut. Deterministisk rotation på slugen ger stabil variation utan manuellt arbete och utan att påstå en relevans som inte finns: kortet säger "bra att ha på vattnet", vilket är sant för alla ekolod. Premiummodellerna utesluts ur poolen så ett dyrt ekolod inte dyker upp slumpvis. Mobildöljningen finns för att kortet annars dubblerar full-modulen som ligger i flödet.
 
+**Delvis upphävt i augusti 2026.** Mobildöljningen och full-modulen är borta, se posten om att sidebar är sidans enda produktmodul. Rotationen av ekolod gäller fortfarande, men kortet är nu ett av sex och syns även på mobil.
+
 **Vad som skulle ändra det.** Att ekolod blev genuint vattenspecifika (djupintervall, sötvatten mot kust) och kunde matchas mot `waterType` i stället för roteras. Då blir matchning bättre än rotation. Så länge skillnaden mellan modeller är för liten för att motivera en äkta matchning är stabil rotation det ärliga valet.
+
+---
+
+### Sidebar är sidans enda produktmodul
+
+**Beslut.** Art-, destinations- och tekniksidor visar produkter enbart i högerspalten, sex stycken, och den fulla modulen i huvudkolumnen är borttagen. Sidebar-varianten syns även på mobil, där spalten faller sist under huvudkolumnen. Rubrik, underrubrik, kategorilänk och fallback flyttade med in i sidebar-varianten.
+
+**Skäl.** Den fulla modulen låg ungefär sextio procent ner i huvudkolumnen på artsidor och sjuttio procent på tekniksidor. Få läsare når dit.
+
+Utrymmet fanns. Medianartsidan har 1 879 ord, vilket ger en huvudkolumn på grovt 6 000 till 8 000 pixlar. Sex kort i spalten blir omkring 2 700 pixlar, plus fiskekort, säsong och karta på ungefär 800. Farhågan att spalten skulle bli längre än texten prövades två gånger under arbetet och höll ingen av gångerna. De tio kortaste artsidorna är dessutom exakt de som har noll matchande produkter, så en kort sida ger en kort spalt.
+
+Tre detaljer som inte syns i koden. `limit` måste skickas explicit på sidebar-anropen, eftersom standardvärdet 4 annars tyst begränsar antalet till fyra oavsett vad `slice` säger. Kortformatet behölls i stort format i stället för att komprimeras till en tät lista, eftersom utrymmet fanns och stor bild, synligt pris och en riktig knapp gör mer nytta än en textrad. Och fallbacken från den fulla modulen måste följa med, annars tappar de 18 artsidorna utan matchande produkter sin enda väg till utrustningsdelen.
+
+**Vad som skulle ändra det.** Att antalet produkter växer så att sex kort inte längre är ett representativt urval, eller att spalten på någon sidtyp faktiskt blir längre än huvudkolumnen. Mät innan antalet ändras.
 
 ---
 
