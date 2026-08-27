@@ -60,7 +60,9 @@ src/content/articles/valja-fiskebat.mdx
 src/content/articles/valja-fiskelina.mdx
 src/content/articles/valja-haspelrulle.mdx
 src/content/articles/valja-hav.mdx
+src/content/articles/valja-metredskap.mdx
 src/content/articles/valja-multirulle.mdx
+src/content/articles/valja-vadare.mdx
 src/content/articles/vattenforing-och-fiske.mdx
 src/content/articles/vilken-utombordare.mdx
 src/content/authors
@@ -134,17 +136,22 @@ src/content/gear-categories/battrailers.json
 src/content/gear-categories/ekolod.json
 src/content/gear-categories/elmotorer.json
 src/content/gear-categories/flatlinor.json
+src/content/gear-categories/floten.json
 src/content/gear-categories/fluorocarbon.json
 src/content/gear-categories/haspelrullar.json
 src/content/gear-categories/havar.json
 src/content/gear-categories/jerkbaits.json
 src/content/gear-categories/jiggar.json
+src/content/gear-categories/krokar.json
 src/content/gear-categories/kustdrag.json
+src/content/gear-categories/metset.json
+src/content/gear-categories/metspon.json
 src/content/gear-categories/multirullar.json
 src/content/gear-categories/nylon.json
 src/content/gear-categories/spinnare.json
 src/content/gear-categories/spon.json
 src/content/gear-categories/trollingspon.json
+src/content/gear-categories/tyngder.json
 src/content/gear-categories/utombordare.json
 src/content/gear-categories/vadare.json
 src/content/gear-categories/wobblers.json
@@ -157,7 +164,24 @@ src/content/gear-reviews/bft-raptor-g2-jerkbait.mdx
 src/content/gear-reviews/bft-rebel-x8.mdx
 src/content/gear-reviews/bomber-long-a.mdx
 src/content/gear-reviews/cwc-foldable-boat-net.mdx
+src/content/gear-reviews/darts-abborrflote.mdx
+src/content/gear-reviews/darts-dropshot-pencil.mdx
+src/content/gear-reviews/darts-dropshot-sinker-ball.mdx
+src/content/gear-reviews/darts-flotesstopp.mdx
 src/content/gear-reviews/darts-landing-net-medium-teleskopisk.mdx
+src/content/gear-reviews/darts-lightstick-float.mdx
+src/content/gear-reviews/darts-link-head-changeable.mdx
+src/content/gear-reviews/darts-metset-abborre-bottenmete.mdx
+src/content/gear-reviews/darts-metset-abborre-mini.mdx
+src/content/gear-reviews/darts-metset-abborre.mdx
+src/content/gear-reviews/darts-metset-bottenmete.mdx
+src/content/gear-reviews/darts-metset-gadda-big.mdx
+src/content/gear-reviews/darts-metset-gadda.mdx
+src/content/gear-reviews/darts-metset-makrill-kustmete.mdx
+src/content/gear-reviews/darts-metset-makrill-mini.mdx
+src/content/gear-reviews/darts-metset-regnbage.mdx
+src/content/gear-reviews/darts-metset-sommarmete.mdx
+src/content/gear-reviews/darts-sliding-pike-float.mdx
 src/content/gear-reviews/darts-vadarhav-flytande-medium.mdx
 src/content/gear-reviews/deeper-smart-sonar-chirp-plus-3.mdx
 src/content/gear-reviews/deeper-smart-sonar-chirp-plus-4.mdx
@@ -169,6 +193,15 @@ src/content/gear-reviews/garmin-striker-cast-worldwide.mdx
 src/content/gear-reviews/garmin-striker-vivid-7cv.mdx
 src/content/gear-reviews/garmin-striker-vivid-9sv.mdx
 src/content/gear-reviews/hurricane-x8-braid-012mm.mdx
+src/content/gear-reviews/ifish-fiskpinne-metspo-3m.mdx
+src/content/gear-reviews/ifish-fiskpinne-metspo-4m.mdx
+src/content/gear-reviews/ifish-paronsanken-zink.mdx
+src/content/gear-reviews/kamasan-animal-eyed-barbed.mdx
+src/content/gear-reviews/kamasan-b940-aberdeen.mdx
+src/content/gear-reviews/kamasan-b980-specimen-eyed.mdx
+src/content/gear-reviews/kamasan-b982-xstrong.mdx
+src/content/gear-reviews/kamasan-b983-wide-gape.mdx
+src/content/gear-reviews/kamasan-k58-bait-holder.mdx
 src/content/gear-reviews/kinetic-4-braid-012mm.mdx
 src/content/gear-reviews/kinetic-8-braid-014mm.mdx
 src/content/gear-reviews/kinetic-brutalis-5000-fd.mdx
@@ -239,6 +272,8 @@ src/content/gear-reviews/vision-musta-filtsula.mdx
 src/content/gear-reviews/vision-musta-michelin.mdx
 src/content/gear-reviews/vision-rio-vanda-vadarbyxor.mdx
 src/content/gear-reviews/vision-rio-vanda-vadarsko.mdx
+src/content/gear-reviews/westin-cheburashka-lead.mdx
+src/content/gear-reviews/westin-cheburashka-tungsten.mdx
 src/content/gear-reviews/westin-salty.mdx
 src/content/gear-reviews/westin-swim-glidebait.mdx
 src/content/gear-reviews/westin-w10-13-braid-coastal.mdx
@@ -265,6 +300,12 @@ src/content/gear-reviews/westin-w6-st3-hard-062mm.mdx
 src/content/gear-reviews/westin-w6-st5-soft-030mm.mdx
 src/content/gear-reviews/westin-w6-st5-soft-038mm.mdx
 src/content/gear-reviews/westin-w6-telescopic-4m.mdx
+src/content/gear-reviews/wiggler-bryggmetespo.mdx
+src/content/gear-reviews/wiggler-komplett-metspo-3m.mdx
+src/content/gear-reviews/wiggler-metspo-svart-3m.mdx
+src/content/gear-reviews/wiggler-metspo-svart-4m.mdx
+src/content/gear-reviews/wiggler-paronsanke.mdx
+src/content/gear-reviews/wiggler-sortimentask-hagel.mdx
 src/content/gear-reviews/wiggler-trahav-vadarhav.mdx
 src/content/gear-reviews/wiggler-viking-herring.mdx
 src/content/species
@@ -489,8 +530,16 @@ const gearReviews = defineCollection({
     merchant: z.string(),
     featured: z.boolean().default(false),
     budgetPick: z.boolean().default(false),
-    targetSpecies: z.array(z.enum(['abborre', 'gadda', 'gos', 'oring', 'lax', 'harr', 'havsoring'])).default([]),
-    techniques: z.array(z.enum(['jigg', 'dropshot', 'spinn', 'wobbler', 'jerkbait', 'flugfiske', 'mete', 'trolling', 'isfiske'])).default([]),
+    targetSpecies: z.array(z.enum([
+      'abborre', 'gadda', 'gos', 'oring', 'lax', 'harr', 'havsoring',
+      'al', 'asp', 'braxen', 'farna', 'havskatt', 'horngadda', 'id', 'kanadaroding', 'karp',
+      'lake', 'makrill', 'mort', 'nors', 'piggvar', 'regnbage', 'roding', 'rodspatta', 'ruda',
+      'sarv', 'sik', 'sill', 'skrubbskadda', 'stromming', 'sutare', 'torsk',
+    ])).default([]),
+    techniques: z.array(z.enum([
+      'jigg', 'dropshot', 'spinn', 'wobbler', 'jerkbait',
+      'flugfiske', 'mete', 'trolling', 'isfiske', 'vertikalfiske', 'havsfiske',
+    ])).default([]),
     priceRange: z.enum(['budget', 'mellanklass', 'premium']),
     quizEnabled: z.boolean().default(false),
   }),
@@ -1200,12 +1249,17 @@ const TEKNIK_ALIAS: Record<string, string> = {
 // Kategorivikt for tekniksidor. Nar tekniken ar det aktiva filtret ska
 // karnutrustning (spon, beten) rankas fore tillbehor (rullar, linor, ekolod).
 // Lagre tal = hogre upp. Okand kategori hamnar i mitten.
+// Kategorivikt. Lagre tal = hogre upp. Karnutrustning fore tillbehor.
+// HALL LISTAN KOMPLETT. En kategori som saknas far tyst vardet 2 via viktAv
+// och hamnar da mitt bland rullarna, vilket sallan ar avsett.
 const KATEGORI_VIKT: Record<string, number> = {
-  spon: 0, jerkbaits: 0, wobblers: 0, jiggar: 0, spinnare: 0, kustdrag: 0,
-  trollingspon: 1,
-  haspelrullar: 2,
+  spon: 0, trollingspon: 0, metspon: 0,
+  jerkbaits: 1, wobblers: 1, jiggar: 1, spinnare: 1, kustdrag: 1, metset: 1,
+  haspelrullar: 2, multirullar: 2,
   flatlinor: 3, fluorocarbon: 3, nylon: 3,
-  ekolod: 4, batar: 4, elmotorer: 4, utombordare: 4, battrailers: 4,
+  havar: 4, vadare: 4,
+  krokar: 5, floten: 5, tyngder: 5,
+  ekolod: 6, batar: 6, elmotorer: 6, utombordare: 6, battrailers: 6,
 };
 const fold = (str: string) =>
   str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
@@ -1250,11 +1304,12 @@ const byRating = (a: (typeof reviews)[number], b: (typeof reviews)[number]) =>
 
   // Pa tekniksidor: kategorivikt forst, betyg som tiebreak. Annars bara betyg.  
 const isTechFilter = wantTech.size > 0 && wantSpecies.size === 0;
+// Kategorivikt galler alla sidtyper, inte bara tekniksidor. Utan det
+// sorterades art- och destinationssidor enbart pa betyg, vilket lat
+// tillbehor med hogt betyg ligga fore karnutrustning.
 const sortByRelevance = (a: (typeof reviews)[number], b: (typeof reviews)[number]) => {
-  if (isTechFilter) {
-    const w = viktAv(a.data.category ?? '') - viktAv(b.data.category ?? '');
-    if (w !== 0) return w;
-  }
+  const w = viktAv(a.data.category ?? '') - viktAv(b.data.category ?? '');
+  if (w !== 0) return w;
   return byRating(a, b);
 };
 
@@ -1266,17 +1321,47 @@ for (const r of manual) {
   if (!seen.has(r.id)) { picked.push(r); seen.add(r.id); }
 }
 
+// Taket raknar produkttyp, inte kategori. Spon och trollingspon ar olika
+// kategorier men samma sak for lasaren, sa tva av vardera gav fyra spon
+// utan att taket reagerade.
+const GRUPP: Record<string, string> = {
+  spon: 'spo', trollingspon: 'spo', metspon: 'spo',
+  haspelrullar: 'rulle', multirullar: 'rulle',
+  flatlinor: 'lina', fluorocarbon: 'lina', nylon: 'lina',
+  jerkbaits: 'bete', wobblers: 'bete', jiggar: 'bete', spinnare: 'bete', kustdrag: 'bete',
+  krokar: 'krok', floten: 'flote', tyngder: 'tyngd', metset: 'set',
+  havar: 'utrustning', vadare: 'utrustning',
+  batar: 'bat', elmotorer: 'bat', utombordare: 'bat', battrailers: 'bat', ekolod: 'bat',
+};
+const gruppAv = (cat: string) => GRUPP[fold(cat)] ?? fold(cat);
+
+const MAX_PER_GRUPP = 2;
+const antalPerGrupp = new Map<string, number>();
+const rakna = (r: (typeof reviews)[number]) => {
+  const g = gruppAv(r.data.category ?? '');
+  antalPerGrupp.set(g, (antalPerGrupp.get(g) ?? 0) + 1);
+};
+const fullGrupp = (r: (typeof reviews)[number]) =>
+  (antalPerGrupp.get(gruppAv(r.data.category ?? '')) ?? 0) >= MAX_PER_GRUPP;
+
+for (const r of picked) rakna(r);
+
+// Prisspridning. Varje prisklass ska representeras, men taket foredras.
+// Finns ingen kandidat under taket tas den basta anda, sa att en prisklass
+// aldrig hoppas over.
 for (const klass of RANK) {
   if (picked.length >= limit) break;
-  const best = derived
+  const iKlassen = derived
     .filter((r) => fold(r.data.priceRange ?? '') === klass && !seen.has(r.id))
-    .sort(sortByRelevance)[0];
-  if (best) { picked.push(best); seen.add(best.id); }
+    .sort(sortByRelevance);
+  const best = iKlassen.find((r) => !fullGrupp(r)) ?? iKlassen[0];
+  if (best) { picked.push(best); seen.add(best.id); rakna(best); }
 }
 
 for (const r of [...derived].sort(sortByRelevance)) {
   if (picked.length >= limit) break;
-  if (!seen.has(r.id)) { picked.push(r); seen.add(r.id); }
+  if (fullGrupp(r)) continue;
+  if (!seen.has(r.id)) { picked.push(r); seen.add(r.id); rakna(r); }
 }
 
 const hasProducts = picked.length > 0;
@@ -1305,10 +1390,13 @@ const sidebarPick = (() => {
 
 {variant === 'sidebar' ? (
   hasProducts ? (
-    <div class="hidden lg:block bg-white border border-mist rounded-2xl p-6">
-      <p class="text-stone text-xs uppercase tracking-wider font-medium mb-3">{heading}</p>
-      {[sidebarPick].map((r) => (
-        <div>
+    <div class="bg-white border border-mist rounded-2xl p-6">
+      <h2 class="font-display font-bold text-deep text-lg leading-snug mb-1">{heading}</h2>
+      <p class="text-stone text-sm mb-5">Utrustning som passar det här fisket.</p>
+      {/* Forsta kortet ar sidebarPick, som pa destinationer roteras stabilt per slug.
+          Resten fylls pa ur picked sa spalten visar flera produkter i stallet for en. */}
+      {[sidebarPick, ...picked.filter((r) => r.id !== sidebarPick.id)].slice(0, 6).map((r) => (
+        <div class="pb-7 mb-7 border-b border-mist last:pb-0 last:mb-0 last:border-0">
           <div class="w-full aspect-square rounded-xl bg-mist overflow-hidden mb-4">
             <img src={r.data.heroImage} alt={r.data.title} loading="lazy" class="w-full h-full object-contain p-3" onerror="this.style.display='none'" />
           </div>
@@ -1341,11 +1429,24 @@ const sidebarPick = (() => {
               <path d="M2 12L12 2M12 2H6M12 2v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </a>
-          <p class="text-xs text-stone/60 text-center mt-3">*Affiliatelänk. Vi tjänar en provision utan kostnad för dig.</p>
         </div>
       ))}
+      <p class="text-sm text-stone mt-6">
+        Se fler alternativ under <a href={categoryHref} class="text-sky hover:text-pine underline underline-offset-2">utrustning</a>.
+      </p>
+      <p class="text-xs text-stone/60 text-center mt-3">*Affiliatelänk. Vi tjänar en provision utan kostnad för dig.</p>
     </div>
-  ) : null
+  ) : (
+    <div class="bg-white border border-mist rounded-2xl p-6">
+      <h2 class="font-display font-bold text-deep text-lg leading-snug mb-3">{heading}</h2>
+      <a href={categoryHref} class="inline-flex items-center gap-1.5 text-pine font-semibold text-sm hover:text-deep transition-colors">
+        Se all vår testade utrustning
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+  )
 ) : hasProducts ? (
   <section class="not-prose pt-10 border-t border-mist" aria-labelledby="gearmodul-rubrik">
     <h2 id="gearmodul-rubrik" class="font-display text-2xl font-bold text-deep mb-2">{heading}</h2>
@@ -5316,15 +5417,6 @@ const difficultyColor: Record<string, string> = {
           </div>
         )}
 
-        <!-- Utrustning: manuellt kuraterad via gearRecs, annars harledd ur targetSpecies -->
-        <GearModul
-          species={[s.slug]}
-          manualSlugs={s.gearRecs}
-          limit={6}
-          heading="Rekommenderad utrustning"
-          categoryHref="/utrustning/"
-        />
-
         <!-- FAQ -->
         {s.faq && s.faq.length > 0 && (
           <div class="mt-16">
@@ -5463,12 +5555,15 @@ const difficultyColor: Record<string, string> = {
           </a>
         </div>
 
-        <!-- Produktkort, syns bara pa desktop, doljs pa mobil for att inte dubblera modulen nedan -->
+        <!-- Enda produktmodulen pa sidan. Ligger sist i spalten, alltsa efter
+             fiskekort, sasong och karta aven pa mobil. -->
         <GearModul
           species={[s.slug]}
           manualSlugs={s.gearRecs}
           variant="sidebar"
-          heading="Vårt val"
+          limit={6}
+          heading="Rekommenderad utrustning"
+          categoryHref="/utrustning/"
         />
       </aside>
     </div>
@@ -6031,16 +6126,6 @@ const faqSchema = {
           <Content />
         </div>
 
-        <!-- Utrustning: manuellt via recommendedGear, annars harledd ur primarySpecies + waterType -->
-        <GearModul
-          species={d.primarySpecies}
-          waterType={d.waterType}
-          manualSlugs={d.recommendedGear}
-          limit={6}
-          heading="Rekommenderad utrustning"
-          categoryHref="/utrustning/"
-        />
-
         <!-- FAQ -->
         <div class="mt-16">
           <h2 class="font-display text-2xl font-bold text-deep mb-6">Vanliga frågor</h2>
@@ -6156,7 +6241,9 @@ const faqSchema = {
           waterType={d.waterType}
           manualSlugs={d.recommendedGear}
           variant="sidebar"
+          limit={6}
           heading="Bra att ha på vattnet"
+          categoryHref="/utrustning/"
           sidebarRotateCategory="ekolod"
           rotateKey={d.slug}
         />
@@ -8546,14 +8633,6 @@ const faqSchema = t.faq && t.faq.length > 0 ? {
           </div>
         )}
 
-        <!-- Utrustning: harledd ur tekniken via techniques-faltet, aliasoversatt i modulen -->
-        <GearModul
-          techniques={[t.slug]}
-          limit={6}
-          heading={`Utrustning för ${t.title.toLowerCase()}`}
-          categoryHref="/utrustning/"
-        />
-
         <!-- FAQ -->
         {t.faq && t.faq.length > 0 && (
           <div class="mt-16">
@@ -8608,6 +8687,16 @@ const faqSchema = t.faq && t.faq.length > 0 ? {
             </svg>
           </a>
         </div>
+
+        <!-- Produktkort, syns bara pa desktop. Harleds ur teknikens slug precis
+             som den fulla modulen langre upp i huvudkolumnen. -->
+        <GearModul
+          techniques={[t.slug]}
+          variant="sidebar"
+          limit={6}
+          heading={`Utrustning för ${t.title.toLowerCase()}`}
+          categoryHref="/utrustning/"
+        />
 
         <div class="bg-mist rounded-2xl p-6">
           <h3 class="font-display font-bold text-deep text-lg mb-3">Fler tekniker</h3>
@@ -10579,6 +10668,19 @@ export function trackQuizCompleted(result_product_ids: string[]): void {
 }
 ```
 
+## src/content/gear-categories/floten.json
+```
+{
+  "title": "Flöten",
+  "slug": "floten",
+  "description": "Flöten för mete efter abborre, gädda och fredfisk. Fasta och glidande modeller i olika bärighet, plus flötesstopp som glidmontaget kräver.",
+  "heroImage": "/images/gear/floten.jpg",
+  "heroSource": "illustration",
+  "guideUrl": "/guider/valja-metredskap/",
+  "excerpt": "Fasta och glidande flöten samt flötesstopp."
+}
+```
+
 ## src/content/gear-categories/fluorocarbon.json
 ```
 {
@@ -10643,6 +10745,18 @@ export function trackQuizCompleted(result_product_ids: string[]): void {
 }
 ```
 
+## src/content/gear-categories/krokar.json
+```
+{
+  "title": "Krokar",
+  "slug": "krokar",
+  "description": "Krokar för mete, kustfiske och specimenfiske. Vi går igenom skillnaden mellan modellerna i godstjocklek, skänkellängd och krokform, och vad de är byggda för.",
+  "heroImage": "/images/gear/krokar.jpg",
+  "heroSource": "illustration",
+  "excerpt": "Krokar för mask, bete och specimenfiske."
+}
+```
+
 ## src/content/gear-categories/kustdrag.json
 ```
 {
@@ -10653,6 +10767,33 @@ export function trackQuizCompleted(result_product_ids: string[]): void {
   "heroImage": "/images/gear/kustdrag.jpg",
   "heroSource": "illustration",
   "excerpt": "Långkastande drag för havsöring på kusten."
+}
+```
+
+## src/content/gear-categories/metset.json
+```
+{
+  "title": "Metset",
+  "slug": "metset",
+  "description": "Färdiga metset med flöte, krok, sänke och lina i en förpackning. För abborre, gädda, regnbåge, kustfisk och klassiskt sommarmete efter mört, sarv och braxen.",
+  "heroImage": "/images/gear/metset.jpg",
+  "heroSource": "illustration",
+  "guideUrl": "/guider/valja-metredskap/",
+  "excerpt": "Färdiga set för flötmete och bottenmete."
+}
+```
+
+## src/content/gear-categories/metspon.json
+```
+{
+  "title": "Metspön",
+  "slug": "metspon",
+  "parent": "spon",
+  "description": "Teleskopiska metspön i 3 och 4 meter för bryggmete och insjöfiske. Både rena spön och kompletta set med lina, krok, flöte och sänke.",
+  "heroImage": "/images/gear/metspon.jpg",
+  "heroSource": "illustration",
+  "guideUrl": "/guider/valja-metredskap/",
+  "excerpt": "Teleskopiska metspön för brygga och strand."
 }
 ```
 
@@ -10720,6 +10861,18 @@ export function trackQuizCompleted(result_product_ids: string[]): void {
 }
 ```
 
+## src/content/gear-categories/tyngder.json
+```
+{
+  "title": "Tyngder och sänken",
+  "slug": "tyngder",
+  "description": "Sänken för mete, dropshot och jiggfiske. Päronsänken, hagel, dropshottyngder och cheburashka i bly, zink och volfram, med olika vikt och form.",
+  "heroImage": "/images/gear/tyngder.jpg",
+  "heroSource": "illustration",
+  "excerpt": "Sänken för mete, dropshot och jiggfiske."
+}
+```
+
 ## src/content/gear-categories/utombordare.json
 ```
 {
@@ -10741,6 +10894,7 @@ export function trackQuizCompleted(result_product_ids: string[]): void {
   "description": "Vadare och vadarskor för svenskt fiske. Stockingfoot och bootfoot, membran och neopren, bedömda efter passform, sula och användningsområde.",
   "heroImage": "/images/gear/vadare.jpg",
   "heroSource": "illustration",
+  "guideUrl": "/guider/valja-vadare/",
   "excerpt": "Vadare och vadarskor för strömmande vatten och kust."
 }
 ```
@@ -10785,7 +10939,7 @@ merchant: "FiskeOnline"
 featured: false
 budgetPick: false
 targetSpecies: ["gadda", "gos", "abborre"]
-techniques: ["jigg", "jerkbait", "wobbler"]
+techniques: ["jigg", "jerkbait", "wobbler", "vertikalfiske"]
 priceRange: "mellanklass"
 quizEnabled: false
 ---
@@ -10862,6 +11016,10 @@ featured: false
 budgetPick: false
 targetSpecies:
   - "abborre"
+  - "regnbage"
+  - "farna"
+  - "id"
+  - "asp"
 techniques:
   - "wobbler"
   - "jerkbait"
@@ -11026,6 +11184,146 @@ Nätet är mjukt gummi. Catch with Care bygger hela sitt sortiment kring skonsam
 Tillverkaren anger den här modellen som lämplig för öring, gös och abborre, och skaftlängden pekar åt båtfiske snarare än vadning. 150 cm räcker från de flesta relingar utan att bli ohanterligt. Det som saknas i underlaget är nätdjup och maskvidd, två uppgifter CWC anger för sina större modeller men inte för den här. Ramens 50x60 cm sätter under alla omständigheter gränsen vid medelstora rovfiskar, inte vid metergädda.
 ```
 
+## src/content/gear-reviews/darts-abborrflote.mdx
+```
+---
+title: "Darts Abborrflöte"
+slug: "darts-abborrflote"
+description: "Klassiskt abborrflöte för mete med mask eller löja. Kan tacklas både fast och glidande, och finns i bärighet 4 och 6 gram."
+heroImage: "/images/gear/darts-abborrflote.jpg"
+heroSource: "illustration"
+brand: "Darts"
+category: "floten"
+price: 49
+rating: 4
+pros:
+  - "Fungerar både som fast och glidande flöte"
+  - "Bärigheten passar mask och småfisk som bete"
+  - "Två vikter täcker grunt och något djupare"
+cons:
+  - "För lite bärighet för gäddbeten"
+  - "Darts anger inte flötets längd"
+  - "Glidmontage kräver flötesstopp separat"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=30469&url=https://fiskeonline.com/sv/produkt/darts-abborrflote-4g/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: true
+targetSpecies: ["abborre", "mort", "sarv", "braxen"]
+techniques: ["mete"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Darts Abborrflöte är den klassiska formen för flötmete med mask, alltså ett smalt flöte med bärighet nog att synas men lite nog att fisken inte känner motstånd när den drar iväg. Darts anger 4 och 6 gram, och den lättare räcker för det mesta på grunt vatten.
+
+Det som gör flötet användbart är att samma flöte fungerar både fast och glidande. Fast montage är enklast och räcker när djupet är mindre än spöets längd. Blir det djupare måste flötet löpa på linan, och då behövs flötesstopp som köps separat. Använder du löja eller annan småfisk som bete är 6 gram det rimligare valet, eftersom betet annars drar ner flötet.
+```
+
+## src/content/gear-reviews/darts-dropshot-pencil.mdx
+```
+---
+title: "Darts SBS Dropshot Pencil"
+slug: "darts-dropshot-pencil"
+description: "Avlångt dropshotsänke med klämfäste som griper linan utan knut. Finns i 10, 14 och 17 gram, tre stycken per förpackning."
+heroImage: "/images/gear/darts-dropshot-pencil.jpg"
+heroSource: "illustration"
+brand: "Darts"
+category: "tyngder"
+price: 49
+rating: 4
+pros:
+  - "Klämfäste gör att djupet ändras utan att knyta om"
+  - "Avlång form fastnar mindre mellan stenar"
+  - "Släpper linan vid fastkörning i stället för att bryta av"
+cons:
+  - "Klämfästet kan slira med grov fläta"
+  - "Bly, alltså inte det miljömässigt bästa valet"
+  - "Tre stycken per förpackning räcker inte länge"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=16133&url=https://fiskeonline.com/sv/produkt/darts-sbs-dropshot-pencil-14g-3-pack/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["abborre", "gos", "gadda"]
+techniques: ["dropshot", "jigg"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Ett dropshotsänke hänger under betet i stället för ovanför, och avståndet mellan dem avgör hur högt över botten jiggen står. Darts Pencil har ett klämfäste i toppen som griper linan utan knut, vilket betyder att avståndet kan ändras på några sekunder.
+
+Den avlånga formen har en praktisk fördel i stenig botten. Ett cylindriskt sänke glider mellan stenar där ett runt kilar fast, och kör du ändå fast släpper klämfästet linan så att du förlorar sänket i stället för hela riggen. Baksidan är att samma fäste kan slira med grov fläta, vilket märks som att avståndet krymper under fisket. Vikterna är 10, 14 och 17 gram.
+```
+
+## src/content/gear-reviews/darts-dropshot-sinker-ball.mdx
+```
+---
+title: "Darts Dropshot Sinker Ball"
+slug: "darts-dropshot-sinker-ball"
+description: "Runt dropshotsänke med klämfäste, i vikterna 10, 14 och 21 gram. Den runda formen ger tydligare bottenkontakt än den avlånga."
+heroImage: "/images/gear/darts-dropshot-sinker-ball.jpg"
+heroSource: "illustration"
+brand: "Darts"
+category: "tyngder"
+price: 49
+rating: 4
+pros:
+  - "Rund form ger tydlig känsla av bottenstruktur"
+  - "Klämfäste utan knut"
+  - "Finns upp till 21 gram för djupt vatten"
+cons:
+  - "Fastnar lättare mellan stenar än den avlånga"
+  - "Bly, alltså inte det miljömässigt bästa valet"
+  - "Två till tre stycken per förpackning"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=12414&url=https://fiskeonline.com/sv/produkt/darts-dropshot-sinker-ball-14g-3-pack/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["abborre", "gos"]
+techniques: ["dropshot", "jigg"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Sinker Ball är den runda motsvarigheten till Pencil, och valet mellan dem handlar om botten. En kula studsar och rullar över underlaget och överför mer av vad den möter upp genom linan, vilket gör att du känner skillnaden mellan sand, grus och lera.
+
+Priset för den känslan är att en kula kilar fast lättare mellan stenar än en cylinder. På ren botten är den därför det bättre valet, och i stenig botten det sämre. Klämfästet fungerar likadant som på Pencil, alltså utan knut och med möjlighet att ändra avståndet till betet under fisket. Vikterna är 10, 14 och 21 gram, där den tyngsta finns för djupare vatten eller ström.
+```
+
+## src/content/gear-reviews/darts-flotesstopp.mdx
+```
+---
+title: "Darts Flötesstopp"
+slug: "darts-flotesstopp"
+description: "Ovala gummistopp för glidande flöten. Sitter kvar på både nylon och flätlina och finns i storlek S, M och L samt i fluo och flätlinemodell."
+heroImage: "/images/gear/darts-flotesstopp.jpg"
+heroSource: "illustration"
+brand: "Darts"
+category: "floten"
+price: 49
+rating: 4
+pros:
+  - "Fungerar på både nylon och flätlina"
+  - "Ovala i gummi, glider inte av vid kast"
+  - "Egen modell för flätlina finns"
+cons:
+  - "Behövs bara vid glidande montage"
+  - "Antal per förpackning anges inte"
+  - "Fel storlek gör att stoppet dras genom flötesöglan"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=30463&url=https://fiskeonline.com/sv/produkt/darts-flotesstopp-m/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["gadda", "gos", "abborre", "mort"]
+techniques: ["mete"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Flötesstopp är det som gör ett glidande flöte möjligt. Flötet löper fritt på linan och stannar där stoppet sitter, vilket betyder att du kan fiska på fem meters djup med ett spö på tre meter. Utan stopp går det inte att ställa in djupet alls.
+
+Darts variant är oval och i gummi, och tillverkaren anger att den sitter säkert på både nylon och flätlina. Det senare är inte självklart, eftersom fläta är hal och tunn och får många stopp att glida. Det finns dessutom en egen modell för flätlina om standardvarianten ändå glider. Storlekarna är S, M och L, plus en fluorescerande variant. Väljer du för litet stopp dras det genom flötets ögla vid kast.
+```
+
 ## src/content/gear-reviews/darts-landing-net-medium-teleskopisk.mdx
 ```
 ---
@@ -11061,6 +11359,461 @@ Darts Landing Net Medium kombinerar två saker som sällan sitter i samma håv. 
 Nätet är gummerat. Ramen anges till 53 cm på bredden, vilket är storleken för abborre, regnbåge, havsöring och kustfiskets makrill och horngädda snarare än för gädda och gös.
 
 Specifikationerna är motstridiga i källorna. Ramens andra mått anges som 43 cm av en återförsäljare och 45 cm av en annan, och skaftlängden dyker upp både som 163 cm och som 63 cm hopskjutet mot 100 cm utdraget. Darts har ingen egen produktsida för håven att stämma av mot. Räckvidden ligger alltså någonstans runt en meter utdraget, men den exakta siffran går inte att verifiera. För fiske där du behöver veta att skaftet når finns bättre dokumenterade alternativ.
+```
+
+## src/content/gear-reviews/darts-lightstick-float.mdx
+```
+---
+title: "Darts Lightstick Float"
+slug: "darts-lightstick-float"
+description: "Flöte för nattmete med hållare för lysstav i standardstorlek i toppen. Finns i bärighet 15, 20 och 25 gram för olika beten."
+heroImage: "/images/gear/darts-lightstick-float.jpg"
+heroSource: "illustration"
+brand: "Darts"
+category: "floten"
+price: 79
+rating: 4
+pros:
+  - "Tar lysstav i standardstorlek, inga specialstavar"
+  - "Gör hugg synliga i mörker utan lampa"
+  - "Tre vikter täcker olika beten"
+cons:
+  - "Dyrast av flötena i sortimentet"
+  - "Lysstavar är förbrukningsvara och ingår inte"
+  - "Onödigt vid dagsfiske"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=30473&url=https://fiskeonline.com/sv/produkt/darts-lightstick-float-20g/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["al", "lake", "braxen", "gadda"]
+techniques: ["mete"]
+priceRange: "premium"
+quizEnabled: false
+---
+
+Darts Lightstick Float löser ett enda problem: att se flötet när det är mörkt. Toppen tar en lysstav i standardstorlek, alltså den vanliga engångstypen som knäcks för att börja lysa, och då syns flötet på trettio meters håll utan att du behöver rikta en lampa mot vattnet.
+
+Det spelar roll vid fiske efter arter som är aktiva nattetid. Ål och lake söker föda i mörker, och braxen går ofta in på grunt vatten först när solen gått ner. Att lysstavar är förbrukningsvara och inte ingår är värt att räkna med, eftersom varje stav håller några timmar. Vikterna är 15, 20 och 25 gram.
+```
+
+## src/content/gear-reviews/darts-link-head-changeable.mdx
+```
+---
+title: "Darts SBS Link Head Changeable"
+slug: "darts-link-head-changeable"
+description: "Jigghuvud med öppningsbar länk som gör att vikten kan bytas utan att jiggen eller kroken tas av. Finns i 5, 7, 10 och 14 gram."
+heroImage: "/images/gear/darts-link-head-changeable.jpg"
+heroSource: "illustration"
+brand: "Darts"
+category: "tyngder"
+price: 59
+rating: 4.5
+pros:
+  - "Vikten byts utan att jiggen eller kroken tas av"
+  - "Fyra vikter från 5 till 14 gram"
+  - "Jiggen rör sig fritt kring länken"
+cons:
+  - "Fler rörliga delar än ett fast jigghuvud"
+  - "Bly, alltså inte det miljömässigt bästa valet"
+  - "Länken kan öppna sig vid hårt tryck"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=16131&url=https://fiskeonline.com/sv/produkt/darts-sbs-link-head-changeable-10g-3-pack/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["gadda", "gos", "abborre"]
+techniques: ["jigg"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Ett vanligt jigghuvud har vikten gjuten runt kroken, vilket betyder att du byter hela enheten när djupet eller strömmen ändras. Link Head separerar de två: vikten hänger i en öppningsbar länk och kroken sitter för sig.
+
+Vinsten är praktisk. Du kan gå från 7 till 14 gram utan att trä av jiggen, vilket sparar både tid och gummibeten. Konstruktionen ger dessutom jiggen friare rörelse eftersom den inte är fast förbunden med vikten. Baksidan är att en länk är en rörlig del som kan öppna sig under hårt tryck, och att systemet har fler delar som kan tappas i båten. Vikterna är 5, 7, 10 och 14 gram.
+```
+
+## src/content/gear-reviews/darts-metset-abborre-bottenmete.mdx
+```
+---
+title: "Darts Metset Abborre Bottenmete"
+slug: "darts-metset-abborre-bottenmete"
+description: "Set för bottenmete efter abborre med färdigknutet tackel. Riggen är klar att knyta på linan utan att du behöver montera något själv."
+heroImage: "/images/gear/darts-metset-abborre-bottenmete.jpg"
+heroSource: "illustration"
+brand: "Darts"
+category: "metset"
+price: 139
+rating: 3.5
+pros:
+  - "Färdigknutet tackel, inget montage krävs"
+  - "Bottenmete fungerar när fisken står djupt"
+  - "Samma pris som seten med flöte"
+cons:
+  - "Darts beskriver innehållet mycket kortfattat"
+  - "Krokstorlek och sänkesvikt anges inte"
+  - "Kräver spö, lina och rulle separat"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=12441&url=https://fiskeonline.com/sv/produkt/darts-metset-abborre-bottenmete/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["abborre"]
+techniques: ["mete"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Darts Metset Abborre Bottenmete innehåller ett färdigknutet tackel för bottenmete. Det betyder att sänke, tafs och krok redan sitter ihop i rätt ordning och med rätt avstånd, och att du bara knyter riggen på linan.
+
+Bottenmete är rätt när abborren står djupt eller när vinden gör att ett flöte drar iväg. Betet ligger stilla vid botten i stället för att hänga i vattenmassan. Darts beskrivning av setet är kortfattad och anger varken krokstorlek eller sänkesvikt, så exakt vilken viktklass tacklet är byggt för framgår inte. Spö, lina och rulle ingår inte.
+```
+
+## src/content/gear-reviews/darts-metset-abborre-mini.mdx
+```
+---
+title: "Darts Metset Abborre Mini"
+slug: "darts-metset-abborre-mini"
+description: "Minimalt metset för maskmete efter abborre. Byggt kring ett abborrflöte på 4 gram och innehåller det som behövs för en dags fiske från brygga."
+heroImage: "/images/gear/darts-metset-abborre-mini.jpg"
+heroSource: "illustration"
+brand: "Darts"
+category: "metset"
+price: 105
+rating: 3.5
+pros:
+  - "Billigaste vägen in i metfisket"
+  - "Abborrflöte 4 gram passar mask och småfisk som bete"
+  - "Allt i en förpackning, inget att glömma"
+cons:
+  - "Innehåller mindre än de större seten"
+  - "Kräver spö, lina och rulle separat"
+  - "Darts anger inte krokstorlek"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=12438&url=https://fiskeonline.com/sv/produkt/darts-metset-abborre-mini/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: true
+targetSpecies: ["abborre"]
+techniques: ["mete"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Darts Metset Abborre Mini är den minsta förpackningen i serien och byggd kring ett abborrflöte på 4 gram. Det är den viktklass som fungerar för maskmete på grunt vatten, alltså det fiske de flesta börjar med.
+
+Poängen med ett metset är att slippa räkna ut vilka delar som passar ihop. Flöte, krok och sänke är valda för varandra, och vikterna stämmer. Den som köper delarna lösa gör ofta fel första gången, oftast genom att välja för stort flöte eller för grov krok. Spö, lina och rulle ingår inte. Darts anger inte krokstorlek i sin beskrivning.
+```
+
+## src/content/gear-reviews/darts-metset-abborre.mdx
+```
+---
+title: "Darts Metset Abborre"
+slug: "darts-metset-abborre"
+description: "Komplett set för abborrmete med glidflöte, flötesstopp, enkelkrok och trekrok, sänken och kroklossare i samma förpackning."
+heroImage: "/images/gear/darts-metset-abborre.jpg"
+heroSource: "illustration"
+brand: "Darts"
+category: "metset"
+price: 145
+rating: 4
+pros:
+  - "Glidflöte gör att djupet kan ändras under fisket"
+  - "Både enkelkrok och trekrok ingår"
+  - "Kraftig kroklossare följer med"
+cons:
+  - "Flötesvikt anges inte av tillverkaren"
+  - "Kräver spö, lina och rulle separat"
+  - "Trekrok är mindre skonsam vid återutsättning"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=12435&url=https://fiskeonline.com/sv/produkt/darts-metset-abborre/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["abborre"]
+techniques: ["mete"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Darts Metset Abborre bygger på ett glidflöte i stället för ett fast. Skillnaden är att djupet kan ändras utan att tackla om. Flötet löper fritt på linan och stoppas av en knut du flyttar, vilket betyder att samma rigg fungerar på en meters djup vid vassen och på fyra meter ute vid kanten.
+
+Setet innehåller flötesstopp, sänken, både enkelkrok och trekrok samt en kraftig kroklossare. Trekroken är avsedd för fiske med betesfisk. Fiskar du catch and release är enkelkroken det skonsammare valet, eftersom en trekrok oftare fastnar på flera ställen. Spö, lina och rulle ingår inte.
+```
+
+## src/content/gear-reviews/darts-metset-bottenmete.mdx
+```
+---
+title: "Darts Metset Bottenmete"
+slug: "darts-metset-bottenmete"
+description: "Set för bottenmete med ålbjällra och lysstav för nattfiske. Innehåller sänke, krok, glidpärlor, betesnål och en illustrerad beskrivning."
+heroImage: "/images/gear/darts-metset-bottenmete.jpg"
+heroSource: "illustration"
+brand: "Darts"
+category: "metset"
+price: 145
+rating: 4
+pros:
+  - "Ålbjällra och lysstav gör setet användbart nattetid"
+  - "Betesnål för att trä mask på tafsen"
+  - "Illustrerad beskrivning i förpackningen"
+cons:
+  - "Sänkesvikt anges inte av tillverkaren"
+  - "Kräver spö, lina och rulle separat"
+  - "Ålfiske kräver kontroll av lokala regler"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=12456&url=https://fiskeonline.com/sv/produkt/darts-metset-bottenmete/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["al", "lake", "mort", "abborre", "braxen", "sutare"]
+techniques: ["mete"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Darts Metset Bottenmete innehåller två delar som avslöjar vad det är byggt för. Ålbjällran fästs på spötoppen och ringer vid hugg, och lysstaven gör spötoppen synlig i mörker. Båda hör hemma i nattfiske, och i svenska vatten betyder det i praktiken ål.
+
+Resten av innehållet är generellt för bottenmete: sänke, krok, glidpärlor och betesnål. Glidpärlorna skyddar knuten där sänket löper mot stoppet, och betesnålen används för att trä mask på tafsen i stället för att kroka den. Samma tackel fungerar för braxen och sutare, som båda söker föda vid botten. En illustrerad beskrivning ingår. Kontrollera reglerna för ål i ditt vatten innan du fiskar, eftersom arten är fredad i delar av landet.
+```
+
+## src/content/gear-reviews/darts-metset-gadda-big.mdx
+```
+---
+title: "Darts Metset Gädda Big"
+slug: "darts-metset-gadda-big"
+description: "Gäddmeteset med extra stort segelflöte som driver ut betet med vinden. Byggt för djupt vatten och större betesfisk än standardsetet."
+heroImage: "/images/gear/darts-metset-gadda-big.jpg"
+heroSource: "illustration"
+brand: "Darts"
+category: "metset"
+price: 145
+rating: 4
+pros:
+  - "Segelflötet driver ut betet med vinden"
+  - "Bär större betesfisk än standardsetet"
+  - "Fungerar på djupt vatten"
+cons:
+  - "Överdimensionerat för grunt vatten"
+  - "Flötesvikt anges inte av tillverkaren"
+  - "Kräver spö, lina och rulle separat"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=12447&url=https://fiskeonline.com/sv/produkt/darts-metset-gadda-big/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["gadda"]
+techniques: ["mete"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Darts Metset Gädda Big har ett större flöte med segel, alltså en uppstickande yta som fångar vinden. Poängen är att betet kan drivas ut från stranden utan att kastas, vilket är skonsammare mot betesfisken och når vatten du annars inte kommer åt.
+
+Flötets bärighet är det andra som skiljer. Ett större flöte håller uppe en tyngre betesfisk utan att sjunka, och det gör setet användbart på djupt vatten där betet ska hänga fritt. På grunt vatten är det överdimensionerat, och då gör standardsetet samma jobb med mindre motstånd vid hugget. Betesfisk, spö, lina och rulle ingår inte.
+```
+
+## src/content/gear-reviews/darts-metset-gadda.mdx
+```
+---
+title: "Darts Metset Gädda"
+slug: "darts-metset-gadda"
+description: "Set för gäddmete med betesfisk. Innehåller flöte, sänke, flötesstopp och de tillbehör som behövs för ett komplett gäddtackel."
+heroImage: "/images/gear/darts-metset-gadda.jpg"
+heroSource: "illustration"
+brand: "Darts"
+category: "metset"
+price: 139
+rating: 4
+pros:
+  - "Färdig kombination för mete med betesfisk"
+  - "Flötesstopp ingår för glidande montage"
+  - "Enklaste vägen in i gäddmete"
+cons:
+  - "Flötesvikt anges inte av tillverkaren"
+  - "Betesfisk måste skaffas separat"
+  - "Kräver spö, lina och rulle separat"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=12444&url=https://fiskeonline.com/sv/produkt/darts-metset-gadda/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["gadda"]
+techniques: ["mete"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Darts Metset Gädda innehåller flöte, sänke, flötesstopp och övriga delar för ett komplett gäddtackel med betesfisk. Metoden är effektiv just för att betet lever och rör sig av sig självt, vilket ingen konstgjord imitation gör lika bra.
+
+Flötesstoppen gör att montaget kan fiskas glidande, alltså att djupet ställs in utan att tackla om. Det spelar roll vid gäddmete eftersom fisken ofta står på en bestämd nivå längs en kant. Betesfisk ingår inte och måste skaffas separat, och där gäller att levande betesfisk är förbjudet i Sverige. Spö, lina och rulle ingår inte heller.
+```
+
+## src/content/gear-reviews/darts-metset-makrill-kustmete.mdx
+```
+---
+title: "Darts Metset Makrill Kustmete"
+slug: "darts-metset-makrill-kustmete"
+description: "Kustmeteset med flötet Sea Slider på 40 gram. Den tyngre vikten ger längre kast och håller emot vind bättre än minivarianten."
+heroImage: "/images/gear/darts-metset-makrill-kustmete.jpg"
+heroSource: "illustration"
+brand: "Darts"
+category: "metset"
+price: 145
+rating: 4
+pros:
+  - "Sea Slider 40 gram ger längre kast"
+  - "Håller emot pålandsvind bättre"
+  - "Fungerar för makrill, horngädda och annan kustfisk"
+cons:
+  - "40 gram kräver ett spö med kastvikt för det"
+  - "Krokstorlek anges inte av tillverkaren"
+  - "Kräver spö, lina och rulle separat"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=12459&url=https://fiskeonline.com/sv/produkt/darts-metset-makrill-kustmete/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["makrill", "horngadda"]
+techniques: ["mete"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Darts Metset Makrill Kustmete använder flötet Sea Slider på 40 gram. Vikten är hela skillnaden mot minivarianten: ett tyngre flöte kastas längre och står stadigare när vinden ligger på, vilket är normaltillståndet på svenska kuster.
+
+Priset för det är att spöet måste klara vikten. Ett metspö avsett för några gram bryter eller lastar av vid 40 gram plus krok och bete, så kontrollera kastvikten innan du köper. Setet innehåller flöte, krok, sänke och flötesstopp, och Darts anger att det passar makrill, horngädda och andra kustnära fiskar. Krokstorlek framgår inte. Spö, lina och rulle ingår inte.
+```
+
+## src/content/gear-reviews/darts-metset-makrill-mini.mdx
+```
+---
+title: "Darts Metset Makrill Mini"
+slug: "darts-metset-makrill-mini"
+description: "Kustmeteset byggt kring flötet Sea Slider på 25 gram. Innehåller flöte, krok, sänke och flötesstopp för makrill och horngädda."
+heroImage: "/images/gear/darts-metset-makrill-mini.jpg"
+heroSource: "illustration"
+brand: "Darts"
+category: "metset"
+price: 139
+rating: 4
+pros:
+  - "Sea Slider 25 gram räcker för kast från strand"
+  - "Färdig kombination av flöte, krok och sänke"
+  - "Fungerar för både makrill och horngädda"
+cons:
+  - "25 gram är lätt vid hård pålandsvind"
+  - "Krokstorlek anges inte av tillverkaren"
+  - "Kräver spö, lina och rulle separat"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=12462&url=https://fiskeonline.com/sv/produkt/darts-metset-makrill-mini/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["makrill", "horngadda"]
+techniques: ["mete"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Darts Metset Makrill Mini är byggt kring flötet Sea Slider på 25 gram och avsett för mete efter makrill, horngädda och annan kustnära fisk. Metoden är enkel: betet hänger under flötet på bestämt djup och driver med strömmen längs en pir eller strandkant.
+
+Vikten är det som skiljer mot det större kustmetesetet. 25 gram räcker för kast från strand i lugnt väder, men i hård pålandsvind blir det kort och flötet driver in mot land. Fiskar du utsatta lägen är den tyngre varianten rimligare. Krokstorlek anges inte i Darts beskrivning. Spö, lina och rulle ingår inte.
+```
+
+## src/content/gear-reviews/darts-metset-regnbage.mdx
+```
+---
+title: "Darts Metset Regnbåge"
+slug: "darts-metset-regnbage"
+description: "Set för regnbåge med material för både flötmete och bottenmete. Innehåller bombarda på 25 gram, sänke, krokar och färdigt bottentackel."
+heroImage: "/images/gear/darts-metset-regnbage.jpg"
+heroSource: "illustration"
+brand: "Darts"
+category: "metset"
+price: 159
+rating: 4
+pros:
+  - "Täcker både flötmete och bottenmete"
+  - "Bombarda ger kastlängd med lätta beten"
+  - "Färdigt bottentackel ingår"
+cons:
+  - "Dyraste setet i kategorin"
+  - "Bombardafiske kräver viss vana"
+  - "Kräver spö, lina och rulle separat"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=12465&url=https://fiskeonline.com/sv/produkt/darts-metset-regnbage/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["regnbage"]
+techniques: ["mete"]
+priceRange: "premium"
+quizEnabled: false
+---
+
+Darts Metset Regnbåge är det enda setet i serien som täcker två metoder. Det innehåller en bombarda på 25 gram för flötmete och ett färdigt bottentackel för bottenmete, plus sänke och krokar.
+
+Bombardan är det som gör setet till mer än ett standardset. Det är ett genomskinligt flöte som bär vikten i sig själv, vilket gör att ett nästan viktlöst bete som en fluga eller en maggot kan kastas trettio meter. På put and take-vatten där regnbågen står ute och inte tar nära land är det ofta skillnaden mellan fisk och ingen fisk. Tekniken kräver dock lite vana, eftersom betet ska hinna sjunka till rätt djup innan invevningen börjar.
+```
+
+## src/content/gear-reviews/darts-metset-sommarmete.mdx
+```
+---
+title: "Darts Metset Sommarmete"
+slug: "darts-metset-sommarmete"
+description: "Komplett set för flötmete från brygga. Innehåller metrev, flöten, vinda, blyhagel, krok, lina, lodsänke, kroklossare och ett häfte med tips."
+heroImage: "/images/gear/darts-metset-sommarmete.jpg"
+heroSource: "illustration"
+brand: "Darts"
+category: "metset"
+price: 139
+rating: 4
+pros:
+  - "Innehåller lodsänke, vilket få set gör"
+  - "Kroklossare ingår"
+  - "Häfte med instruktioner följer med"
+cons:
+  - "Flötesvikter anges inte av tillverkaren"
+  - "Kräver spö separat"
+  - "Sortimentet är brett snarare än specialiserat"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=12468&url=https://fiskeonline.com/sv/produkt/darts-metset-sommarmete-1/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["mort", "sarv", "braxen", "sutare", "ruda", "abborre"]
+techniques: ["mete"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Darts Metset Sommarmete är setet för det klassiska bryggmetet med mask under flöte. Innehållet är brett: metrev, flera flöten, vinda, blyhagel, krok, lina, lodsänke och kroklossare, plus ett häfte med tips och råd.
+
+Två detaljer skiljer det från enklare set. Lodsänket används för att mäta djupet innan man börjar, alltså det steg som avgör om betet hamnar en decimeter över botten eller en meter. Att det ingår tyder på att setet är tänkt att lära ut metoden, inte bara att sälja delar. Kroklossaren är den andra, och den behövs oftare än nybörjare tror. Fisket det passar för är mört, sarv, braxen, sutare och ruda, alltså det som nappar på mask och majs i grunda vatten. Abborre tar samma bete.
+```
+
+## src/content/gear-reviews/darts-sliding-pike-float.mdx
+```
+---
+title: "Darts Sliding Pike Float"
+slug: "darts-sliding-pike-float"
+description: "Foamflöte för gäddmete som kan tacklas glidande eller fast. Finns i 15, 20 och 25 gram, där de mindre även fungerar för abborre."
+heroImage: "/images/gear/darts-sliding-pike-float.jpg"
+heroSource: "illustration"
+brand: "Darts"
+category: "floten"
+price: 59
+rating: 4.5
+pros:
+  - "Foam spricker inte som balsa vid slag mot sten"
+  - "Tre vikter täcker abborre till gädda och kustmete"
+  - "Fungerar både glidande och fast"
+cons:
+  - "Flötesstopp krävs för glidmontage och ingår inte"
+  - "Darts anger inte flötets längd"
+  - "25 gram kräver ett spö som klarar vikten"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=30453&url=https://fiskeonline.com/sv/produkt/darts-sliding-pike-float-20g/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["gadda", "gos", "abborre", "havsoring"]
+techniques: ["mete"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Darts Sliding Pike Float är tillverkat i foam i stället för balsa. Skillnaden märks när flötet slår i sten vid kast eller landning: balsa spricker och suger vatten, foam tar smällen. För ett flöte som ska bära en betesfisk och kastas gång på gång är det den avgörande egenskapen.
+
+Vikterna 15, 20 och 25 gram täcker ett brett spann. Darts anger själva att de mindre passar abborrmete och de större gädda, gös och kustmete, alltså samma flöte för havsöring från strand. Konstruktionen tillåter både glidande och fast montage, men för glidande behövs flötesstopp som köps separat.
 ```
 
 ## src/content/gear-reviews/darts-vadarhav-flytande-medium.mdx
@@ -11135,6 +11888,7 @@ techniques:
   - "jigg"
   - "isfiske"
   - "trolling"
+  - "vertikalfiske"
 priceRange: "mellanklass"
 quizEnabled: false
 ---
@@ -11182,6 +11936,7 @@ techniques:
   - "jigg"
   - "isfiske"
   - "trolling"
+  - "vertikalfiske"
 priceRange: "premium"
 quizEnabled: false
 ---
@@ -11218,7 +11973,7 @@ merchant: "FiskeOnline"
 featured: false
 budgetPick: true
 targetSpecies: ["abborre"]
-techniques: ["jigg"]
+techniques: ["jigg", "vertikalfiske"]
 priceRange: "budget"
 quizEnabled: false
 ---
@@ -11255,7 +12010,7 @@ merchant: "FiskeOnline"
 featured: false
 budgetPick: false
 targetSpecies: ["gadda", "gos"]
-techniques: ["jigg"]
+techniques: ["jigg", "vertikalfiske"]
 priceRange: "mellanklass"
 quizEnabled: false
 ---
@@ -11302,6 +12057,7 @@ techniques:
   - "trolling"
   - "jigg"
   - "spinn"
+  - "vertikalfiske"
 priceRange: "mellanklass"
 quizEnabled: false
 ---
@@ -11346,6 +12102,7 @@ techniques:
   - "spinn"
   - "jigg"
   - "isfiske"
+  - "vertikalfiske"
 priceRange: "budget"
 quizEnabled: false
 ---
@@ -11389,6 +12146,7 @@ techniques:
   - "spinn"
   - "jigg"
   - "isfiske"
+  - "vertikalfiske"
 priceRange: "budget"
 quizEnabled: false
 ---
@@ -11434,6 +12192,7 @@ techniques:
   - "trolling"
   - "jigg"
   - "spinn"
+  - "vertikalfiske"
 priceRange: "mellanklass"
 quizEnabled: false
 ---
@@ -11480,6 +12239,7 @@ techniques:
   - "trolling"
   - "jigg"
   - "spinn"
+  - "vertikalfiske"
 priceRange: "premium"
 quizEnabled: false
 ---
@@ -11518,10 +12278,17 @@ targetSpecies:
   - "abborre"
   - "gos"
   - "gadda"
+  - "regnbage"
+  - "roding"
+  - "harr"
+  - "farna"
+  - "id"
+  - "asp"
 techniques:
   - "jigg"
   - "dropshot"
   - "spinn"
+  - "vertikalfiske"
 priceRange: "budget"
 quizEnabled: false
 ---
@@ -11531,6 +12298,321 @@ Hurricane X8 Braid är en 8-trådig flätlina från Wiggler som testats hårt un
 Fluo Yellow-färgen ger utmärkt linobservation vid spinnfiske och jiggfiske, där det är viktigt att se när linan släpper vid ett hugg. Linan är tyst, mjuk och långkastad, med hög brottstyrka i förhållande till diametern. 0,12 mm med 10 kg brottstyrka är ett bra allroundval för predatorfiske i insjömiljö.
 
 Jämfört med Kinetic 4 Braid ger Hurricane X8 märkbart bättre kastprestanda och rundare profil tack vare 8 trådar. För den som vill ha en 8-trådig lina till budgetpris utan att kompromissa på grundkvalitet är Hurricane X8 ett starkt alternativ.
+```
+
+## src/content/gear-reviews/ifish-fiskpinne-metspo-3m.mdx
+```
+---
+title: "IFISH Fiskpinne Metspö 3 m"
+slug: "ifish-fiskpinne-metspo-3m"
+description: "Komplett metset på tre meter med färdigknuten lina, flöte, sänke och krok. Finns i tre färger och kräver ingen montering."
+heroImage: "/images/gear/ifish-fiskpinne-metspo-3m.jpg"
+heroSource: "illustration"
+brand: "IFISH"
+category: "metspon"
+price: 149
+rating: 4
+pros:
+  - "Linan är färdigknuten, inget behöver riggas"
+  - "Tre färger att välja mellan"
+  - "Allt som behövs utom bete ingår"
+cons:
+  - "IFISH anger varken material eller vikt"
+  - "Krokstorlek och flötesvikt anges inte"
+  - "Färdigknutet betyder att delarna inte kan bytas lika enkelt"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=107682&url=https://fiskeonline.com/sv/produkt/ifish-fiskpinne-metspo-3m-bla/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["abborre", "mort", "sarv", "braxen", "ruda"]
+techniques: ["mete"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+IFISH Fiskpinne är ett komplett metset där linan redan är knuten mot flöte, sänke och krok. Skillnaden mot ett spö där delarna ligger lösa i förpackningen är att inget kan monteras i fel ordning.
+
+Det gör setet lämpligt för den som aldrig knutit en fiskeknut, och för situationer där man vill komma i vattnet inom en minut. Baksidan av samma sak är att en färdigknuten rigg inte lika enkelt anpassas när fisket kräver något annat, exempelvis ett tyngre flöte i vind. Färgvalet är blått, violett eller limegrönt, vilket antyder att målgruppen är barn. IFISH anger varken material eller vikt.
+```
+
+## src/content/gear-reviews/ifish-fiskpinne-metspo-4m.mdx
+```
+---
+title: "IFISH Fiskpinne Metspö 4 m"
+slug: "ifish-fiskpinne-metspo-4m"
+description: "Fyrametersversionen av IFISH kompletta metset med färdigknuten lina, flöte, sänke och krok. Ger längre räckvidd från strand."
+heroImage: "/images/gear/ifish-fiskpinne-metspo-4m.jpg"
+heroSource: "illustration"
+brand: "IFISH"
+category: "metspon"
+price: 179
+rating: 4
+pros:
+  - "Fyra meter räcker förbi vassbältet från strand"
+  - "Färdigknuten rigg, inget att montera"
+  - "Samma tre färger som trimetersmodellen"
+cons:
+  - "Dyrast i kategorin"
+  - "Längre spö är svårare för barn att styra"
+  - "IFISH anger varken material eller vikt"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=107684&url=https://fiskeonline.com/sv/produkt/ifish-fiskpinne-metspo-4m-lime/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["abborre", "mort", "sarv", "braxen", "ruda"]
+techniques: ["mete"]
+priceRange: "premium"
+quizEnabled: false
+---
+
+Fyrametersversionen av Fiskpinne har samma färdigknutna rigg som den kortare, men når längre ut. Vid strandfiske är spölängden det enda som avgör räckvidden när man metar utan rulle, och en meter till är skillnaden mellan att fiska i vassen och utanför den.
+
+Avvägningen gäller vem som ska använda spöet. Ett fyra meters spö kräver mer plats bakom sig och är tyngre i toppen, vilket märks för ett barn som ska hålla det upprätt en hel eftermiddag. Är spöet i första hand till en vuxen som fiskar från strand är den längre varianten rimligare. IFISH anger varken material eller vikt.
+```
+
+## src/content/gear-reviews/ifish-paronsanken-zink.mdx
+```
+---
+title: "IFISH Päronsänken Zink"
+slug: "ifish-paronsanken-zink"
+description: "Blyfria päronsänken i zink, 15 stycken per förpackning. Samma form och funktion som blysänken men utan tungmetallen i vattnet."
+heroImage: "/images/gear/ifish-paronsanken-zink.jpg"
+heroSource: "illustration"
+brand: "IFISH"
+category: "tyngder"
+price: 169
+rating: 4
+pros:
+  - "Zink i stället för bly"
+  - "Femton stycken per förpackning"
+  - "Samma form och montage som blysänken"
+cons:
+  - "Betydligt dyrare än motsvarande i bly"
+  - "Zink har lägre densitet, sänket blir större per gram"
+  - "IFISH anger inte vilka vikter förpackningen innehåller"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=31151&url=https://fiskeonline.com/sv/produkt/ifish-paronsanken-zink-15-pack/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["al", "braxen", "sutare", "lake"]
+techniques: ["mete"]
+priceRange: "premium"
+quizEnabled: false
+---
+
+IFISH Päronsänken i zink gör samma jobb som blysänken men lämnar inte bly i vattnet när linan brister. Det är den enda skillnaden som betyder något, och den är värd att förstå ordentligt.
+
+Något svenskt förbud mot blysänken finns inte. EU:s kemikaliemyndighet föreslog ett 2021 och kommissionen lade fram ett utkast i februari 2025, men det är inte i kraft. Danmark och Nederländerna har däremot infört egna förbud. Zink har lägre densitet än bly, vilket betyder att ett sänke med samma vikt blir fysiskt större och därmed syns och fastnar något mer. Priset är också högre. IFISH anger inte vilka vikter de femton sänkena fördelar sig på.
+```
+
+## src/content/gear-reviews/kamasan-animal-eyed-barbed.mdx
+```
+---
+title: "Kamasan Animal Eyed Barbed"
+slug: "kamasan-animal-eyed-barbed"
+description: "Specimenkrok med böjd beak-spets och mycket högt kolinnehåll. Kamasan anger den för stor fredfisk, och den finns i storlek 8 till 12."
+heroImage: "/images/gear/kamasan-animal-eyed-barbed.jpg"
+heroSource: "illustration"
+brand: "Kamasan"
+category: "krokar"
+price: 49
+rating: 4.5
+pros:
+  - "Böjd beak-spets vinklar in mot fisken vid tryck"
+  - "Mycket högt kolinnehåll ger styrka i tunn tråd"
+  - "Kemiskt slipad spets"
+cons:
+  - "Bara tre storlekar hos butiken, 8 till 12"
+  - "Hullingversion, ingen hullinglös finns här"
+  - "Kamasan anger ingen brottstyrka"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=30723&url=https://fiskeonline.com/sv/produkt/kamasan-animal-eyed-barbed-10-10-pack/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["karp", "braxen", "sutare", "id", "farna"]
+techniques: ["mete"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Kamasan Animal skiljer sig från övriga krokar i sortimentet på spetsens form. Den är av beak-typ, alltså böjd inåt mot skänkeln i stället för rakt uppåt. Effekten är att spetsen vinklas in mot fiskens käke när linan spänns, i stället för att glida längs ytan.
+
+Det gör kroken svår att tappa när fisken går ut i vegetation och trycket varierar, vilket är normalfallet vid fiske efter karp och sutare i vassen. Materialet är kolstål med mycket högt kolinnehåll, vilket ger styrka utan att tråden behöver vara grov. Kamasan anger den för stor fredfisk. Butiken lagerför storlek 8, 10 och 12, alltså den mindre delen av tillverkarens spann. Ingen brottstyrka anges.
+```
+
+## src/content/gear-reviews/kamasan-b940-aberdeen.mdx
+```
+---
+title: "Kamasan B940 Aberdeen"
+slug: "kamasan-b940-aberdeen"
+description: "Klassisk havsfiskekrok med lång skänkel och rund böj i fin men stark kolstålstråd. Byggd för mask och skaldjur, i storlek 1 till 6."
+heroImage: "/images/gear/kamasan-b940-aberdeen.jpg"
+heroSource: "illustration"
+brand: "Kamasan"
+category: "krokar"
+price: 59
+rating: 4.5
+pros:
+  - "Lång skänkel gör det enkelt att trä mask"
+  - "Lätt att kroka av fisk med liten mun"
+  - "Fin tråd ger naturlig betespresentation"
+cons:
+  - "Fin tråd är inte byggd för extrem belastning"
+  - "Dyrare än övriga krokar i sortimentet"
+  - "Lång skänkel syns mer i klart vatten"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=30739&url=https://fiskeonline.com/sv/produkt/kamasan-b940-aberdeen-2-10-pack/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["torsk", "skrubbskadda", "rodspatta", "al", "havsoring"]
+techniques: ["mete", "havsfiske"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Kamasan B940 är Aberdeen-modellen, ett av de mest använda krokmönstren i europeiskt havsfiske. Den kännetecknas av lång skänkel, rund böj och fin tråd, och kombinationen är byggd kring ett enda bete: mask.
+
+Den långa skänkeln gör att en hel havsborstmask eller daggmask kan träs upp längs kroken i stället för att klumpa ihop sig. Den gör också avkrokningen enklare, eftersom du har något att greppa om på fisk med liten mun, vilket plattfisk har. Tråden är fin men enligt Kamasan motståndskraftig mot att rätas ut. Torsk, skrubbskädda, rödspätta och ål tas alla på samma rigg. Storlekarna är 1 till 6.
+```
+
+## src/content/gear-reviews/kamasan-b980-specimen-eyed.mdx
+```
+---
+title: "Kamasan B980 Specimen Eyed"
+slug: "kamasan-b980-specimen-eyed"
+description: "Klassisk specimenkrok i medelgrov kolstålstråd med kraftigt smidd böj. Byggd för stor fredfisk och ett brett urval av beten, i storlek 2 till 16."
+heroImage: "/images/gear/kamasan-b980-specimen-eyed.jpg"
+heroSource: "illustration"
+brand: "Kamasan"
+category: "krokar"
+price: 49
+rating: 4.5
+pros:
+  - "Smidd böj tål tryck från stor fisk"
+  - "Medelgrov tråd fungerar till de flesta beten"
+  - "Storleksspann från 2 till 16"
+cons:
+  - "Grövre tråd än B983, sämre för finess"
+  - "Kamasan anger ingen brottstyrka"
+  - "För lax finns den grövre B982"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=30749&url=https://fiskeonline.com/sv/produkt/kamasan-b980-specimen-eyed-8-10-pack/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["braxen", "sutare", "karp", "id", "farna"]
+techniques: ["mete"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Kamasan B980 är märkets standardkrok för specimenfiske och har funnits i sortimentet i decennier. Tråden är medelgrov, alltså mitt emellan den fina B983 och den kraftiga B982, och böjen är kraftigt smidd.
+
+Smidning betyder att tråden pressas ihop i böjen så att den blir starkare utan att bli tjockare. Det är den punkt där en krok annars räts ut när en tung fisk står emot, och det är skälet att B980 fungerar för karp och stor braxen där en matchkrok viker sig. Kamasan beskriver den själva som avsedd för ett brett urval av beten, vilket stämmer med storleksspannet från 2 till 16. Ingen brottstyrka anges.
+```
+
+## src/content/gear-reviews/kamasan-b982-xstrong.mdx
+```
+---
+title: "Kamasan B982 XStrong Specimen Eyed"
+slug: "kamasan-b982-xstrong"
+description: "Förstärkt version av B980 med samma form men grövre tråd. Kamasan anger den som avsedd för stor lax, i storlek 2 till 8."
+heroImage: "/images/gear/kamasan-b982-xstrong.jpg"
+heroSource: "illustration"
+brand: "Kamasan"
+category: "krokar"
+price: 49
+rating: 4
+pros:
+  - "Grövre tråd än B980 med identisk form"
+  - "Kamasan anger den för stor lax"
+  - "Samma pris som de tunnare modellerna"
+cons:
+  - "Grov tråd kräver mer kraft vid mothugg"
+  - "Bara fyra storlekar, 2 till 8"
+  - "Överdimensionerad för normalt mete"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=30763&url=https://fiskeonline.com/sv/produkt/kamasan-b982-xstrong-specimen-eyed-4-10-pack/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["lax", "oring", "havsoring", "karp"]
+techniques: ["mete"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Kamasan B982 delar form och böj med B980 men är tillverkad i grövre tråd. Kamasan är själva tydliga med vad det är till för: stor lax. Det är alltså inte en bättre krok utan en kraftigare, och för normalt metefiske är den överdimensionerad.
+
+Grov tråd har en baksida som sällan nämns. Kroken kräver mer kraft för att tränga igenom, och med ett mjukt metspö och tunn lina räcker mothugget inte alltid till. Den fungerar därför bäst tillsammans med utrustning som klarar att sätta den. Storlekarna är 2 till 8, alltså bara den grova delen av spannet. Kamasan anger ingen brottstyrka.
+```
+
+## src/content/gear-reviews/kamasan-b983-wide-gape.mdx
+```
+---
+title: "Kamasan B983 Wide Gape Specialist"
+slug: "kamasan-b983-wide-gape"
+description: "Finmaskig matchkrok i tunn högkolstråd med brett gap och vinklad ögla. Kemiskt slipad böjd spets och whisker barb, i storlek 4 till 16."
+heroImage: "/images/gear/kamasan-b983-wide-gape.jpg"
+heroSource: "illustration"
+brand: "Kamasan"
+category: "krokar"
+price: 49
+rating: 4.5
+pros:
+  - "Tunn tråd ger bättre betespresentation"
+  - "Brett gap håller kvar fisken bättre vid krokning"
+  - "Whisker barb är liten och skadar mindre"
+cons:
+  - "Tunn tråd är fel val för gädda och stor karp"
+  - "Storlek 16 är liten att hantera med kalla fingrar"
+  - "Kamasan anger ingen brottstyrka"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=30771&url=https://fiskeonline.com/sv/produkt/kamasan-b983-wide-gape-specialist-12-10-pack/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["mort", "sarv", "braxen", "ruda", "abborre", "id"]
+techniques: ["mete"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Kamasan B983 är den finaste kroken i seriens metesortiment och tillverkad i tunn högkolstråd. Tunn tråd gör två saker: betet hänger naturligare och kroken tränger igenom med mindre kraft, vilket spelar roll när fisken suger in betet försiktigt i stället för att hugga.
+
+Gapet, alltså avståndet mellan spets och skänkel, är brett i förhållande till krokstorleken. Det ger bättre fäste eftersom mer av krokböjen får plats i fiskens mun. Öglan är vinklad utåt och hullingen av whisker barb-typ, alltså en liten upphöjning i stället för en utstående hulling, vilket gör kroken lättare att lossa. Storlekarna 4 till 16 täcker allt från braxen på majs till mört på en enda maggot. Kamasan anger ingen brottstyrka.
+```
+
+## src/content/gear-reviews/kamasan-k58-bait-holder.mdx
+```
+---
+title: "Kamasan K58 Bait Holder"
+slug: "kamasan-k58-bait-holder"
+description: "Nickelpläterad betekrok med två extra hullingar på skänkeln som håller kvar mjukt bete. Smidd och kemiskt slipad, i storlek 1/0 till 4/0."
+heroImage: "/images/gear/kamasan-k58-bait-holder.jpg"
+heroSource: "illustration"
+brand: "Kamasan"
+category: "krokar"
+price: 49
+rating: 4
+pros:
+  - "Två hullingar på skänkeln hindrar betet från att glida"
+  - "Nickelplätering skyddar mot saltvatten"
+  - "Smidd konstruktion tål tryck"
+cons:
+  - "Hullingar på skänkeln gör kroken svårare att rensa"
+  - "Bara grova storlekar, 1/0 till 4/0"
+  - "För liten fisk är storlekarna för stora"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=30791&url=https://fiskeonline.com/sv/produkt/kamasan-k58-bait-holder-2-0-10-pack/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["torsk", "rodspatta", "skrubbskadda", "al"]
+techniques: ["mete", "havsfiske"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Kamasan K58 löser ett problem som alla som metat med mask känner igen: betet glider ner mot krokböjen och lämnar skänkeln bar. Lösningen är två små hullingar på själva skänkeln som håller kvar betet där du satte det.
+
+Det spelar mest roll vid kastfiske och i ström, alltså när betet utsätts för krafter under vägen ut och medan det ligger. Kroken är smidd, kemiskt slipad och nickelpläterad, vilket ger visst skydd i saltvatten. Baksidan är att hullingarna gör kroken besvärligare att rensa när du byter bete. Storlekarna 1/0 till 4/0 är grova och riktar sig mot torsk, plattfisk och ål snarare än mot fredfisk i sjö.
 ```
 
 ## src/content/gear-reviews/kinetic-4-braid-012mm.mdx
@@ -11560,10 +12642,17 @@ targetSpecies:
   - "abborre"
   - "gos"
   - "gadda"
+  - "regnbage"
+  - "roding"
+  - "harr"
+  - "farna"
+  - "id"
+  - "asp"
 techniques:
   - "jigg"
   - "dropshot"
   - "spinn"
+  - "vertikalfiske"
 priceRange: "budget"
 quizEnabled: false
 ---
@@ -11602,10 +12691,17 @@ targetSpecies:
   - "abborre"
   - "gos"
   - "gadda"
+  - "regnbage"
+  - "roding"
+  - "harr"
+  - "farna"
+  - "id"
+  - "asp"
 techniques:
   - "jigg"
   - "dropshot"
   - "spinn"
+  - "vertikalfiske"
 priceRange: "budget"
 quizEnabled: false
 ---
@@ -11643,6 +12739,7 @@ budgetPick: false
 targetSpecies:
   - "gadda"
   - "gos"
+  - "kanadaroding"
 techniques:
   - "spinn"
   - "jigg"
@@ -11722,6 +12819,7 @@ targetSpecies:
   - "abborre"
   - "gadda"
   - "gos"
+  - "kanadaroding"
 techniques:
   - "spinn"
   - "jigg"
@@ -11875,7 +12973,7 @@ merchant: "Outl1"
 featured: false
 budgetPick: false
 targetSpecies: ["abborre", "gadda", "gos"]
-techniques: ["jigg", "spinn", "mete"]
+techniques: ["jigg", "spinn", "mete", "vertikalfiske"]
 priceRange: "mellanklass"
 quizEnabled: false
 ---
@@ -11911,7 +13009,7 @@ merchant: "Outl1"
 featured: false
 budgetPick: false
 targetSpecies: ["abborre", "gadda", "gos", "oring"]
-techniques: ["jigg", "spinn", "trolling", "mete"]
+techniques: ["jigg", "spinn", "trolling", "mete", "vertikalfiske"]
 priceRange: "mellanklass"
 quizEnabled: false
 ---
@@ -11947,7 +13045,7 @@ merchant: "Outl1"
 featured: false
 budgetPick: false
 targetSpecies: ["abborre", "gadda", "gos"]
-techniques: ["jigg", "spinn", "trolling", "mete"]
+techniques: ["jigg", "spinn", "trolling", "mete", "vertikalfiske"]
 priceRange: "mellanklass"
 quizEnabled: false
 ---
@@ -11983,7 +13081,7 @@ merchant: "Outl1"
 featured: true
 budgetPick: false
 targetSpecies: ["abborre", "gadda", "gos", "lax", "oring"]
-techniques: ["trolling", "jigg", "spinn"]
+techniques: ["trolling", "jigg", "spinn", "vertikalfiske"]
 priceRange: "premium"
 quizEnabled: false
 ---
@@ -12019,7 +13117,7 @@ merchant: "Outl1"
 featured: false
 budgetPick: false
 targetSpecies: ["abborre", "gadda", "gos", "lax", "oring"]
-techniques: ["trolling", "jigg", "spinn"]
+techniques: ["trolling", "jigg", "spinn", "vertikalfiske"]
 priceRange: "premium"
 quizEnabled: false
 ---
@@ -12056,7 +13154,7 @@ merchant: "Outl1"
 featured: false
 budgetPick: true
 targetSpecies: ["abborre", "gadda", "gos"]
-techniques: ["jigg", "spinn", "mete"]
+techniques: ["jigg", "spinn", "mete", "vertikalfiske"]
 priceRange: "budget"
 quizEnabled: false
 ---
@@ -12093,7 +13191,7 @@ merchant: "Outl1"
 featured: false
 budgetPick: false
 targetSpecies: ["abborre", "gadda", "gos"]
-techniques: ["jigg", "spinn", "trolling", "mete"]
+techniques: ["jigg", "spinn", "trolling", "mete", "vertikalfiske"]
 priceRange: "budget"
 quizEnabled: false
 ---
@@ -12130,7 +13228,7 @@ merchant: "Outl1"
 featured: false
 budgetPick: true
 targetSpecies: ["abborre", "gadda", "gos"]
-techniques: ["trolling"]
+techniques: ["trolling", "vertikalfiske"]
 priceRange: "budget"
 quizEnabled: false
 ---
@@ -12167,7 +13265,7 @@ merchant: "Outl1"
 featured: false
 budgetPick: false
 targetSpecies: ["abborre", "gadda", "gos"]
-techniques: ["trolling"]
+techniques: ["trolling", "vertikalfiske"]
 priceRange: "budget"
 quizEnabled: false
 ---
@@ -12203,7 +13301,7 @@ merchant: "Outl1"
 featured: false
 budgetPick: false
 targetSpecies: ["abborre", "gadda", "gos"]
-techniques: ["trolling"]
+techniques: ["trolling", "vertikalfiske"]
 priceRange: "budget"
 quizEnabled: false
 ---
@@ -12239,7 +13337,7 @@ merchant: "Outl1"
 featured: true
 budgetPick: false
 targetSpecies: ["abborre", "gadda", "gos"]
-techniques: ["trolling"]
+techniques: ["trolling", "vertikalfiske"]
 priceRange: "budget"
 quizEnabled: false
 ---
@@ -12275,7 +13373,7 @@ merchant: "Outl1"
 featured: false
 budgetPick: false
 targetSpecies: ["abborre", "gadda", "gos"]
-techniques: ["trolling"]
+techniques: ["trolling", "vertikalfiske"]
 priceRange: "budget"
 quizEnabled: false
 ---
@@ -12312,7 +13410,7 @@ merchant: "Outl1"
 featured: false
 budgetPick: false
 targetSpecies: ["abborre", "gadda", "gos"]
-techniques: ["trolling"]
+techniques: ["trolling", "vertikalfiske"]
 priceRange: "budget"
 quizEnabled: false
 ---
@@ -12348,8 +13446,9 @@ merchant: "FiskeOnline"
 featured: false
 budgetPick: true
 targetSpecies:
-  - abborre
-  - gos
+  - "abborre"
+  - "gos"
+  - "asp"
 techniques:
   - jigg
   - dropshot
@@ -12390,6 +13489,9 @@ budgetPick: false
 targetSpecies:
   - "abborre"
   - "gos"
+  - "regnbage"
+  - "roding"
+  - "sik"
 techniques:
   - "jigg"
   - "dropshot"
@@ -12431,6 +13533,9 @@ budgetPick: false
 targetSpecies:
   - "abborre"
   - "gos"
+  - "regnbage"
+  - "roding"
+  - "sik"
 techniques:
   - "jigg"
   - "dropshot"
@@ -12473,6 +13578,9 @@ targetSpecies:
   - "abborre"
   - "gos"
   - "gadda"
+  - "regnbage"
+  - "roding"
+  - "sik"
 techniques:
   - "jigg"
   - "spinn"
@@ -12515,6 +13623,7 @@ targetSpecies:
   - "lax"
   - "gadda"
   - "gos"
+  - "kanadaroding"
 techniques:
   - "trolling"
 priceRange: "mellanklass"
@@ -12555,6 +13664,7 @@ targetSpecies:
   - "lax"
   - "gadda"
   - "gos"
+  - "kanadaroding"
 techniques:
   - "trolling"
 priceRange: "budget"
@@ -13033,6 +14143,10 @@ budgetPick: false
 targetSpecies:
   - "abborre"
   - "gos"
+  - "regnbage"
+  - "farna"
+  - "id"
+  - "asp"
 techniques:
   - "jigg"
   - "dropshot"
@@ -13073,7 +14187,7 @@ merchant: "FiskeOnline"
 featured: false
 budgetPick: false
 targetSpecies: ["abborre", "gos", "gadda"]
-techniques: ["jigg", "wobbler", "spinn"]
+techniques: ["jigg", "wobbler", "spinn", "vertikalfiske"]
 priceRange: "budget"
 quizEnabled: false
 ---
@@ -13184,7 +14298,7 @@ merchant: "FiskeOnline"
 featured: false
 budgetPick: false
 targetSpecies: ["gos", "gadda", "abborre"]
-techniques: ["jigg", "jerkbait", "wobbler"]
+techniques: ["jigg", "jerkbait", "wobbler", "vertikalfiske"]
 priceRange: "premium"
 quizEnabled: false
 ---
@@ -13220,7 +14334,12 @@ merchant: "FiskeOnline"
 featured: false
 budgetPick: false
 targetSpecies:
-  - abborre
+  - "abborre"
+  - "regnbage"
+  - "roding"
+  - "harr"
+  - "farna"
+  - "id"
 techniques:
   - dropshot
   - jigg
@@ -13263,10 +14382,17 @@ targetSpecies:
   - "gos"
   - "gadda"
   - "oring"
+  - "regnbage"
+  - "roding"
+  - "harr"
+  - "farna"
+  - "id"
+  - "asp"
 techniques:
   - "jigg"
   - "dropshot"
   - "spinn"
+  - "vertikalfiske"
 priceRange: "mellanklass"
 quizEnabled: false
 ---
@@ -13304,6 +14430,9 @@ budgetPick: false
 targetSpecies:
   - "abborre"
   - "gos"
+  - "regnbage"
+  - "roding"
+  - "sik"
 techniques:
   - "jigg"
   - "dropshot"
@@ -13345,6 +14474,9 @@ budgetPick: true
 targetSpecies:
   - "abborre"
   - "gos"
+  - "regnbage"
+  - "roding"
+  - "sik"
 techniques:
   - "spinn"
   - "jigg"
@@ -13384,7 +14516,11 @@ merchant: "FiskeOnline"
 featured: false
 budgetPick: true
 targetSpecies:
-  - abborre
+  - "abborre"
+  - "regnbage"
+  - "roding"
+  - "farna"
+  - "id"
 techniques:
   - spinn
   - jigg
@@ -13425,6 +14561,9 @@ budgetPick: false
 targetSpecies:
   - "abborre"
   - "gos"
+  - "regnbage"
+  - "roding"
+  - "sik"
 techniques:
   - "jigg"
   - "dropshot"
@@ -13465,7 +14604,7 @@ merchant: "FiskeOnline"
 featured: false
 budgetPick: false
 targetSpecies: ["gadda", "gos", "abborre"]
-techniques: ["jigg", "jerkbait", "wobbler"]
+techniques: ["jigg", "jerkbait", "wobbler", "vertikalfiske"]
 priceRange: "mellanklass"
 quizEnabled: false
 ---
@@ -13502,7 +14641,7 @@ merchant: "FiskeOnline"
 featured: false
 budgetPick: false
 targetSpecies: ["gadda", "gos", "abborre"]
-techniques: ["jigg", "jerkbait", "wobbler"]
+techniques: ["jigg", "jerkbait", "wobbler", "vertikalfiske"]
 priceRange: "mellanklass"
 quizEnabled: false
 ---
@@ -13542,6 +14681,9 @@ targetSpecies:
   - "abborre"
   - "gos"
   - "oring"
+  - "regnbage"
+  - "roding"
+  - "sik"
 techniques:
   - "jigg"
   - "dropshot"
@@ -13585,6 +14727,8 @@ targetSpecies:
   - "abborre"
   - "gos"
   - "oring"
+  - "regnbage"
+  - "roding"
 techniques:
   - "jigg"
   - "dropshot"
@@ -13664,6 +14808,9 @@ budgetPick: false
 targetSpecies:
   - "abborre"
   - "gos"
+  - "regnbage"
+  - "roding"
+  - "sik"
 techniques:
   - "jigg"
   - "dropshot"
@@ -13707,6 +14854,7 @@ targetSpecies:
   - "gos"
   - "oring"
   - "havsoring"
+  - "kanadaroding"
 techniques:
   - "spinn"
   - "jigg"
@@ -13825,11 +14973,18 @@ targetSpecies:
   - "gadda"
   - "gos"
   - "abborre"
+  - "regnbage"
+  - "roding"
+  - "harr"
+  - "farna"
+  - "id"
+  - "asp"
 techniques:
   - "jigg"
   - "spinn"
   - "jerkbait"
   - "wobbler"
+  - "vertikalfiske"
 priceRange: "mellanklass"
 quizEnabled: false
 ---
@@ -13864,7 +15019,7 @@ affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk
 merchant: "FiskeOnline"
 featured: false
 budgetPick: true
-targetSpecies: ["abborre", "gos"]
+targetSpecies: ["abborre", "gos", "regnbage", "roding", "farna", "id"]
 techniques: ["jigg", "dropshot", "spinn"]
 priceRange: "budget"
 ---
@@ -13935,7 +15090,7 @@ affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk
 merchant: "FiskeOnline"
 featured: false
 budgetPick: true
-targetSpecies: ["gos", "oring"]
+targetSpecies: ["gos", "oring", "regnbage", "roding", "id"]
 techniques: ["trolling", "mete"]
 priceRange: "budget"
 ---
@@ -13970,7 +15125,7 @@ affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk
 merchant: "FiskeOnline"
 featured: true
 budgetPick: false
-targetSpecies: ["gadda", "gos", "oring"]
+targetSpecies: ["gadda", "gos", "oring", "regnbage", "roding", "id"]
 techniques: ["trolling", "mete"]
 priceRange: "budget"
 ---
@@ -14202,6 +15357,76 @@ Sulan är filt. Filt ger det bästa greppet som finns på blöta och algbelupna 
 Filtens baksidor är två. Den slits fort på torr mark, så långa promenader på grusväg eller asfalt kortar livslängden märkbart. Och den håller kvar vatten långt efter att du lämnat vattnet, vilket gör den tung i väskan och långsam att torka. Vision publicerar varken vikt eller skafthöjd för modellen.
 ```
 
+## src/content/gear-reviews/westin-cheburashka-lead.mdx
+```
+---
+title: "Westin Cheburashka Lead"
+slug: "westin-cheburashka-lead"
+description: "Cheburashkavikt i bly med två öglor, för rigg där krok och vikt kan bytas var för sig. Finns i 5, 7, 10,5 och 14 gram."
+heroImage: "/images/gear/westin-cheburashka-lead.jpg"
+heroSource: "illustration"
+brand: "Westin"
+category: "tyngder"
+price: 49
+rating: 4
+pros:
+  - "Två öglor gör att krok och vikt byts oberoende"
+  - "Fyra vikter från 5 till 14 gram"
+  - "Billigare än volframvarianten"
+cons:
+  - "Bly är skrymmande jämfört med volfram"
+  - "Kräver låsringar som köps separat"
+  - "Tre till fyra stycken per förpackning"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=35343&url=https://fiskeonline.com/sv/produkt/westin-cheburashka-7g-lead-3pcs/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["gadda", "gos", "abborre"]
+techniques: ["jigg"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Cheburashka är en rysk riggform som blivit standard i europeiskt gösfiske. Vikten har en ögla i varje ände: den ena går till linan, den andra till kroken. Båda kopplas med låsringar, vilket betyder att krok och vikt kan bytas var för sig.
+
+Fördelen mot ett gjutet jigghuvud är att jiggen hänger fritt och rör sig oberoende av vikten, vilket ger ett mjukare fall. För gös som tar betet under sjunkfasen spelar det roll. Nackdelen är att systemet kräver låsringar som inte ingår, och att bly tar mer plats än volfram vid samma vikt. Westin säljer vikterna 5, 7, 10,5 och 14 gram, med tre till fyra stycken per förpackning.
+```
+
+## src/content/gear-reviews/westin-cheburashka-tungsten.mdx
+```
+---
+title: "Westin Cheburashka Tungsten"
+slug: "westin-cheburashka-tungsten"
+description: "Cheburashkavikt i volfram, som är tätare än bly och därför blir fysiskt mindre vid samma vikt. Finns i 5, 7 och 10,5 gram."
+heroImage: "/images/gear/westin-cheburashka-tungsten.jpg"
+heroSource: "illustration"
+brand: "Westin"
+category: "tyngder"
+price: 129
+rating: 4.5
+pros:
+  - "Volfram är tätare, vikten blir fysiskt mindre"
+  - "Hårt material överför bottenkänsla tydligare"
+  - "Blyfritt alternativ"
+cons:
+  - "Nästan tre gånger dyrare än blyvarianten"
+  - "Bara tre vikter, 5 till 10,5 gram"
+  - "Två till fyra stycken per förpackning"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=35353&url=https://fiskeonline.com/sv/produkt/westin-cheburashka-7g-tungsten-3pcs/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["gos", "abborre", "gadda"]
+techniques: ["jigg", "dropshot"]
+priceRange: "premium"
+quizEnabled: false
+---
+
+Volfram har högre densitet än bly, vilket ger två effekter. Vikten blir fysiskt mindre vid samma gram, och materialet är betydligt hårdare. Det första betyder mindre vattenmotstånd och en jigg som ser mer naturlig ut. Det andra betyder att stötar mot botten överförs som ljud och vibration i stället för att dämpas.
+
+Skillnaden i känsla är det man betalar för, och priset är påtagligt: nästan tre gånger blyvarianten. Om det är värt det beror på fisket. Vid vertikalfiske och långsam jigging på djupt vatten, där varje kontakt med botten är information, är argumentet starkt. Vid vanligt kastfiske i grunt vatten är det svagare. Volfram är dessutom blyfritt, vilket är ett skäl i sig.
+```
+
 ## src/content/gear-reviews/westin-salty.mdx
 ```
 ---
@@ -14386,6 +15611,7 @@ targetSpecies:
   - "lax"
   - "gadda"
   - "gos"
+  - "kanadaroding"
 techniques:
   - "trolling"
 priceRange: "mellanklass"
@@ -14426,6 +15652,7 @@ targetSpecies:
   - "gadda"
   - "gos"
   - "oring"
+  - "kanadaroding"
 techniques:
   - "spinn"
   - "jigg"
@@ -14468,10 +15695,17 @@ targetSpecies:
   - "abborre"
   - "gos"
   - "gadda"
+  - "regnbage"
+  - "roding"
+  - "harr"
+  - "farna"
+  - "id"
+  - "asp"
 techniques:
   - "jigg"
   - "dropshot"
   - "spinn"
+  - "vertikalfiske"
 priceRange: "mellanklass"
 quizEnabled: false
 ---
@@ -14507,7 +15741,10 @@ merchant: "FiskeOnline"
 featured: true
 budgetPick: false
 targetSpecies:
-  - abborre
+  - "abborre"
+  - "regnbage"
+  - "roding"
+  - "asp"
 techniques:
   - jigg
   - dropshot
@@ -14546,7 +15783,12 @@ merchant: "FiskeOnline"
 featured: false
 budgetPick: false
 targetSpecies:
-  - abborre
+  - "abborre"
+  - "regnbage"
+  - "roding"
+  - "harr"
+  - "farna"
+  - "id"
 techniques:
   - jigg
   - dropshot
@@ -14780,6 +16022,7 @@ targetSpecies:
   - "lax"
   - "gadda"
   - "gos"
+  - "kanadaroding"
 techniques:
   - "trolling"
 priceRange: "mellanklass"
@@ -14818,7 +16061,7 @@ merchant: "FiskeOnline"
 featured: false
 budgetPick: false
 targetSpecies: ["gadda", "gos", "abborre", "oring"]
-techniques: ["jigg", "jerkbait", "wobbler"]
+techniques: ["jigg", "jerkbait", "wobbler", "vertikalfiske"]
 priceRange: "mellanklass"
 quizEnabled: false
 ---
@@ -14933,7 +16176,11 @@ merchant: "FiskeOnline"
 featured: false
 budgetPick: false
 targetSpecies:
-  - abborre
+  - "abborre"
+  - "regnbage"
+  - "roding"
+  - "farna"
+  - "id"
 techniques:
   - dropshot
 priceRange: "premium"
@@ -15203,6 +16450,216 @@ Westin W6 C&R Telescopic 4m M löser ett problem som inte alla har. Skaftet går
 Skaftet är i kolfiber, vilket är avgörande vid full utdragning. Fyra meter aluminium med en fisk i andra änden blir tungt på ett sätt som är svårt att styra med en hand. Ramen mäter 45x55x60 cm och nätet är gummerat med 12 mm maskvidd, alltså tätare än på Westins älvhåvar. Leden mellan nät och skaft fälls ihop, och en justerbar axelrem ingår för att bära håven utdragen eller hopskjuten.
 
 Ramen på 45 cm bredd täcker gädda, gös och abborre i normala storlekar men är inte byggd för de största fiskarna. Prioriteringen är tydlig, räckvidd före ramstorlek. Det gör den till ett redskap för stadsnära fiske från höga kanter snarare än för båt. Fler teleskopsektioner betyder också fler ställen där sand och salt kan få skaftet att kärva, så den behöver sköljas efter kustfiske. Westin anger ingen vikt.
+```
+
+## src/content/gear-reviews/wiggler-bryggmetespo.mdx
+```
+---
+title: "Wiggler Bryggmetespö med metrev"
+slug: "wiggler-bryggmetespo"
+description: "Kortare metspö med färdig metrev för fiske direkt från brygga. Billigaste vägen in i metet och kräver inget mer än bete."
+heroImage: "/images/gear/wiggler-bryggmetespo.jpg"
+heroSource: "illustration"
+brand: "Wiggler"
+category: "metspon"
+price: 69
+rating: 3.5
+pros:
+  - "Billigaste kompletta lösningen i sortimentet"
+  - "Metrev ingår, bara betet saknas"
+  - "Kort och hanterbart för barn"
+cons:
+  - "Kortare räckvidd än ett tre meters spö"
+  - "Wiggler anger inte längden"
+  - "Metrevens krokstorlek anges inte"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=14198&url=https://fiskeonline.com/sv/produkt/wiggler-bryggmetespo-med-metrev/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: true
+targetSpecies: ["abborre", "mort", "sarv"]
+techniques: ["mete"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Wiggler Bryggmetespö är det billigaste sättet att komma igång med mete. Spöet levereras med en färdig metrev, alltså lina, flöte, krok och sänke färdigknutet, så det enda som behövs utöver är bete.
+
+Det är byggt för fiske rakt ner från en brygga eller kaj, inte för att kastas. Räckvidden är därför kortare än på ett tre meters spö, och för fiske från strand med vass framför sig blir det för kort. Som första spö till ett barn fungerar det, eftersom kort spö är enklare att styra och det inte finns något att montera fel. Wiggler anger varken längd eller krokstorlek på metreven.
+```
+
+## src/content/gear-reviews/wiggler-komplett-metspo-3m.mdx
+```
+---
+title: "Wiggler Komplett Metspö 3 m"
+slug: "wiggler-komplett-metspo-3m"
+description: "Teleskopiskt metspö i glasfiber med lina, krok, flöte och blyfritt sänke. Klart att fiska med direkt utan att något monteras."
+heroImage: "/images/gear/wiggler-komplett-metspo-3m.jpg"
+heroSource: "illustration"
+brand: "Wiggler"
+category: "metspon"
+price: 129
+rating: 4.5
+pros:
+  - "Lina, krok, flöte och sänke ingår"
+  - "Sänket är blyfritt"
+  - "Inget behöver monteras eller väljas"
+cons:
+  - "Wiggler anger inte krokstorlek eller flötesvikt"
+  - "Färgvalet begränsar sig till blå eller rosa"
+  - "Delarna går inte att välja själv"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=14202&url=https://fiskeonline.com/sv/produkt/wiggler-komplett-metspo-bla-3m/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["abborre", "mort", "sarv", "braxen", "ruda"]
+techniques: ["mete"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Wiggler Komplett Metspö är samma teleskopiska glasfiberspö som den rena modellen, men levererat med lina, krok, flöte och sänke. Det tar bort steget där de flesta gör fel första gången, alltså att kombinera delar som inte passar ihop i vikt och storlek.
+
+En detalj som sällan nämns är att sänket är blyfritt. Bly är fortfarande lagligt i Sverige, men ett EU-säljförbud har drivits sedan 2021 och alternativen börjar bli standard i just den här typen av instegsprodukter. Att slippa lämna bly i vattnet vid varje bottennapp är ett skäl i sig. Wiggler anger varken krokstorlek eller flötesvikt. Spöet finns i blått och rosa.
+```
+
+## src/content/gear-reviews/wiggler-metspo-svart-3m.mdx
+```
+---
+title: "Wiggler Metspö Svart 3 m"
+slug: "wiggler-metspo-svart-3m"
+description: "Teleskopiskt metspö i glasfiber på tre meter. Endast spöet, så lina, krok, flöte och sänke köps separat eller som färdig metrev."
+heroImage: "/images/gear/wiggler-metspo-svart-3m.jpg"
+heroSource: "illustration"
+brand: "Wiggler"
+category: "metspon"
+price: 99
+rating: 4
+pros:
+  - "Teleskopiskt, fälls ihop för transport"
+  - "Glasfiber tål hantering av ovana händer"
+  - "Fungerar med valfri metrev"
+cons:
+  - "Lina, krok, flöte och sänke ingår inte"
+  - "Wiggler anger varken vikt eller kastvikt"
+  - "Glasfiber är tyngre än kol"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=37412&url=https://fiskeonline.com/sv/produkt/wiggler-metspo-svart-3m/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["abborre", "mort", "sarv", "braxen", "ruda"]
+techniques: ["mete"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Wiggler Metspö Svart är enbart spöet. Lina, krok, flöte och sänke ingår inte, vilket är värt att veta innan köp eftersom flera andra spön i samma prisklass levereras kompletta.
+
+Materialet är glasfiber. Det är tyngre än kolfiber men också betydligt mer förlåtande mot slag och böjning, vilket spelar roll när spöet ska användas av någon som är ny. Teleskopfunktionen gör att det fälls ihop till en dryg halvmeter och får plats i en väska. Tre meter räcker för fiske från brygga och för att nå förbi den närmaste vasskanten från strand. Wiggler anger varken vikt eller kastvikt.
+```
+
+## src/content/gear-reviews/wiggler-metspo-svart-4m.mdx
+```
+---
+title: "Wiggler Metspö Svart 4 m"
+slug: "wiggler-metspo-svart-4m"
+description: "Teleskopiskt metspö i glasfiber på fyra meter. En meter längre räckvidd än tremetersmodellen, i övrigt samma konstruktion."
+heroImage: "/images/gear/wiggler-metspo-svart-4m.jpg"
+heroSource: "illustration"
+brand: "Wiggler"
+category: "metspon"
+price: 139
+rating: 4
+pros:
+  - "Fyra meter når förbi bredare vassbälten"
+  - "Teleskopiskt och packbart trots längden"
+  - "Samma glasfiberkonstruktion som trimetersmodellen"
+cons:
+  - "Lina, krok, flöte och sänke ingår inte"
+  - "Längre spö är klumpigare för barn"
+  - "Wiggler anger varken vikt eller kastvikt"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=37410&url=https://fiskeonline.com/sv/produkt/wiggler-metspo-svart-4m/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["abborre", "mort", "sarv", "braxen", "ruda"]
+techniques: ["mete"]
+priceRange: "mellanklass"
+quizEnabled: false
+---
+
+Fyrametersvarianten skiljer sig från trimetersmodellen på en punkt: räckvidden. Konstruktionen är densamma, alltså teleskopiskt glasfiberspö utan rullfäste.
+
+En extra meter betyder mer än den låter. Vid strandfiske avgör den om betet hamnar utanför vassbältet eller i det, och vid flötmete utan rulle är spölängden det enda som bestämmer hur långt ut du når. Priset är att spöet blir otympligare att hantera, särskilt för barn och i trång vegetation bakom sig. Lina, krok, flöte och sänke ingår inte. Wiggler anger varken vikt eller kastvikt.
+```
+
+## src/content/gear-reviews/wiggler-paronsanke.mdx
+```
+---
+title: "Wiggler Päronsänke"
+slug: "wiggler-paronsanke"
+description: "Klassiskt genomlöpande sänke för bottenmete i päronform. Finns i vikterna 7 till 40 gram och säljs i förpackningar om fem stycken."
+heroImage: "/images/gear/wiggler-paronsanke.jpg"
+heroSource: "illustration"
+brand: "Wiggler"
+category: "tyngder"
+price: 29
+rating: 4
+pros:
+  - "Åtta vikter från 7 till 40 gram"
+  - "Päronformen fastnar mindre i sten än runda sänken"
+  - "Fem stycken per förpackning"
+cons:
+  - "Priset stiger med vikten, 29 till 59 kronor"
+  - "Bly, alltså inte det miljömässigt bästa valet"
+  - "Wiggler anger inte hålets diameter"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=15810&url=https://fiskeonline.com/sv/produkt/wiggler-paronsanke-15g-5-pack/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: true
+targetSpecies: ["al", "braxen", "sutare", "lake", "mort"]
+techniques: ["mete"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Päronsänket är den vanligaste formen för bottenmete och löper fritt på linan ovanför en stoppknut. Poängen är att fisken kan dra iväg med betet utan att känna sänkets vikt, vilket spelar roll för försiktiga arter som braxen och sutare.
+
+Formen har ett skäl. Ett päronformat sänke rullar och glider över sten och gyttja i stället för att kila fast sig, till skillnad från ett runt eller platt. Vikterna 7 till 40 gram täcker allt från stilla vatten till ström och långa kast. Observera att priset stiger med vikten, från 29 kronor för de lätta till 59 för 40 gram. Materialet är bly. Zinkvarianter finns i sortimentet för den som vill undvika det.
+```
+
+## src/content/gear-reviews/wiggler-sortimentask-hagel.mdx
+```
+---
+title: "Wiggler Sortimentask Hagel"
+slug: "wiggler-sortimentask-hagel"
+description: "Burk med klämhagel i blandade storlekar för att balansera flöten. Finns med små eller stora hagel i burkar på 70 och 120 gram."
+heroImage: "/images/gear/wiggler-sortimentask-hagel.jpg"
+heroSource: "illustration"
+brand: "Wiggler"
+category: "tyngder"
+price: 39
+rating: 4
+pros:
+  - "Blandade storlekar i samma burk"
+  - "Klämhagel fästs utan verktyg"
+  - "Två grovlekar och två burkstorlekar"
+cons:
+  - "Bly, alltså inte det miljömässigt bästa valet"
+  - "Wiggler anger inte vilka storlekar burken innehåller"
+  - "Hagel som klämts hårt skadar linan"
+affiliateUrl: "https://pin.fiskeonline.com/t/t?a=1954031990&as=2072765905&t=2&tk=1&cupa_sku=15892&url=https://fiskeonline.com/sv/produkt/wiggler-sortimentask-sma-hagel-bla-burk-70g/"
+merchant: "FiskeOnline"
+featured: false
+budgetPick: false
+targetSpecies: ["mort", "sarv", "braxen", "abborre", "ruda"]
+techniques: ["mete"]
+priceRange: "budget"
+quizEnabled: false
+---
+
+Klämhagel är små blykulor med en skåra som kläms fast direkt på linan. De används för att balansera ett flöte, alltså få det att stå med bara toppen ovanför ytan så att minsta ryck syns.
+
+Det är den detalj som skiljer ett fungerande flötmete från ett där hugg missas. Ett obalanserat flöte ligger platt och visar ingenting förrän fisken redan spottat ut betet. Att ha blandade storlekar i samma burk gör att du kan justera på plats i stället för att gissa hemma. Ett hagel som kläms för hårt skadar dock linan, så kläm precis så mycket att det sitter. Wiggler säljer små och stora hagel i burkar på 70 och 120 gram.
 ```
 
 ## src/content/gear-reviews/wiggler-trahav-vadarhav.mdx
@@ -43805,6 +45262,164 @@ Hela sortimentet finns i [håvkategorin](/utrustning/havar/).
 *Strömkast finansieras via affiliate-länkar. Köper du utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar produkterna.*
 ```
 
+## src/content/articles/valja-metredskap.mdx
+```
+---
+title: "Välja metredskap: krok, flöte och sänke"
+slug: "valja-metredskap"
+description: "Krokstorlek per art, tunn eller grov tråd, fast eller glidande flöte och vilket sänke som passar. Så väljer du rätt delar till metet."
+excerpt: "Vilken krok, vilket flöte och vilket sänke behöver du? Så väljer du."
+heroImage: "/images/articles/valja-metredskap.jpg"
+publishedAt: "2026-08-26"
+updatedAt: "2026-08-26"
+author: "redaktionen"
+category: "guide"
+faq:
+  - q: "Vilken krokstorlek ska jag använda till mete?"
+    a: "Storlek 12 täcker flest arter med maggot, majs eller mindre mask. Gå ner till 16 för mört och småvitfisk, upp till 6 eller 4 för sutare och karp. Ju högre siffra desto mindre krok. Vanligaste nybörjarfelet är att välja för stor krok."
+  - q: "Vad är skillnaden mellan tunn och grov kroktråd?"
+    a: "Tunn tråd ger naturligare betespresentation och tränger igenom med mindre kraft, vilket passar försiktig fisk och lätta spön. Grov tråd behövs för karp och stor fisk som annars rätar ut kroken, men kräver mer kraft vid mothugg."
+  - q: "När behöver jag ett glidande flöte?"
+    a: "När vattnet är djupare än spöet är långt. Ett fast flöte gör att kroken hänger flera meter under flötet, vilket inte går att kasta. Ett glidflöte löper på linan och stannar mot ett flötesstopp som du flyttar för att ändra djup."
+  - q: "Är blysänken förbjudna i Sverige?"
+    a: "Nej, inget svenskt förbud finns. På EU-nivå har ett säljförbud drivits sedan 2021 och enligt branschbevakning antogs det våren 2026, men det var inte publicerat i EU:s officiella tidning vid skrivande stund. Zink och volfram finns redan som alternativ."
+  - q: "Lönar sig ett färdigt metset?"
+    a: "För den som börjar, ja. Delarna är valda för varandra och vikterna stämmer, vilket är svårt att få rätt på egen hand första gången. Har du redan flöten och krokar är det billigare att köpa lösa delar och byta bara det som saknas."
+---
+
+import ProduktRuta from '../../components/ProduktRuta.astro';
+
+Mete kräver tre saker utöver spö och lina: en krok, något som håller betet på rätt djup och något som får det att sjunka. Valen är billiga men inte likgiltiga. Fel krokstorlek gör att fisken spottar ut betet, fel flöte döljer hugget och fel sänke fastnar i botten. Den här guiden går igenom vad som skiljer delarna åt.
+
+Vill du läsa om själva metoderna finns de på vår [tekniksida för mete](/teknik/mete/).
+
+## Krokstorleken är det val som betyder mest
+
+Krokstorlek anges i fallande skala. Storlek 16 är liten och storlek 1 är stor, och därefter växer den igen genom 1/0, 2/0 och uppåt. Det förvirrar många nybörjare, som därför köper alldeles för stort.
+
+| Art | Krokstorlek | Bete |
+|---|---|---|
+| Mört | 16 till 12 | Maggot, majs, deg, mask |
+| Sarv | 14 till 10 | Majs, maggot, bröd |
+| Braxen | 14 till 8 | Mask, maggot, majs |
+| Ruda | 14 till 8 | Majs, maggot, deg |
+| Id | 12 till 6 | Mask, majs, bröd |
+| Färna | 12 till 6 | Bröd, mask, ost |
+| Abborre | 10 till 4 | Mask, maggot, räka |
+| Sutare | 10 till 6 | Majs, mask, boilie, räka |
+| Regnbåge | 10 till 6 | Mask, majs, powerbait |
+| Karp | 8 till 2 | Boilie, pellets, majs |
+| Ål | 8 till 2 | Mask, död betesfisk |
+| Lake | 4 till 1/0 | Död betesfisk, fiskbit |
+
+Har du bara en storlek hemma är 12 den som täcker flest arter.
+
+## Trådtjocklek och krokform
+
+Storleken säger bara halva sanningen. Två krokar i samma storlek kan bete sig helt olika beroende på hur tjock tråden är och hur böjen är formad.
+
+**Tunn tråd** gör att betet hänger naturligare och att kroken tränger igenom med mindre kraft. Det spelar roll när fisken suger in betet försiktigt i stället för att hugga. Baksidan är att en tunn krok rätas ut av stor fisk.
+
+**Grov tråd** klarar tryck men kräver mer kraft för att sätta. Med ett mjukt metspö och tunn lina räcker mothugget inte alltid till, så en grov krok hör ihop med utrustning som orkar sätta den.
+
+**Smidd böj** betyder att tråden pressats ihop i kurvan så att den blir starkare utan att bli tjockare. Det är där en krok annars viker sig när en tung fisk står emot.
+
+**Lång skänkel** gör det enkelt att trä en hel mask längs kroken i stället för att klumpa ihop den, och ger något att greppa vid avkrokning av fisk med liten mun.
+
+**Hullingar på skänkeln** hindrar mjukt bete från att glida ner mot böjen. Det märks mest vid kastfiske och i ström.
+
+<ProduktRuta slug="kamasan-b983-wide-gape" />
+
+Vilken modell som passar följer av det.
+
+| Behov | Modell |
+|---|---|
+| Finkänsligt vitfiskmete | Tunn tråd, brett gap |
+| Stor braxen, sutare, karp | Medelgrov tråd med smidd böj |
+| Lax och grov fisk | Extra grov tråd |
+| Mask och kustfiske | Lång skänkel |
+| Bete som glider på kroken | Skänkel med hullingar |
+| Karp och sutare i vegetation | Inåtböjd beak-spets |
+
+Hela urvalet finns i [kategorin för krokar](/utrustning/krokar/).
+
+## Flötet: bärighet och montage
+
+Två frågor avgör flötesvalet.
+
+**Hur djupt fiskar du?** Ett fast flöte sitter låst på linan och fungerar så länge djupet är mindre än spöets längd. Är vattnet djupare hänger kroken flera meter under flötet och tacklet går inte att kasta. Då behövs ett glidande flöte som löper fritt och stannar mot ett flötesstopp.
+
+**Hur tungt är betet?** Bärigheten anges i gram och ska räcka för bete och sänke utan att flötet dras under. Ett abborrflöte på 4 gram klarar mask men inte en betesfisk. Ett gäddflöte på 25 gram bär betesfisken men döljer varje litet napp från en mört.
+
+| Bärighet | Passar |
+|---|---|
+| 4 till 6 gram | Mask och maggot, abborre och vitfisk |
+| 15 till 25 gram | Betesfisk, gädda, gös och kustmete |
+
+Materialet spelar också roll. Ett foamflöte tål slag mot sten, medan balsa spricker och suger vatten. För flöten som ska kastas gång på gång med tungt bete är det en verklig skillnad.
+
+Ska du meta i mörker finns flöten med hållare för lysstav i toppen. De kostar mer och lysstavarna är förbrukningsvara, men alternativet är att lysa med lampa mot vattnet.
+
+<ProduktRuta slug="darts-abborrflote" />
+
+Glömmer du flötesstoppen fungerar inte glidmontaget alls, så köp dem samtidigt. Sortimentet finns under [flöten](/utrustning/floten/).
+
+## Sänket: form och material
+
+Formen avgör hur ofta du fastnar. Ett päronformat sänke rullar över sten och gyttja, medan ett runt kilar fast lättare men överför mer känsla från botten. Vid dropshot gäller samma logik: en avlång pencil glider mellan stenar, en kula ger tydligare bottenkontakt.
+
+Klämhagel är en egen kategori. De används inte för att få betet att sjunka utan för att balansera flötet så att bara toppen sticker upp. Ett obalanserat flöte visar inte de små huggen.
+
+Materialvalet är på väg att bli en fråga även för den som inte bryr sig om miljön.
+
+| Material | Densitet mot bly | Konsekvens |
+|---|---|---|
+| Volfram | Högre | Mindre sänke vid samma vikt, dyrast |
+| Bly | Referens | Billigt, giftigt |
+| Zink | Lägre | Större sänke vid samma vikt, giftfritt |
+
+Sverige har inget förbud mot blysänken. På EU-nivå har frågan drivits sedan 2021 och enligt branschbevakning antogs ett säljförbud våren 2026, men beslutet var inte publicerat i EU:s officiella tidning vid skrivande stund. Danmark och Storbritannien har egna förbud sedan tidigare. Praktiskt betyder det att bly fortfarande är lagligt att använda, och att alternativen redan finns i butik.
+
+<ProduktRuta slug="wiggler-paronsanke" />
+
+Observera att päronsänken ofta prissätts per vikt, alltså att ett tungt sänke kostar mer än ett lätt inom samma serie. Hela sortimentet finns under [tyngder](/utrustning/tyngder/).
+
+## Färdigt set eller lösa delar
+
+Ett metset innehåller flöte, krok, sänke och flötesstopp valda för varandra. Det löser det problem som gör att många misslyckas första gången, alltså att kombinera delar som inte passar ihop.
+
+Set finns per art och per metod. De för abborre bygger på glidflöte med både enkelkrok och trekrok. De för gädda innehåller större flöte för betesfisk. Ett set för bottenmete kan innehålla ålbjällra och lysstav, vilket avslöjar att det är byggt för nattfiske. Ett sommarmeteset är den bredaste varianten och innehåller ofta lodsänke och kroklossare utöver grundtacklet.
+
+**Välj färdigt set** om du börjar från noll, ska fiska med barn, eller vill prova en ny metod utan att köpa åtta delar var för sig.
+
+**Välj lösa delar** om du redan har grundutrustning och bara saknar en storlek, eller om du vet exakt vad du vill ha.
+
+Setet innehåller inte spö, lina eller rulle. Räkna med det.
+
+## Vad du behöver per art
+
+| Art | Krok | Flöte | Sänke |
+|---|---|---|---|
+| Mört och sarv | 16 till 12, tunn tråd | 4 gram | Klämhagel |
+| Braxen | 14 till 8 | 4 till 6 gram eller botten | Klämhagel eller päron |
+| Abborre | 10 till 4 | 4 till 6 gram | Klämhagel |
+| Sutare och karp | 10 till 2, smidd böj | Botten oftast | Päronsänke |
+| Ål och lake | 8 till 1/0, lång skänkel | Botten | Päronsänke |
+| Gädda med betesfisk | 2 till 4/0 | 15 till 25 gram | Päronsänke, flötesstopp |
+
+Levande betesfisk är förbjudet i Sverige och ska aldrig användas. Död betesfisk måste dessutom vara fångad i samma vatten där den används, eftersom frysning inte dödar alla fisksjukdomar.
+
+## Tre kontrollfrågor innan du köper
+
+1. **Vilken art fiskar du mest?** Krokstorleken följer arten och beten, inte tvärtom. Skriv ner din vanligaste art och läs av tabellen.
+2. **Hur djupt är vattnet där du fiskar?** Djupare än spöets längd betyder glidflöte och flötesstopp, inte bara ett flöte.
+3. **Har du redan grundutrustning?** Har du det köper du lösa delar. Har du inte det är ett färdigt set både billigare och enklare.
+
+Färdiga kit finns under [metset](/utrustning/metset/).
+
+*Strömkast finansieras via affiliate-länkar. Köper du utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar produkterna.*
+```
+
 ## src/content/articles/valja-multirulle.mdx
 ```
 ---
@@ -43943,6 +45558,155 @@ Skölj efter varje tur i salt eller bräckt vatten, med lågt vattentryck och ro
 3. **Har du redan en haspelrulle som gör jobbet?** Om svaret är ja och du mest fiskar lätt, lägg pengarna någon annanstans.
 
 Hela sortimentet finns i [kategorin för multirullar](/utrustning/multirullar/). Motsvarande genomgång för haspelrullar finns i [guiden om att välja haspelrulle](/guider/valja-haspelrulle/).
+
+*Strömkast finansieras via affiliate-länkar. Köper du utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar produkterna.*
+```
+
+## src/content/articles/valja-vadare.mdx
+```
+---
+title: "Välja vadare: sula, membran och säkerhet"
+slug: "valja-vadare"
+description: "Så väljer du vadare och vadarskor. Vad filtsulan gör med smittspridningen, vad som faktiskt händer om du ramlar i, och vilka siffror som betyder något."
+excerpt: "Sulmaterial, membran och det som avgör din säkerhet."
+heroImage: "/images/articles/valja-vadare.jpg"
+publishedAt: "2026-08-25"
+updatedAt: "2026-08-25"
+author: "redaktionen"
+category: "guide"
+faq:
+  - q: "Är filtsulor förbjudna i Sverige?"
+    a: "Nej, det finns inget nationellt förbud. Havs- och vattenmyndigheten arbetar med desinfektionskrav i stället för sulförbud. Däremot finns lokala förbud, exempelvis i Stavreströmmen i Gimån där filtsula är förbjuden på grund av risken att sprida kräftpest. Kontrollera alltid kortvillkoren för det vatten du ska fiska."
+  - q: "Drar vadare ner en om man ramlar i vattnet?"
+    a: "Nej, det är en vandringssägen. Vattnet inuti vadaren väger lika mycket som vattnet runt omkring, så det ger ingen nettotyngd under ytan. De verkliga farorna är kallchock under de första minuterna, att luft i benen kan vända dig med huvudet nedåt, och strömmens kraft. Vadarbälte hårt åtdraget högt upp är det enskilt viktigaste skyddet."
+  - q: "Ska jag välja gummisula eller filtsula?"
+    a: "Gummi är förstahandsvalet för de flesta i Sverige. Det greppar bra även på land, torkar snabbt och går att desinficera, vilket filt inte gör på samma sätt. Filt greppar bättre på slembelagda stenar och kan motiveras om du fiskar samma vatten och sköter biosäkerheten. Volframdubbar kan skruvas i gummisulan för hala partier."
+  - q: "Hur desinficerar jag vadarskor mellan olika vatten?"
+    a: "Havs- och vattenmyndigheten anger tre metoder: en procents lösning av Virkon-S med 20 minuters verkningstid, lufttorkning i minst två dygn vid 20 grader eller varmare, eller värmebehandling i 60 grader i minst en timme. För filt och neopren som är svåra att torka rekommenderar Länsstyrelsen frysning i minst 15 minusgrader i tre dygn."
+  - q: "Behöver jag vadarskor till mina vadare?"
+    a: "Ja, om vadaren är en strumpfotsmodell. Då slutar den i en neoprensocka och skorna köps separat, vilket ska räknas in i totalkostnaden. En bootfootvadare har stöveln fastsydd och kräver inget mer. Strumpfot dominerar i Sverige eftersom passformen och stödet blir bättre."
+---
+
+import ProduktRuta from '../../components/ProduktRuta.astro';
+
+Vadare är den utrustningsdetalj där två frågor spelar större roll än allt annat, och ingen av dem handlar om membran eller vattenpelare. Den ena är vad sulan gör med spridningen av parasiter och sjukdomar mellan vatten. Den andra är vad som faktiskt händer om du ramlar i.
+
+## Filtsulor: inget förbud, men lokala regler
+
+Sverige har inget nationellt förbud mot filtsulor. Varken Havs- och vattenmyndigheten, Naturvårdsverket eller Jordbruksverket har infört något, och myndigheternas linje är desinfektion snarare än sulförbud. Rykten om ett kommande förbud har cirkulerat bland handlare i flera år utan att bli verklighet.
+
+Det betyder inte att frågan saknar regler. De finns, men lokalt.
+
+**Stavreströmmen i Gimån** förbjuder uttryckligen vadarskor med filtsula, med hänvisning till risken att sprida kräftsmitta.
+
+**Örekilsälven** kräver sedan den 19 juni 2025 att all fiskeutrustning desinficeras både före och efter fiske på laxförande sträckor. Kravet kom efter att laxparasiten Gyrodactylus salaris påvisats i Munkedalsälven samma år.
+
+**Vid kräftfiske** kräver svensk lag att redskap desinficeras när de flyttas mellan vatten.
+
+Internationellt ser det annorlunda ut. Nya Zeeland införde världens första filtförbud 2008 för att stoppa kiselalgen didymo. Alaska, Maryland, Missouri, Nebraska, South Dakota, Rhode Island och Yellowstone National Park har följt efter. Maryland tar 125 dollar i böter för första överträdelsen.
+
+## Vad är det som sprids?
+
+Tre saker är relevanta för svenska fiskare.
+
+**Gyrodactylus salaris**, laxparasiten, är en mindre än en millimeter stor mask som lever på laxungars hud. I drabbade vattendrag minskar produktionen av laxungar med 80 till 90 procent enligt norska Lakseelver. Parasiten sprids främst med fisk, men kan överleva flera dygn i fuktiga miljöer och därmed potentiellt följa med utrustning.
+
+**Kräftpest** orsakas av en algsvamp som signalkräftan bär utan att själv dö av den. Ungefär 90 procent av det svenska flodkräftbeståndet har slagits ut.
+
+**Didymo**, en kiselalg som bildar tjocka mattor på botten, är orsaken bakom de internationella filtförbuden. En enda cell räcker för spridning.
+
+Här kommer sulmaterialet in. Filt är poröst och fungerar som en svamp. Studier av didymo visar överlevnad i minst 40 dagar i en sval, mörk och fuktig miljö, och en forskningsöversikt i tidskriften Fisheries går så långt som att avråda från budskapet om att torka filt, eftersom torkning inte är en tillförlitlig metod för materialet. Gummi torkar på timmar och går att skölja rent.
+
+<ProduktRuta slug="vision-musta-michelin" />
+
+## Så desinficerar du
+
+Havs- och vattenmyndigheten anger tre likvärdiga metoder:
+
+| Metod | Anvisning |
+|---|---|
+| Virkon-S | En procents lösning, alltså 10 gram per liter vatten, med 20 minuters verkningstid |
+| Lufttorkning | Minst två dygn i 20 grader eller varmare |
+| Värme | Minst en timme i 60 grader |
+
+För filt och neopren, som är svåra att få torra, rekommenderar Länsstyrelsen frysning i minst 15 minusgrader under tre dygn.
+
+**Ska du fiska i Norge behövs desinfektionsbevis.** Mattilsynet kräver att fiskeutrustning torkas helt eller desinficeras innan den flyttas mellan vatten, och i gränsälvar som Tana och Skibotn måste du kunna visa upp beviset för att köpa fiskekort. Brott mot reglerna är straffbart.
+
+## Vadare drar inte ner dig
+
+Det här är en av fiskets mest spridda och mest felaktiga föreställningar.
+
+Vattnet som fyller en vadare väger exakt lika mycket som vattnet runt omkring. Under ytan ger det därför ingen nettotyngd alls. Samma princip som gör att en hink full med vatten är nästan viktlös under ytan men tung så fort du lyfter upp den. Flera praktiska tester har visat detta, och neoprenvadare kan till och med flyta.
+
+Vad är då faran? Tre saker, och ingen av dem är den påstådda tyngden.
+
+**Kallchock.** Plötslig nedsänkning i vatten under 15 grader utlöser en ofrivillig flämtning och hyperventilation. Sker det med ansiktet under ytan drar du in vatten. Det här dödar inom sekunder och är sannolikt en större dödsorsak än nedkylning.
+
+**Luft i benen.** Med lösa vadare utan bälte kan luft samlas i benen och göra det svårt att få upp huvudet. Det är den verkliga versionen av myten.
+
+**Strömmen.** Kraften i strömmande vatten underskattas rutinmässigt.
+
+## Vadarbältet och vad du gör om du ramlar
+
+Bältet är det billigaste och mest förbisedda säkerhetsplagget som finns. Det ska sitta hårt och högt upp. Det stänger inte ute vatten helt men bromsar inflödet kraftigt och hindrar luften från att samlas i benen. Välj vävt band, inte elastiskt.
+
+Ramlar du i strömmande vatten gäller detta:
+
+1. **Vänd dig på rygg med fötterna nedströms.** Då tar fötterna emot stenar i stället för huvudet.
+2. **Ligg snett mot strömmen** och simma med ryggsim mot närmaste strand.
+3. **Krypp upp ur vattnet.** Res dig inte i strömmen.
+4. **Töm vadaren liggande** innan du ställer dig upp.
+
+En vadarstav ger en tredje kontaktpunkt och känner av botten före foten. I djupt eller strömt vatten, och från båt, är en uppblåsbar räddningsväst befogad. Nedkylningen går snabbt, kroppen kyls upp till 25 gånger fortare i vatten än i luft.
+
+## Strumpfot eller bootfoot
+
+**Strumpfot** slutar i en neoprensocka och kräver separata vadarskor. Passformen och stödet blir bättre, den packar litet och kan vändas ut och in för torkning. Skorna är en extra kostnad. Det här dominerar i Sverige.
+
+**Bootfoot** har stöveln fastsydd. Snabbt av och på, varmare eftersom foten inte snörs åt, och inget grus som samlas i skarven. Sämre stöd och klumpigare att packa.
+
+Väljer du strumpfot, kom ihåg att grusskyddet fyller en funktion. Grus som tar sig in mellan sko och socka nöter hål på neoprenet inifrån, och det är en av de vanligaste orsakerna till läckor.
+
+<ProduktRuta slug="kinetic-classicgaiter" />
+
+## Membran, lager och siffror
+
+**Vattenpelare** anges i millimeter och mäter vilket tryck materialet håller tätt under. 20 000 mm, som flera vadare i sortimentet anger, är en hög och fullt tillräcklig nivå. Gränsen för att kallas vattentätt går kring 10 000 mm.
+
+**Antal lager** säger något om slitstyrka, inte om täthet. Tre lager är standard i benen. Fyra eller fem lager används på partier som tar mer stryk. Fler lager betyder styvare och tyngre.
+
+**Andningsförmåga** anges antingen som MVTR i gram per kvadratmeter och dygn, där högre är bättre, eller som RET, där lägre är bättre. Ett RET-värde under 6 är utmärkt och över 20 är dåligt. Var försiktig med jämförelser mellan märken, eftersom det finns ett trettiotal olika mätmetoder och siffrorna inte alltid är jämförbara.
+
+**Membran eller neopren?** Membranvadare andas men isolerar inte, så du klär dig i lager under. Neopren isolerar som en våtdräkt men andas inte alls. För svenskt fiske är membran rätt för det mesta, medan neopren fortfarande vinner vid långa stillastående pass i kallt vatten.
+
+## Sulor
+
+| Sula | Passar | Nackdel |
+|---|---|---|
+| Gummi | Allround, land och vatten, biosäkerhet | Sämre på slembelagd sten än filt |
+| Filt | Algbelupna stenar och klippor | Sprider smitta, dålig på land, slits fort |
+| Volframdubbar | Hala partier och ström | Hala i båt och på klippor |
+
+Dubbar skruvas i förberedda lägen i gummisulan och kan tas ur. Kombinationen gummi plus dubbar täcker de flesta svenska behov.
+
+<ProduktRuta slug="vision-rio-vanda-vadarbyxor" />
+
+## Passform, skötsel och läckor
+
+Mät bröst, midja och innerbenslängd innan du beställer. En för liten vadare sträcker sömmarna, och det är i sömmar under dragspänning som läckor uppstår först, tillsammans med grenpartiet och knäna.
+
+Vadarskor bärs över neoprensockan, som bygger. Flera tillverkare anger därför att du väljer din vanliga skostorlek eller går upp en halv.
+
+Hittar du en läcka går den att lokalisera genom att lysa inifrån i ett mörkt rum, eller genom att hälla ett par liter vatten i benet och se var det sipprar. Aquasure och Casco Rubberfix lagar både tyg och neopren. Förvara torrt, svalt och mörkt utan skarpa veck.
+
+## Tre frågor innan du köper
+
+1. **Vilka vatten fiskar du, och flyttar du dig mellan dem?** Fiskar du flera vatten är gummi det ansvarsfulla valet, och desinfektion en rutin snarare än en engångsinsats.
+2. **Har du ett vadarbälte, och sitter det åt?** Det är billigare än allt annat på den här sidan och betyder mest.
+3. **Räknar du med skorna?** En strumpfotsvadare på 1 995 kr kostar i praktiken tusen kronor mer.
+
+Hela sortimentet finns i [kategorin för vadare](/utrustning/vadare/). Reglerna för håvar i samma vatten tas upp i [guiden om att välja håv](/guider/valja-hav/).
 
 *Strömkast finansieras via affiliate-länkar. Köper du utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar produkterna.*
 ```
