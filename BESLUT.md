@@ -598,6 +598,26 @@ Värdet får vara högst 128 tecken. Skripten hoppar över parametern om ett SKU
 
 ---
 
+### `primarySpecies` listar målarter, inte arter som förekommer i vattnet
+
+**Beslut.** Nors togs bort ur Hjälmarens `primarySpecies`. Fältet listar de arter en besökare åker till vattnet för att fiska, inte artsammansättningen.
+
+**Skäl.** Nors är bytesfisk. Det riktade fisket är håvfiske under lekvandringen, och den traditionen finns i Klarälven och vänertillflödena, inte i Hjälmaren. Fältet styr mer än artchipet på startsidan: det skickas som `species`-prop till GearModul och används av `smhi.ts` och `getPeriodTopSpecies` för destinationspoäng, vilket i ett vårläge kan peka ut nors som periodens bästa art i ett vatten där arten inte går att fiska med spö. Kontroll av frontmatter-raden visade att Hjälmaren var enda destinationen med Nors i `primarySpecies`, medan 15 filer nämner nors i brödtext. Brödtexten ska stå kvar, eftersom norsbeståndet förklarar gösens kondition. Artsidan påverkas inte, eftersom `/arter/nors/` listar sina vatten via eget `topDestinations` och inte via omvänd uppslagning.
+
+**Vad som skulle ändra det.** Att ett riktat och lagligt fiske efter arten etableras i vattnet. För Vänern går nors att försvara som målart redan i dag, tack vare slomfisket i tillflödena.
+
+---
+
+### CARTO-basemaps hämtas med API-nyckel via `PUBLIC_CARTO_KEY`
+
+**Beslut.** Tile-URL:en i `FiskeKarta.tsx` bär en `key`-parameter från `PUBLIC_CARTO_KEY`, satt i `.env` lokalt och som Config-variabel i Vercel för Production, Preview och Development. Villkoret i URL:en gör att adressen förblir giltig om variabeln saknas, i stället för att bli `?key=undefined`.
+
+**Skäl.** CARTO började i augusti 2026 kräva nyckel för sina raster-basemaps och lägger en upprepad vattenstämpel över tiles som hämtas utan nyckel. Kartan slutar inte fungera, men den ser trasig ut. Fri nivå är 5 miljoner tile-anrop per månad, och attributionen till CARTO och OpenStreetMap måste ligga kvar. Nyckeln sätts som Config och inte Secret i Vercel, eftersom den bakas in i klientbundeln och syns i varje tile-anrop i besökarens webbläsare. Den är alltså publik till sin natur, och ett Secret-värde går dessutom inte att läsa av i efterhand. Nattbygget påverkas inte, eftersom workflowet bara anropar en Vercel deploy hook och Vercel därmed äger variabeln.
+
+**Vad som skulle ändra det.** CARTO uppger att raster-tiles fasas ut, att datauppdateringarna till dem kan upphöra och att nyckelkravet är på väg även till vektortjänsten. Migrering till vektor-tiles, eller byte till en leverantör utan nyckelkrav som OpenFreeMap, blir aktuellt om rasterdatan slutar uppdateras eller den fria nivån ändras.
+
+---
+
 ## Vid kloning till ny marknad
 
 Följande är **portabelt** och gäller oavsett land:
