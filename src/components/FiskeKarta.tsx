@@ -1,4 +1,4 @@
-/**
+351/**
  * src/components/FiskeKarta.tsx
  *
  * Interaktiv fiskekarta för startsidan.
@@ -348,7 +348,7 @@ export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props)
       });
 
       L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+        `https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png${import.meta.env.PUBLIC_CARTO_KEY ? `?key=${import.meta.env.PUBLIC_CARTO_KEY}` : ''}`,
         { attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · © <a href="https://carto.com/">CARTO</a>', subdomains: 'abcd', maxZoom: 19 }
       ).addTo(map);
 
