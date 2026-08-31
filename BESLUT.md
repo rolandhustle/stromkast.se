@@ -618,6 +618,18 @@ Värdet får vara högst 128 tecken. Skripten hoppar över parametern om ett SKU
 
 ---
 
+### Nedlagda SMHI-stationer rensas manuellt ur `smhi-stations.json`
+
+**Beslut.** Station 84310 Karlsborg togs bort ur `smhi-stations.json`. Döda stationer rensas ur listan i stället för att hanteras med en fallback i `smhi.ts`.
+
+**Skäl.** `getNearestStation` väljer närmaste station med `reduce` utan att kontrollera om stationen levererar data. SMHI:s API svarar med fullständig metadata även för nedlagda stationer, så ett anrop som ser lyckat ut kan ändå ge `"value":[]`. Vättern hamnade därför på Karlsborg, en försvarsmaktsstation vars positionsuppgift löper ut 1994. Sidan visade "Väderdata saknas för det här vattnet" och nålen på startsidan ritades med radie 7 i stället för 9, eftersom `error` sätts när både lufttemperatur och vindhastighet är null. Bygget loggade ingenting, till skillnad från hydrologihämtningen. En genomgång av samtliga 180 stationer mot `latest-hour` gav exakt en död station, vilket gör en fallback-mekanism till överarbete. Näst närmaste station är Visingsö A (84050), som ligger på ön mitt i sjön och mäter vind över öppet vatten, alltså en bättre mätpunkt än den ursprungliga.
+
+**Kontrollmetod.** En station är död om `parameter/1` och `parameter/4` på `period/latest-hour` båda ger `"value":[]`. En station kan sakna just senaste timmen utan att vara nedlagd, så en ensam träff bör verifieras med en andra körning innan den rensas.
+
+**Vad som skulle ändra det.** Om flera stationer faller bort samtidigt, eller om samma destination drabbas upprepade gånger, är en fallback till näst närmaste station i `fetchSMHIForStation` motiverad i stället för manuell rensning.
+
+---
+
 ## Vid kloning till ny marknad
 
 Följande är **portabelt** och gäller oavsett land:
