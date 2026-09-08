@@ -669,6 +669,44 @@ Följande är **portabelt** och gäller oavsett land:
 - Sökning mot en produktfeed med korta ord ger brus när ordet också är en produktegenskap eller ingår i ett varumärkesnamn. Sorteringen döljer misslyckandet, eftersom noll relevanta träffar ser likadant ut som fyrtio irrelevanta.
 - En lista som styr både vad som visas och vad som förbehandlas ska ha en källa. Två kopior ger ingen felsignal när de glider isär, eftersom varje fil är korrekt för sig och det som saknas är sammanhang och inte data.
 
+### FiskeKarta: en enda Leaflet-instans istället för separata mobil/desktop-komponenter
+
+**Beslut:** `FiskeKarta.tsx` har en enda `LeafletMap`-komponent och ett enda `useEffect` som initierar Leaflet. Layout (mobil staplade / desktop sida vid sida) styrs med CSS-mediafrågor (`.sk-map-inner`, `.sk-layout`), inte av React-state eller separata komponenter.
+
+**Motivering:** Tidigare arkitektur med `DesktopMap`/`MobileView` som separata komponenter, `isMobile`-hook och `useState(true/false/null)` för att styra rendering ledde till ett olösligt hydration-problem: React körde komponenten med `innerWidth: 1424`, `1` och `402` i tur och ordning vid hydration, vilket innebar att Leaflet alltid initierades med desktop-dimensioner oavsett hook-värde. CSS vet rätt skärmbredd utan JavaScript och har inga timing-problem.
+
+**Reverseringströskel:** Om Leaflet i framtiden behöver helt olika konfiguration (t.ex. olika zoom-nivåer, plugins eller interaktionsmodeller) per enhet kan separata instanser motiveras — men det kräver att hydration-problemet löses, troligen via `client:load` med explicit breddläsning server-side.
+
+---
+
+### FiskeKarta: zoom och center sätts i setTimeout efter invalidateSize, inte vid initiering
+
+**Beslut:** Leaflet-kartan initieras med `zoom: 5, center: [62.0, 16.0]` men det faktiska vyn sätts i `setTimeout(() => { map.invalidateSize(); map.setView([62.0, 16.0], 5); }, 400)`. `fitBounds` används inte.
+
+**Motivering:** `fitBounds` med Sveriges koordinater inkluderade Norge och Finland i bounds-beräkningen och zoomade automatiskt ut för mycket. Fast `setView` efter `invalidateSize` ger förutsägbart resultat. `minZoom` och `maxZoom` var tidigare låsta till 4 vilket ignorerade alla `setView`-anrop med annan zoom — dessa är nu `minZoom: 4, maxZoom: 7`.
+
+**Reverseringströskel:** Om kartan ska visas på fler sidor med olika proportioner kan `fitBounds` mot en strikt Sverige-bbox (utan grannländer) fungera — men bounds måste avgränsas till ca `[[55.3, 11.0], [69.1, 18.5]]` för att undvika automatisk utzoomning.
+
+---
+
+### FiskeKarta: popup istället för tooltip vid klick på nål
+
+**Beslut:** Leaflet-nålarna visar en `bindPopup` med namn, betningsläge, temperatur, vind och en "Visa guide →"-länk vid klick. Den tidigare `bindTooltip` visade bara namn och betningsläge vid hover.
+
+**Motivering:** På mobil finns ingen hover — tooltip är oanvändbar. Popup visas vid klick och är touch-vänlig. Popup innehåller en direktlänk till destinationssidan vilket eliminerar behovet av att scrolla ner till panelen under kartan för att navigera. Detaljpanelen (`DestinationsList`) används fortfarande på desktop.
+
+**Reverseringströskel:** Om popup-positionen konsekvent hamnar utanför kartrutan på små skärmar kan ett alternativ vara en fast overlay-div i kartcontainern som visas/döljs via React-state.
+
+---
+
+### FiskeKarta: showPanel-prop döljer DestinationsList på destinationssidan
+
+**Beslut:** `FiskeKarta` har en optional prop `showPanel` (default `true`). På `/destinationer/` skickas `showPanel={false}` vilket döljer "Bäst just nu"-panelen och månfas/CTA-raden. Destinationssidans egna kortgrid används istället som lista.
+
+**Motivering:** `FiskeKarta` på `/destinationer/` används enbart som kartvy via en toggle-knapp. Panelen med betningslista är redundant när sidan redan har en fullständig destinationslista med bilder och beskrivningar. Utan `showPanel={false}` ersatte panelen destinationskortsrutnätet på mobil.
+
+**Reverseringströskel:** Om `/destinationer/` i framtiden saknar en egen lista (t.ex. om sidan görs om till ren kartvy) bör `showPanel` sättas till `true` igen.
+
 Följande är **lokalt** och måste byggas om:
 
 - Artlistan och säsongskurvorna i `calendar.ts`
