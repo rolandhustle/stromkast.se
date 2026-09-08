@@ -60,6 +60,7 @@ export interface DestinationPin {
 }
 
 interface Props {
+  showPanel?:   boolean;
   destinations: DestinationPin[];
   moonEmoji:    string;
   moonName:     string;
@@ -257,7 +258,7 @@ function DestinationsList({
   );
 }
 
-export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props) {
+export default function FiskeKarta({ destinations, moonEmoji, moonName, showPanel = true }: Props) {
   const [active, setActive] = useState<DestinationPin | null>(null);
   const mapRef     = useRef<HTMLDivElement>(null);
   const leafletRef = useRef<LeafletMap | null>(null);
@@ -406,6 +407,7 @@ export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props)
         </div>
 
         {/* Lista */}
+        {showPanel && (
         <DestinationsList
           destinations={destinations}
           active={active}
@@ -415,6 +417,7 @@ export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props)
           moonName={moonName}
           scrollable={true}
         />
+        )}
       </div>
     </>
   );
