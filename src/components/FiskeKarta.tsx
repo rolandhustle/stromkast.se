@@ -288,9 +288,24 @@ export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props)
           radius: dest.error ? 4 : 6, fillColor: color, color: '#fff', weight: 2.5, opacity: 1, fillOpacity: 1,
         }).addTo(map);
 
-        marker.bindTooltip(
-          `<strong style="font-size:12px">${dest.name}</strong><br/><span style="font-size:11px;color:#6b7280">${dest.biteLabel}${dest.airTemp !== null ? ' · ' + dest.airTemp.toFixed(1) + '°C' : ''}</span>`,
-          { permanent: false, direction: 'top', offset: [0, -8], className: 'stromkast-tooltip' }
+        const dotColor = dest.biteColor === 'green' ? '#16a34a' : dest.biteColor === 'amber' ? '#d97706' : '#9ca3af';
+        const tempStr = dest.airTemp !== null ? dest.airTemp.toFixed(1) + '°C' : '–';
+        const windStr = dest.windSpeed !== null ? dest.windSpeed.toFixed(1) + ' m/s ' + dest.windDir : '–';
+        marker.bindPopup(
+          `<div style="font-family:inherit;min-width:160px">
+            <div style="font-size:13px;font-weight:600;color:#111827;margin-bottom:4px">${dest.name}</div>
+            <div style="display:flex;align-items:center;gap:5px;margin-bottom:6px">
+              <span style="width:7px;height:7px;border-radius:50%;background:${dotColor};display:inline-block;flex-shrink:0"></span>
+              <span style="font-size:11px;font-weight:500;color:#374151">${dest.biteLabel}</span>
+            </div>
+            <div style="font-size:11px;color:#6b7280;margin-bottom:2px">🌡 ${tempStr} &nbsp; 💨 ${windStr}</div>
+            <div style="margin-top:8px">
+              <a href="/destinationer/${dest.slug}/" style="display:block;text-align:center;background:#1F3A2E;color:#fff;font-size:12px;font-weight:500;padding:6px 10px;border-radius:7px;text-decoration:none">
+                Visa guide →
+              </a>
+            </div>
+          </div>`,
+          { closeButton: false, className: 'stromkast-popup', maxWidth: 200 }
         );
 
         marker.on('click', () => setActive(dest));
@@ -365,6 +380,16 @@ export default function FiskeKarta({ destinations, moonEmoji, moonName }: Props)
           font-family: inherit;
         }
         .stromkast-tooltip::before { display: none !important; }
+        .stromkast-popup .leaflet-popup-content-wrapper {
+          border-radius: 10px !important;
+          box-shadow: 0 4px 16px rgba(0,0,0,0.15) !important;
+          padding: 0 !important;
+          border: 1px solid #e5e7eb !important;
+        }
+        .stromkast-popup .leaflet-popup-content {
+          margin: 12px 14px !important;
+        }
+        .stromkast-popup .leaflet-popup-tip-container { display: none !important; }
       `}</style>
 
       <div className="sk-layout">
