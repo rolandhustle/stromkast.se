@@ -1,6 +1,36 @@
 import { defineCollection, z } from 'astro:content';
 import { glob, file } from 'astro/loaders';
 
+/**
+ * Ett boende vid en destination.
+ *
+ * Listan skrivs utifran vad som ar relevant for fisket. Ett boende laggs
+ * aldrig till eller stryks beroende pa om det finns pa Booking.com.
+ *
+ * bookingUrl ar en affiliatelank och marks som reklam i komponenten.
+ * url ar en vanlig lank till egen bokning, for boenden som inte finns pa
+ * Booking. Finns bada anvands bookingUrl och url ignoreras.
+ */
+const boendeSchema = z.object({
+  namn: z.string(),
+  typ: z.enum([
+    'hotell',
+    'vandrarhem',
+    'camping',
+    'stugby',
+    'stuga',
+    'fjallstation',
+    'fiskecamp',
+  ]),
+  ort: z.string(),
+  notering: z.string().optional(),      // fiskespecifikt, inte allmant saljsnack
+  bat: z.boolean().optional(),          // bat ingar eller hyrs pa plats
+  avstandRamp: z.string().optional(),   // t.ex. "500 m", "2 km"
+  oppet: z.string().optional(),         // "helar" eller "sasong: maj-sep"
+  bookingUrl: z.string().url().optional(),
+  url: z.string().url().optional(),
+});
+
 const destinations = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/destinations' }),
   schema: z.object({
@@ -23,6 +53,8 @@ const destinations = defineCollection({
     updatedAt: z.string(),
     excerpt: z.string().optional(),  // Korttext för indexsidan (40–80 tecken)
     kostrad: z.array(z.enum(['kvicksilver', 'dioxin'])).optional().default([]),  // Livsmedelsverkets kostråd som gäller vattnet
+    boende: z.array(boendeSchema).optional().default([]),
+    boendeSok: z.string().optional(),  // ort for soklank till Booking i sidoblocket
   }),
 });
 

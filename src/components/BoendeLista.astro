@@ -1,0 +1,158 @@
+---
+/**
+ * Boendelista i brodtexten, under rubriken Boende.
+ *
+ * Anropas fran MDX:
+ *   <Boende boende={frontmatter.boende} sok={frontmatter.boendeSok} />
+ *
+ * Komponenten skickas in via components-propen pa <Content /> i
+ * [slug].astro, sa MDX-filen behover ingen egen import.
+ *
+ * Listan speglar frontmatter rakt av. Ett boende utan lank renderas som
+ * text. Vilka boenden som star i listan avgors av fisket, aldrig av om de
+ * finns pa Booking.
+ */
+import { bookingSearchUrl, isBookingUrl } from '../lib/booking';
+import BoendeIkon from './BoendeIkon.astro';
+
+interface Boende {
+  namn: string;
+  typ: string;
+  ort: string;
+  notering?: string;
+  bat?: boolean;
+  avstandRamp?: string;
+  oppet?: string;
+  bookingUrl?: string;
+  url?: string;
+}
+
+interface Props {
+  boende?: Boende[];
+  sok?: string;
+}
+
+const { boende = [], sok } = Astro.props;
+
+const TYP_LABEL: Record<string, string> = {
+  hotell: 'Hotell',
+  vandrarhem: 'Vandrarhem',
+  camping: 'Camping',
+  stugby: 'Stugby',
+  stuga: 'Stuga',
+  fjallstation: 'Fjällstation',
+  fiskecamp: 'Fiskecamp',
+};
+
+const sokUrl = sok ? bookingSearchUrl(sok) : null;
+
+// En lank per boende. bookingUrl vinner nar bada finns, eftersom den ar den
+// sparade lanken. url anvands for boenden som inte ligger pa Booking.
+const rader = boende.map((b) => {
+  const href = b.bookingUrl ?? b.url ?? null;
+  const sponsrad = Boolean(b.bookingUrl) || (href ? isBookingUrl(href) : false);
+  const fakta = [
+    b.bat === true ? 'Båt på plats' : null,
+    b.avstandRamp ? `${b.avstandRamp} till ramp` : null,
+    b.oppet ?? null,
+  ].filter(Boolean) as string[];
+  return { ...b, href, sponsrad, fakta };
+});
+
+const harSponsrad = rader.some((r) => r.sponsrad);
+---
+
+{rader.length > 0 && (
+  <div class="not-prose my-6">
+    <ul class="divide-y divide-mist border-y border-mist">
+      {rader.map((b) => (
+        <li class="py-4 flex gap-3.5">
+          {/* Ikonen sitter i sin egen kolumn sa att texten far en rak vanstermarginal */}
+          <span class="mt-0.5 w-8 h-8 rounded-full bg-mist text-pine flex items-center justify-center shrink-0">
+            <BoendeIkon typ={b.typ} />
+          </span>
+
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              {b.href ? (
+                <a
+                  href={b.href}
+                  target="_blank"
+                  rel={b.sponsrad ? 'noopener noreferrer sponsored' : 'noopener noreferrer'}
+                  data-boende-merchant={b.sponsrad ? 'Booking.com' : 'direkt'}
+                  data-boende-namn={b.namn}
+                  class="font-semibold text-deep underline decoration-mist underline-offset-4 hover:text-pine hover:decoration-pine transition-colors"
+                >{b.namn}</a>
+              ) : (
+                <span class="font-semibold text-deep">{b.namn}</span>
+              )}
+
+              {b.sponsrad && (
+                <span class="text-stone/70 text-[11px] uppercase tracking-wider font-medium">Annonslänk</span>
+              )}
+            </div>
+
+            <p class="text-stone text-xs mt-0.5">
+              {TYP_LABEL[b.typ] ?? b.typ} i {b.ort}
+            </p>
+
+            {b.notering && (
+              <p class="text-deep/80 text-sm leading-relaxed mt-1.5">{b.notering}</p>
+            )}
+
+            {b.fakta.length > 0 && (
+              <ul class="flex flex-wrap gap-1.5 mt-2">
+                {b.fakta.map((f) => (
+                  <li class="bg-mist text-deep/80 text-[11px] font-medium px-2 py-0.5 rounded-full">{f}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </li>
+      ))}
+    </ul>
+
+    {sokUrl && (
+      <p class="mt-4">
+        <a
+          href={sokUrl}
+          target="_blank"
+          rel="noopener noreferrer sponsored"
+          data-boende-merchant="Booking.com"
+          data-boende-namn={`sök ${sok}`}
+          class="inline-flex items-center gap-1.5 text-pine font-semibold text-sm hover:text-deep transition-colors"
+        >
+          Sök fler boenden i {sok}
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M2 12L12 2M12 2H6M12 2v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </p>
+    )}
+
+    {(harSponsrad || sokUrl) && (
+      <p class="text-stone/60 text-xs mt-3">
+        Länkar märkta Annonslänk går till Booking.com. Bokar du där får vi en provision, utan kostnad för dig. Vilka boenden som står i listan avgörs av fisket, inte av vem som betalar provision.
+      </p>
+    )}
+  </div>
+)}
+
+<script>
+  // Egen selektor, inte data-affiliate-merchant. AffiliateCard binder sitt
+  // eget skript mot det attributnamnet och skulle annars trigga en extra
+  // handelse per klick har.
+  document.querySelectorAll('[data-boende-merchant]').forEach((el) => {
+    el.addEventListener('click', () => {
+      const dl = (window as { dataLayer?: unknown[] }).dataLayer;
+      if (!dl) return;
+      dl.push({
+        event: 'affiliate_click',
+        merchant: (el as HTMLElement).dataset.boendeMerchant,
+        product_id: (el as HTMLElement).dataset.boendeNamn,
+        position: 0,
+        page_type: document.body.dataset.pageType ?? 'unknown',
+      });
+    });
+  });
+</script>

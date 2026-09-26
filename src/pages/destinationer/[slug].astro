@@ -3,6 +3,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import AffiliateCard from '../../components/AffiliateCard.astro';
 import DestinationMap from '../../components/DestinationMap.tsx';
 import GearModul from '../../components/GearModul.astro';
+import BoendeLista from '../../components/BoendeLista.astro';
+import BoendeBlock from '../../components/BoendeBlock.astro';
 import { getCollection, render } from 'astro:content';
 import {
   fetchSMHIForCoords,
@@ -117,6 +119,23 @@ const breadcrumbSchema = {
     { '@type': 'ListItem', position: 3, name: d.title, item: `https://stromkast.se/destinationer/${d.slug}/` },
   ],
 };
+
+/**
+ * Affiliateklausul.
+ *
+ * Lag tidigare som text sist i varje MDX-fil, alltsa inskriven 68 ganger.
+ * Oreaelven saknade den helt, vilket ingen upptackte eftersom ingenting gar
+ * sonder nar en rad text saknas. Nu renderas den av mallen och kan darmed
+ * inte glommas pa en enskild sida.
+ *
+ * Boende namns bara nar sidan har boenden. En sida utan boendelankar ska
+ * inte pasta att den har nagra.
+ */
+const harBoende = (d.boende?.length ?? 0) > 0;
+
+const affiliateKlausul = harBoende
+  ? 'Strömkast finansieras via affiliate-länkar. Köper du fiskekort, utrustning eller boende via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver, hur vi värderar fiskevatten eller vilka boenden vi listar.'
+  : 'Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.';
 
 const destinationSchema = {
   '@context': 'https://schema.org',
@@ -397,7 +416,17 @@ const faqSchema = {
           ser trasig ut.
         */}
         <div class="prose prose-sm max-w-[72ch] text-deep/80 leading-relaxed">
-          <Content />
+          {/*
+            Boende renderas ur frontmatter, inte som markdown. MDX-filen
+            skriver <Boende boende={frontmatter.boende} /> under sin egen
+            rubrik, sa att listan star kvar mitt i den praktiska delen av
+            texten i stallet for att brytas ut till en egen sektion.
+          */}
+          <Content components={{ Boende: BoendeLista }} />
+
+          {/* Klausulen ligger innanfor prose-wrappern sa att den far
+              samma typografi som nar den stod i brodtexten. */}
+          <p><em>{affiliateKlausul}</em></p>
         </div>
 
         <!-- FAQ -->
@@ -508,6 +537,13 @@ const faqSchema = {
         <div class="rounded-2xl overflow-hidden aspect-square mb-6">
           <DestinationMap lat={d.lat} lng={d.lng} title={d.title} client:only="react" />
         </div>
+
+        <!--
+          Boende. Ligger under kartan eftersom bada svarar pa samma fraga:
+          var ligger det har och var bor jag. Rutan renderar ingenting nar
+          destinationen saknar bokningsbara boenden och ort att soka pa.
+        -->
+        <BoendeBlock boende={d.boende} sok={d.boendeSok} title={d.title} />
 
         <!-- Produktkort, syns bara pa desktop. Styr produkten via recommendedGear i frontmatter, annars harleds den. -->
         <GearModul

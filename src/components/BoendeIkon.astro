@@ -1,0 +1,82 @@
+---
+/**
+ * Ikon per boendetyp.
+ *
+ * Ligger i en egen komponent sa att BoendeLista och BoendeBlock delar
+ * uppsattning. Ikonerna ar rena stroke-figurer i currentColor, alltsa inga
+ * bilder och inget externt anrop.
+ *
+ * Bilder pa verkliga anlaggningar anvands inte. Bookings bilder far vi inte
+ * bruka, anlaggningarnas egna kraver tillstand per objekt, och en genererad
+ * bild pa ett hotell som faktiskt finns vore falsk precision.
+ */
+interface Props {
+  typ: string;
+  size?: number;
+}
+
+const { typ, size = 16 } = Astro.props;
+
+const IKON: Record<string, string[]> = {
+  // Sang med gavel
+  hotell: [
+    'M2 12V5',
+    'M2 8h10a2 2 0 0 1 2 2v2',
+    'M2 12h12',
+    'M4.5 8V6.5h3V8',
+  ],
+  // Vaningssang
+  vandrarhem: [
+    'M3 2v12',
+    'M13 2v12',
+    'M3 6.5h10',
+    'M3 10.5h10',
+  ],
+  // Talt
+  camping: [
+    'M8 2.5 2 13h12L8 2.5Z',
+    'M8 2.5V13',
+  ],
+  // Tva stugor
+  stugby: [
+    'M1 8.5 4 5.5l3 3V13H1V8.5Z',
+    'M8.5 9.5 11.5 6.5l3.5 3V13H8.5V9.5Z',
+  ],
+  // Stuga med dorr
+  stuga: [
+    'M2 7 8 2.5 14 7v6.5H2V7Z',
+    'M6.5 13.5V10h3v3.5',
+  ],
+  // Fjalltoppar
+  fjallstation: [
+    'M1 13 5.5 5l2.5 4.5L11 4.5 15 13H1Z',
+  ],
+  // Fisk
+  fiskecamp: [
+    'M2 8c2.5-3.2 6-3.2 8.5 0-2.5 3.2-6 3.2-8.5 0Z',
+    'M10.5 8 14 5.5v5L10.5 8Z',
+    'M4.8 7h.01',
+  ],
+};
+
+const paths = IKON[typ] ?? IKON.stuga;
+---
+
+<svg
+  width={size}
+  height={size}
+  viewBox="0 0 16 16"
+  fill="none"
+  aria-hidden="true"
+  class="shrink-0"
+>
+  {paths.map((d) => (
+    <path
+      d={d}
+      stroke="currentColor"
+      stroke-width="1.3"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  ))}
+</svg>

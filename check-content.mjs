@@ -470,6 +470,7 @@ for (const f of files) {
   const raw = readFileSync(f, 'utf-8');
   const { fm, body } = splitFrontmatter(raw);
   checkRefs(f, coll, fm);
+  if (coll === 'destinations') checkBoende(f, fm);
   checkLinks(f, raw);
   if (!f.endsWith('.json')) checkDashes(f, raw);
   if (!f.endsWith('.json')) checkCampaignDates(f, raw);
@@ -501,6 +502,85 @@ for (const [id, n] of perSpecies) {
 }
 for (const [id, n] of perTech) {
   if (n === 0) warnings.push(`tekniksida "${id}": noll matchande produkter, utrustningsmodulen blir tom`);
+}
+
+/**
+ * Boende i destinations-frontmatter.
+ *
+ * Konstanterna ligger inne i funktionen med flit. Funktionsdeklarationer
+ * hissas, men const gor det inte, och funktionen star efter huvudloopen som
+ * anropar den.
+ *
+ * BOOKING_HOSTS speglar src/lib/booking.ts och ar den enda plats som ska
+ * andras om programmet gar via ett natverk med redirectdoman i stallet for
+ * direkt mot Booking.
+ *
+ * Radbaserat med flit. Frontmatter parsas med regex i resten av filen, och
+ * boende behover ingen YAML-beroende for fyra kontroller.
+ */
+function checkBoende(file, fm) {
+  const BOOKING_HOSTS = ['booking.com', 'www.booking.com'];
+
+  // Sparparameter i lanken. Utan den ar klicket gratisarbete.
+  const BOOKING_TRACKING = /[?&](aid|label)=/;
+
+  // Saljord som inte hor hemma i en notering. Noteringen ska baras av vad
+  // lasaren kan anvanda: bat, ramp, sasong, lage.
+  const SALJORD = [
+    'fantastisk', 'underbar', 'perfekt', 'idyllisk', 'oslagbar',
+    'lyxig', 'charmig', 'mysig', 'prisvard', 'prisvärd', 'finaste',
+  ];
+
+  const hostOf = (url) => {
+    try {
+      return new URL(url).hostname;
+    } catch {
+      return null;
+    }
+  };
+
+  const lines = fm.split('\n');
+
+  lines.forEach((line, idx) => {
+    const rad = idx + 1;
+
+    const booking = line.match(/^\s*bookingUrl:\s*["']?(\S+?)["']?\s*$/);
+    if (booking) {
+      const url = booking[1];
+      const host = hostOf(url);
+      if (!host) {
+        errors.push(`${file}:${rad}: bookingUrl "${url}" ar ingen giltig URL`);
+      } else if (!BOOKING_HOSTS.includes(host)) {
+        errors.push(
+          `${file}:${rad}: bookingUrl pekar pa ${host}, inte Booking. ` +
+          `Byt falt till url, eller uppdatera BOOKING_HOSTS i check-content.mjs och src/lib/booking.ts om programmet bytt doman.`
+        );
+      } else if (!BOOKING_TRACKING.test(url)) {
+        warnings.push(`${file}:${rad}: bookingUrl saknar sparparameter, klicket ger ingen provision`);
+      }
+    }
+
+    const direkt = line.match(/^\s*url:\s*["']?(\S+?)["']?\s*$/);
+    if (direkt) {
+      const host = hostOf(direkt[1]);
+      if (host && BOOKING_HOSTS.includes(host)) {
+        errors.push(
+          `${file}:${rad}: url pekar pa Booking. Anvand bookingUrl, annars markas lanken inte som reklam.`
+        );
+      }
+    }
+
+    const notering = line.match(/^\s*notering:\s*["']?(.+?)["']?\s*$/);
+    if (notering) {
+      const text = notering[1].toLowerCase();
+      for (const ord of SALJORD) {
+        if (text.includes(ord)) {
+          warnings.push(`${file}:${rad}: saljord "${ord}" i notering, skriv vad lasaren kan anvanda i stallet`);
+          break;
+        }
+      }
+    }
+  });
 }
 
 // --- Rapport ---

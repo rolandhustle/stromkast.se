@@ -220,6 +220,36 @@ Reglerna är dessutom vattenspecifika i grunden. Ett fredningsområde gäller en
 
 ---
 
+### Boenden ligger i frontmatter och länkas bara när objektet är verifierat
+
+**Beslut.** Boendelistan på en destinationssida är strukturerad data i `boende` i frontmatter, inte punkter i brödtexten. Varje post har namn, typ, ort, valfri notering, och de fiskespecifika fälten `bat`, `avstandRamp` och `oppet`. Länkning sker via `bookingUrl` för boenden med verifierad Booking-sida och via `url` för övriga. Ett boende utan båda renderas som text. Vilka boenden som står i listan avgörs av fisket, aldrig av om de finns på Booking.
+
+**Skäl, mätt på fem destinationer.** Ett täckningstest i september 2026 gick igenom 27 namngivna boenden på Mörrumsån, Stockholms skärgård, Åsunden, Ångermanälven och Kultsjön. Nio hade verifierad egen sida på Booking, två troligen, tolv saknades och fyra gick inte att identifiera. Säker träffprocent 33.
+
+Spridningen är det som avgör modellen. Mörrumsån fick noll av fem, eftersom Sveaskog och Mörrums Kronolaxfiske bokar via egen portal. Kultsjön fick två av tre. Emellan ligger Åsunden på två av fyra, Stockholms skärgård på fyra av tio och Ångermanälven på en av fem. Mönstret är konsekvent: fristående hotell, kedjecampingar och större fjällanläggningar finns, medan föreningsdrivna vandrarhem, små kommunala campingar som bokar via Campcation, fria vildmarksstugor och privata stuguthyrningar inte gör det.
+
+En lösning som bara visar Booking-boenden hade alltså tömt två av fem destinationssidor helt och visat en tredjedel av listan på resten. Det är inte en boendesektion utan en annonsplats.
+
+Strukturerad data i stället för brödtext beror på att samma poster ska renderas tre gånger: i brödtexten, i sidokolumnens ruta och senare i fiskeresguiden. Det blev också en kvalitetsfråga. Testet hittade fyra boenden i de befintliga listorna som inte går att identifiera, och två med fel ort. Fel av det slaget överlever i brödtext men syns när varje post ska få ett `ort`-fält.
+
+**Vad som skulle ändra det.** Att boendeintäkten når 20 till 30 procent av produktaffiliateintäkten på destinationssidor. Då är en API-integration mot Booking motiverad, med tillgänglighet och pris i realtid, och frontmatterlistan blir en kurering ovanpå den i stället för hela datakällan. Under den nivån är handkurerade poster billigare och ärligare.
+
+---
+
+### Booking-länken renderas inte utan spårparameter
+
+**Beslut.** `BOOKING_AID` i `src/lib/booking.ts` är tom tills partner-id är bekräftat. Så länge den är tom returnerar `bookingSearchUrl` null och söklänken renderas inte alls, varken i brödtexten eller i sidorutan. `check-content.mjs` varnar för `bookingUrl` som saknar `aid` eller `label`.
+
+**Skäl.** En Booking-länk utan spårparameter ser ut som en affiliatelänk för läsaren, bär sin annonsmärkning, och ger noll i provision. Det är det sämsta av tre möjliga utfall. Alternativet, att rendera länken ändå och fylla i id senare, hade betytt att märkningen ljuger om vad länken är under tiden.
+
+Samma resonemang gör att `url` som pekar på Booking är ett fel och inte en varning. Komponenten sätter `rel="sponsored"` och etiketten Annonslänk utifrån vilket fält länken ligger i. En Booking-länk i fel fält blir alltså omärkt reklam, vilket är ett efterlevnadsfel och inte en smakfråga.
+
+**Känd kostnad.** Värdlistan `BOOKING_HOSTS` finns i två filer som inte känner till varandra, `src/lib/booking.ts` och `check-content.mjs`. Går programmet via CJ i stället för direkt mot Booking byter varje länk domän, och då måste båda uppdateras. Uppdateras bara den ena börjar antingen varenda länk ge fel i valideringen, eller så slutar märkningen fungera i komponenten. Felmeddelandet i `check-content.mjs` nämner båda filerna av det skälet. Samma sorts dubbelpost som stationslistan, och lika medveten.
+
+**Vad som skulle ändra det.** Att programmet byter nätverk. Då är det inte längre en `aid`-parameter som avgör spårningen, och både byggfunktionen och valideringen skrivs om mot det nätverkets länkformat.
+
+---
+
 ## Metod
 
 ### Massändringar av innehåll verifieras mot git, aldrig mot egna mönster
@@ -668,6 +698,10 @@ Följande är **portabelt** och gäller oavsett land:
 - Prisklassfältet är kategorirelativt, inte absolut. Principen är portabel, brytpunkterna per kategori är lokala. En gemensam kronskala gör hela billiga kategorier till budget och hela dyra till premium.
 - Sökning mot en produktfeed med korta ord ger brus när ordet också är en produktegenskap eller ingår i ett varumärkesnamn. Sorteringen döljer misslyckandet, eftersom noll relevanta träffar ser likadant ut som fyrtio irrelevanta.
 - En lista som styr både vad som visas och vad som förbehandlas ska ha en källa. Två kopior ger ingen felsignal när de glider isär, eftersom varje fil är korrekt för sig och det som saknas är sammanhang och inte data.
+- Boenden vid en destination hålls som strukturerad data, inte som punkter i brödtexten. Samma poster ska renderas på flera ställen, och ett ortsfält tvingar fram fel som överlever i löptext.
+- Listan över boenden avgörs av vad läsaren behöver, aldrig av vilka som finns hos bokningspartnern. Täckningen varierar för mycket mellan destinationstyper för att partnern ska få bestämma innehållet. I det svenska testet var spannet noll till 67 procent mellan en sydsvensk å och ett fjällvatten.
+- Mät täckningen på ett urval destinationer av olika typ innan något byggs. Ett medelvärde döljer att vissa sidor får noll träffar, och det är de sidorna som avgör om modellen behöver ett fallback-fält.
+- En affiliatelänk utan spårparameter renderas inte alls. Den bär annonsmärkning utan att ge provision, vilket är sämre än att utelämna länken.
 
 ### FiskeKarta: en enda Leaflet-instans istället för separata mobil/desktop-komponenter
 

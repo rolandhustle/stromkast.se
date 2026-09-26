@@ -1,0 +1,143 @@
+---
+/**
+ * Boenderuta i sidokolumnen, under kartan.
+ *
+ * Visar hogst tre boenden med bokningslank, plus en soklank till orten.
+ * Renderar ingenting nar det varken finns lankade boenden eller en ort att
+ * soka pa, sa att destinationer utan boendedata inte far en tom ruta.
+ *
+ * Pa mobil hamnar sidokolumnen under brodtexten. Rutan ar alltsa ett
+ * komplement till listan i texten, aldrig ersattningen for den.
+ */
+import { bookingSearchUrl, isBookingUrl } from '../lib/booking';
+import BoendeIkon from './BoendeIkon.astro';
+
+interface Boende {
+  namn: string;
+  typ: string;
+  ort: string;
+  notering?: string;
+  bat?: boolean;
+  avstandRamp?: string;
+  oppet?: string;
+  bookingUrl?: string;
+  url?: string;
+}
+
+interface Props {
+  boende?: Boende[];
+  sok?: string;
+  title: string;
+}
+
+const { boende = [], sok, title } = Astro.props;
+
+const TYP_LABEL: Record<string, string> = {
+  hotell: 'Hotell',
+  vandrarhem: 'Vandrarhem',
+  camping: 'Camping',
+  stugby: 'Stugby',
+  stuga: 'Stuga',
+  fjallstation: 'Fjällstation',
+  fiskecamp: 'Fiskecamp',
+};
+
+const sokUrl = sok ? bookingSearchUrl(sok) : null;
+
+// Bokningsbara forst, och bland dem Booking-lankade forst. Rutan ska visa
+// det lasaren kan agera pa direkt. Hela listan finns i brodtexten.
+const lankade = boende
+  .filter((b) => b.bookingUrl || b.url)
+  .sort((a, b) => Number(Boolean(b.bookingUrl)) - Number(Boolean(a.bookingUrl)))
+  .slice(0, 3)
+  .map((b) => {
+    const href = (b.bookingUrl ?? b.url) as string;
+    // Kort fakta pa andra raden. Ramp fore sasong nar bada finns, eftersom
+    // avstand till sjosattning ar det som skiljer boenden at for en fiskare.
+    const fakta = b.avstandRamp ? `${b.avstandRamp} till ramp` : (b.oppet ?? null);
+    return {
+      ...b,
+      href,
+      sponsrad: Boolean(b.bookingUrl) || isBookingUrl(href),
+      fakta,
+    };
+  });
+
+const visa = lankade.length > 0 || Boolean(sokUrl);
+const harSponsrad = lankade.some((b) => b.sponsrad) || Boolean(sokUrl);
+---
+
+{visa && (
+  <div class="bg-white border border-mist rounded-2xl p-6 mb-6">
+    <h3 class="font-display font-bold text-deep text-xl mb-1">Boende</h3>
+    <p class="text-stone text-xs mb-4">Övernattning i närheten av {title}.</p>
+
+    {lankade.length > 0 && (
+      <ul class="divide-y divide-mist border-t border-mist">
+        {lankade.map((b) => (
+          <li>
+            <a
+              href={b.href}
+              target="_blank"
+              rel={b.sponsrad ? 'noopener noreferrer sponsored' : 'noopener noreferrer'}
+              data-boende-merchant={b.sponsrad ? 'Booking.com' : 'direkt'}
+              data-boende-namn={b.namn}
+              class="flex gap-3 py-3 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine rounded-lg"
+            >
+              <span class="mt-0.5 w-7 h-7 rounded-full bg-mist text-pine flex items-center justify-center shrink-0 group-hover:bg-pine group-hover:text-white transition-colors">
+                <BoendeIkon typ={b.typ} size={14} />
+              </span>
+
+              <span class="min-w-0 flex-1">
+                <span class="flex items-baseline gap-1.5">
+                  <span class="text-deep font-semibold text-sm group-hover:text-pine transition-colors">{b.namn}</span>
+                  {b.sponsrad && (
+                    <span class="text-stone/60 text-[10px] uppercase tracking-wider font-medium shrink-0">Annons</span>
+                  )}
+                </span>
+
+                <span class="block text-stone text-xs mt-0.5">
+                  {TYP_LABEL[b.typ] ?? b.typ} i {b.ort}
+                </span>
+
+                {(b.bat === true || b.fakta) && (
+                  <span class="flex flex-wrap gap-1.5 mt-1.5">
+                    {b.bat === true && (
+                      <span class="bg-mist text-deep/80 text-[10px] font-medium px-1.5 py-0.5 rounded-full">Båt på plats</span>
+                    )}
+                    {b.fakta && (
+                      <span class="bg-mist text-deep/80 text-[10px] font-medium px-1.5 py-0.5 rounded-full">{b.fakta}</span>
+                    )}
+                  </span>
+                )}
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+
+    {sokUrl && (
+      <a
+        href={sokUrl}
+        target="_blank"
+        rel="noopener noreferrer sponsored"
+        data-boende-merchant="Booking.com"
+        data-boende-namn={`sök ${sok}`}
+        class:list={[
+          'inline-flex items-center justify-center gap-2 w-full border border-pine text-pine font-bold text-sm px-5 py-2.5 rounded-full hover:bg-pine hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine',
+          lankade.length > 0 ? 'mt-5' : '',
+        ]}
+      >
+        Sök boende i {sok}
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M2 12L12 2M12 2H6M12 2v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    )}
+
+    {harSponsrad && (
+      <p class="text-stone/60 text-xs mt-4">Länkar märkta Annons går till Booking.com. Vi får en provision utan kostnad för dig.</p>
+    )}
+  </div>
+)}
