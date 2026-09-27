@@ -22,6 +22,36 @@ iFiskeUrl: "https://www.ifiske.se/fiske-vojman.htm"
 excerpt: "Harr i forsar och sel, i en å som formats av regleringen."
 recommendedGear: []
 kostrad: ["kvicksilver"]
+boendeSok: "Vilhelmina"
+boende:
+  - namn: "Vojmåns Camping"
+    typ: camping
+    ort: "Vilhelmina"
+    notering: "Vid åns strömmande vatten intill E45, med platser för husvagn och husbil."
+    url: "https://visitvilhelmina.com/produkt/vojmans-camping/"
+  - namn: "Saiva Camping & Stugby"
+    typ: stugby
+    ort: "Vilhelmina"
+    notering: "Stugor och husvagnsplatser vid Baksjön, en kilometer från Vilhelmina centrum."
+    bat: true
+    bookingUrl: "https://www.booking.com/hotel/se/saiva-camping-och-stugby.sv.html"
+    url: "https://saiva.se/"
+  - namn: "Hotell Kittelfjäll"
+    typ: hotell
+    ort: "Kittelfjäll"
+    notering: "Rum och flerbäddsrum, bas för fisket i övre Vojmådalen."
+    url: "https://hotellkittelfjall.com/"
+  - namn: "Kittelfjäll Vandrarhem"
+    typ: vandrarhem
+    ort: "Kittelfjäll"
+    notering: "Dubbel- och flerbäddsrum med självhushåll."
+    bookingUrl: "https://www.booking.com/hotel/se/kittelfjall-vandrarhem.sv.html"
+    url: "https://www.svenskaturistforeningen.se/boende/stf-kittelfjalls-vandrarhem/"
+  - namn: "Grönfjälls Fritidsby"
+    typ: stugby
+    ort: "Grönfjäll"
+    notering: "Stugor, annex och campingplatser vid Grönfjället, cirka tio minuter från Kittelfjäll."
+    url: "https://kittelfjall.com/produkt/bo/gronfjalls-fritidsby"
 publishedAt: "2026-09-16"
 updatedAt: "2026-09-16"
 ---
@@ -259,12 +289,9 @@ Stora delar av den nedre ån går att nå med bil, och längs sträckan finns vi
 
 ### Boende
 
-- **Vojmåns camping:** vid ån intill E45, med platser för husvagn och husbil.
-- **Saiva Camping & Stugby:** vid Baksjön cirka en kilometer från Vilhelmina centrum, med stugor och husvagnsplatser.
-- **Vilhelmina:** hotell och övrig service.
-- **Kittelfjäll och Dikanäs:** hotell, vandrarhem och stugor för den som fiskar i övre Vojmådalen.
+<Boende boende={frontmatter.boende} sok={frontmatter.boendeSok} sid={frontmatter.slug} title={frontmatter.title} />
 
-Kontrollera öppettider och priser hos respektive anläggning inför säsongen.
+Kontrollera öppettider och priser hos respektive anläggning inför säsongen. Flera av fjällanläggningarna har begränsad säsong.
 
 ### Kommunikationer
 

@@ -14,6 +14,39 @@ recommendedGear: []
 publishedAt: "2025-01-01"
 updatedAt: "2026-08-04"
 kostrad: ["kvicksilver", "dioxin"]
+boendeSok: "Mörrum"
+boende:
+  - namn: "Laxagården"
+    typ: stuga
+    ort: "Mörrum"
+    notering: "Stuga med fyra bäddar."
+    url: "https://www.sveaskog.se/morrum/boka-boende/laxagarden/"
+  - namn: "Håvstugan"
+    typ: stuga
+    ort: "Mörrum"
+    notering: "Ligger på stranden till Kungsforsen."
+    url: "https://www.sveaskog.se/morrum/boka-boende/havstugan/"
+  - namn: "Vandrarhemmet i gamla fiskodlingen"
+    typ: vandrarhem
+    ort: "Mörrum"
+    notering: "Fyra uthyrningsrum i fiskodlingen från 1930-talet."
+    url: "https://www.sveaskog.se/morrum/boka-boende/gamla-fiskodlingen/"
+  - namn: "Camping Åkroken"
+    typ: camping
+    ort: "Mörrum"
+    notering: "Camping vid ån, med el- och tältplatser."
+    url: "https://www.sveaskog.se/morrum/boka-boende/camping-akroken/"
+  - namn: "Ställplats Forshaga"
+    typ: camping
+    ort: "Mörrum"
+    notering: "Ställplats för husbil och husvagn, cirka en kilometer från Kronolaxfiskets område."
+    url: "https://www.sveaskog.se/morrum/boka-boende/stallplats-forshaga/"
+  - namn: "Villa Mörrum River"
+    typ: hotell
+    ort: "Mörrum"
+    notering: "Rum i ett ombyggt rökeri vid ån, med förvaringsrum för spön och vadarbyxor."
+    bookingUrl: "https://www.booking.com/hotel/se/villa-morrum-river.sv.html"
+    url: "https://morrum.se/"
 intro: >-
   Mörrumsån i Blekinge är ett av Europas mest klassiska sportfiskevatten och ett av få
   kvarvarande ursprungliga vildlaxbestånd i södra Östersjön. Den nedre delen drivs sedan 1941 som Mörrums
@@ -281,16 +314,9 @@ Mörrum ligger ca 7 km väster om Karlshamn längs E22. Ta avfart Mörrum och f�
 
 ### Boende
 
-| Boende | Pris |
-|---|---|
-| Camping Åkroken (el) | 320 kr/dygn |
-| Camping Forsheda | 200 kr/dygn |
-| Kungsforsen Logi STF (enkelt) | 500 kr/natt |
-| Kungsforsen Logi STF (dubbelrum) | 900–1 400 kr/natt |
-| Hermit's Cottage (2 bäddar) | från 10 000 kr/säsong |
-| Laxagården (4 bäddar) | från 1 600 kr/natt |
+<Boende boende={frontmatter.boende} sok={frontmatter.boendeSok} sid={frontmatter.slug} title={frontmatter.title} />
 
-I övrigt finns B&B och stugor i Mörrum, Svängsta och Karlshamn.
+Boendena vid Kronolaxfisket ägs av Sveaskog och bokas via dem, inte via de vanliga bokningssajterna. Aktuella priser står på respektive sida. I övrigt finns B&B och stugor i Mörrum, Svängsta och Karlshamn.
 
 ### Kommunikationer
 

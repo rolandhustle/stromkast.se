@@ -22,6 +22,25 @@ waterType: "lake"
 iFiskeUrl: "https://www.ifiske.se/fiske-ovre-asunden.htm"
 recommendedGear: []
 kostrad: ["kvicksilver"]
+boendeSok: "Ulricehamn"
+boende:
+  - namn: "Skotteksgårdens Camping och Stugby"
+    typ: stugby
+    ort: "Ulricehamn"
+    notering: "Campingplatser, stugor och lägenheter för 2 till 12 personer vid Åsundens strand, två kilometer söder om centrum. Restaurang, sandstrand och bastu."
+    bat: true
+    oppet: "helår"
+    url: "https://www.skottek.se/"
+  - namn: "Prångens Camping och Stugby"
+    typ: camping
+    ort: "Ulricehamn"
+    notering: "Husvagn, tält och stugor på norra stranden nära centrum."
+    url: "https://prangenscamping.se/"
+  - namn: "Hotell Lassalyckan"
+    typ: hotell
+    ort: "Ulricehamn"
+    notering: "47 rum centralt i Ulricehamn."
+    bookingUrl: "https://www.booking.com/hotel/se/nya-kurhotellet.sv.html"
 publishedAt: "2026-08-27"
 updatedAt: "2026-08-27"
 ---
@@ -241,14 +260,11 @@ Kontakta Alexander (0790-75 63 38) för desinficeringsstation vid Fiskebacken. K
 
 ### Boende
 
-- **Skotteksgårdens Camping och Stugby:** 2 km söder om centrum vid Åsundens strand (väg 157). Campingplatser med el, tältområde, fullt utrustade stugor och lägenheter för 2–12 personer, restaurang, sandstrand, bastu och uthyrning av kanot och roddbåt. Öppet hela året.
-- **Prångens Camping och Stugby:** Norra stranden nära centrum. Husvagn, tält och stugor. Sandstrand och minigolf.
-- **Hotell Lassalyckan:** Centralt i Ulricehamn, 47 rum.
-- **Enar Hemmings:** Stuguthyrning och båtuthyrning vid Fästered (0731-821158).
+<Boende boende={frontmatter.boende} sok={frontmatter.boendeSok} sid={frontmatter.slug} title={frontmatter.title} />
 
 ### Fiskeguider
 
-Övre Åsundens FVOF förmedlar fisketips och guidkontakter. Kontakta föreningen via Daniel Ranveg (0706-005776), Stephan Johansson (0763-005025) eller Enar Hemmings (0731-821158).
+Övre Åsundens FVOF förmedlar fisketips och guidkontakter. Kontakta föreningen via Daniel Ranveg (0706-005776) eller Stephan Johansson (0763-005025).
 
 ### Kommunikationer
 

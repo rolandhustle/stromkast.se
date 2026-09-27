@@ -45,22 +45,43 @@ const TYP_LABEL: Record<string, string> = {
 
 const sokUrl = sok ? bookingSearchUrl(sok, sid) : null;
 
-// Bokningsbara forst, och bland dem Booking-lankade forst. Rutan ska visa
-// det lasaren kan agera pa direkt. Hela listan finns i brodtexten.
-const lankade = boende
+// Rutan visar hogst tre boenden som gar att boka direkt. Hela listan finns
+// i brodtexten.
+const bokningsbara = boende
   .map((b) => {
     const cj = b.bookingUrl ? bookingLink(b.bookingUrl, sid) : null;
     return { ...b, href: cj ?? b.url ?? null, sponsrad: Boolean(cj) };
   })
   .filter((b) => b.href !== null)
-  .sort((a, b) => Number(b.sponsrad) - Number(a.sponsrad))
-  .slice(0, 3)
-  .map((b) => ({
-    ...b,
-    // Kort fakta pa andra raden. Ramp fore sasong nar bada finns, eftersom
-    // avstand till sjosattning ar det som skiljer boenden at for en fiskare.
-    fakta: b.avstandRamp ? `${b.avstandRamp} till ramp` : (b.oppet ?? null),
-  }));
+  .sort((a, b) => Number(b.sponsrad) - Number(a.sponsrad));
+
+// Urvalet stravar efter olika boendetyper i stallet for att ta de tre
+// forsta. Ett vatten med fyra campingar och ett hotell ska visa hotellet,
+// eftersom lasaren valjer boende efter typ och inte efter ordning i filen.
+// Booking-lankade gar fore inom samma typ, tack vare sorteringen ovan.
+const MAX = 3;
+const valda: typeof bokningsbara = [];
+const tagnaTyper = new Set<string>();
+
+for (const b of bokningsbara) {
+  if (valda.length >= MAX) break;
+  if (tagnaTyper.has(b.typ)) continue;
+  valda.push(b);
+  tagnaTyper.add(b.typ);
+}
+
+// Racker inte antalet unika typer fylls resten pa i ursprungsordning.
+for (const b of bokningsbara) {
+  if (valda.length >= MAX) break;
+  if (!valda.includes(b)) valda.push(b);
+}
+
+const lankade = valda.map((b) => ({
+  ...b,
+  // Kort fakta pa andra raden. Ramp fore sasong nar bada finns, eftersom
+  // avstand till sjosattning ar det som skiljer boenden at for en fiskare.
+  fakta: b.avstandRamp ? `${b.avstandRamp} till ramp` : (b.oppet ?? null),
+}));
 
 const visa = lankade.length > 0 || Boolean(sokUrl);
 const harSponsrad = lankade.some((b) => b.sponsrad) || Boolean(sokUrl);
@@ -140,7 +161,11 @@ const harSponsrad = lankade.some((b) => b.sponsrad) || Boolean(sokUrl);
     )}
 
     {harSponsrad && (
-      <p class="text-stone/60 text-xs mt-4">Länkar märkta Annons går till Booking.com. Vi får en provision utan kostnad för dig.</p>
+      <p class="text-stone/60 text-xs mt-4">
+        {lankade.some((b) => b.sponsrad)
+          ? 'Länkar märkta Annons går till Booking.com. Vi får en provision utan kostnad för dig.'
+          : 'Söklänken går till Booking.com. Bokar du där får vi en provision, utan kostnad för dig.'}
+      </p>
     )}
   </div>
 )}

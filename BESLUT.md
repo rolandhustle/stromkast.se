@@ -252,6 +252,23 @@ Strukturerad data i stället för brödtext beror på att samma poster ska rende
 
 ---
 
+### Booking skickar hotelladresser till ortssökningen när kalendern är stängd
+
+**Beslut.** `bookingUrl` pekar på anläggningens egen sida hos Booking, även om den adressen ofta omdirigeras. Länken visas hela året, och den egna webbplatsen i `url` visas inte parallellt.
+
+**Vad som händer.** En hotelladress hos Booking laddar inte alltid anläggningens sida. Saknar objektet öppen kalender skickas besökaren vidare till ortssökningen med anläggningen markerad. Omdirigeringen syns i adressen som `redirected=1`, `source=hotel`, `highlighted_hotels=<id>` och `hlrd=with_av`. Beteendet är Bookings eget och inträffar även när man surfar dit utan affiliatelänk.
+
+**Varför det drabbar oss extra.** Fiske- och fjällanläggningar har säsong. Flera lägger bara ut rum för de månader de har öppet, och resten av året finns ingen kalender att visa. Just de destinationer som hade bäst Booking-täckning i täckningstestet, alltså fjällvatten och insjöar, består till stor del av sådana anläggningar. Kultsjögården, Saiva och Villa Mörrum River gav alla samma omdirigering i september 2026.
+
+**Alternativet som prövades och förkastades.** Att visa både Booking-länken och anläggningens egen sida, så att läsaren kommer fram även när kalendern är stängd. Det förkastades av ett enkelt skäl: med två länkar bredvid varandra väljer många den direkta, och då är arbetet gjort utan provision. Fältet `url` står kvar i datan och används när `bookingUrl` saknas, men aldrig samtidigt.
+
+**Vad utfallet blir.** Utanför säsong landar läsaren på en sökning i rätt ort med rätt anläggning markerad. Det är sämre än hotellsidan men bättre än ett felmeddelande, och klicket spåras som vanligt.
+
+**Vad som skulle ändra det.** Tillgång till Bookings API, så att länken kan döljas eller märkas när kalendern är stängd. Det är samma tröskel som gäller för accommodation-integrationen i stort, alltså att boendeintäkten når 20 till 30 procent av produktaffiliateintäkten på destinationssidor.
+
+---
+
+
 ## Metod
 
 ### Massändringar av innehåll verifieras mot git, aldrig mot egna mönster

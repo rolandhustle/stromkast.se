@@ -16,6 +16,49 @@ recommendedGear: []
 publishedAt: "2026-05-28"
 updatedAt: "2026-06-07"
 kostrad: ["kvicksilver", "dioxin"]
+boendeSok: "Stockholms skärgård"
+boende:
+  - namn: "Landsorts Vandrarhem"
+    typ: vandrarhem
+    ort: "Landsort"
+    notering: "Längst ut i södra skärgården, på Öja."
+    oppet: "helår"
+    url: "https://www.landsortsvandrarhem.se/"
+  - namn: "Arholma vandrarhem"
+    typ: vandrarhem
+    ort: "Arholma"
+    notering: "Drivs som Bull-August gård, i norra ytterskärgården."
+    bookingUrl: "https://www.booking.com/hotel/se/bull-august-gard-vandrarhem-47-hostel.sv.html"
+  - namn: "Finnhamns vandrarhem"
+    typ: vandrarhem
+    ort: "Finnhamn"
+    notering: "På Finnhamn i mellanskärgården."
+    url: "https://finnhamn.se/"
+  - namn: "Sandhamn Seglarhotell"
+    typ: hotell
+    ort: "Sandhamn"
+    notering: "På Sandön i ytterskärgården."
+    bookingUrl: "https://www.booking.com/hotel/se/sandhamn-seglarhotell-sandhamn.sv.html"
+  - namn: "Waxholms Hotell"
+    typ: hotell
+    ort: "Vaxholm"
+    notering: "Vid färjeläget, utgångspunkt för norra skärgården."
+    bookingUrl: "https://www.booking.com/hotel/se/waxholms-hotell.sv.html"
+  - namn: "Grinda Stugby och Vandrarhem"
+    typ: stugby
+    ort: "Grinda"
+    notering: "På Grinda i mellanskärgården, med reguljär båtförbindelse."
+    bookingUrl: "https://www.booking.com/hotel/se/grinda-stugby-amp-vandrarhem.sv.html"
+  - namn: "Utö Värdshus"
+    typ: hotell
+    ort: "Utö"
+    notering: "Hotellrum och anslutet vandrarhem på Utö."
+    url: "https://www.utovardshus.se/"
+  - namn: "First Camp Nickstabadet"
+    typ: camping
+    ort: "Nynäshamn"
+    notering: "Utgångspunkt för Landsort och södra skärgården."
+    bookingUrl: "https://www.booking.com/hotel/se/nordic-camping-nickstabadet.sv.html"
 intro: >-
   Stockholms skärgård sträcker sig ca 150 kilometer från Arholma i norr till Landsort i
   söder och rymmer ungefär 30 000 öar, holmar och skär. Det är ett brackvattenshav med
@@ -344,10 +387,9 @@ Bra landfiskelokaler utan båt inkluderar Djurgården, Stockholms ström, Strand
 
 ### Boende
 
-- Vandrarhem: Landsort (STF), Arholma (STF), Finnhamn, Husarö
-- Hotell: Sandhamn Seglarhotell, Vaxholm Hotel, Utö Värdshus
-- Camping: Dalarö camping, Nynäshamn camping, Söderby Camping (Värmdö)
-- Stuguthyrning: brett utbud via turistorganisationerna Visit Stockholm och Skärgårdsstiftelsen
+<Boende boende={frontmatter.boende} sok={frontmatter.boendeSok} sid={frontmatter.slug} title={frontmatter.title} />
+
+Utöver anläggningarna ovan förmedlas stugor i skärgården via Skärgårdsstiftelsen och Visit Stockholm. Många öar har bara sommartrafik, så kontrollera båtförbindelsen innan du bokar.
 
 ### Kommunikationer
 
