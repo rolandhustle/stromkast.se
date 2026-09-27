@@ -521,8 +521,21 @@ for (const [id, n] of perTech) {
 function checkBoende(file, fm) {
   const BOOKING_HOSTS = ['booking.com', 'www.booking.com'];
 
-  // Sparparameter i lanken. Utan den ar klicket gratisarbete.
-  const BOOKING_TRACKING = /[?&](aid|label)=/;
+  // CJ:s klickdomaner. En sadan i innehallet betyder att nagon klistrat in
+  // en fardigbyggd affiliatelank. Lanken ska byggas av komponenten, sa att
+  // sid satts per destination och kreativen kan bytas pa ett stalle.
+  const CJ_HOSTS = [
+    'jdoqocy.com', 'www.jdoqocy.com',
+    'dpbolvw.net', 'www.dpbolvw.net',
+    'anrdoezrs.net', 'www.anrdoezrs.net',
+    'tkqlhce.com', 'www.tkqlhce.com',
+    'kqzyfj.com', 'www.kqzyfj.com',
+  ];
+
+  // Parametrar som foljer med nar man kopierar ur adressfaltet. De bar
+  // sessionsdata och sparning fran ett tidigare klick, och ska inte
+  // publiceras. sid ar Bookings egen session, inte vart CJ-sid.
+  const SKRAP = /[?&](aid|label|sid|srepoch|srpvid|dest_id|hapos|hpos|checkin|checkout|group_adults|req_adults)=/;
 
   // Saljord som inte hor hemma i en notering. Noteringen ska baras av vad
   // lasaren kan anvanda: bat, ramp, sasong, lage.
@@ -550,13 +563,21 @@ function checkBoende(file, fm) {
       const host = hostOf(url);
       if (!host) {
         errors.push(`${file}:${rad}: bookingUrl "${url}" ar ingen giltig URL`);
+      } else if (CJ_HOSTS.includes(host)) {
+        errors.push(
+          `${file}:${rad}: bookingUrl ar en fardig CJ-lank. ` +
+          `Lagg in den rena Booking-adressen i stallet, komponenten bygger CJ-lanken och satter sid per destination.`
+        );
       } else if (!BOOKING_HOSTS.includes(host)) {
         errors.push(
           `${file}:${rad}: bookingUrl pekar pa ${host}, inte Booking. ` +
           `Byt falt till url, eller uppdatera BOOKING_HOSTS i check-content.mjs och src/lib/booking.ts om programmet bytt doman.`
         );
-      } else if (!BOOKING_TRACKING.test(url)) {
-        warnings.push(`${file}:${rad}: bookingUrl saknar sparparameter, klicket ger ingen provision`);
+      } else if (SKRAP.test(url)) {
+        warnings.push(
+          `${file}:${rad}: bookingUrl bar parametrar fran adressfaltet. ` +
+          `Behall bara adressen fram till fragetecknet.`
+        );
       }
     }
 

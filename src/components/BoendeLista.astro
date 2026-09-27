@@ -3,16 +3,16 @@
  * Boendelista i brodtexten, under rubriken Boende.
  *
  * Anropas fran MDX:
- *   <Boende boende={frontmatter.boende} sok={frontmatter.boendeSok} />
+ *   <Boende boende={frontmatter.boende} sok={frontmatter.boendeSok} sid={frontmatter.slug} />
  *
- * Komponenten skickas in via components-propen pa <Content /> i
- * [slug].astro, sa MDX-filen behover ingen egen import.
+ * sid ar destinationens slug och foljer med som clkid i CJ-lanken, sa att
+ * rapporten visar vilken destinationssida klicket kom fran.
  *
  * Listan speglar frontmatter rakt av. Ett boende utan lank renderas som
  * text. Vilka boenden som star i listan avgors av fisket, aldrig av om de
  * finns pa Booking.
  */
-import { bookingSearchUrl, isBookingUrl } from '../lib/booking';
+import { bookingLink, bookingSearchUrl, isBookingUrl } from '../lib/booking';
 import BoendeIkon from './BoendeIkon.astro';
 
 interface Boende {
@@ -30,9 +30,11 @@ interface Boende {
 interface Props {
   boende?: Boende[];
   sok?: string;
+  sid?: string;
+  title?: string;
 }
 
-const { boende = [], sok } = Astro.props;
+const { boende = [], sok, sid, title } = Astro.props;
 
 const TYP_LABEL: Record<string, string> = {
   hotell: 'Hotell',
@@ -44,13 +46,16 @@ const TYP_LABEL: Record<string, string> = {
   fiskecamp: 'Fiskecamp',
 };
 
-const sokUrl = sok ? bookingSearchUrl(sok) : null;
+const sokUrl = sok ? bookingSearchUrl(sok, sid) : null;
 
-// En lank per boende. bookingUrl vinner nar bada finns, eftersom den ar den
-// sparade lanken. url anvands for boenden som inte ligger pa Booking.
+// bookingUrl packas i CJ-lanken och vinner nar bada finns. url anvands rakt
+// av for boenden som inte ligger pa Booking. En bookingUrl som inte pekar pa
+// Booking ger null och faller tillbaka pa url, eftersom en felaktig lank
+// hellre utelamnas an renderas som annons.
 const rader = boende.map((b) => {
-  const href = b.bookingUrl ?? b.url ?? null;
-  const sponsrad = Boolean(b.bookingUrl) || (href ? isBookingUrl(href) : false);
+  const cj = b.bookingUrl ? bookingLink(b.bookingUrl, sid) : null;
+  const href = cj ?? b.url ?? null;
+  const sponsrad = Boolean(cj);
   const fakta = [
     b.bat === true ? 'Båt på plats' : null,
     b.avstandRamp ? `${b.avstandRamp} till ramp` : null,
@@ -122,11 +127,14 @@ const harSponsrad = rader.some((r) => r.sponsrad);
           data-boende-namn={`sök ${sok}`}
           class="inline-flex items-center gap-1.5 text-pine font-semibold text-sm hover:text-deep transition-colors"
         >
-          Sök fler boenden i {sok}
+          Sök fler boenden {title ? `vid ${title}` : `i ${sok}`}
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
             <path d="M2 12L12 2M12 2H6M12 2v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </a>
+        {title && (
+          <span class="block text-stone/60 text-xs mt-1">Sökningen visar boenden i {sok}.</span>
+        )}
       </p>
     )}
 

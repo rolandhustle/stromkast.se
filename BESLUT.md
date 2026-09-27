@@ -236,17 +236,19 @@ Strukturerad data i stället för brödtext beror på att samma poster ska rende
 
 ---
 
-### Booking-länken renderas inte utan spårparameter
+### Innehållet bär den rena Booking-adressen, CJ-länken byggs vid rendering
 
-**Beslut.** `BOOKING_AID` i `src/lib/booking.ts` är tom tills partner-id är bekräftat. Så länge den är tom returnerar `bookingSearchUrl` null och söklänken renderas inte alls, varken i brödtexten eller i sidorutan. `check-content.mjs` varnar för `bookingUrl` som saknar `aid` eller `label`.
+**Beslut.** Programmet är Booking.com Nordics (annonsör 5095558) via CJ Affiliate, inte Booking direkt. `bookingUrl` i frontmatter innehåller ändå alltid en ren Booking-adress, till exempel `https://www.booking.com/hotel/se/kultsjogarden-saxnas-marsfjall-10.sv.html`. Komponenten packar den i CJ-länken vid rendering, med destinationens slug som `sid`. En `bookingUrl` som redan är en färdig CJ-länk är ett fel.
 
-**Skäl.** En Booking-länk utan spårparameter ser ut som en affiliatelänk för läsaren, bär sin annonsmärkning, och ger noll i provision. Det är det sämsta av tre möjliga utfall. Alternativet, att rendera länken ändå och fylla i id senare, hade betytt att märkningen ljuger om vad länken är under tiden.
+**Skäl.** Tre saker vinns på att lagra måladressen och inte den färdiga länken. `sid` sätts automatiskt per destination i stället för att skrivas för hand i 78 filer, och det kommer tillbaka som `clkid` i Bookings `label`-parameter, vilket gör att rapporten visar vilken destinationssida varje bokning kom från. Byter vi kreativ eller publisher-id ändras det på ett ställe. Och frontmatter förblir läsbar: den som öppnar filen ser vilket hotell posten pekar på, inte en klicksträng.
 
-Samma resonemang gör att `url` som pekar på Booking är ett fel och inte en varning. Komponenten sätter `rel="sponsored"` och etiketten Annonslänk utifrån vilket fält länken ligger i. En Booking-länk i fel fält blir alltså omärkt reklam, vilket är ett efterlevnadsfel och inte en smakfråga.
+**Kreativen är vald med flit.** `CJ_LINK_ID` är 15734870, Evergreen Link for Booking.com Nordics, som saknar slutdatum och har ett redigerbart målfält. Kampanjkreativerna i samma program löper ut, flera av dem i januari 2027. En utgången kreativ hade tagit med sig länkarna på samtliga destinationssidor utan att något går sönder i bygget, alltså samma sorts tysta fel som en saknad affiliateklausul.
 
-**Känd kostnad.** Värdlistan `BOOKING_HOSTS` finns i två filer som inte känner till varandra, `src/lib/booking.ts` och `check-content.mjs`. Går programmet via CJ i stället för direkt mot Booking byter varje länk domän, och då måste båda uppdateras. Uppdateras bara den ena börjar antingen varenda länk ge fel i valideringen, eller så slutar märkningen fungera i komponenten. Felmeddelandet i `check-content.mjs` nämner båda filerna av det skälet. Samma sorts dubbelpost som stationslistan, och lika medveten.
+**Adressen hämtas ur adressfältet, inte ur en sökträff.** Täckningstestet byggde på sökträffar, och två av tre kontrollerade URL:er visade sig vara fel. Booking omdirigerar en felaktig hotelladress till ortssökningen i stället för att ge 404, så felet syns inte som ett fel. `check-content.mjs` varnar därför för `bookingUrl` som bär `aid`, `label`, `sid`, `srepoch` och de andra parametrarna man får med sig när man kopierar ur webbläsaren. `sid` är särskilt värt att fånga, eftersom det är en personlig Booking-session.
 
-**Vad som skulle ändra det.** Att programmet byter nätverk. Då är det inte längre en `aid`-parameter som avgör spårningen, och både byggfunktionen och valideringen skrivs om mot det nätverkets länkformat.
+**Känd kostnad.** Domänlistorna finns i två filer som inte känner till varandra, `src/lib/booking.ts` och `check-content.mjs`. CJ roterar dessutom mellan minst fem klickdomäner, i dag `jdoqocy.com`, `dpbolvw.net`, `anrdoezrs.net`, `tkqlhce.com` och `kqzyfj.com`, och vilken som används avgörs per kreativ. Dyker en sjätte upp måste båda filerna uppdateras. Samma sorts dubbelpost som stationslistan, och lika medveten.
+
+**Vad som skulle ändra det.** Att programmet byter nätverk, eller att Booking erbjuder direktanslutning på bättre villkor. Då skrivs `bookingLink` om mot det nya formatet, men fältet i innehållet kan stå orört, vilket är hela poängen med uppdelningen.
 
 ---
 

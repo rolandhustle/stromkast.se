@@ -17,6 +17,9 @@ src/components
 src/components/.DS_Store
 src/components/{quiz}
 src/components/AffiliateCard.astro
+src/components/BoendeBlock.astro
+src/components/BoendeIkon.astro
+src/components/BoendeLista.astro
 src/components/ConsentBanner.astro
 src/components/DestinationMap.tsx
 src/components/ekolodvaljare
@@ -381,6 +384,7 @@ src/layouts
 src/layouts/BaseLayout.astro
 src/lib
 src/lib/.DS_Store
+src/lib/booking.ts
 src/lib/feed.ts
 src/lib/forecast.ts
 src/lib/hydro.ts
@@ -444,6 +448,36 @@ src/styles/tokens.css
 import { defineCollection, z } from 'astro:content';
 import { glob, file } from 'astro/loaders';
 
+/**
+ * Ett boende vid en destination.
+ *
+ * Listan skrivs utifran vad som ar relevant for fisket. Ett boende laggs
+ * aldrig till eller stryks beroende pa om det finns pa Booking.com.
+ *
+ * bookingUrl ar en affiliatelank och marks som reklam i komponenten.
+ * url ar en vanlig lank till egen bokning, for boenden som inte finns pa
+ * Booking. Finns bada anvands bookingUrl och url ignoreras.
+ */
+const boendeSchema = z.object({
+  namn: z.string(),
+  typ: z.enum([
+    'hotell',
+    'vandrarhem',
+    'camping',
+    'stugby',
+    'stuga',
+    'fjallstation',
+    'fiskecamp',
+  ]),
+  ort: z.string(),
+  notering: z.string().optional(),      // fiskespecifikt, inte allmant saljsnack
+  bat: z.boolean().optional(),          // bat ingar eller hyrs pa plats
+  avstandRamp: z.string().optional(),   // t.ex. "500 m", "2 km"
+  oppet: z.string().optional(),         // "helar" eller "sasong: maj-sep"
+  bookingUrl: z.string().url().optional(),
+  url: z.string().url().optional(),
+});
+
 const destinations = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/destinations' }),
   schema: z.object({
@@ -466,6 +500,8 @@ const destinations = defineCollection({
     updatedAt: z.string(),
     excerpt: z.string().optional(),  // Korttext för indexsidan (40–80 tecken)
     kostrad: z.array(z.enum(['kvicksilver', 'dioxin'])).optional().default([]),  // Livsmedelsverkets kostråd som gäller vattnet
+    boende: z.array(boendeSchema).optional().default([]),
+    boendeSok: z.string().optional(),  // ort for soklank till Booking i sidoblocket
   }),
 });
 
@@ -1043,6 +1079,401 @@ const fetchedLabel = feed ? formatFetchedAt(feed.fetchedAt) : '';
           page_type: document.body.dataset.pageType ?? 'unknown',
         });
       }
+    });
+  });
+</script>
+```
+
+## src/components/BoendeBlock.astro
+```
+---
+/**
+ * Boenderuta i sidokolumnen, under kartan.
+ *
+ * Visar hogst tre boenden med bokningslank, plus en soklank till orten.
+ * Renderar ingenting nar det varken finns lankade boenden eller en ort att
+ * soka pa, sa att destinationer utan boendedata inte far en tom ruta.
+ *
+ * Pa mobil hamnar sidokolumnen under brodtexten. Rutan ar alltsa ett
+ * komplement till listan i texten, aldrig ersattningen for den.
+ */
+import { bookingSearchUrl, isBookingUrl } from '../lib/booking';
+import BoendeIkon from './BoendeIkon.astro';
+
+interface Boende {
+  namn: string;
+  typ: string;
+  ort: string;
+  notering?: string;
+  bat?: boolean;
+  avstandRamp?: string;
+  oppet?: string;
+  bookingUrl?: string;
+  url?: string;
+}
+
+interface Props {
+  boende?: Boende[];
+  sok?: string;
+  title: string;
+}
+
+const { boende = [], sok, title } = Astro.props;
+
+const TYP_LABEL: Record<string, string> = {
+  hotell: 'Hotell',
+  vandrarhem: 'Vandrarhem',
+  camping: 'Camping',
+  stugby: 'Stugby',
+  stuga: 'Stuga',
+  fjallstation: 'Fjällstation',
+  fiskecamp: 'Fiskecamp',
+};
+
+const sokUrl = sok ? bookingSearchUrl(sok) : null;
+
+// Bokningsbara forst, och bland dem Booking-lankade forst. Rutan ska visa
+// det lasaren kan agera pa direkt. Hela listan finns i brodtexten.
+const lankade = boende
+  .filter((b) => b.bookingUrl || b.url)
+  .sort((a, b) => Number(Boolean(b.bookingUrl)) - Number(Boolean(a.bookingUrl)))
+  .slice(0, 3)
+  .map((b) => {
+    const href = (b.bookingUrl ?? b.url) as string;
+    // Kort fakta pa andra raden. Ramp fore sasong nar bada finns, eftersom
+    // avstand till sjosattning ar det som skiljer boenden at for en fiskare.
+    const fakta = b.avstandRamp ? `${b.avstandRamp} till ramp` : (b.oppet ?? null);
+    return {
+      ...b,
+      href,
+      sponsrad: Boolean(b.bookingUrl) || isBookingUrl(href),
+      fakta,
+    };
+  });
+
+const visa = lankade.length > 0 || Boolean(sokUrl);
+const harSponsrad = lankade.some((b) => b.sponsrad) || Boolean(sokUrl);
+---
+
+{visa && (
+  <div class="bg-white border border-mist rounded-2xl p-6 mb-6">
+    <h3 class="font-display font-bold text-deep text-xl mb-1">Boende</h3>
+    <p class="text-stone text-xs mb-4">Övernattning i närheten av {title}.</p>
+
+    {lankade.length > 0 && (
+      <ul class="divide-y divide-mist border-t border-mist">
+        {lankade.map((b) => (
+          <li>
+            <a
+              href={b.href}
+              target="_blank"
+              rel={b.sponsrad ? 'noopener noreferrer sponsored' : 'noopener noreferrer'}
+              data-boende-merchant={b.sponsrad ? 'Booking.com' : 'direkt'}
+              data-boende-namn={b.namn}
+              class="flex gap-3 py-3 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine rounded-lg"
+            >
+              <span class="mt-0.5 w-7 h-7 rounded-full bg-mist text-pine flex items-center justify-center shrink-0 group-hover:bg-pine group-hover:text-white transition-colors">
+                <BoendeIkon typ={b.typ} size={14} />
+              </span>
+
+              <span class="min-w-0 flex-1">
+                <span class="flex items-baseline gap-1.5">
+                  <span class="text-deep font-semibold text-sm group-hover:text-pine transition-colors">{b.namn}</span>
+                  {b.sponsrad && (
+                    <span class="text-stone/60 text-[10px] uppercase tracking-wider font-medium shrink-0">Annons</span>
+                  )}
+                </span>
+
+                <span class="block text-stone text-xs mt-0.5">
+                  {TYP_LABEL[b.typ] ?? b.typ} i {b.ort}
+                </span>
+
+                {(b.bat === true || b.fakta) && (
+                  <span class="flex flex-wrap gap-1.5 mt-1.5">
+                    {b.bat === true && (
+                      <span class="bg-mist text-deep/80 text-[10px] font-medium px-1.5 py-0.5 rounded-full">Båt på plats</span>
+                    )}
+                    {b.fakta && (
+                      <span class="bg-mist text-deep/80 text-[10px] font-medium px-1.5 py-0.5 rounded-full">{b.fakta}</span>
+                    )}
+                  </span>
+                )}
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+
+    {sokUrl && (
+      <a
+        href={sokUrl}
+        target="_blank"
+        rel="noopener noreferrer sponsored"
+        data-boende-merchant="Booking.com"
+        data-boende-namn={`sök ${sok}`}
+        class:list={[
+          'inline-flex items-center justify-center gap-2 w-full border border-pine text-pine font-bold text-sm px-5 py-2.5 rounded-full hover:bg-pine hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine',
+          lankade.length > 0 ? 'mt-5' : '',
+        ]}
+      >
+        Sök boende i {sok}
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M2 12L12 2M12 2H6M12 2v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    )}
+
+    {harSponsrad && (
+      <p class="text-stone/60 text-xs mt-4">Länkar märkta Annons går till Booking.com. Vi får en provision utan kostnad för dig.</p>
+    )}
+  </div>
+)}
+```
+
+## src/components/BoendeIkon.astro
+```
+---
+/**
+ * Ikon per boendetyp.
+ *
+ * Ligger i en egen komponent sa att BoendeLista och BoendeBlock delar
+ * uppsattning. Ikonerna ar rena stroke-figurer i currentColor, alltsa inga
+ * bilder och inget externt anrop.
+ *
+ * Bilder pa verkliga anlaggningar anvands inte. Bookings bilder far vi inte
+ * bruka, anlaggningarnas egna kraver tillstand per objekt, och en genererad
+ * bild pa ett hotell som faktiskt finns vore falsk precision.
+ */
+interface Props {
+  typ: string;
+  size?: number;
+}
+
+const { typ, size = 16 } = Astro.props;
+
+const IKON: Record<string, string[]> = {
+  // Sang med gavel
+  hotell: [
+    'M2 12V5',
+    'M2 8h10a2 2 0 0 1 2 2v2',
+    'M2 12h12',
+    'M4.5 8V6.5h3V8',
+  ],
+  // Vaningssang
+  vandrarhem: [
+    'M3 2v12',
+    'M13 2v12',
+    'M3 6.5h10',
+    'M3 10.5h10',
+  ],
+  // Talt
+  camping: [
+    'M8 2.5 2 13h12L8 2.5Z',
+    'M8 2.5V13',
+  ],
+  // Tva stugor
+  stugby: [
+    'M1 8.5 4 5.5l3 3V13H1V8.5Z',
+    'M8.5 9.5 11.5 6.5l3.5 3V13H8.5V9.5Z',
+  ],
+  // Stuga med dorr
+  stuga: [
+    'M2 7 8 2.5 14 7v6.5H2V7Z',
+    'M6.5 13.5V10h3v3.5',
+  ],
+  // Fjalltoppar
+  fjallstation: [
+    'M1 13 5.5 5l2.5 4.5L11 4.5 15 13H1Z',
+  ],
+  // Fisk
+  fiskecamp: [
+    'M2 8c2.5-3.2 6-3.2 8.5 0-2.5 3.2-6 3.2-8.5 0Z',
+    'M10.5 8 14 5.5v5L10.5 8Z',
+    'M4.8 7h.01',
+  ],
+};
+
+const paths = IKON[typ] ?? IKON.stuga;
+---
+
+<svg
+  width={size}
+  height={size}
+  viewBox="0 0 16 16"
+  fill="none"
+  aria-hidden="true"
+  class="shrink-0"
+>
+  {paths.map((d) => (
+    <path
+      d={d}
+      stroke="currentColor"
+      stroke-width="1.3"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  ))}
+</svg>
+```
+
+## src/components/BoendeLista.astro
+```
+---
+/**
+ * Boendelista i brodtexten, under rubriken Boende.
+ *
+ * Anropas fran MDX:
+ *   <Boende boende={frontmatter.boende} sok={frontmatter.boendeSok} />
+ *
+ * Komponenten skickas in via components-propen pa <Content /> i
+ * [slug].astro, sa MDX-filen behover ingen egen import.
+ *
+ * Listan speglar frontmatter rakt av. Ett boende utan lank renderas som
+ * text. Vilka boenden som star i listan avgors av fisket, aldrig av om de
+ * finns pa Booking.
+ */
+import { bookingSearchUrl, isBookingUrl } from '../lib/booking';
+import BoendeIkon from './BoendeIkon.astro';
+
+interface Boende {
+  namn: string;
+  typ: string;
+  ort: string;
+  notering?: string;
+  bat?: boolean;
+  avstandRamp?: string;
+  oppet?: string;
+  bookingUrl?: string;
+  url?: string;
+}
+
+interface Props {
+  boende?: Boende[];
+  sok?: string;
+}
+
+const { boende = [], sok } = Astro.props;
+
+const TYP_LABEL: Record<string, string> = {
+  hotell: 'Hotell',
+  vandrarhem: 'Vandrarhem',
+  camping: 'Camping',
+  stugby: 'Stugby',
+  stuga: 'Stuga',
+  fjallstation: 'Fjällstation',
+  fiskecamp: 'Fiskecamp',
+};
+
+const sokUrl = sok ? bookingSearchUrl(sok) : null;
+
+// En lank per boende. bookingUrl vinner nar bada finns, eftersom den ar den
+// sparade lanken. url anvands for boenden som inte ligger pa Booking.
+const rader = boende.map((b) => {
+  const href = b.bookingUrl ?? b.url ?? null;
+  const sponsrad = Boolean(b.bookingUrl) || (href ? isBookingUrl(href) : false);
+  const fakta = [
+    b.bat === true ? 'Båt på plats' : null,
+    b.avstandRamp ? `${b.avstandRamp} till ramp` : null,
+    b.oppet ?? null,
+  ].filter(Boolean) as string[];
+  return { ...b, href, sponsrad, fakta };
+});
+
+const harSponsrad = rader.some((r) => r.sponsrad);
+---
+
+{rader.length > 0 && (
+  <div class="not-prose my-6">
+    <ul class="divide-y divide-mist border-y border-mist">
+      {rader.map((b) => (
+        <li class="py-4 flex gap-3.5">
+          {/* Ikonen sitter i sin egen kolumn sa att texten far en rak vanstermarginal */}
+          <span class="mt-0.5 w-8 h-8 rounded-full bg-mist text-pine flex items-center justify-center shrink-0">
+            <BoendeIkon typ={b.typ} />
+          </span>
+
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              {b.href ? (
+                <a
+                  href={b.href}
+                  target="_blank"
+                  rel={b.sponsrad ? 'noopener noreferrer sponsored' : 'noopener noreferrer'}
+                  data-boende-merchant={b.sponsrad ? 'Booking.com' : 'direkt'}
+                  data-boende-namn={b.namn}
+                  class="font-semibold text-deep underline decoration-mist underline-offset-4 hover:text-pine hover:decoration-pine transition-colors"
+                >{b.namn}</a>
+              ) : (
+                <span class="font-semibold text-deep">{b.namn}</span>
+              )}
+
+              {b.sponsrad && (
+                <span class="text-stone/70 text-[11px] uppercase tracking-wider font-medium">Annonslänk</span>
+              )}
+            </div>
+
+            <p class="text-stone text-xs mt-0.5">
+              {TYP_LABEL[b.typ] ?? b.typ} i {b.ort}
+            </p>
+
+            {b.notering && (
+              <p class="text-deep/80 text-sm leading-relaxed mt-1.5">{b.notering}</p>
+            )}
+
+            {b.fakta.length > 0 && (
+              <ul class="flex flex-wrap gap-1.5 mt-2">
+                {b.fakta.map((f) => (
+                  <li class="bg-mist text-deep/80 text-[11px] font-medium px-2 py-0.5 rounded-full">{f}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </li>
+      ))}
+    </ul>
+
+    {sokUrl && (
+      <p class="mt-4">
+        <a
+          href={sokUrl}
+          target="_blank"
+          rel="noopener noreferrer sponsored"
+          data-boende-merchant="Booking.com"
+          data-boende-namn={`sök ${sok}`}
+          class="inline-flex items-center gap-1.5 text-pine font-semibold text-sm hover:text-deep transition-colors"
+        >
+          Sök fler boenden i {sok}
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M2 12L12 2M12 2H6M12 2v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </p>
+    )}
+
+    {(harSponsrad || sokUrl) && (
+      <p class="text-stone/60 text-xs mt-3">
+        Länkar märkta Annonslänk går till Booking.com. Bokar du där får vi en provision, utan kostnad för dig. Vilka boenden som står i listan avgörs av fisket, inte av vem som betalar provision.
+      </p>
+    )}
+  </div>
+)}
+
+<script>
+  // Egen selektor, inte data-affiliate-merchant. AffiliateCard binder sitt
+  // eget skript mot det attributnamnet och skulle annars trigga en extra
+  // handelse per klick har.
+  document.querySelectorAll('[data-boende-merchant]').forEach((el) => {
+    el.addEventListener('click', () => {
+      const dl = (window as { dataLayer?: unknown[] }).dataLayer;
+      if (!dl) return;
+      dl.push({
+        event: 'affiliate_click',
+        merchant: (el as HTMLElement).dataset.boendeMerchant,
+        product_id: (el as HTMLElement).dataset.boendeNamn,
+        position: 0,
+        page_type: document.body.dataset.pageType ?? 'unknown',
+      });
     });
   });
 </script>
@@ -5729,6 +6160,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import AffiliateCard from '../../components/AffiliateCard.astro';
 import DestinationMap from '../../components/DestinationMap.tsx';
 import GearModul from '../../components/GearModul.astro';
+import BoendeLista from '../../components/BoendeLista.astro';
+import BoendeBlock from '../../components/BoendeBlock.astro';
 import { getCollection, render } from 'astro:content';
 import {
   fetchSMHIForCoords,
@@ -5843,6 +6276,23 @@ const breadcrumbSchema = {
     { '@type': 'ListItem', position: 3, name: d.title, item: `https://stromkast.se/destinationer/${d.slug}/` },
   ],
 };
+
+/**
+ * Affiliateklausul.
+ *
+ * Lag tidigare som text sist i varje MDX-fil, alltsa inskriven 68 ganger.
+ * Oreaelven saknade den helt, vilket ingen upptackte eftersom ingenting gar
+ * sonder nar en rad text saknas. Nu renderas den av mallen och kan darmed
+ * inte glommas pa en enskild sida.
+ *
+ * Boende namns bara nar sidan har boenden. En sida utan boendelankar ska
+ * inte pasta att den har nagra.
+ */
+const harBoende = (d.boende?.length ?? 0) > 0;
+
+const affiliateKlausul = harBoende
+  ? 'Strömkast finansieras via affiliate-länkar. Köper du fiskekort, utrustning eller boende via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver, hur vi värderar fiskevatten eller vilka boenden vi listar.'
+  : 'Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.';
 
 const destinationSchema = {
   '@context': 'https://schema.org',
@@ -6123,7 +6573,17 @@ const faqSchema = {
           ser trasig ut.
         */}
         <div class="prose prose-sm max-w-[72ch] text-deep/80 leading-relaxed">
-          <Content />
+          {/*
+            Boende renderas ur frontmatter, inte som markdown. MDX-filen
+            skriver <Boende boende={frontmatter.boende} /> under sin egen
+            rubrik, sa att listan star kvar mitt i den praktiska delen av
+            texten i stallet for att brytas ut till en egen sektion.
+          */}
+          <Content components={{ Boende: BoendeLista }} />
+
+          {/* Klausulen ligger innanfor prose-wrappern sa att den far
+              samma typografi som nar den stod i brodtexten. */}
+          <p><em>{affiliateKlausul}</em></p>
         </div>
 
         <!-- FAQ -->
@@ -6234,6 +6694,13 @@ const faqSchema = {
         <div class="rounded-2xl overflow-hidden aspect-square mb-6">
           <DestinationMap lat={d.lat} lng={d.lng} title={d.title} client:only="react" />
         </div>
+
+        <!--
+          Boende. Ligger under kartan eftersom bada svarar pa samma fraga:
+          var ligger det har och var bor jag. Rutan renderar ingenting nar
+          destinationen saknar bokningsbara boenden och ort att soka pa.
+        -->
+        <BoendeBlock boende={d.boende} sok={d.boendeSok} title={d.title} />
 
         <!-- Produktkort, syns bara pa desktop. Styr produkten via recommendedGear i frontmatter, annars harleds den. -->
         <GearModul
@@ -9553,6 +10020,50 @@ const stars = Math.round(r.rating);
 ```
 
 # Lib
+
+## src/lib/booking.ts
+```
+/**
+ * Booking.com-lankar.
+ *
+ * BOOKING_AID ar partner-id:t som identifierar Stromkast i Bookings
+ * sparning. Det ar tomt tills det ar bekraftat i partnerverktyget. Sa lange
+ * det ar tomt renderas ingen soklank, eftersom en osparad lank ger arbete
+ * utan intakt och samtidigt ser ut som en affiliatelank for lasaren.
+ *
+ * Gar godkannandet via CJ i stallet for direkt mot Booking ser lanken
+ * annorlunda ut, med en redirectdoman. Da byts hela byggfunktionen har, inte
+ * varje enskild lank i innehallsfilerna.
+ */
+export const BOOKING_AID = '';
+
+/** Vardnamn som raknas som Booking-lankar i valideringen. */
+export const BOOKING_HOSTS = ['booking.com', 'www.booking.com'];
+
+/**
+ * Soklank till Booking for en ort.
+ *
+ * Returnerar null nar partner-id saknas, sa att anropande komponent kan
+ * utelamna knappen i stallet for att rendera en trasig lank.
+ */
+export function bookingSearchUrl(ort: string): string | null {
+  if (!BOOKING_AID) return null;
+  const params = new URLSearchParams({
+    ss: ort,
+    aid: BOOKING_AID,
+  });
+  return `https://www.booking.com/searchresults.html?${params.toString()}`;
+}
+
+/** Sant nar lanken pekar pa Booking och alltsa ska markas som reklam. */
+export function isBookingUrl(url: string): boolean {
+  try {
+    return BOOKING_HOSTS.includes(new URL(url).hostname);
+  } catch {
+    return false;
+  }
+}
+```
 
 ## src/lib/feed.ts
 ```
@@ -23893,8 +24404,6 @@ Just de dammarna är den viktigaste fiskehistoriska faktorn. Kolbäcksån är d�
 | Kräftfiske | Kräver fiskerättsägarens tillstånd. Minimimått signalkräfta 10 cm |
 | Närmaste tätort | Ängelsberg. Fagersta cirka 15 km västerut |
 | Båtramp | Ängelsberg, via båtklubben |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/angermanalven.mdx
@@ -24192,11 +24701,6 @@ Vid mynningen ligger Höga Kusten, ett av Unescos världsarv sedan år 2000, kä
 | Mörkerfredning | Från 3 augusti |
 | Närmaste tätort | Sollefteå |
 | Koordinater | 63.17°N, 17.27°Ö (Nipstadsfisket) |
-
----
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/asnen.mdx
@@ -24473,9 +24977,6 @@ Mörrumsån nedströms Åsnen är en av Europas mest kända laxälvar med lax oc
 | Yta | ca 150 km² |
 | Medeldjup | 3,1 m |
 | Maxdjup | 14,2 m |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/asunden.mdx
@@ -24765,8 +25266,6 @@ Gösens historia i Åsunden är en av Sjuhärads stora sportfiskeberättelser. P
 | Paravantrolling | Tilläggskort 500 kr, 1 sept–15 maj |
 | Närmaste stad | Ulricehamn |
 | Avstånd Göteborg | Ca 10 mil via riksväg 40 |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/atran.mdx
@@ -25047,8 +25546,6 @@ Trots restaureringen är beståndet pressat. Korttidsregleringen vid Ätraforsda
 | Fångstrapportering | Obligatorisk via ifiske.se |
 | Ål | Fredad, ska återutsättas |
 | Närmaste tätort | Falkenberg |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/baven.mdx
@@ -25388,8 +25885,6 @@ Vattennivån regleras vid Sibro, där en vattendom från 1941 styr dammluckorna 
 | Vattenföring | Ingen mätstation med aktuella data |
 | Närmaste tätort | Sparreholm |
 | Förvaltare | [Sparreholms fiskevårdsförening](https://sparreholmsfiskevardsforening.com/) |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/blekinge-skargard.mdx
@@ -25679,9 +26174,6 @@ För att stärka gäddbeståndet pågår våtmarksrestaurering i Blekinge. Genom
 | Torsk | Riktat fiske förbjudet, återutsätts |
 | Närmaste städer | Karlskrona, Ronneby, Karlshamn, Sölvesborg |
 | Länsstyrelse | Blekinge |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/bohuslan-skargard.mdx
@@ -25946,9 +26438,6 @@ I juni 2025 bekräftade HaV fynd av laxparasiten *Gyrodactylus salaris* i Munked
 | Fredade zoner | Åmynningar (se Länsstyrelsens karta), Gullmarsfjorden och 8+fjordar för torsk/kolja/bleka |
 | Närmaste stad | Göteborg (söder), Uddevalla (mitten), Strömstad (norr) |
 | Länsstyrelse | Västra Götaland |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/bolmen.mdx
@@ -26313,11 +26802,6 @@ FVOF sätter ut öring varje år för att kompensera för de förlorade lekvandr
 | Angeldon | Max 10 per kort, alltid under uppsikt |
 | Avgiftsfri färja | Bolmsö–Sunnaryd |
 | Närmaste tätort | Ljungby (ca 20–25 km) |
-
----
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/byskealven.mdx
@@ -26620,9 +27104,6 @@ De senaste åren har uppvandringen minskat. År 2024 registrerade räknaren ca 3
 | Närmaste tätort | Byske (mynningen), Skellefteå (ca 40 km) |
 | Närmaste flygplats | Skellefteå Airport (ca 35 km) |
 | Fiskräknare live | fiskdata.se (Fällfors) |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/dalalven.mdx
@@ -26930,10 +27411,6 @@ Nedre Dalälvens nationalparksbildning 1998 (Färnebofjärden) och biosfärområ
 | Watertype | Älv (river) |
 | Närmaste tätort | Älvkarleby (Uppsala län), Gysinge (Gästrikland), Borlänge, Leksand, Mora |
 | Länsstyrelse | Dalarna, Gävleborg, Uppsala |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
-
 ```
 
 ## src/content/destinations/damman.mdx
@@ -27181,12 +27658,6 @@ Dammån är Natura 2000-område och skyddad mot ytterligare vattenkraftutbyggnad
 | Fångstbegränsning | 1 öring per dygn |
 | Fredningstid | 1 september till 30 maj |
 | Närmaste tätort | Östersund |
-
----
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
-
 ```
 
 ## src/content/destinations/delsjoarna.mdx
@@ -27479,9 +27950,6 @@ Sportfiskarnas regionkontor Sjölyckan vid Stora Delsjön har under flera decenn
 | Närmaste stad | Göteborg |
 | Yta | ca 140 + 62 ha |
 | Maxdjup | ca 22 m |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/eman.mdx
@@ -27820,11 +28288,6 @@ Emån är Nordeuropas viktigaste lokal för mal. Malen etablerade sig i ån och 
 | Närmaste stad | Mönsterås |
 | Bokning allmänt | ifiske.se, fiskekort.se |
 | Emåförbundet | eman.se |
-
----
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/fegen.mdx
@@ -28164,8 +28627,6 @@ Gösen sattes ut mellan 1945 och 1986, och iFiske anger den i dag som rikligt f�
 | Yta | 23,8 km² |
 | Maxdjup | 38 m |
 | Närmaste ort | Fegens samhälle vid sjöns södra ände |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/foxen-stora-le.mdx
@@ -28537,8 +28998,6 @@ Fiskevårdsområdesföreningarna bildades 1991 och slog 2020 ihop sina kort till
 | Sjöyta | ca 131 km² |
 | Maxdjup | 99 m |
 | Närmaste tätorter | Töcksfors och Årjäng i norr, Dals-Ed i söder |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/funasfjallen.mdx
@@ -28873,8 +29332,6 @@ Området är renbetesland och nyttjas av Mittådalens sameby och Ruvhten Sijte. 
 | Barn och ungdom | Avgiftsfritt till och med 15 år med vuxen kortinnehavare |
 | Rogen ingår | Nej, sjön Rogen kräver eget kort |
 | Närmaste tätort | Funäsdalen |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/giman.mdx
@@ -29144,11 +29601,6 @@ Regelverket har skärpts stegvis för att skydda storöringen. Stavreströmmen g
 | Mynning | Ljungan vid Torpshammar |
 | Närmaste tätort | Bräcke |
 | Koordinater | 62.84°N, 15.67°Ö (Gimdalen) |
-
----
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/gota-alv.mdx
@@ -29438,11 +29890,6 @@ Sportfiskarna och Länsstyrelsen Västra Götaland genomför löpande biotoprest
 | Laxsäsong Trollhättan | 1 april–14 oktober |
 | Närmaste stad | Göteborg (nedre älven), Trollhättan (övre) |
 | Läns | Västra Götaland |
-
----
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/gotland.mdx
@@ -29751,9 +30198,6 @@ Fiskevårdsarbetet inkluderar restaurering av vandringsvägar och lek- och uppv�
 | Torskfiske | Förbjudet, catch and release obligatoriskt |
 | Närmaste tätort | Visby |
 | Kommunikationer | Färja från Nynäshamn/Oskarshamn, flyg till Visby |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/gullspangsalven.mdx
@@ -30079,10 +30523,6 @@ Utsatt Gullspångslax har spridits långt utanför Vänern. Stammen finns sedan 
 | Längd | Omkring 8 km |
 | Mynning | Åråsviken i Vänern |
 | Närmaste tätort | Gullspång |
-
----
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/helge-a.mdx
@@ -30360,9 +30800,6 @@ Det nedre loppet är i dag en del av biosfärområdet Kristianstads Vattenrike, 
 | Ål | Får inte fångas av fritidsfiskare |
 | Mal | Fridlyst, ska återutsättas |
 | Närmaste tätort | Kristianstad |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/hjalmaren.mdx
@@ -30643,9 +31080,6 @@ Gösen har historiskt burits upp av ett aktivt yrkesfiske. Fångsterna sjönk p�
 | Maxdjup | 22 m |
 | Närmaste stad | Örebro (väst), Eskilstuna (öst) |
 | Officiella regler | [Länsstyrelsen Örebro](https://www.lansstyrelsen.se/orebro) |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/hornavan.mdx
@@ -30959,12 +31393,6 @@ Arjeplog är Sveriges vattenrikaste kommun med över 8 700 sjöar och vattendrag
 | Fredning öring i strömmande vatten | 1 september–31 december |
 | Maxdjup | 221 meter registrerat, kring 210 meter enligt SMHI 2023 |
 | Närmaste tätort | Arjeplog |
-
----
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
-
 ```
 
 ## src/content/destinations/immeln.mdx
@@ -31332,8 +31760,6 @@ Projektet Rädda Immeln drivs med Östra Göinge och Osby kommuner som huvudmän
 | Medeldjup | 7,2 m |
 | Avrinningsområde | Skräbeån |
 | Närmaste stad | Kristianstad, ca 34 km |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/indalsalven.mdx
@@ -31621,11 +32047,6 @@ Totalt finns 26 kraftverk i Indalsälvens vattensystem, vilket gör det till lan
 | Närmaste tätort (nedre) | Timrå/Sundsvall |
 | Närmaste tätort (övre) | Åre/Järpen |
 | Koordinater | 63.11°N, 16.35°Ö (Hammarstrand) |
-
----
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/ivosjon.mdx
@@ -31918,8 +32339,6 @@ Ivösjökommittén (ivosjo.com) arbetar med vattenövervakning och samordning kr
 | Fria fiskemöjligheter | Bryggan i Ivö klacks naturreservat |
 | Närmaste tätort | Bromölla (vid sjön), Kristianstad (25 km) |
 | Kommunikationer | E22, tåg till Bromölla, linfärja till Ivön |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/kaitumalven.mdx
@@ -32214,8 +32633,6 @@ Girjasdomen i Högsta domstolen i januari 2020 förändrade förvaltningsbilden.
 | Flugfiske-only | Svartselets forsnacke–Gruvselet (Killinge) och Taivek |
 | Närmaste tätort | Gällivare (ca 60 km, nedre loppet) |
 | Helikopter till Tjuonajokk | Ca 30 min från Kiruna flygplats |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/kalixalven.mdx
@@ -32509,9 +32926,6 @@ De senaste åren har laxuppvandringen minskat kraftigt. Tiaminbristsyndromet M74
 | Närmaste tätort | Kalix (mynningen), Överkalix (Jockfall) |
 | Närmaste flygplats | Luleå Airport (ca 1 timme från Kalix) |
 | Fiskräknare | Jockfall och Linafallet |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/kalmarsund.mdx
@@ -32805,9 +33219,6 @@ Det historiska gränsdragningen mellan sill och strömming följer ett kungligt 
 | Ål | Fritidsfiske förbjudet |
 | Närmaste tätort | Kalmar |
 | Vattentyp | Brackvatten, Östersjön delområde 25 |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/kavlingean.mdx
@@ -33068,12 +33479,6 @@ Vid mynningen ligger Lödde kar, resterna av en hamnanläggning från sen viking
 | Fredningsområde vid mynningen | 15 september–30 april |
 | Förvaltning | Kävlingeåns-Löddeåns fiskevårdsområde |
 | Närmaste tätort | Kävlinge och Löddeköpinge |
-
----
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
-
 ```
 
 ## src/content/destinations/klaralven.mdx
@@ -33402,9 +33807,6 @@ ForshagaAkademin, grundad 1997, är en nationell institution för sportfiskeutbi
 | Dispensfiske lax Forshaga 2025 | Upphört, C&R gäller för vild fisk |
 | Närmaste tätort | Karlstad (mynning), Forshaga, Munkfors, Hagfors, Sysslebäck |
 | Tillfartsväg | Riksväg 62 längs älvdalen, E18 till Karlstad |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/kosterfjorden.mdx
@@ -33712,8 +34114,6 @@ Sommaren 2026 infördes ett förbud mot bottentrålning i marina skyddade områd
 | Fiskefria zoner | 10 i Koster-Väderöfjorden |
 | Närmaste tätort | Strömstad |
 | Länsstyrelse | Västra Götaland |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/kultsjon.mdx
@@ -33734,6 +34134,25 @@ recommendedGear: []
 publishedAt: "2026-06-05"
 updatedAt: "2026-06-05"
 kostrad: ["kvicksilver"]
+boendeSok: "Saxnäs"
+boende:
+  - namn: "Saxnäsgården"
+    typ: hotell
+    ort: "Saxnäs"
+    notering: "Vid Kultsjöns strand, med hotellrum, vandrarhem och restaurang."
+    bat: true
+    url: "https://www.saxnas.se/"
+  - namn: "Kultsjögården och Fiskecentrum"
+    typ: fiskecamp
+    ort: "Saxnäs"
+    notering: "Vandrarhem, fjällstugor, stuglägenheter och ställplats. Förmedlar de kvoterade flugfiskevattnen och har egna guider."
+    bat: true
+    url: "https://xn--fiskecentrumsaxns-5qb.se/"
+  - namn: "Marsfjäll Mountain Lodge"
+    typ: hotell
+    ort: "Marsfjäll"
+    notering: "Hotellrum, vandrarhem och stugor med restaurang."
+    url: "https://www.marsfjall.se/"
 intro: >-
   Kultsjön är en långsmal fjällsjö i Vilhelmina kommun, i sydsamiskt land mellan Saxnäs,
   Fatmomakke och Marsfjället. Sjön ingår i Ångermanälvens källflöden och är vida känd för
@@ -33923,9 +34342,7 @@ Fiskecentrum i Saxnäs erbjuder guidning, fiskepaket och båtuthyrning samt för
 
 ### Boende
 
-- **Saxnäsgården** vid Kultsjöns strand med hotell, vandrarhem och restaurang.
-- **Kultsjögården och Fiskecentrum** i Saxnäs med stugor och vandrarhem.
-- **Marsfjäll Mountain Lodge** i Marsfjäll.
+<Boende boende={frontmatter.boende} sok={frontmatter.boendeSok} />
 
 ### Kommunikationer
 
@@ -33963,8 +34380,6 @@ Området är präglat av samisk kultur och rennäring. Vilhelmina södra sameby 
 | Fredningstid nät | 1 september–1 oktober |
 | Närmaste tätort | Vilhelmina |
 | Vattentyp | Reglerad fjällsjö |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/lagan.mdx
@@ -34270,9 +34685,6 @@ I dag drivs Statkrafts ansökan om ett nytt underjordiskt kraftverk vid Bassalt/
 | Trolling | Tillåtet (begränsad sträcka, ej alla perioder) |
 | Närmaste tätort | Laholm (Laholmssträckan), Ljungby (Kronoberg) |
 | Länsstyrelser | Halland, Kronoberg, Jönköping |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/lainioalven.mdx
@@ -34559,8 +34971,6 @@ Historiskt var laxfisket i Norrbottens älvar en viktig försörjningskälla. Fl
 | Flugfiske-only | Camp Onka och delar av Lainio SFF |
 | Närmaste tätort | Pajala (ca 50 km), Kiruna (ca 100 km) |
 | Närmaste flygplats | Pajala-Ylläs flygplats |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/lelang.mdx
@@ -34851,8 +35261,6 @@ Fiskevårdsarbetet i sjön har pågått under decennier med utsättningar av gul
 | Kvicksilverråd (gädda m.fl.) | Gäller nationellt |
 | Närmaste tätort | Bengtsfors (södra änden), Lennartsfors (norra änden) |
 | Avstånd Göteborg | Ca 170 km |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/ljungan.mdx
@@ -35187,10 +35595,6 @@ Vattenkraftens miljövillkor prövas i dag om inom den nationella planen för mo
 | Närmaste tätort, nedre älven | Kvissleby och Sundsvall |
 | Närmaste tätort, mellersta älven | Ånge |
 | Koordinater | 62,49°N, 16,32°Ö (Torpshammar) |
-
----
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/lyckebyan.mdx
@@ -35471,8 +35875,6 @@ Lyckebyån ingår i Natura 2000-nätverket genom området Lyckebyåns dalgång (
 | Fiskräknare | fiskdata.se (Lyckeby) |
 | Närmaste stad | Karlskrona (Lyckeby ingår i kommunen) |
 | Kommunikationer | E22, tåg till Karlskrona, buss längs Lyckåleden |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/malaren.mdx
@@ -35831,12 +36233,6 @@ Tvätta båt och redskap mellan vatten för att inte sprida invasiva arter.
 | Ål | Totalförbud för fritidsfiskare |
 | 5-metersregel Stockholms ström | Gäller 1 juli–31 december |
 | Närmaste städer | Stockholm, Uppsala, Västerås, Eskilstuna |
-
----
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
-
 ```
 
 ## src/content/destinations/mellan-nedre-fryken.mdx
@@ -36173,8 +36569,6 @@ Mellan-Fryken var på 1970-talet svartlistad för höga kvicksilverhalter i gäd
 | Yta | Mellan-Fryken 46,6 km², Nedre Fryken 12,6 km² |
 | Kostråd | Nationella råd om kvicksilver |
 | Närmaste tätorter | Sunne och Kil |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/mellanljusnan.mdx
@@ -36435,11 +36829,6 @@ Den största återkommande risken för fisket är snabba flödessänkningar. Den
 | Fredningstid öring (Färila) | 1 september–1 november |
 | Närmaste tätort | Färila och Ljusdal |
 | Koordinater | 61.92°N, 15.64°Ö (Kölströmmen) |
-
----
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/mockeln.mdx
@@ -36714,9 +37103,6 @@ Frågan om fiskvägar är aktuell. Inom den nationella planen för moderna milj�
 | Yta | cirka 18 km² |
 | Närmaste tätort | Karlskoga, Degerfors |
 | Tillfartsväg | E18 till Karlskoga, väg 205 till Degerfors |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/morrum.mdx
@@ -37070,10 +37456,6 @@ Vill du testa till lägre kostnad, börja med FVO Ebbemåla–Åmma i april (300
 | Laxrekordet | 26,72 kg (1992) |
 | Havsöringsrekordet | 14,7 kg |
 | Närmaste stad | Karlshamn (7 km) |
-
----
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/nissan.mdx
@@ -37349,9 +37731,6 @@ Slottsmöllans kraftverk cirka 4 km från mynningen är det första definitiva v
 | Första vandringshinder | Slottsmöllans kraftverk, Halmstad |
 | Närmaste tätort | Halmstad (laxsträckan), Gislaved (Nissasjöarna) |
 | Länsstyrelser | Halland, Jönköping |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/norrkoping-cityfiske.mdx
@@ -37638,8 +38017,6 @@ Norrköpings kommun arbetar med åtgärder för att på sikt återskapa naturlig
 | Fiskecentret | Refvens grund, Strömsparken |
 | Tåg från Stockholm | ca 1 h 15 min |
 | Promenad från Norrköping C | ca 10 min |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/oland.mdx
@@ -37941,9 +38318,6 @@ Torsken, som historiskt var ryggraden i södra Östersjöns fiske, har kollapsat
 | Ål | Fritidsfiske förbjudet |
 | Närmaste tätort | Borgholm, Färjestaden, Mörbylånga |
 | Vattentyp | Brackvatten, Östersjön delområde 25 |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/orealven.mdx
@@ -38417,9 +38791,6 @@ Yrkesfisket i sundet bedrivs uteslutande med passiva redskap från små hamnar s
 | Ål | Fritidsfiske förbjudet |
 | Närmaste tätort | Helsingborg, Landskrona, Malmö |
 | Vattentyp | Övergångsvatten, ICES delområde 23 |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/ostergotlands-skargard.mdx
@@ -38683,9 +39054,6 @@ De moderna fredningsområdena infördes 2021 efter att forskning visat att best�
 | Helt fiskefritt | Licknevarpefjärden och Stjärnö, året runt |
 | Torsk | Fredad i hela Östersjön |
 | Närmaste tätorter | Söderköping, Valdemarsvik, Norrköping |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/ovre-fryken.mdx
@@ -38985,9 +39353,6 @@ Norsälven, sjösystemets utlopp mot Vänern, var länge en betydande flottled. 
 | Närmaste tätorter | Torsby och Sunne (båda med tågstation på Fryksdalsbanan) |
 | Sjöyta | 41,9 km² |
 | Maxdjup | ca 93 m |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/pitealven.mdx
@@ -39281,9 +39646,6 @@ Mellan 2016 och 2022 ingick Piteälven i det EU-finansierade LIFE-projektet ReBo
 | Vandringshinder | Storforsen (naturligt), Sikfors kraftverk |
 | Närmaste tätort | Piteå (mynningen), Älvsbyn (nedre älven) |
 | Närmaste flygplats | Luleå Airport (ca 1 timme) |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/ranealven.mdx
@@ -39643,8 +40005,6 @@ Flodkräftan är den andra bevarandeberättelsen i älven. Beståndet är ett av
 | Reglering | Ingen. Skyddad enligt 4 kap. 6 § miljöbalken |
 | Närmaste tätort | Gunnarsbyn, Niemisel, Råneå |
 | Närmaste flygplats | Luleå Airport, ca 70 km |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/raslangen.mdx
@@ -39968,8 +40328,6 @@ Den nedströmslekande immelnöringen är sjöns mest särpräglade fisk. Att ör
 | Maxdjup | 25 m |
 | Vattenföring | Ingen mätstation vid sjön |
 | Närmaste tätort | Olofström |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/ringsjon.mdx
@@ -40259,9 +40617,6 @@ Yrkesfisket har lång tradition i Ringsjön och fångar i dag främst gös, abbo
 | Närmaste orter | Höör och Hörby |
 | Total yta | ca 40 km² |
 | Maxdjup | 17,5 m |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/ritsem.mdx
@@ -40521,8 +40876,6 @@ Trots sin historia som reglerat magasin är Akkajaure i dag ett fungerande fiske
 | M/S Storlule, vuxen | 380 kr |
 | Närmaste tätort | Gällivare (ca 16 mil) |
 | STF Ritsem | Tel via STF:s bokningssystem |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/rogen.mdx
@@ -40850,8 +41203,6 @@ Området har använts av människor sedan stenåldern. Fångstgropssystem, bopla
 | Levande fisk som bete | Förbjudet |
 | Närmaste tätort | Tännäs, cirka två mil |
 | Vattentyp | Oreglerad fjällsjö i naturreservat |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/ronne-a.mdx
@@ -41165,10 +41516,6 @@ Klippans kommun köpte kraftverken och stängde turbinerna i juni 2019. Arbetet 
 | Fiskeförbud | Januari och februari i Ängelholm, 1 oktober till 28 februari i Klippan |
 | Trolling | Förbjudet hela året |
 | Närmaste tätorter | Ängelholm, Klippan, Ljungbyhed |
-
----
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/roxen.mdx
@@ -41460,9 +41807,6 @@ Roxens fiskevårdsområdesförening driver projektet Rädda Roxen, med åtgärde
 | Maxdjup | ca 7 m |
 | Närmaste stad | Linköping |
 | Officiella regler | [roxen.nu](https://www.roxen.nu) |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/siljan.mdx
@@ -41787,10 +42131,6 @@ Bliktfisket är ett levande kulturarv. Traditionellt notfiske (landvad) efter si
 | Närmaste tätorter | Rättvik, Mora, Leksand (alla med tågstation) |
 | Sjöyta | 293 km² |
 | Maxdjup | 134 m |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
-
 ```
 
 ## src/content/destinations/skagern.mdx
@@ -42133,8 +42473,6 @@ Fiskevårdsområdet arbetar under tiden med sjöns egna bestånd. Föreningen g�
 | Båtramper | Skagersvik (kostnadsfri), Otterberget (avgift) |
 | Närmaste tätorter | Gullspång, Hova, Finnerödja, Åtorp |
 | Tillfartsväg | E20 via Hova eller Finnerödja, väg 26 från Kristinehamn |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/sommen.mdx
@@ -42442,9 +42780,6 @@ Sommens kräftfiske har lång tradition. Den ursprungliga flodkräftan slogs til
 | Närmaste stad | Tranås |
 | Yta | ca 132 km² |
 | Maxdjup | 53 m |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/stockholms-skargard.mdx
@@ -42841,12 +43176,6 @@ Länsstyrelsens ReFisk-program, som etablerade 62 fredningsvikar och 14 åmynnin
 | Närmaste tätort | Stockholm |
 | Fiskekort köps | [iFiske.se](https://www.ifiske.se/fiske-tda-kortet-i-stockholms-skargard-malaren-m-fl-vatten.htm) / parker.stockholm |
 | Aktuella regler | [havochvatten.se](https://www.havochvatten.se) / [lansstyrelsen.se/stockholm](https://www.lansstyrelsen.se/stockholm/djur/fiske.html) |
-
----
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
-
 ```
 
 ## src/content/destinations/stora-nataren.mdx
@@ -43139,8 +43468,6 @@ Den kortare fiskesäsongen, med förbud från augusti till och med april, är f�
 | Maxdjup | 16,7 m |
 | Båtramp | Gyeberg |
 | Närmaste tätort | Lekeryd |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/storsjon.mdx
@@ -43491,12 +43818,6 @@ SLU Aqua genomförde en bred undersökning av fisksamhället i Storsjön 2011 me
 Storsjön har sin egen kryptid. Storsjöodjuret omnämndes första gången skriftligt 1635 och har sedan dess dykt upp i hundratals vittnesmål. Beskrivningarna varierar men nämner vanligen en lång ormaktig kropp, pucklar och ett katt- eller hundlikt huvud.
 
 Länsstyrelsen Jämtland fridlyste odjuret formellt 1986 med förbud mot att "döda, fånga eller skada levande djur av arten Storsjöodjuret". Fridlysningen upphävdes 2006. Storsjöodjurscentret i Svenstavik samlar historiken kring fenomenet. Vetenskapliga bevis saknas.
-
----
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
-
 ```
 
 ## src/content/destinations/tidan.mdx
@@ -43836,12 +44157,6 @@ Signalkräfta finns i Tidan och i Vänern. Arten bär kräftpest som slår ut de
 | Fredning gös | 25 april–25 maj |
 | Fredning öring (nedre) | Helt fredad året runt |
 | Närmaste stad | Mariestad |
-
----
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
-
 ```
 
 ## src/content/destinations/tornealven.mdx
@@ -44162,8 +44477,6 @@ Torneälven har fler namn än de flesta svenska älvar: på meänkieli heter den
 | Närmaste större tätort | Pajala (mitt i älvsystemet), Haparanda (mynningen) |
 | Närmaste flygplats | Kiruna Airport (ca 16 mil) |
 | Riksväg längs älven | Riksväg 99 (Haparanda–Karesuando) |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/tornetrask.mdx
@@ -44437,8 +44750,6 @@ Rödingen är en istidsrelikt och en känslig kallvattenfisk. I ett varmare klim
 | Trolling | Tillåtet, max 3 spön per fiskare |
 | Maxdjup | 168 meter |
 | Närmaste tätort | Kiruna (cirka 10 mil) |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/umealven.mdx
@@ -44709,9 +45020,6 @@ Fiskräkningen vid Norrfors har pågått sedan 1960. Rekordåret 2013 passerade 
 | Krav | Hullinglös krok, fångstrapport, motorförbud |
 | Närmaste tätort | Umeå (ca 8 km) |
 | Närmaste flygplats | Umeå flygplats |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/unden.mdx
@@ -45045,8 +45353,6 @@ Tivedens nationalpark, bildad 1983, ligger intill sjön och gör området till e
 | Barn till och med 15 år | Fiskar utan kort |
 | Närmaste tätort | Undenäs |
 | Maxdjup | 108 m |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/vaddo-kanal.mdx
@@ -45333,8 +45639,6 @@ Tullviksbäcken är en av Upplandskustens märkligaste platser: en källa i nord
 | Kortpliktiga inre vatten | Lommaren, Limmaren, Erken m.fl. |
 | Närmaste tätort | Norrtälje, Hallstavik |
 | Kommunikationer | SL-buss 676/676X till Norrtälje, sedan lokalbuss |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/vanern.mdx
@@ -45699,12 +46003,6 @@ SLU Aqua bedriver löpande beståndsskattningar och beståndsövervakning. Väne
 Klimatförändringar väntas gynna varmvattenarter som gös, abborre och braxen, och missgynna siklöja och sik. Perioden med is i Vänerns skärgårdar förväntas bli kortare, vilket påverkar pimpelsäsongen.
 
 Vänerlöjrommen, rommen från siklöja fångad av yrkesfiskarna i Spiken och ett tiotal andra hamnar, är EU-skyddad med ursprungsmärkning och ett ekonomiskt viktigt tillskott till det lokala fisket.
-
----
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
-
 ```
 
 ## src/content/destinations/vasman.mdx
@@ -46011,8 +46309,6 @@ Under sjön finns en järnmalmsfyndighet som kallas Väsmanfältet. Gruvbolaget 
 | Kräftfiske | Fem perioder i augusti och september, kräver årskort |
 | Största djup | 53 m |
 | Närmaste tätort | Ludvika |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/vattern.mdx
@@ -46385,12 +46681,6 @@ Sedan 2021 pågår ett storskaligt spårningsprojekt där sändare opererats in 
 | Permanenta förbudsområden | Tängan, Norrgrundet, Fingals |
 | Aktuella regler | vattern.org / svenskafiskeregler.se |
 | Närmaste städer | Jönköping, Motala, Hjo, Gränna, Karlsborg |
-
----
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
-
 ```
 
 ## src/content/destinations/vindelalven.mdx
@@ -46676,9 +46966,6 @@ Den frusna älven används än i dag som renflyttled. Det samiska namnet Juhttá
 | Närmaste tätort | Sorsele, Vindeln, Lycksele |
 | Närmaste flygplats | Lycksele, Umeå |
 | Status | Nationalälv och Unescos biosfärområde |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
-
 ```
 
 ## src/content/destinations/vojman.mdx
@@ -46987,8 +47274,6 @@ Mellan 2006 och 2008 utredde Vilhelmina kommun och Vattenfall att leda över vat
 | Nedre strömsträckan | Cirka 65 km, fallhöjd cirka 80 m |
 | Reglering | Vojmsjön sedan 1948 |
 | Närmaste tätort | Vilhelmina |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/voxnan.mdx
@@ -47326,10 +47611,6 @@ Sedan 2019 pågår EU-projektet Rivers of LIFE, som drivs av bland andra Länsst
 | Skyddsstatus | Miljöbalken 4 kap 6 §, Natura 2000, naturreservat |
 | Närmaste tätort | Edsbyn, Alfta, Bollnäs och Voxnabruk |
 | Koordinater | 61.36°N, 15.49°Ö (Voxnabruk) |
-
----
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 ## src/content/destinations/yngaren.mdx
@@ -47628,8 +47909,6 @@ Yrkesfiske har bedrivits i Yngaren i generationer och pågår fortfarande, vilke
 | Medeldjup | 8,6 m |
 | Närmaste tätort | Björkvik |
 | Officiella regler | [yngaren.se](https://yngaren.se) |
-
-*Strömkast finansieras via affiliate-länkar. Köper du fiskekort eller utrustning via länkarna på den här sidan får vi en liten provision, utan kostnad för dig. Det påverkar inte vad vi skriver eller hur vi värderar fiskevatten.*
 ```
 
 # Content: techniques
@@ -52345,6 +52624,7 @@ for (const f of files) {
   const raw = readFileSync(f, 'utf-8');
   const { fm, body } = splitFrontmatter(raw);
   checkRefs(f, coll, fm);
+  if (coll === 'destinations') checkBoende(f, fm);
   checkLinks(f, raw);
   if (!f.endsWith('.json')) checkDashes(f, raw);
   if (!f.endsWith('.json')) checkCampaignDates(f, raw);
@@ -52376,6 +52656,85 @@ for (const [id, n] of perSpecies) {
 }
 for (const [id, n] of perTech) {
   if (n === 0) warnings.push(`tekniksida "${id}": noll matchande produkter, utrustningsmodulen blir tom`);
+}
+
+/**
+ * Boende i destinations-frontmatter.
+ *
+ * Konstanterna ligger inne i funktionen med flit. Funktionsdeklarationer
+ * hissas, men const gor det inte, och funktionen star efter huvudloopen som
+ * anropar den.
+ *
+ * BOOKING_HOSTS speglar src/lib/booking.ts och ar den enda plats som ska
+ * andras om programmet gar via ett natverk med redirectdoman i stallet for
+ * direkt mot Booking.
+ *
+ * Radbaserat med flit. Frontmatter parsas med regex i resten av filen, och
+ * boende behover ingen YAML-beroende for fyra kontroller.
+ */
+function checkBoende(file, fm) {
+  const BOOKING_HOSTS = ['booking.com', 'www.booking.com'];
+
+  // Sparparameter i lanken. Utan den ar klicket gratisarbete.
+  const BOOKING_TRACKING = /[?&](aid|label)=/;
+
+  // Saljord som inte hor hemma i en notering. Noteringen ska baras av vad
+  // lasaren kan anvanda: bat, ramp, sasong, lage.
+  const SALJORD = [
+    'fantastisk', 'underbar', 'perfekt', 'idyllisk', 'oslagbar',
+    'lyxig', 'charmig', 'mysig', 'prisvard', 'prisvärd', 'finaste',
+  ];
+
+  const hostOf = (url) => {
+    try {
+      return new URL(url).hostname;
+    } catch {
+      return null;
+    }
+  };
+
+  const lines = fm.split('\n');
+
+  lines.forEach((line, idx) => {
+    const rad = idx + 1;
+
+    const booking = line.match(/^\s*bookingUrl:\s*["']?(\S+?)["']?\s*$/);
+    if (booking) {
+      const url = booking[1];
+      const host = hostOf(url);
+      if (!host) {
+        errors.push(`${file}:${rad}: bookingUrl "${url}" ar ingen giltig URL`);
+      } else if (!BOOKING_HOSTS.includes(host)) {
+        errors.push(
+          `${file}:${rad}: bookingUrl pekar pa ${host}, inte Booking. ` +
+          `Byt falt till url, eller uppdatera BOOKING_HOSTS i check-content.mjs och src/lib/booking.ts om programmet bytt doman.`
+        );
+      } else if (!BOOKING_TRACKING.test(url)) {
+        warnings.push(`${file}:${rad}: bookingUrl saknar sparparameter, klicket ger ingen provision`);
+      }
+    }
+
+    const direkt = line.match(/^\s*url:\s*["']?(\S+?)["']?\s*$/);
+    if (direkt) {
+      const host = hostOf(direkt[1]);
+      if (host && BOOKING_HOSTS.includes(host)) {
+        errors.push(
+          `${file}:${rad}: url pekar pa Booking. Anvand bookingUrl, annars markas lanken inte som reklam.`
+        );
+      }
+    }
+
+    const notering = line.match(/^\s*notering:\s*["']?(.+?)["']?\s*$/);
+    if (notering) {
+      const text = notering[1].toLowerCase();
+      for (const ord of SALJORD) {
+        if (text.includes(ord)) {
+          warnings.push(`${file}:${rad}: saljord "${ord}" i notering, skriv vad lasaren kan anvanda i stallet`);
+          break;
+        }
+      }
+    }
+  });
 }
 
 // --- Rapport ---

@@ -9,7 +9,7 @@
  * Pa mobil hamnar sidokolumnen under brodtexten. Rutan ar alltsa ett
  * komplement till listan i texten, aldrig ersattningen for den.
  */
-import { bookingSearchUrl, isBookingUrl } from '../lib/booking';
+import { bookingLink, bookingSearchUrl } from '../lib/booking';
 import BoendeIkon from './BoendeIkon.astro';
 
 interface Boende {
@@ -28,9 +28,10 @@ interface Props {
   boende?: Boende[];
   sok?: string;
   title: string;
+  sid?: string;
 }
 
-const { boende = [], sok, title } = Astro.props;
+const { boende = [], sok, title, sid } = Astro.props;
 
 const TYP_LABEL: Record<string, string> = {
   hotell: 'Hotell',
@@ -42,26 +43,24 @@ const TYP_LABEL: Record<string, string> = {
   fiskecamp: 'Fiskecamp',
 };
 
-const sokUrl = sok ? bookingSearchUrl(sok) : null;
+const sokUrl = sok ? bookingSearchUrl(sok, sid) : null;
 
 // Bokningsbara forst, och bland dem Booking-lankade forst. Rutan ska visa
 // det lasaren kan agera pa direkt. Hela listan finns i brodtexten.
 const lankade = boende
-  .filter((b) => b.bookingUrl || b.url)
-  .sort((a, b) => Number(Boolean(b.bookingUrl)) - Number(Boolean(a.bookingUrl)))
-  .slice(0, 3)
   .map((b) => {
-    const href = (b.bookingUrl ?? b.url) as string;
+    const cj = b.bookingUrl ? bookingLink(b.bookingUrl, sid) : null;
+    return { ...b, href: cj ?? b.url ?? null, sponsrad: Boolean(cj) };
+  })
+  .filter((b) => b.href !== null)
+  .sort((a, b) => Number(b.sponsrad) - Number(a.sponsrad))
+  .slice(0, 3)
+  .map((b) => ({
+    ...b,
     // Kort fakta pa andra raden. Ramp fore sasong nar bada finns, eftersom
     // avstand till sjosattning ar det som skiljer boenden at for en fiskare.
-    const fakta = b.avstandRamp ? `${b.avstandRamp} till ramp` : (b.oppet ?? null);
-    return {
-      ...b,
-      href,
-      sponsrad: Boolean(b.bookingUrl) || isBookingUrl(href),
-      fakta,
-    };
-  });
+    fakta: b.avstandRamp ? `${b.avstandRamp} till ramp` : (b.oppet ?? null),
+  }));
 
 const visa = lankade.length > 0 || Boolean(sokUrl);
 const harSponsrad = lankade.some((b) => b.sponsrad) || Boolean(sokUrl);
@@ -125,15 +124,19 @@ const harSponsrad = lankade.some((b) => b.sponsrad) || Boolean(sokUrl);
         data-boende-merchant="Booking.com"
         data-boende-namn={`sök ${sok}`}
         class:list={[
-          'inline-flex items-center justify-center gap-2 w-full border border-pine text-pine font-bold text-sm px-5 py-2.5 rounded-full hover:bg-pine hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine',
+          'inline-flex items-center justify-center gap-2 w-full bg-pine text-white font-bold text-sm px-5 py-3 rounded-full hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine focus-visible:ring-offset-2',
           lankade.length > 0 ? 'mt-5' : '',
         ]}
       >
-        Sök boende i {sok}
+        Sök boende vid {title}
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
           <path d="M2 12L12 2M12 2H6M12 2v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </a>
+    )}
+
+    {sokUrl && (
+      <p class="text-stone/60 text-xs mt-2 text-center">Sökningen visar boenden i {sok}.</p>
     )}
 
     {harSponsrad && (

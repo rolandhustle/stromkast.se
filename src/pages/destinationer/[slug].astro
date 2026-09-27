@@ -543,7 +543,7 @@ const faqSchema = {
           var ligger det har och var bor jag. Rutan renderar ingenting nar
           destinationen saknar bokningsbara boenden och ort att soka pa.
         -->
-        <BoendeBlock boende={d.boende} sok={d.boendeSok} title={d.title} />
+        <BoendeBlock boende={d.boende} sok={d.boendeSok} title={d.title} sid={d.slug} />
 
         <!-- Produktkort, syns bara pa desktop. Styr produkten via recommendedGear i frontmatter, annars harleds den. -->
         <GearModul
