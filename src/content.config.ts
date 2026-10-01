@@ -15,6 +15,7 @@ const boendeSchema = z.object({
   namn: z.string(),
   typ: z.enum([
     'hotell',
+    'pensionat',
     'vandrarhem',
     'camping',
     'stugby',

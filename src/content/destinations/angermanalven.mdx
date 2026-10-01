@@ -17,6 +17,35 @@ recommendedGear: []
 publishedAt: "2026-06-05"
 updatedAt: "2026-06-05"
 kostrad: ["kvicksilver", "dioxin"]
+boendeSok: "Sollefteå"
+boende:
+  - namn: "Sollefteå Camping"
+    typ: camping
+    ort: "Sollefteå"
+    notering: "Vid älven nära Hågestaön och det nedre älvfisket."
+    url: "https://www.solleftea.se/solleftea-camping"
+  - namn: "Hotell Hallstaberget"
+    typ: hotell
+    ort: "Sollefteå"
+    notering: "Nära Nipstadsfisket."
+    bookingUrl: "https://www.booking.com/hotel/se/hotell-hallstaberget-sweden.sv.html"
+  - namn: "Hotell Appelberg"
+    typ: hotell
+    ort: "Sollefteå"
+    notering: "Centralt i Sollefteå."
+  - namn: "Meåforsens övernattningsstugor"
+    typ: stuga
+    ort: "Meåfors"
+    notering: "Två enkla stugor vid forsen, för den som löst fiskekort."
+  - namn: "Meselefors Camping och vandrarhem"
+    typ: camping
+    ort: "Meselefors"
+    notering: "Bas för den som fiskar övre älven."
+  - namn: "Åsele Camping"
+    typ: camping
+    ort: "Åsele"
+    notering: "Utgångspunkt för fisket kring Åsele och Vilhelmina."
+    bookingUrl: "https://www.booking.com/hotel/se/asele-camping-and-holliday-homes.sv.html"
 intro: >-
   Ångermanälven är en av Sveriges längsta och vattenrikaste älvar och rinner cirka 460 km
   från fjällen i södra Lappland ut i Bottenhavet vid Höga Kusten. Den är samtidigt en av
@@ -252,11 +281,9 @@ Lokala guider finns i Sollefteå kommun och förmedlas via kommunen och ifiske.s
 
 ### Boende
 
-- **Sollefteå Camping**: vid älven nära Hågestaön och det nedre älvfisket.
-- **Hotell och vandrarhem i Sollefteå**: centralt och nära Nipstadsfisket.
-- **Meåforsens övernattningsstugor**: två enkla stugor vid forsen för kortfiskare. Vandrarhem finns i Gideåberg.
-- **Meselefors Camping och vandrarhem**: bas för den som fiskar övre älven.
-- **Åsele Camping**: utgångspunkt för fisket kring Åsele och Vilhelmina.
+<Boende boende={frontmatter.boende} sok={frontmatter.boendeSok} sid={frontmatter.slug} title={frontmatter.title} />
+
+Älven är lång, och avståndet mellan Sollefteå i nedre delen och Åsele i övre är omkring tjugo mil. Välj boende efter vilken sträcka du ska fiska.
 
 ### Kommunikationer
 

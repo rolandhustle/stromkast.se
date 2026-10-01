@@ -25,6 +25,31 @@ intro: >-
   ett naturligt och definitivt vandringshinder som ingen lax passerar. Hit åker fiskaren
   för vildlax och en havsöringsstam i stark återhämtning, men framför allt för
   harrfisket.
+boendeSok: "Piteå"
+boende:
+  - namn: "Pite Havsbad"
+    typ: hotell
+    ort: "Piteå"
+    notering: "Hotell och en av landets största campingplatser vid älvmynningen, cirka en mil söder om Piteå."
+    bookingUrl: "https://www.booking.com/hotel/se/pite-havsbad-piteay.sv.html"
+    url: "https://pitehavsbad.se/"
+  - namn: "Hotell Storforsen"
+    typ: hotell
+    ort: "Bredsel"
+    notering: "Vid Storforsen, bas för fisket i de övre delarna. Hotellrum, stugor och campingplatser."
+    bookingUrl: "https://www.booking.com/hotel/se/hotell-storforsen.sv.html"
+    url: "https://www.storforsen.se/"
+  - namn: "Destination Sikfors"
+    typ: camping
+    ort: "Sikfors"
+    notering: "Camping, stugor och ett mindre hotell vid älven nära kraftverket."
+    url: "https://www.destinationsikfors.se/"
+  - namn: "Selholmens Camping"
+    typ: camping
+    ort: "Älvsbyn"
+    notering: "Camping och stugor vid älven i Älvsbyn."
+    oppet: "Öppet 16/5 till 6/9"
+    url: "https://selholmens.com/"
 ---
 
 ## Fiskekort och regler
@@ -247,11 +272,9 @@ Landfiske är möjligt längs stora delar av den nedre sträckan tack vare bilv�
 
 ### Boende
 
-- **Pite Havsbad:** hotell och en av landets största campingplatser vid mynningen, ca en mil söder om Piteå.
-- **Hotell Storforsen:** vid forsen, bas för fiske i de övre delarna.
-- **Destination Sikfors:** hotell, stugor och camping vid älven nära kraftverket.
-- **Selholmens Camping:** camping i Älvsbyn.
-- **Piteå:** brett utbud av hotell i staden.
+<Boende boende={frontmatter.boende} sok={frontmatter.boendeSok} sid={frontmatter.slug} title={frontmatter.title} />
+
+Piteå har det bredaste utbudet av hotell i området. Storforsen ligger cirka fyra mil norr om Älvsbyn längs väg 374.
 
 ### Kommunikationer
 

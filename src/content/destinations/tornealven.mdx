@@ -16,6 +16,54 @@ recommendedGear: []
 publishedAt: "2025-05-25"
 updatedAt: "2026-06-07"
 kostrad: ["kvicksilver", "dioxin"]
+boendeSok: "Pajala"
+boende:
+  - namn: "Kukkolaforsen Turist & Konferens"
+    typ: stugby
+    ort: "Kukkolaforsen"
+    notering: "Stugor och hotellrum direkt vid forsen, med bastu, restaurang och fiskemuseum."
+    bookingUrl: "https://www.booking.com/hotel/se/kukkolaforsen-turist.sv.html"
+  - namn: "Pajala Camping"
+    typ: camping
+    ort: "Pajala"
+    notering: "Centralt i Pajala vid älven."
+    url: "https://pajalacampingroute99.se/sv/"
+  - namn: "Hotel Lapland"
+    typ: hotell
+    ort: "Pajala"
+    notering: "På Soukolovägen i Pajala. Listas på Booking som Hotel Lapland River."
+    bookingUrl: "https://www.booking.com/hotel/se/lapland-river.sv.html"
+  - namn: "Matkakoski Fiskecamp"
+    typ: fiskecamp
+    ort: "Karungi"
+    notering: "Nedanför forsen, med bastu och enkelt boende."
+  - namn: "Camp Tre Älvar"
+    typ: fiskecamp
+    ort: "Junosuando"
+    notering: "Vid sammanflödet där Tärendöälven grenar av från Torneälven."
+  - namn: "Kengis Bruk"
+    typ: stugby
+    ort: "Kengis"
+    notering: "Historisk anläggning med stugor."
+    url: "https://www.kengisbruk.com/"
+  - namn: "Jarhois stugby"
+    typ: stugby
+    ort: "Jarhois"
+    notering: "Nära Övertorneå."
+  - namn: "Dessans Café & Logi"
+    typ: pensionat
+    ort: "Pello"
+    notering: "Litet pensionat med kafé, mellan Övertorneå och Pajala."
+    bookingUrl: "https://www.booking.com/hotel/se/dessans-cafe-amp-logi.sv.html"
+  - namn: "Heiskari fiskestuga"
+    typ: stuga
+    ort: "Pajala"
+    notering: "Enklare alternativ utanför Pajala."
+  - namn: "Lapland Guesthouse"
+    typ: fiskecamp
+    ort: "Kangos"
+    notering: "Bas för fisket i Lainioälven."
+    url: "https://laplandguesthouse.com/sv/welcome-to-lapland-guesthouse-svenska/"
 intro: >-
   Torneälven är Östersjöns mest produktiva vildlaxälv och ett av de sista stora oreglerade
   älvsystemen i Skandinavien. De 520 kilometerna från fjällmassiven vid Kilpisjärvi ner
@@ -264,14 +312,9 @@ Landfiske fungerar längs hela älven från land och klippor utan båt. Forsar s
 
 ### Boende
 
-- **Kukkolaforsen Turist & Konferens**, stugor, hotellrum, bastu, restaurang och fiskemuseum direkt vid forsen
-- **Pajala Camping**, campingplats centralt i Pajala vid älven
-- **Lapland Hotels Pajala**, hotell i Pajala centrum
-- **Matkakoski Camping**, bastu och enkelt boende vid fiskesträckan
-- **Kengis Bruk**, historisk anläggning med stugor
-- **Jarhois Fiskecamp**, stugby nära Övertorneå
-- **Heiskari fiskestuga**, enklare alternativ utanför Pajala
-- **Lapland Guesthouse, Kangos**, bas för fiske i Lainioälven
+<Boende boende={frontmatter.boende} sok={frontmatter.boendeSok} sid={frontmatter.slug} title={frontmatter.title} />
+
+Älven är drygt 50 mil från Haparanda till Karesuando. Välj boende efter vilken sträcka du ska fiska, och räkna med bil för att nå lokalerna.
 
 ### Kommunikationer
 

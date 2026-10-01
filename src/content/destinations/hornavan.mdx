@@ -27,6 +27,29 @@ intro: >-
   fiske i Hornavan. Sjön omfattas inte av det fria handredskapsfisket, som bara gäller
   Vänern, Vättern, Mälaren, Hjälmaren och Storsjön i Jämtland. Två kortsystem styr fisket
   beroende på var i sjön du befinner dig i förhållande till odlingsgränsen.
+boendeSok: "Arjeplog"
+boende:
+  - namn: "Hornavan Hotell"
+    typ: hotell
+    ort: "Arjeplog"
+    notering: "Mitt i Arjeplog med utsikt över sjön."
+    bookingUrl: "https://www.booking.com/hotel/se/hornavan-hotell.sv.html"
+    url: "https://www.hornavanhotell.se/"
+  - namn: "Hotell Silverhatten"
+    typ: hotell
+    ort: "Arjeplog"
+    notering: "På höjden ovanför samhället. Drivs av Silver Resort tillsammans med Kraja."
+    url: "https://silverresort.se/"
+  - namn: "Kraja"
+    typ: camping
+    ort: "Arjeplog"
+    notering: "Camping, stugor och hotellrum vid Hornavans strand strax utanför Arjeplog."
+    url: "https://silverresort.se/"
+  - namn: "Kyrkans fjällgård Jäkkvik"
+    typ: vandrarhem
+    ort: "Jäkkvik"
+    notering: "Flerbäddsrum, lägenheter, stugor och tältplats i sjöns nordvästra ände."
+    url: "https://kyrkansfjallgardjakkvik.com/"
 ---
 
 ## Fiskekort och regler
@@ -266,7 +289,9 @@ Sjösättningsmöjligheter finns bland annat i Arjeplog, Jäckvik och vid Reback
 
 ### Boende
 
-Kraja i Arjeplog erbjuder hotell, stugor och camping vid sjön. Det finns även stugbyar och fjällstugor i Jäckvik, Adolfström och Slagnäs.
+<Boende boende={frontmatter.boende} sok={frontmatter.boendeSok} sid={frontmatter.slug} title={frontmatter.title} />
+
+Jäckvik Fjällcenter håller bara öppet vintertid. Längre bort finns stugbyar i Adolfström och Slagnäs samt Vuoggatjålme längs Silvervägen, men de ligger vid andra vatten.
 
 ### Kommunikationer
 

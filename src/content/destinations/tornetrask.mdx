@@ -17,6 +17,42 @@ recommendedGear: []
 publishedAt: "2026-06-06"
 updatedAt: "2026-06-06"
 kostrad: ["kvicksilver"]
+boendeSok: "Abisko"
+boende:
+  - namn: "STF Abisko Turiststation"
+    typ: fjallstation
+    ort: "Abisko"
+    notering: "I Abisko nationalpark med utsikt över sjön och Lapporten. Öppen större delen av året."
+    bookingUrl: "https://www.booking.com/hotel/se/stf-abisko.sv.html"
+    url: "https://www.svenskaturistforeningen.se/boende/stf-abisko-turiststation/"
+  - namn: "Abisko Mountain Lodge"
+    typ: hotell
+    ort: "Abisko"
+    notering: "I utkanten av byn, med både rum och stugor."
+    bookingUrl: "https://www.booking.com/hotel/se/abisko-mountain-lodge.sv.html"
+    url: "https://abiskomountainlodge.se/"
+  - namn: "Abisko Hostel"
+    typ: vandrarhem
+    ort: "Abisko"
+    notering: "Mindre vandrarhem med självhushåll."
+    bookingUrl: "https://www.booking.com/hotel/se/abisko-youth-hostel.sv.html"
+    url: "https://accommodationinabisko.com/house/abisko-hostel/"
+  - namn: "Hotel Fjället"
+    typ: hotell
+    ort: "Björkliden"
+    notering: "Drivs av Björkliden Fjällby, med utsikt över Torneträsk."
+    bookingUrl: "https://www.booking.com/hotel/se/hotell-fjallet.sv.html"
+    url: "https://bjorkliden.com/"
+  - namn: "Kåppas Cabin Village"
+    typ: stugby
+    ort: "Björkliden"
+    notering: "Stugor med två sovrum och hotellets service."
+    url: "https://visitabisko.com/accommodations/kappas-cabin-village/"
+  - namn: "Låktatjåkko Fjällstation"
+    typ: fjallstation
+    ort: "Björkliden"
+    notering: "Sveriges högst belägna fjällstation, ovanför Björkliden."
+    url: "https://laktatjakko.se/"
 intro: >-
   Torneträsk är Skandinaviens största fjällsjö och en av Sveriges djupaste, med ett
   maxdjup på 168 meter och en yta runt 330 kvadratkilometer på 341 meters höjd. Sjön
@@ -233,9 +269,9 @@ Södra stranden erbjuder gott om landfiske tack vare E10 och järnvägen. Inlopp
 
 ### Boende
 
-- **STF Abisko Turiststation:** fjällstation i Abisko nationalpark med utsikt över sjön och Lapporten, öppen större delen av året
-- **Björkliden Fjällby:** hotell, stugby och camping i västra delen, med fjällstationen Låktatjåkko högt ovanför
-- **Kiruna:** hotell och vandrarhem cirka tio mil bort
+<Boende boende={frontmatter.boende} sok={frontmatter.boendeSok} sid={frontmatter.slug} title={frontmatter.title} />
+
+Samtliga ligger längs Malmbanan och går att nå med tåg. Kiruna har ett bredare utbud av hotell och vandrarhem, men ligger cirka tio mil bort.
 
 ### Kommunikationer
 

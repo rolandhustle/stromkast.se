@@ -23,6 +23,35 @@ intro: >-
   stark lokal förankring. Älven förvaltas av tretton fiskevårdsområden med delvis olika
   regler och kortpriser, vilket kräver att du sätter dig in i vad som gäller just den
   sträcka du tänker fiska.
+boendeSok: "Klarälven"
+boende:
+  - namn: "Sysslebäcks Stugby och Fiskecamping"
+    typ: camping
+    ort: "Sysslebäck"
+    notering: "Camping, stugor och vandrarhem direkt vid älven. Skyltat från riksväg 62 söder om Sysslebäck."
+    url: "http://vildmarkscenter.com/"
+  - namn: "Wärdshuset Klarälvdalen"
+    typ: pensionat
+    ort: "Sysslebäck"
+    notering: "Familjedrivet bed and breakfast mitt i älvdalen."
+    oppet: "Öppet året runt"
+    bookingUrl: "https://www.booking.com/hotel/se/wardshuset-klaralvdalen-2.sv.html"
+    url: "https://wardshusetklaralvdalen.se/"
+  - namn: "Klarälvsbyn"
+    typ: stugby
+    ort: "Branäs"
+    notering: "Stugor vid Branäs, med samma drift som fiskecampingen i Sysslebäck."
+    url: "http://vildmarkscenter.com/"
+  - namn: "Klarälvens Camping"
+    typ: camping
+    ort: "Stöllet"
+    notering: "Stugor och campingplatser i korsningen E45 och riksväg 62 norr om Stöllet. Drivs av Vildmark i Värmland."
+    bookingUrl: "https://www.booking.com/hotel/se/klara-lvens-camping.sv.html"
+    url: "https://www.vildmark.se/boende/klaralvens-camping/"
+  - namn: "Forshagaforsens Camping"
+    typ: camping
+    ort: "Forshaga"
+    notering: "Mindre fiskecamping intill forsen, två mil norr om Karlstad."
 ---
 
 ## Fiskekort och regler
@@ -279,10 +308,9 @@ Norr om Karlstad är båttrafik begränsad av de forsiga partierna. Klarälvens 
 
 ### Boende
 
-- **Sysslebäcks Stugby och Fiskecamping.** Camping, stugor och vandrarhem direkt vid älven. Skyltat från riksväg 62 söder om Sysslebäck.
-- **Klarälvens Camping.** Nära Stöllet.
-- **Klarälvsbyn.** Nära Branäs (skidort med sommarsäsong).
-- **Forshagaforsen Camping.** Vid fisket i Forshaga.
+<Boende boende={frontmatter.boende} sok={frontmatter.boendeSok} sid={frontmatter.slug} title={frontmatter.title} />
+
+Älvdalen är 20 mil lång. Forshagaforsen ligger längst ner, två mil norr om Karlstad, medan de övre sträckorna kring Stöllet och Sysslebäck är ytterligare två timmars bilväg norrut. Ekshärad och Hagfors mitt i dalen har värdshus och vandrarhem utöver det som står i listan.
 
 ### Kommunikationer
 
