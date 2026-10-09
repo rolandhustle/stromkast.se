@@ -269,6 +269,20 @@ Strukturerad data i stället för brödtext beror på att samma poster ska rende
 ---
 
 
+### Regelguider avslutas med en källista, övriga sidor gör det inte
+
+**Beslut.** Guider vars huvudinnehåll är fiskelagstiftning eller regler avslutas med en kort källista med primärkällor, i första hand lagtext på riksdagen.se. Listan hålls till ett fåtal poster som bär guidens kärnpåståenden. Destinationssidor, artsidor, tekniksidor och produktsidor har ingen källista. Där räcker hänvisningen till HaV och Länsstyrelsen som prompterna redan kräver.
+
+**Skäl.** Infört med `/guider/fiska-utan-fiskekort/` i oktober 2026. En läsare som funderar på att trolla på enskilt vatten riskerar att dömas för olovligt fiske, och ska kunna läsa paragrafen själv i stället för att lita på oss. Källorna gör också guiden möjlig att granska på några minuter när lagen eller föreskrifterna ändras, vilket ger datumet "Senast granskad" ett innehåll.
+
+Något direkt rankingvärde har listan inte. Google har sagt att utgående länkar inte i sig är en rankingfaktor. Skälet är läsarens möjlighet att kontrollera och vår möjlighet att underhålla, inte SEO.
+
+Guiden hade först tolv källor. Den kortades till tre: fiskelagen, lagen om gräns mot allmänt vattenområde och riksdagssvaret om handredskapsfiske från båt. Resten var sekundärt och gjorde listan svårare att använda utan att stödja något nytt.
+
+**Vad som skulle ändra det.** Att en destinationssida eller artsida får ett regelavsnitt så omfattande att det i praktiken är en regelguide. Då gäller samma sak där. Posten gäller även kommande regelinnehåll som fredningshubben.
+
+---
+
 ## Metod
 
 ### Massändringar av innehåll verifieras mot git, aldrig mot egna mönster
