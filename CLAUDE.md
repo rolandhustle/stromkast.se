@@ -726,6 +726,28 @@ mätning måste komma från en mätning.
 
 ---
 
+**Läs hela sammanhanget innan en ändring i befintligt innehåll föreslås.**
+Innan Claude föreslår att text på en befintlig sida ska ändras ska hela stycket och
+avsnittet läsas på varje sida som berörs, inte bara raden som en sökning träffade.
+Därefter prövas formuleringen mot en primärkälla. Bara det som faktiskt är fel,
+inaktuellt eller motsäger en annan sida på sajten ändras. En korrekt formulering som
+Claude själv hade skrivit annorlunda står kvar.
+
+Vid ändringar i flera filer redovisas först varje träff med sitt sammanhang och en
+bedömning, alltså fel, inaktuellt eller korrekt, och skälet. Först därefter skrivs
+skriptet eller filerna, och då bara för de träffar som bedömts som fel eller inaktuella.
+
+**Bakgrund.** I oktober 2026 föreslog Claude att meningen "laxfiske i Östersjön är i
+grunden förbjudet" skulle skrivas om på elva sidor, eftersom HaV beskriver regeln som
+en fångstbegränsning. När sammanhanget och EU-förordningen kontrollerades visade sig
+formuleringen vara juridiskt korrekt: artikel 10 i förordning (EU) 2023/2638 förbjuder
+fritidsfiske efter lax i delområde 22–31 och ger sedan undantaget för en fettfeneklippt
+lax. Det verkliga felet var startåret, 2025 i stället för 2024, på sju ställen. Hade
+det första förslaget körts hade korrekt text skrivits om på elva sidor. Felet i
+startåret kom dessutom från avsnittet om juridiska regler längre ned i den här filen.
+
+---
+
 ## Workflow för att lägga till ny produkt
 
 1. Kör `python3 add-product.py` och fyll i info
@@ -766,7 +788,7 @@ mätning måste komma från en mätning.
 
 - Levande betesfisk är förbjudet i Sverige. Rekommendera det aldrig.
 - Riktat torskfiske i Östersjön är förbjudet sedan 2025.
-- Laxfiske i Östersjön: i grunden förbjudet sedan 2025, en fettfeneklippt lax per fiskare och dag får tas.
+- Laxfiske i Östersjön: i grunden förbjudet sedan 2024 (artikel 10 i EU:s årliga förordning om fiskemöjligheter), med undantag för en fettfeneklippt lax per fiskare och dag. Därefter ska laxfisket avslutas för dagen.
 - Livsmedelsverkets dioxin/PCB-kostråd gäller Östersjön (ICES 24–32). Vatten mot Kattegatt/Skagerrak ligger utanför.
 - Rekord: verifiera alltid mot Sportfiskarnas Storfiskregister (svenskt) och IGFA (världsrekord).
 
