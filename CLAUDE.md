@@ -787,7 +787,7 @@ startåret kom dessutom från avsnittet om juridiska regler längre ned i den h�
 ## Juridiska regler som alltid gäller
 
 - Levande betesfisk är förbjudet i Sverige. Rekommendera det aldrig.
-- Riktat torskfiske i Östersjön är förbjudet sedan 2025.
+- Fritidsfiske efter torsk i Östersjön: förbjudet i delområde 22–26 sedan 2024 och i hela Östersjön (22–32) sedan 2025. Oavsiktlig bifångst vid fiske efter andra arter i delområde 27–32 får behållas.
 - Laxfiske i Östersjön: i grunden förbjudet sedan 2024 (artikel 10 i EU:s årliga förordning om fiskemöjligheter), med undantag för en fettfeneklippt lax per fiskare och dag. Därefter ska laxfisket avslutas för dagen.
 - Livsmedelsverkets dioxin/PCB-kostråd gäller Östersjön (ICES 24–32). Vatten mot Kattegatt/Skagerrak ligger utanför.
 - Rekord: verifiera alltid mot Sportfiskarnas Storfiskregister (svenskt) och IGFA (världsrekord).
